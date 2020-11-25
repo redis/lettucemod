@@ -1,0 +1,126 @@
+= Mesclun
+:project-repo: redis-developer/mesclun
+:uri-repo: https://github.com/{project-repo}
+ifdef::env-github[]
+:badges:
+:tag: master
+:!toc-title:
+:tip-caption: :bulb:
+:note-caption: :paperclip:
+:important-caption: :heavy_exclamation_mark:
+:caution-caption: :fire:
+:warning-caption: :warning:
+endif::[]
+
+// Badges
+ifdef::badges[]
+image:https://img.shields.io/github/license/redis-developer/mesclun.svg["License", link="https://github.com/redis-developer/mesclun"]
+image:https://img.shields.io/github/release/redis-developer/mesclun.svg["Latest", link="https://github.com/redis-developer/mesclun/releases/latest"]
+image:https://github.com/redis-developer/mesclun/workflows/CI/badge.svg["Actions", link="https://github.com/redis-developer/mesclun/workflows/CI/badge.svg"]
+image:https://codecov.io/gh/redis-developer/mesclun/branch/master/graph/badge.svg["Codecov", link="https://codecov.io/gh/redis-developer/mesclun"]
+image:https://img.shields.io/lgtm/grade/java/g/redis-developer/mesclun.svg?logo=lgtm&logoWidth=18["Language grade: Java", link="https://lgtm.com/projects/g/redis-developer/mesclun/context:java"]
+image:https://snyk.io/test/github/redis-developer/mesclun/badge.svg?targetFile=build.gradle["Known Vulnerabilities", link="https://snyk.io/test/github/redis-developer/mesclun?targetFile=build.gradle"]
+
+image:https://img.shields.io/badge/Forum-RedisTimeSeries-blue["Forum", https://forum.redislabs.com/c/modules/redistimeseries/]
+endif::[]
+
+Java clients for https://redislabs.com/community/oss-projects/[Redis modules] based on https://lettuce.io[Lettuce]
+
+Latest release: https://github.com/redis-developer/mesclun/releases/latest
+
+== Getting Started
+
+Add Mesclun to your application dependencies:
+
+.Gradle
+[source,groovy]
+----
+dependencies {
+    implementation 'com.redislabs:mesclun:x.y.x'
+}
+----
+
+.Maven
+[source,xml]
+----
+<dependency>
+    <groupId>com.redislabs</groupId>
+    <artifactId>mesclun</artifactId>
+    <version>x.y.z</version>
+</dependency>
+----
+
+== RedisTimeSeries
+
+=== Basic Usage
+
+[source,java]
+----
+RedisTimeSeriesClient client = RedisTimeSeriesClient.create(RedisURI.create(host, port)); // <1>
+StatefulRedisTimeSeriesConnection<String, String> connection = client.connect(); // <2>
+RedisTimeSeriesCommands<String, String> commands = connection.sync(); // <3>
+commands.create("temperature:3:11", CreateOptions.builder().retentionTime(6000).build(), Label.of("sensor_id", "2"), Label.of("area_id", "32")); <4>
+commands.add("temperature:3:11", 1548149181, 30); <5>
+----
+<1> Create a RedisTimeSeries client
+<2> Connect to RedisTimeSeries server
+<3> Use _sync_, _async_, or _reactive_ commands
+<4> Create a new time-series
+<5> Append a new sample to the series
+
+=== Pipelining
+
+[source,java]
+----
+RedisTimeSeriesClient client = RedisTimeSeriesClient.create(RedisURI.create(host, port)); // <1>
+StatefulRedisTimeSeriesConnection<String, String> connection = client.connect(); // <2>
+RedisTimeSeriesAsyncCommands<String, String> commands = connection.async(); // <3>
+commands.setAutoFlushCommands(false); // <4>
+List<RedisFuture<?>> futures = new ArrayList<>();
+for (Sample sample : samples) { // <5>
+    RedisFuture<?> future = commands.add("temperature:3:11", sample.getTimestamp(), sample.getValue()); // <6>
+    futures.add(future);
+}
+commands.flushCommands(); // <7>
+for (RedisFuture<?> future : futures) {
+    try {
+        future.get(1, TimeUnit.SECONDS); // <8>
+    } catch (InterruptedException e) {
+        log.debug("Command interrupted", e);
+    } catch (ExecutionException e) {
+        log.error("Could not execute command", e);
+    } catch (TimeoutException e) {
+        log.error("Command timed out", e);
+    }
+}
+----
+<1> Create a RedisTimeSeries client
+<2> Connect to RedisTimeSeries server
+<3> Use async commands
+<4> Disable command auto-flush
+<5> Call commands to be executed in a pipeline
+<6> Add command execution future to the list  
+<7> Flush commands
+<8> Wait for response from each future
+
+=== Connection pooling
+
+[source,java]
+----
+RedisTimeSeriesClient client = RedisTimeSeriesClient.create(RedisURI.create(host, port)); // <1>
+GenericObjectPoolConfig<StatefulRedisTimeSeriesConnection<String, String>> config = new GenericObjectPoolConfig<>(); // <2>
+config.setMaxTotal(8);
+GenericObjectPool<StatefulRedisTimeSeriesConnection<String, String>> pool = ConnectionPoolSupport.createGenericObjectPool(client::connect, config); // <3>
+// The connection pool can now be passed to worker threads
+try (StatefulRedisTimeSeriesConnection<String, String> connection = pool.borrowObject()) { // <4>
+    RedisTimeSeriesCommands<String, String> commands = connection.sync(); // <5>
+    commands.add("temperature:3:11", 1548149181, 30); // <6>
+}
+----
+<1> Create a RedisTimeSeries client
+<2> Create a pool configuration
+<3> Create the connection pool
+<4> In worker threads, get connections in a try-with statement to automatically return them to the pool 
+<5> Use _sync_ commands
+<6> Execute commands
+
