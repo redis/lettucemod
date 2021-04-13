@@ -2,8 +2,7 @@ package com.redislabs.mesclun;
 
 import java.time.Duration;
 
-import com.redislabs.mesclun.api.StatefulRedisTimeSeriesConnection;
-import com.redislabs.mesclun.timeseries.impl.StatefulConnectionImpl;
+import com.redislabs.mesclun.impl.StatefulRedisModulesConnectionImpl;
 
 import io.lettuce.core.ClientOptions;
 import io.lettuce.core.RedisChannelWriter;
@@ -23,20 +22,20 @@ import io.lettuce.core.resource.ClientResources;
  * share one connection if they avoid blocking and transactional operations such
  * as BLPOP and MULTI/EXEC.
  * <p>
- * {@link RedisTimeSeriesClient} can be used with:
+ * {@link RedisModulesClient} can be used with:
  * <ul>
  * <li>Redis Standalone</li>
  * </ul>
  *
  * <p>
- * {@link RedisTimeSeriesClient} is an expensive resource. It holds a set of
+ * {@link RedisModulesClient} is an expensive resource. It holds a set of
  * netty's {@link io.netty.channel.EventLoopGroup}'s that use multiple threads.
  * Reuse this instance as much as possible or share a {@link ClientResources}
  * instance amongst multiple client instances.
  *
  * @author Julien Ruaux
  * @see RedisURI
- * @see StatefulRedisTimeSeriesConnection
+ * @see StatefulRedisModulesConnection
  * @see RedisFuture
  * @see reactor.core.publisher.Mono
  * @see reactor.core.publisher.Flux
@@ -45,9 +44,9 @@ import io.lettuce.core.resource.ClientResources;
  * @see ClientResources
  * @see MasterReplica
  */
-public class RedisTimeSeriesClient extends RedisClient {
+public class RedisModulesClient extends RedisClient {
 
-	protected RedisTimeSeriesClient(ClientResources clientResources, RedisURI redisURI) {
+	protected RedisModulesClient(ClientResources clientResources, RedisURI redisURI) {
 		super(clientResources, redisURI);
 	}
 
@@ -56,9 +55,9 @@ public class RedisTimeSeriesClient extends RedisClient {
 	 * servers but you must supply a {@link RedisURI} on connecting. Methods without
 	 * having a {@link RedisURI} will fail with a
 	 * {@link java.lang.IllegalStateException}. Non-private constructor to make
-	 * {@link RedisTimeSeriesClient} proxyable.
+	 * {@link RedisModulesClient} proxyable.
 	 */
-	protected RedisTimeSeriesClient() {
+	protected RedisModulesClient() {
 		super();
 	}
 
@@ -68,10 +67,10 @@ public class RedisTimeSeriesClient extends RedisClient {
 	 * on connecting. Methods without having a {@link RedisURI} will fail with a
 	 * {@link java.lang.IllegalStateException}.
 	 *
-	 * @return a new instance of {@link RedisTimeSeriesClient}
+	 * @return a new instance of {@link RedisModulesClient}
 	 */
-	public static RedisTimeSeriesClient create() {
-		return new RedisTimeSeriesClient();
+	public static RedisModulesClient create() {
+		return new RedisModulesClient();
 	}
 
 	/**
@@ -80,11 +79,11 @@ public class RedisTimeSeriesClient extends RedisClient {
 	 * but you must supply a {@link RedisURI} on connecting.
 	 *
 	 * @param redisURI the Redis URI, must not be {@code null}
-	 * @return a new instance of {@link RedisTimeSeriesClient}
+	 * @return a new instance of {@link RedisModulesClient}
 	 */
-	public static RedisTimeSeriesClient create(RedisURI redisURI) {
+	public static RedisModulesClient create(RedisURI redisURI) {
 		assertNotNull(redisURI);
-		return new RedisTimeSeriesClient(null, redisURI);
+		return new RedisModulesClient(null, redisURI);
 	}
 
 	/**
@@ -93,11 +92,11 @@ public class RedisTimeSeriesClient extends RedisClient {
 	 * must supply a {@link RedisURI} on connecting.
 	 *
 	 * @param uri the Redis URI, must not be {@code null}
-	 * @return a new instance of {@link RedisTimeSeriesClient}
+	 * @return a new instance of {@link RedisModulesClient}
 	 */
-	public static RedisTimeSeriesClient create(String uri) {
+	public static RedisModulesClient create(String uri) {
 		LettuceAssert.notEmpty(uri, "URI must not be empty");
-		return new RedisTimeSeriesClient(null, RedisURI.create(uri));
+		return new RedisModulesClient(null, RedisURI.create(uri));
 	}
 
 	/**
@@ -108,11 +107,11 @@ public class RedisTimeSeriesClient extends RedisClient {
 	 * will fail with a {@link java.lang.IllegalStateException}.
 	 *
 	 * @param clientResources the client resources, must not be {@code null}
-	 * @return a new instance of {@link RedisTimeSeriesClient}
+	 * @return a new instance of {@link RedisModulesClient}
 	 */
-	public static RedisTimeSeriesClient create(ClientResources clientResources) {
+	public static RedisModulesClient create(ClientResources clientResources) {
 		assertNotNull(clientResources);
-		return new RedisTimeSeriesClient(clientResources, new RedisURI());
+		return new RedisModulesClient(clientResources, new RedisURI());
 	}
 
 	/**
@@ -124,9 +123,9 @@ public class RedisTimeSeriesClient extends RedisClient {
 	 * @param clientResources the client resources, must not be {@code null}
 	 * @param uri             the Redis URI, must not be {@code null}
 	 *
-	 * @return a new instance of {@link RedisTimeSeriesClient}
+	 * @return a new instance of {@link RedisModulesClient}
 	 */
-	public static RedisTimeSeriesClient create(ClientResources clientResources, String uri) {
+	public static RedisModulesClient create(ClientResources clientResources, String uri) {
 		assertNotNull(clientResources);
 		LettuceAssert.notEmpty(uri, "URI must not be empty");
 		return create(clientResources, RedisURI.create(uri));
@@ -145,12 +144,12 @@ public class RedisTimeSeriesClient extends RedisClient {
 	 *
 	 * @param clientResources the client resources, must not be {@code null}
 	 * @param redisURI        the Redis URI, must not be {@code null}
-	 * @return a new instance of {@link RedisTimeSeriesClient}
+	 * @return a new instance of {@link RedisModulesClient}
 	 */
-	public static RedisTimeSeriesClient create(ClientResources clientResources, RedisURI redisURI) {
+	public static RedisModulesClient create(ClientResources clientResources, RedisURI redisURI) {
 		assertNotNull(clientResources);
 		assertNotNull(redisURI);
-		return new RedisTimeSeriesClient(clientResources, redisURI);
+		return new RedisModulesClient(clientResources, redisURI);
 	}
 
 	/**
@@ -160,7 +159,7 @@ public class RedisTimeSeriesClient extends RedisClient {
 	 * @return A new stateful Redis connection
 	 */
 	@Override
-	public StatefulRedisTimeSeriesConnection<String, String> connect() {
+	public StatefulRedisModulesConnection<String, String> connect() {
 		return connect(newStringStringCodec());
 	}
 
@@ -175,8 +174,8 @@ public class RedisTimeSeriesClient extends RedisClient {
 	 * @return A new stateful Redis connection
 	 */
 	@Override
-	public <K, V> StatefulRedisTimeSeriesConnection<K, V> connect(RedisCodec<K, V> codec) {
-		return (StatefulRedisTimeSeriesConnection<K, V>) super.connect(codec);
+	public <K, V> StatefulRedisModulesConnection<K, V> connect(RedisCodec<K, V> codec) {
+		return (StatefulRedisModulesConnection<K, V>) super.connect(codec);
 	}
 
 	/**
@@ -187,8 +186,8 @@ public class RedisTimeSeriesClient extends RedisClient {
 	 * @return A new connection
 	 */
 	@Override
-	public StatefulRedisTimeSeriesConnection<String, String> connect(RedisURI redisURI) {
-		return (StatefulRedisTimeSeriesConnection<String, String>) super.connect(redisURI);
+	public StatefulRedisModulesConnection<String, String> connect(RedisURI redisURI) {
+		return (StatefulRedisModulesConnection<String, String>) super.connect(redisURI);
 	}
 
 	/**
@@ -204,8 +203,8 @@ public class RedisTimeSeriesClient extends RedisClient {
 	 * @return A new connection
 	 */
 	@Override
-	public <K, V> StatefulRedisTimeSeriesConnection<K, V> connect(RedisCodec<K, V> codec, RedisURI redisURI) {
-		return (StatefulRedisTimeSeriesConnection<K, V>) super.connect(codec, redisURI);
+	public <K, V> StatefulRedisModulesConnection<K, V> connect(RedisCodec<K, V> codec, RedisURI redisURI) {
+		return (StatefulRedisModulesConnection<K, V>) super.connect(codec, redisURI);
 	}
 
 	private static void assertNotNull(RedisURI redisURI) {
@@ -213,10 +212,10 @@ public class RedisTimeSeriesClient extends RedisClient {
 	}
 
 	/**
-	 * Create a new instance of {@link StatefulConnectionImpl} or a
+	 * Create a new instance of {@link StatefulRedisModulesConnectionImpl} or a
 	 * subclass.
 	 * <p>
-	 * Subclasses of {@link RedisTimeSeriesClient} may override that method.
+	 * Subclasses of {@link RedisModulesClient} may override that method.
 	 *
 	 * @param channelWriter the channel writer
 	 * @param codec         codec
@@ -226,9 +225,9 @@ public class RedisTimeSeriesClient extends RedisClient {
 	 * @return new instance of StatefulRedisTimeSeriesConnectionImpl
 	 */
 	@Override
-	protected <K, V> StatefulConnectionImpl<K, V> newStatefulRedisConnection(RedisChannelWriter channelWriter,
-			PushHandler pushHandler, RedisCodec<K, V> codec, Duration timeout) {
-		return new StatefulConnectionImpl<>(channelWriter, pushHandler, codec, timeout);
+	protected <K, V> StatefulRedisModulesConnectionImpl<K, V> newStatefulRedisConnection(RedisChannelWriter channelWriter,
+																						 PushHandler pushHandler, RedisCodec<K, V> codec, Duration timeout) {
+		return new StatefulRedisModulesConnectionImpl<>(channelWriter, pushHandler, codec, timeout);
 	}
 
 }

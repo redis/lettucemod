@@ -51,4 +51,9 @@ public class CreateOptions implements CompositeArgument {
 		}
 	}
 
+    public enum DuplicatePolicy {
+
+        BLOCK, FIRST, LAST, MIN, MAX, SUM
+
+    }
 }

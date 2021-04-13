@@ -11,7 +11,7 @@ import io.lettuce.core.protocol.ProtocolKeyword;
  */
 public enum CommandType implements ProtocolKeyword {
 
-	ADD, CREATE;
+	ADD, CREATE, CREATERULE, DELETERULE;
 
 	private final static String PREFIX = "TS.";
 
