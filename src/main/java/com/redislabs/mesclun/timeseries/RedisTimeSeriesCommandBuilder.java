@@ -1,10 +1,7 @@
-package com.redislabs.mesclun;
+package com.redislabs.mesclun.timeseries;
 
-import com.redislabs.mesclun.timeseries.CreateOptions;
-import com.redislabs.mesclun.timeseries.Label;
 import com.redislabs.mesclun.timeseries.protocol.CommandKeyword;
 import com.redislabs.mesclun.timeseries.protocol.CommandType;
-
 import io.lettuce.core.codec.RedisCodec;
 import io.lettuce.core.internal.LettuceAssert;
 import io.lettuce.core.output.CommandOutput;
@@ -15,12 +12,11 @@ import io.lettuce.core.protocol.Command;
 import io.lettuce.core.protocol.CommandArgs;
 
 /**
- * Dedicated pub/sub command builder to build pub/sub commands.
+ * Dedicated builder to build RedisTimeSeries commands.
  */
 public class RedisTimeSeriesCommandBuilder<K, V> extends BaseRedisCommandBuilder<K, V> {
 
 	static final String MUST_NOT_BE_NULL = "must not be null";
-	static final String MUST_NOT_BE_EMPTY = "must not be empty";
 
 	public RedisTimeSeriesCommandBuilder(RedisCodec<K, V> codec) {
 		super(codec);
@@ -65,6 +61,26 @@ public class RedisTimeSeriesCommandBuilder<K, V> extends BaseRedisCommandBuilder
 	private CommandArgs<K, V> args(K key) {
 		assertNotNull(key, "key");
 		return new CommandArgs<>(codec).addKey(key);
+	}
+
+	public Command<K, V, String> createRule(K sourceKey, K destKey, Aggregation aggregationType, long timeBucket) {
+		LettuceAssert.notNull(sourceKey, "Source key is required.");
+		LettuceAssert.notNull(destKey, "Destination key is required.");
+		LettuceAssert.notNull(aggregationType, "Aggregation type is required.");
+		CommandArgs<K, V> args = args(sourceKey);
+		args.addKey(destKey);
+		args.add(CommandKeyword.AGGREGATION);
+		args.add(aggregationType.getName());
+		args.add(timeBucket);
+		return createCommand(CommandType.CREATERULE, new StatusOutput<>(codec), args);
+	}
+
+	public Command<K, V, String> deleteRule(K sourceKey, K destKey) {
+		LettuceAssert.notNull(sourceKey, "Source key is required.");
+		LettuceAssert.notNull(destKey, "Destination key is required.");
+		CommandArgs<K, V> args = args(sourceKey);
+		args.addKey(destKey);
+		return createCommand(CommandType.DELETERULE, new StatusOutput<>(codec), args);
 	}
 
 }

@@ -1,8 +1,8 @@
-package com.redislabs.mesclun.timeseries.protocol;
-
-import java.nio.charset.StandardCharsets;
+package com.redislabs.mesclun.gears.protocol;
 
 import io.lettuce.core.protocol.ProtocolKeyword;
+
+import java.nio.charset.StandardCharsets;
 
 /**
  * RedisTimeSeries commands.
@@ -11,9 +11,9 @@ import io.lettuce.core.protocol.ProtocolKeyword;
  */
 public enum CommandType implements ProtocolKeyword {
 
-	ADD, CREATE, CREATERULE, DELETERULE;
+	DUMPREGISTRATIONS, PYEXECUTE;
 
-	private final static String PREFIX = "TS.";
+	private final static String PREFIX = "RG.";
 
 	public final byte[] bytes;
 
