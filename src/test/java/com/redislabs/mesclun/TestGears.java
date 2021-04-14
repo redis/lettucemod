@@ -95,6 +95,7 @@ public class TestGears {
 
     @Test
     public void testDumpRegistrations() {
+        sync.dumpRegistrations().forEach(r -> sync.unregister(r.getId()));
         List<Registration> registrations = sync.dumpRegistrations();
         Assertions.assertEquals(0, registrations.size());
         ExecutionResults results = pyExecute("streamreader.py");
@@ -115,6 +116,7 @@ public class TestGears {
 
     @Test
     public void testDumpMultipleRegistrations() {
+        sync.dumpRegistrations().forEach(r -> sync.unregister(r.getId()));
         String function = "GB('KeysReader').register('*', keyTypes=['hash'])";
         Assertions.assertTrue(sync.pyExecute(function).isOk());
         Assertions.assertTrue(sync.pyExecute(function).isOk());
