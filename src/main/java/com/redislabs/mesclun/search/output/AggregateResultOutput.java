@@ -8,10 +8,10 @@ import java.util.*;
 
 public class AggregateResultOutput<K, V> extends CommandOutput<K, V, Map<K, Object>> {
 
+    private final List<V> array;
     private boolean initialized;
     private K key;
     private int count;
-    private List<V> array;
 
     public AggregateResultOutput(RedisCodec<K, V> codec) {
         super(codec, Collections.emptyMap());

@@ -3,13 +3,13 @@ package com.redislabs.mesclun.gears;
 import com.redislabs.mesclun.gears.output.*;
 import com.redislabs.mesclun.gears.protocol.CommandKeyword;
 import com.redislabs.mesclun.gears.protocol.CommandType;
+import com.redislabs.mesclun.impl.RedisModulesCommandBuilder;
 import io.lettuce.core.codec.RedisCodec;
 import io.lettuce.core.internal.LettuceAssert;
 import io.lettuce.core.output.ArrayOutput;
 import io.lettuce.core.output.CommandOutput;
 import io.lettuce.core.output.StatusOutput;
 import io.lettuce.core.output.ValueListOutput;
-import io.lettuce.core.protocol.BaseRedisCommandBuilder;
 import io.lettuce.core.protocol.Command;
 import io.lettuce.core.protocol.CommandArgs;
 
@@ -23,7 +23,7 @@ import static com.redislabs.mesclun.gears.protocol.CommandKeyword.UNBLOCKING;
  * Dedicated builder to build RedisGears commands.
  */
 @SuppressWarnings("unchecked")
-public class RedisGearsCommandBuilder<K, V> extends BaseRedisCommandBuilder<K, V> {
+public class RedisGearsCommandBuilder<K, V> extends RedisModulesCommandBuilder<K, V> {
 
     public RedisGearsCommandBuilder(RedisCodec<K, V> codec) {
         super(codec);
@@ -42,7 +42,7 @@ public class RedisGearsCommandBuilder<K, V> extends BaseRedisCommandBuilder<K, V
     }
 
     public Command<K, V, String> abortExecution(String id) {
-        LettuceAssert.notNull(id, "An execution ID is required.");
+        notNull(id, "execution ID");
         CommandArgs<K, V> args = args();
         args.add(id);
         return createCommand(CommandType.ABORTEXECUTION, new StatusOutput<>(codec), args);
@@ -58,7 +58,7 @@ public class RedisGearsCommandBuilder<K, V> extends BaseRedisCommandBuilder<K, V
     }
 
     public Command<K, V, List<V>> configSet(Map<K, V> map) {
-        LettuceAssert.notNull(map, "A key/value map is required.");
+        notNull(map, "Map");
         LettuceAssert.isTrue(!map.isEmpty(), "At least one key/value is required.");
         CommandArgs<K, V> args = args();
         args.add(map);
@@ -66,7 +66,7 @@ public class RedisGearsCommandBuilder<K, V> extends BaseRedisCommandBuilder<K, V
     }
 
     public Command<K, V, String> dropExecution(String id) {
-        LettuceAssert.notNull(id, "An execution ID is required.");
+        notNull(id, "Execution ID");
         CommandArgs<K, V> args = args();
         args.add(id);
         return createCommand(CommandType.DROPEXECUTION, new StatusOutput<>(codec), args);
@@ -85,7 +85,7 @@ public class RedisGearsCommandBuilder<K, V> extends BaseRedisCommandBuilder<K, V
     }
 
     public Command<K, V, ExecutionDetails> getExecution(String id, ExecutionMode mode) {
-        LettuceAssert.notNull(id, "An execution ID is required.");
+        notNull(id, "Execution ID");
         CommandArgs<K, V> args = args();
         args.add(id);
         if (mode != null) {
@@ -103,7 +103,7 @@ public class RedisGearsCommandBuilder<K, V> extends BaseRedisCommandBuilder<K, V
     }
 
     private Command<K, V, ExecutionResults> getResults(String id, boolean blocking) {
-        LettuceAssert.notNull(id, "An execution ID is required.");
+        notNull(id, "Execution ID");
         CommandArgs<K, V> args = args();
         args.add(id);
         return createCommand(blocking ? CommandType.GETRESULTSBLOCKING : CommandType.GETRESULTS, new ExecutionResultsOutput<>(codec), args);
@@ -120,8 +120,8 @@ public class RedisGearsCommandBuilder<K, V> extends BaseRedisCommandBuilder<K, V
     }
 
     private CommandArgs<K, V> pyExecuteArgs(String function, boolean unblocking, V... requirements) {
-        LettuceAssert.notNull(function, "A function is required.");
-        LettuceAssert.notNull(requirements, "Requirements must not be null.");
+        notNull(function, "Function");
+        notNull(requirements, "Requirements");
         CommandArgs<K, V> args = args();
         args.add(function);
         if (unblocking) {
@@ -135,7 +135,7 @@ public class RedisGearsCommandBuilder<K, V> extends BaseRedisCommandBuilder<K, V
     }
 
     public Command<K, V, List<Object>> trigger(String trigger, V... args) {
-        LettuceAssert.notNull(trigger, "A trigger name is required.");
+        notNull(trigger, "Trigger name");
         CommandArgs<K, V> commandArgs = args();
         commandArgs.add(trigger);
         commandArgs.addValues(args);
@@ -143,7 +143,7 @@ public class RedisGearsCommandBuilder<K, V> extends BaseRedisCommandBuilder<K, V
     }
 
     public Command<K, V, String> unregister(String id) {
-        LettuceAssert.notNull(id, "A registration ID is required.");
+        notNull(id, "Registration ID");
         CommandArgs<K, V> args = args();
         args.add(id);
         return createCommand(CommandType.UNREGISTER, new StatusOutput<>(codec), args);

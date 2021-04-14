@@ -2,8 +2,6 @@ package com.redislabs.mesclun.gears;
 
 import lombok.Data;
 
-import java.util.Map;
-
 @Data
 public class Execution {
 
