@@ -5,7 +5,7 @@ ifdef::badges[]
 image:https://img.shields.io/badge/Forum-RedisTimeSeries-blue[link=https://forum.redislabs.com/c/modules/redistimeseries/]
 endif::[]
 
-Java clients for https://redislabs.com/community/oss-projects/[Redis modules] based on https://lettuce.io[Lettuce]
+Java client for https://redislabs.com/community/oss-projects/[Redis modules] based on https://lettuce.io[Lettuce]
 
 Latest release: https://github.com/redis-developer/mesclun/releases/latest
 
