@@ -14,7 +14,6 @@ image:https://img.shields.io/badge/Forum-RediSearch-blue["Forum", link=https://f
 image:https://img.shields.io/discord/697882427875393627?style=flat-square["Discord", link="https://discord.gg/xTbqgTB"]
 endif::[]
 
-
 Java client for https://redislabs.com/community/oss-projects/[Redis modules] based on https://lettuce.io[Lettuce]
 
 Latest release: https://github.com/redis-developer/mesclun/releases/latest
