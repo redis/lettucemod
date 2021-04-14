@@ -114,6 +114,15 @@ public class TestGears {
     }
 
     @Test
+    public void testDumpMultipleRegistrations() {
+        String function = "GB('KeysReader').register('*', keyTypes=['hash'])";
+        Assertions.assertTrue(sync.pyExecute(function).isOk());
+        Assertions.assertTrue(sync.pyExecute(function).isOk());
+        List<Registration> registrations = sync.dumpRegistrations();
+        Assertions.assertEquals(2, registrations.size());
+    }
+
+    @Test
     public void testGetResults() {
         sync.set("foo", "bar");
         ExecutionResults results = sync.pyExecute("GB().foreach(lambda x: log('test')).register()");
