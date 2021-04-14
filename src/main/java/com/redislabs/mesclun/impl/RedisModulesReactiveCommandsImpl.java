@@ -4,6 +4,7 @@ import com.redislabs.mesclun.StatefulRedisModulesConnection;
 import com.redislabs.mesclun.RedisModulesReactiveCommands;
 import com.redislabs.mesclun.gears.*;
 import com.redislabs.mesclun.gears.output.ExecutionResults;
+import com.redislabs.mesclun.search.*;
 import com.redislabs.mesclun.timeseries.Aggregation;
 import com.redislabs.mesclun.timeseries.CreateOptions;
 import com.redislabs.mesclun.timeseries.Label;
@@ -21,12 +22,14 @@ public class RedisModulesReactiveCommandsImpl<K, V> extends RedisReactiveCommand
     private final StatefulRedisModulesConnection<K, V> connection;
     private final RedisTimeSeriesCommandBuilder<K, V> timeSeriesCommandBuilder;
     private final RedisGearsCommandBuilder<K, V> gearsCommandBuilder;
+    private final RediSearchCommandBuilder<K,V> searchCommandBuilder;
 
     public RedisModulesReactiveCommandsImpl(StatefulRedisModulesConnection<K, V> connection, RedisCodec<K, V> codec) {
         super(connection, codec);
         this.connection = connection;
         this.gearsCommandBuilder = new RedisGearsCommandBuilder<>(codec);
         this.timeSeriesCommandBuilder = new RedisTimeSeriesCommandBuilder<>(codec);
+        this.searchCommandBuilder = new RediSearchCommandBuilder<>(codec);
     }
 
     @Override
@@ -136,6 +139,132 @@ public class RedisModulesReactiveCommandsImpl<K, V> extends RedisReactiveCommand
     @Override
     public Mono<String> deleteRule(K sourceKey, K destKey) {
         return createMono(() -> timeSeriesCommandBuilder.deleteRule(sourceKey, destKey));
+    }
+
+
+    @Override
+    public Mono<String> create(K index, Field<K>... fields) {
+        return create(index, null, fields);
+    }
+
+    @Override
+    public Mono<String> create(K index, com.redislabs.mesclun.search.CreateOptions<K, V> options, Field<K>... fields) {
+        return createMono(() -> searchCommandBuilder.create(index, options, fields));
+    }
+
+    @Override
+    public Mono<String> dropIndex(K index) {
+        return dropIndex(index, false);
+    }
+
+    @Override
+    public Mono<String> dropIndex(K index, boolean deleteDocs) {
+        return createMono(() -> searchCommandBuilder.dropIndex(index, deleteDocs));
+    }
+
+    @Override
+    public Flux<Object> ftInfo(K index) {
+        return createDissolvingFlux(() -> searchCommandBuilder.info(index));
+    }
+
+    @Override
+    public Mono<SearchResults<K, V>> search(K index, V query) {
+        return createMono(() -> searchCommandBuilder.search(index, query, null));
+    }
+
+    @Override
+    public Mono<SearchResults<K, V>> search(K index, V query, SearchOptions<K> options) {
+        return createMono(() -> searchCommandBuilder.search(index, query, options));
+    }
+
+    @Override
+    public Mono<AggregateResults<K>> aggregate(K index, V query) {
+        return createMono(() -> searchCommandBuilder.aggregate(index, query, null));
+    }
+
+    @Override
+    public Mono<AggregateResults<K>> aggregate(K index, V query, AggregateOptions options) {
+        return createMono(() -> searchCommandBuilder.aggregate(index, query, options));
+    }
+
+    @Override
+    public Mono<AggregateWithCursorResults<K>> aggregate(K index, V query, Cursor cursor) {
+        return createMono(() -> searchCommandBuilder.aggregate(index, query, cursor, null));
+    }
+
+    @Override
+    public Mono<AggregateWithCursorResults<K>> aggregate(K index, V query, Cursor cursor, AggregateOptions options) {
+        return createMono(() -> searchCommandBuilder.aggregate(index, query, cursor, options));
+    }
+
+    @Override
+    public Mono<AggregateWithCursorResults<K>> cursorRead(K index, long cursor) {
+        return createMono(() -> searchCommandBuilder.cursorRead(index, cursor, null));
+    }
+
+    @Override
+    public Mono<AggregateWithCursorResults<K>> cursorRead(K index, long cursor, long count) {
+        return createMono(() -> searchCommandBuilder.cursorRead(index, cursor, count));
+    }
+
+    @Override
+    public Mono<String> cursorDelete(K index, long cursor) {
+        return createMono(() -> searchCommandBuilder.cursorDelete(index, cursor));
+    }
+
+    @Override
+    public Mono<Long> sugadd(K key, Suggestion<V> suggestion) {
+        return createMono(() -> searchCommandBuilder.sugadd(key, suggestion));
+    }
+
+    @Override
+    public Mono<Long> sugadd(K key, Suggestion<V> suggestion, boolean increment) {
+        return createMono(() -> searchCommandBuilder.sugadd(key, suggestion, increment));
+    }
+
+    @Override
+    public Flux<Suggestion<V>> sugget(K key, V prefix) {
+        return createDissolvingFlux(() -> searchCommandBuilder.sugget(key, prefix));
+    }
+
+    @Override
+    public Flux<Suggestion<V>> sugget(K key, V prefix, SuggetOptions options) {
+        return createDissolvingFlux(() -> searchCommandBuilder.sugget(key, prefix, options));
+    }
+
+    @Override
+    public Mono<Boolean> sugdel(K key, V string) {
+        return createMono(() -> searchCommandBuilder.sugdel(key, string));
+    }
+
+    @Override
+    public Mono<Long> suglen(K key) {
+        return createMono(() -> searchCommandBuilder.suglen(key));
+    }
+
+    @Override
+    public Mono<String> alter(K index, Field<K> field) {
+        return createMono(() -> searchCommandBuilder.alter(index, field));
+    }
+
+    @Override
+    public Mono<String> aliasAdd(K name, K index) {
+        return createMono(() -> searchCommandBuilder.aliasAdd(name, index));
+    }
+
+    @Override
+    public Mono<String> aliasUpdate(K name, K index) {
+        return createMono(() -> searchCommandBuilder.aliasUpdate(name, index));
+    }
+
+    @Override
+    public Mono<String> aliasDel(K name) {
+        return createMono(() -> searchCommandBuilder.aliasDel(name));
+    }
+
+    @Override
+    public Flux<K> list() {
+        return createDissolvingFlux(searchCommandBuilder::list);
     }
 
 }

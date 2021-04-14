@@ -18,6 +18,7 @@ import org.testcontainers.utility.DockerImageName;
 import java.util.List;
 import java.util.Map;
 
+@SuppressWarnings("SameParameterValue")
 @Testcontainers
 public class TestGears {
 
@@ -102,7 +103,7 @@ public class TestGears {
         Assertions.assertEquals(1, registrations.size());
         Registration registration = registrations.get(0);
         Assertions.assertEquals("StreamReader", registration.getReader());
-        Assertions.assertNull(registration.getDescription());
+        Assertions.assertEquals("MyStreamReader", registration.getDescription());
         Assertions.assertEquals("async", registration.getData().getMode());
         Map<String, Object> args = registration.getData().getArgs();
         Assertions.assertEquals(3, args.size());

@@ -4,6 +4,7 @@ import com.redislabs.mesclun.StatefulRedisModulesConnection;
 import com.redislabs.mesclun.RedisModulesAsyncCommands;
 import com.redislabs.mesclun.gears.*;
 import com.redislabs.mesclun.gears.output.ExecutionResults;
+import com.redislabs.mesclun.search.*;
 import com.redislabs.mesclun.timeseries.Aggregation;
 import com.redislabs.mesclun.timeseries.CreateOptions;
 import com.redislabs.mesclun.timeseries.Label;
@@ -21,12 +22,14 @@ public class RedisModulesAsyncCommandsImpl<K, V> extends RedisAsyncCommandsImpl<
     private final StatefulRedisModulesConnection<K, V> connection;
     private final RedisGearsCommandBuilder<K, V> gearsCommandBuilder;
     private final RedisTimeSeriesCommandBuilder<K, V> timeSeriesCommandBuilder;
+    private final RediSearchCommandBuilder<K,V> searchCommandBuilder;
 
     public RedisModulesAsyncCommandsImpl(StatefulRedisModulesConnection<K, V> connection, RedisCodec<K, V> codec) {
         super(connection, codec);
         this.connection = connection;
         this.gearsCommandBuilder = new RedisGearsCommandBuilder<>(codec);
         this.timeSeriesCommandBuilder = new RedisTimeSeriesCommandBuilder<>(codec);
+        this.searchCommandBuilder = new RediSearchCommandBuilder<>(codec);
     }
 
     @Override
@@ -136,5 +139,131 @@ public class RedisModulesAsyncCommandsImpl<K, V> extends RedisAsyncCommandsImpl<
     @Override
     public RedisFuture<String> deleteRule(K sourceKey, K destKey) {
         return dispatch(timeSeriesCommandBuilder.deleteRule(sourceKey, destKey));
+    }
+
+
+    @Override
+    public RedisFuture<String> create(K index, Field<K>... fields) {
+        return create(index, null, fields);
+    }
+
+    @Override
+    public RedisFuture<String> create(K index, com.redislabs.mesclun.search.CreateOptions<K, V> options, Field<K>... fields) {
+        return dispatch(searchCommandBuilder.create(index, options, fields));
+    }
+
+    @Override
+    public RedisFuture<String> dropIndex(K index) {
+        return dropIndex(index, false);
+    }
+
+    @Override
+    public RedisFuture<String> dropIndex(K index, boolean deleteDocs) {
+        return dispatch(searchCommandBuilder.dropIndex(index, deleteDocs));
+    }
+
+    @Override
+    public RedisFuture<List<Object>> ftInfo(K index) {
+        return dispatch(searchCommandBuilder.info(index));
+    }
+
+    @Override
+    public RedisFuture<SearchResults<K, V>> search(K index, V query) {
+        return dispatch(searchCommandBuilder.search(index, query, null));
+    }
+
+    @Override
+    public RedisFuture<SearchResults<K, V>> search(K index, V query, SearchOptions<K> options) {
+        return dispatch(searchCommandBuilder.search(index, query, options));
+    }
+
+    @Override
+    public RedisFuture<AggregateResults<K>> aggregate(K index, V query) {
+        return dispatch(searchCommandBuilder.aggregate(index, query, null));
+    }
+
+    @Override
+    public RedisFuture<AggregateResults<K>> aggregate(K index, V query, AggregateOptions options) {
+        return dispatch(searchCommandBuilder.aggregate(index, query, options));
+    }
+
+    @Override
+    public RedisFuture<AggregateWithCursorResults<K>> aggregate(K index, V query, Cursor cursor) {
+        return dispatch(searchCommandBuilder.aggregate(index, query, cursor, null));
+    }
+
+    @Override
+    public RedisFuture<AggregateWithCursorResults<K>> aggregate(K index, V query, Cursor cursor, AggregateOptions options) {
+        return dispatch(searchCommandBuilder.aggregate(index, query, cursor, options));
+    }
+
+    @Override
+    public RedisFuture<AggregateWithCursorResults<K>> cursorRead(K index, long cursor) {
+        return dispatch(searchCommandBuilder.cursorRead(index, cursor, null));
+    }
+
+    @Override
+    public RedisFuture<AggregateWithCursorResults<K>> cursorRead(K index, long cursor, long count) {
+        return dispatch(searchCommandBuilder.cursorRead(index, cursor, count));
+    }
+
+    @Override
+    public RedisFuture<String> cursorDelete(K index, long cursor) {
+        return dispatch(searchCommandBuilder.cursorDelete(index, cursor));
+    }
+
+    @Override
+    public RedisFuture<Long> sugadd(K key, Suggestion<V> suggestion) {
+        return dispatch(searchCommandBuilder.sugadd(key, suggestion));
+    }
+
+    @Override
+    public RedisFuture<Long> sugadd(K key, Suggestion<V> suggestion, boolean increment) {
+        return dispatch(searchCommandBuilder.sugadd(key, suggestion, increment));
+    }
+
+    @Override
+    public RedisFuture<List<Suggestion<V>>> sugget(K key, V prefix) {
+        return dispatch(searchCommandBuilder.sugget(key, prefix));
+    }
+
+    @Override
+    public RedisFuture<List<Suggestion<V>>> sugget(K key, V prefix, SuggetOptions options) {
+        return dispatch(searchCommandBuilder.sugget(key, prefix, options));
+    }
+
+    @Override
+    public RedisFuture<Boolean> sugdel(K key, V string) {
+        return dispatch(searchCommandBuilder.sugdel(key, string));
+    }
+
+    @Override
+    public RedisFuture<Long> suglen(K key) {
+        return dispatch(searchCommandBuilder.suglen(key));
+    }
+
+    @Override
+    public RedisFuture<String> alter(K index, Field<K> field) {
+        return dispatch(searchCommandBuilder.alter(index, field));
+    }
+
+    @Override
+    public RedisFuture<String> aliasAdd(K name, K index) {
+        return dispatch(searchCommandBuilder.aliasAdd(name, index));
+    }
+
+    @Override
+    public RedisFuture<String> aliasDel(K name) {
+        return dispatch(searchCommandBuilder.aliasDel(name));
+    }
+
+    @Override
+    public RedisFuture<String> aliasUpdate(K name, K index) {
+        return dispatch(searchCommandBuilder.aliasUpdate(name, index));
+    }
+
+    @Override
+    public RedisFuture<List<K>> list() {
+        return dispatch(searchCommandBuilder.list());
     }
 }
