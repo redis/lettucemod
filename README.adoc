@@ -13,14 +13,6 @@ Latest release: https://github.com/redis-developer/mesclun/releases/latest
 
 Add Mesclun to your application dependencies:
 
-.Gradle
-[source,groovy]
-----
-dependencies {
-    implementation 'com.redislabs:mesclun:x.y.x'
-}
-----
-
 .Maven
 [source,xml]
 ----
@@ -29,6 +21,14 @@ dependencies {
     <artifactId>mesclun</artifactId>
     <version>x.y.z</version>
 </dependency>
+----
+
+.Gradle
+[source,groovy]
+----
+dependencies {
+    implementation 'com.redislabs:mesclun:x.y.x'
+}
 ----
 
 == Usage
