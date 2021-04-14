@@ -12,6 +12,7 @@ Latest release: https://github.com/redis-developer/mesclun/releases/latest
 == Modules
 
 Mesclun supports the following modules:
+
 * https://oss.redislabs.com/redisearch/[RediSearch]
 * https://oss.redislabs.com/redisgears/[RedisGears]
 * https://oss.redislabs.com/redistimeseries/[RedisTimeSeries]
