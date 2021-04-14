@@ -13,7 +13,7 @@ Latest release: https://github.com/redis-developer/mesclun/releases/latest
 
 Add Mesclun to your application dependencies:
 
-.Maven
+=== Maven
 [source,xml]
 ----
 <dependency>
@@ -23,7 +23,7 @@ Add Mesclun to your application dependencies:
 </dependency>
 ----
 
-.Gradle
+=== Gradle
 [source,groovy]
 ----
 dependencies {
