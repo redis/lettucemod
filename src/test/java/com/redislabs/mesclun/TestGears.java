@@ -113,6 +113,14 @@ public class TestGears {
     }
 
     @Test
+    public void testGetResults() {
+        sync.set("foo", "bar");
+        ExecutionResults results = sync.pyExecute("GB().foreach(lambda x: log('test')).register()");
+        Assertions.assertTrue(results.isOk());
+        Assertions.assertFalse(results.isError());
+    }
+
+    @Test
     public void testDumpExecutions() throws InterruptedException {
         List<Execution> executions = sync.dumpExecutions();
         executions.forEach(e -> sync.dropExecution(e.getId()));

@@ -4,12 +4,15 @@ import io.lettuce.core.codec.RedisCodec;
 import io.lettuce.core.output.CommandOutput;
 
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class ExecutionResultsOutput<K, V> extends CommandOutput<K, V, ExecutionResults> {
+
+    private static final ByteBuffer OK = StandardCharsets.US_ASCII.encode("OK");
 
     private List current;
     private boolean initialized;
@@ -26,9 +29,13 @@ public class ExecutionResultsOutput<K, V> extends CommandOutput<K, V, ExecutionR
             return;
         }
 
-        // execution does not exist or is still running => error returned
+        // function has no output => OK, execution does not exist/is still running => error
         if (current == null) {
-            output.setErrors(Collections.singletonList(decodeAscii(bytes)));
+            if (OK.equals(bytes)) {
+                output.setOk(true);
+            } else {
+                output.setErrors(Collections.singletonList(decodeAscii(bytes)));
+            }
             return;
         }
 
