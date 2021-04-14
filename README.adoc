@@ -1,16 +1,4 @@
 = Mesclun
-:project-repo: redis-developer/mesclun
-:uri-repo: https://github.com/{project-repo}
-ifdef::env-github[]
-:badges:
-:tag: master
-:!toc-title:
-:tip-caption: :bulb:
-:note-caption: :paperclip:
-:important-caption: :heavy_exclamation_mark:
-:caution-caption: :fire:
-:warning-caption: :warning:
-endif::[]
 
 // Badges
 ifdef::badges[]
@@ -43,77 +31,26 @@ dependencies {
 </dependency>
 ----
 
-== RedisTimeSeries
-
-=== Basic Usage
+== Usage
 
 [source,java]
 ----
-RedisTimeSeriesClient client = RedisTimeSeriesClient.create(RedisURI.create(host, port)); // <1>
-StatefulRedisTimeSeriesConnection<String, String> connection = client.connect(); // <2>
-RedisTimeSeriesCommands<String, String> commands = connection.sync(); // <3>
-commands.create("temperature:3:11", CreateOptions.builder().retentionTime(6000).build(), Label.of("sensor_id", "2"), Label.of("area_id", "32")); <4>
-commands.add("temperature:3:11", 1548149181, 30); <5>
-----
-<1> Create a RedisTimeSeries client
-<2> Connect to RedisTimeSeries server
-<3> Use _sync_, _async_, or _reactive_ commands
-<4> Create a new time-series
-<5> Append a new sample to the series
+RedisModulesClient client = RedisModulesClient.create("redis://host:6379"); // <1>
+StatefulRedisModulesConnection<String, String> connection = client.connect(); // <2>
 
-=== Pipelining
+// RedisGears
+RedisGearsCommands<String, String> gears = connection.sync(); // <3>
+gears.pyExecute("GearsBuilder().run('person:*')"); // <4>
 
-[source,java]
+// RedisTimeSeries
+RedisTimeSeriesCommands<String, String> ts = connection.sync(); // <5>
+ts.add("temp:3:11", 1548149181, 30); // <6>
 ----
-RedisTimeSeriesClient client = RedisTimeSeriesClient.create(RedisURI.create(host, port)); // <1>
-StatefulRedisTimeSeriesConnection<String, String> connection = client.connect(); // <2>
-RedisTimeSeriesAsyncCommands<String, String> commands = connection.async(); // <3>
-commands.setAutoFlushCommands(false); // <4>
-List<RedisFuture<?>> futures = new ArrayList<>();
-for (Sample sample : samples) { // <5>
-    RedisFuture<?> future = commands.add("temperature:3:11", sample.getTimestamp(), sample.getValue()); // <6>
-    futures.add(future);
-}
-commands.flushCommands(); // <7>
-for (RedisFuture<?> future : futures) {
-    try {
-        future.get(1, TimeUnit.SECONDS); // <8>
-    } catch (InterruptedException e) {
-        log.debug("Command interrupted", e);
-    } catch (ExecutionException e) {
-        log.error("Could not execute command", e);
-    } catch (TimeoutException e) {
-        log.error("Command timed out", e);
-    }
-}
-----
-<1> Create a RedisTimeSeries client
-<2> Connect to RedisTimeSeries server
-<3> Use async commands
-<4> Disable command auto-flush
-<5> Call commands to be executed in a pipeline
-<6> Add command execution future to the list  
-<7> Flush commands
-<8> Wait for response from each future
+<1> Create a modules client
+<2> Connect to Redis server
+<3> Use sync, async, or reactive https://oss.redislabs.com/redisgears/[RedisGears] commands
+<4> Execute a RedisGears Python function
+<5> Use sync, async, or reactive https://oss.redislabs.com/redistimeseries/[RedisTimeSeries] commands
+<6> Append a new sample to the series
 
-=== Connection pooling
-
-[source,java]
-----
-RedisTimeSeriesClient client = RedisTimeSeriesClient.create(RedisURI.create(host, port)); // <1>
-GenericObjectPoolConfig<StatefulRedisTimeSeriesConnection<String, String>> config = new GenericObjectPoolConfig<>(); // <2>
-config.setMaxTotal(8);
-GenericObjectPool<StatefulRedisTimeSeriesConnection<String, String>> pool = ConnectionPoolSupport.createGenericObjectPool(client::connect, config); // <3>
-// The connection pool can now be passed to worker threads
-try (StatefulRedisTimeSeriesConnection<String, String> connection = pool.borrowObject()) { // <4>
-    RedisTimeSeriesCommands<String, String> commands = connection.sync(); // <5>
-    commands.add("temperature:3:11", 1548149181, 30); // <6>
-}
-----
-<1> Create a RedisTimeSeries client
-<2> Create a pool configuration
-<3> Create the connection pool
-<4> In worker threads, get connections in a try-with statement to automatically return them to the pool 
-<5> Use _sync_ commands
-<6> Execute commands
 
