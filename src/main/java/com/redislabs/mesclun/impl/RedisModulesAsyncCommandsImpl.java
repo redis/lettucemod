@@ -22,7 +22,7 @@ public class RedisModulesAsyncCommandsImpl<K, V> extends RedisAsyncCommandsImpl<
     private final StatefulRedisModulesConnection<K, V> connection;
     private final RedisGearsCommandBuilder<K, V> gearsCommandBuilder;
     private final RedisTimeSeriesCommandBuilder<K, V> timeSeriesCommandBuilder;
-    private final RediSearchCommandBuilder<K,V> searchCommandBuilder;
+    private final RediSearchCommandBuilder<K, V> searchCommandBuilder;
 
     public RedisModulesAsyncCommandsImpl(StatefulRedisModulesConnection<K, V> connection, RedisCodec<K, V> codec) {
         super(connection, codec);
@@ -143,12 +143,12 @@ public class RedisModulesAsyncCommandsImpl<K, V> extends RedisAsyncCommandsImpl<
 
 
     @Override
-    public RedisFuture<String> create(K index, Field<K>... fields) {
+    public RedisFuture<String> create(K index, Field<K,V>... fields) {
         return create(index, null, fields);
     }
 
     @Override
-    public RedisFuture<String> create(K index, com.redislabs.mesclun.search.CreateOptions<K, V> options, Field<K>... fields) {
+    public RedisFuture<String> create(K index, com.redislabs.mesclun.search.CreateOptions<K, V> options, Field<K,V>... fields) {
         return dispatch(searchCommandBuilder.create(index, options, fields));
     }
 
@@ -173,7 +173,7 @@ public class RedisModulesAsyncCommandsImpl<K, V> extends RedisAsyncCommandsImpl<
     }
 
     @Override
-    public RedisFuture<SearchResults<K, V>> search(K index, V query, SearchOptions<K> options) {
+    public RedisFuture<SearchResults<K, V>> search(K index, V query, SearchOptions<K, V> options) {
         return dispatch(searchCommandBuilder.search(index, query, options));
     }
 
@@ -183,7 +183,7 @@ public class RedisModulesAsyncCommandsImpl<K, V> extends RedisAsyncCommandsImpl<
     }
 
     @Override
-    public RedisFuture<AggregateResults<K>> aggregate(K index, V query, AggregateOptions options) {
+    public RedisFuture<AggregateResults<K>> aggregate(K index, V query, AggregateOptions<K, V> options) {
         return dispatch(searchCommandBuilder.aggregate(index, query, options));
     }
 
@@ -193,7 +193,7 @@ public class RedisModulesAsyncCommandsImpl<K, V> extends RedisAsyncCommandsImpl<
     }
 
     @Override
-    public RedisFuture<AggregateWithCursorResults<K>> aggregate(K index, V query, Cursor cursor, AggregateOptions options) {
+    public RedisFuture<AggregateWithCursorResults<K>> aggregate(K index, V query, Cursor cursor, AggregateOptions<K, V> options) {
         return dispatch(searchCommandBuilder.aggregate(index, query, cursor, options));
     }
 
@@ -213,13 +213,13 @@ public class RedisModulesAsyncCommandsImpl<K, V> extends RedisAsyncCommandsImpl<
     }
 
     @Override
-    public RedisFuture<Long> sugadd(K key, Suggestion<V> suggestion) {
-        return dispatch(searchCommandBuilder.sugadd(key, suggestion));
+    public RedisFuture<Long> sugadd(K key, V string, double score) {
+        return dispatch(searchCommandBuilder.sugadd(key, string, score));
     }
 
     @Override
-    public RedisFuture<Long> sugadd(K key, Suggestion<V> suggestion, boolean increment) {
-        return dispatch(searchCommandBuilder.sugadd(key, suggestion, increment));
+    public RedisFuture<Long> sugadd(K key, V string, double score, SugaddOptions<K, V> options) {
+        return dispatch(searchCommandBuilder.sugadd(key, string, score, options));
     }
 
     @Override
@@ -243,7 +243,7 @@ public class RedisModulesAsyncCommandsImpl<K, V> extends RedisAsyncCommandsImpl<
     }
 
     @Override
-    public RedisFuture<String> alter(K index, Field<K> field) {
+    public RedisFuture<String> alter(K index, Field<K,V> field) {
         return dispatch(searchCommandBuilder.alter(index, field));
     }
 

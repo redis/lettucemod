@@ -11,7 +11,7 @@ import static com.redislabs.mesclun.search.protocol.CommandKeyword.*;
 
 @Data
 @Builder
-public class CreateOptions<K, V> implements RediSearchArgument {
+public class CreateOptions<K, V> implements RediSearchArgument<K, V> {
 
     public enum Structure {
         HASH
@@ -38,9 +38,8 @@ public class CreateOptions<K, V> implements RediSearchArgument {
      */
     private List<V> stopWords;
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
-    public void build(RediSearchCommandArgs args) {
+    public void build(RediSearchCommandArgs<K, V> args) {
         if (on != null) {
             args.add(ON);
             args.add(on.name());

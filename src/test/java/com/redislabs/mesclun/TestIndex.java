@@ -41,7 +41,7 @@ public class TestIndex extends AbstractSearchTest {
         // allow some time for the index to be deleted
         Thread.sleep(100);
         try {
-            SearchResults<String, String> results = sync.search(INDEX, "*");
+            sync.search(INDEX, "*");
             fail("Index not dropped");
         } catch (RedisCommandExecutionException e) {
             // ignored, expected behavior
@@ -69,9 +69,9 @@ public class TestIndex extends AbstractSearchTest {
     @Test
     public void testCreateOptions() {
         CreateOptions<String, String> options = CreateOptions.<String, String>builder().prefix("release:").payloadField("xml").build();
-        Field<String>[] fields = new Field[]{Field.text("artist").sortable(true).build(), Field.tag("id").sortable(true).build(), Field.text("title").sortable(true).build()};
+        Field<String, String>[] fields = new Field[]{Field.text("artist").sortable(true).build(), Field.tag("id").sortable(true).build(), Field.text("title").sortable(true).build()};
         sync.create("releases", options, fields);
-        IndexInfo<String> info = RediSearchUtils.getInfo(sync.ftInfo("releases"));
+        IndexInfo<String, String> info = RediSearchUtils.getInfo(sync.ftInfo("releases"));
         Assertions.assertEquals(fields.length, info.getFields().size());
 
     }
@@ -103,7 +103,7 @@ public class TestIndex extends AbstractSearchTest {
         LettuceFutures.awaitAll(RedisURI.DEFAULT_TIMEOUT_DURATION, futures.toArray(new RedisFuture[0]));
         Thread.sleep(1000);
         async.setAutoFlushCommands(true);
-        IndexInfo<String> info = RediSearchUtils.getInfo(sync.ftInfo(indexName));
+        IndexInfo<String, String> info = RediSearchUtils.getInfo(sync.ftInfo(indexName));
         Double numDocs = info.getNumDocs();
         assertEquals(2348, numDocs);
     }

@@ -13,15 +13,15 @@ import static com.redislabs.mesclun.search.protocol.CommandKeyword.*;
 @SuppressWarnings("unused")
 @Data
 @Builder
-public class AggregateOptions implements RediSearchArgument {
+public class AggregateOptions<K, V> implements RediSearchArgument<K, V> {
 
     @Singular
     private List<String> loads;
     @Singular
-    private List<Operation> operations;
+    private List<Operation<K, V>> operations;
 
     @Override
-    public <K, V> void build(RediSearchCommandArgs<K, V> args) {
+    public void build(RediSearchCommandArgs<K, V> args) {
         if (!loads.isEmpty()) {
             args.add(LOAD);
             args.add(loads.size());
@@ -30,94 +30,95 @@ public class AggregateOptions implements RediSearchArgument {
         operations.forEach(o -> o.build(args));
     }
 
-    public static class AggregateOptionsBuilder {
+    @SuppressWarnings("unchecked")
+    public static class AggregateOptionsBuilder<K, V> {
 
-        public AggregateOptionsBuilder apply(String expression, String alias) {
-            operation(Operation.Apply.builder().expression(expression).as(alias).build());
+        public AggregateOptionsBuilder<K, V> apply(V expression, K alias) {
+            operation(Operation.Apply.<K, V>builder().expression(expression).as(alias).build());
             return this;
         }
 
-        public AggregateOptionsBuilder filter(String expression) {
+        public AggregateOptionsBuilder<K, V> filter(V expression) {
             operation(Operation.Filter.of(expression));
             return this;
         }
 
-        public AggregateOptionsBuilder groupBy(Collection<String> properties, Operation.GroupBy.Reducer... reducers) {
+        public AggregateOptionsBuilder<K, V> groupBy(Collection<String> properties, Operation.GroupBy.Reducer<K, V>... reducers) {
             LettuceAssert.isTrue(!properties.isEmpty(), "At least one group-by property is required.");
             LettuceAssert.isTrue(reducers.length > 0, "At least one reducer is required.");
-            operation(Operation.GroupBy.builder().properties(properties).reducers(Arrays.asList(reducers)).build());
+            operation(Operation.GroupBy.<K, V>builder().properties(properties).reducers(Arrays.asList(reducers)).build());
             return this;
         }
 
-        public AggregateOptionsBuilder sortBy(Operation.SortBy.Property... properties) {
+        public AggregateOptionsBuilder<K, V> sortBy(Operation.SortBy.Property<K, V>... properties) {
             LettuceAssert.isTrue(properties.length > 0, "At least one sort-by property is required.");
-            operation(Operation.SortBy.builder().properties(Arrays.asList(properties)).build());
+            operation(Operation.SortBy.<K, V>builder().properties(Arrays.asList(properties)).build());
             return this;
         }
 
-        public AggregateOptionsBuilder sortBy(long max, Operation.SortBy.Property... properties) {
+        public AggregateOptionsBuilder<K, V> sortBy(long max, Operation.SortBy.Property<K, V>... properties) {
             LettuceAssert.isTrue(properties.length > 0, "At least one sort-by property is required.");
-            operation(Operation.SortBy.builder().properties(Arrays.asList(properties)).max(max).build());
+            operation(Operation.SortBy.<K, V>builder().properties(Arrays.asList(properties)).max(max).build());
             return this;
         }
 
-        public AggregateOptionsBuilder limit(long offset, long num) {
-            operation(Operation.Limit.builder().offset(offset).num(num).build());
+        public AggregateOptionsBuilder<K, V> limit(long offset, long num) {
+            operation(Operation.Limit.<K, V>builder().offset(offset).num(num).build());
             return this;
         }
 
 
     }
 
-    public interface Operation extends RediSearchArgument {
+    public interface Operation<K, V> extends RediSearchArgument<K, V> {
 
 
         @Data
         @Builder
-        class Apply implements Operation {
+        class Apply<K, V> implements Operation<K, V> {
 
-            private String expression;
-            private String as;
+            private V expression;
+            private K as;
 
             @Override
-            public <K, V> void build(RediSearchCommandArgs<K, V> args) {
+            public void build(RediSearchCommandArgs<K, V> args) {
                 args.add(APPLY);
-                args.add(expression);
+                args.addValue(expression);
                 args.add(AS);
-                args.add(as);
+                args.addKey(as);
             }
 
         }
 
         @Data
         @AllArgsConstructor
-        class Filter implements Operation {
+        class Filter<K, V> implements Operation<K, V> {
 
-            private String expression;
+            private V expression;
 
-            public static Filter of(String expression) {
-                return new Filter(expression);
+            public static <K, V> Filter<K, V> of(V expression) {
+                return new Filter<>(expression);
             }
 
             @Override
-            public <K, V> void build(RediSearchCommandArgs<K, V> args) {
+            public void build(RediSearchCommandArgs<K, V> args) {
                 args.add(FILTER);
-                args.add(expression);
+                args.addValue(expression);
             }
 
         }
 
         @Data
         @Builder
-        class GroupBy implements Operation {
+        class GroupBy<K, V> implements Operation<K, V> {
 
             @Singular
             private List<String> properties;
             @Singular
-            private List<Reducer> reducers;
+            private List<Reducer<K, V>> reducers;
 
             @Override
-            public <K, V> void build(RediSearchCommandArgs<K, V> args) {
+            public void build(RediSearchCommandArgs<K, V> args) {
                 args.add(GROUPBY);
                 args.add(properties.size());
                 properties.forEach(args::addProperty);
@@ -127,31 +128,31 @@ public class AggregateOptions implements RediSearchArgument {
 
             @AllArgsConstructor
             @Setter
-            public static abstract class Reducer implements RediSearchArgument {
+            public static abstract class Reducer<K, V> implements RediSearchArgument<K, V> {
 
-                private String as;
+                private K as;
 
                 @Override
-                public <K, V> void build(RediSearchCommandArgs<K, V> args) {
+                public void build(RediSearchCommandArgs<K, V> args) {
                     args.add(REDUCE);
                     buildFunction(args);
                     if (as != null) {
                         args.add(AS);
-                        args.add(as);
+                        args.addKey(as);
                     }
                 }
 
-                protected abstract <K, V> void buildFunction(RediSearchCommandArgs<K, V> args);
+                protected abstract void buildFunction(RediSearchCommandArgs<K, V> args);
 
-                public static class Avg extends AbstractPropertyReducer {
+                public static class Avg<K, V> extends AbstractPropertyReducer<K, V> {
 
                     @Builder
-                    private Avg(String as, String property) {
+                    private Avg(K as, String property) {
                         super(as, property);
                     }
 
                     @Override
-                    protected <K, V> void buildFunction(RediSearchCommandArgs<K, V> args, String property) {
+                    protected void buildFunction(RediSearchCommandArgs<K, V> args, String property) {
                         args.add(AVG);
                         args.add(1);
                         args.addProperty(property);
@@ -159,33 +160,33 @@ public class AggregateOptions implements RediSearchArgument {
 
                 }
 
-                public static class Count extends Reducer {
+                public static class Count<K, V> extends Reducer<K, V> {
 
-                    private Count(String as) {
+                    private Count(K as) {
                         super(as);
                     }
 
-                    public static Count of(String as) {
-                        return new Count(as);
+                    public static <K, V> Count<K, V> of(K as) {
+                        return new Count<>(as);
                     }
 
                     @Override
-                    protected <K, V> void buildFunction(RediSearchCommandArgs<K, V> args) {
+                    protected void buildFunction(RediSearchCommandArgs<K, V> args) {
                         args.add(COUNT);
                         args.add(0);
                     }
 
                 }
 
-                public static class CountDistinct extends AbstractPropertyReducer {
+                public static class CountDistinct<K, V> extends AbstractPropertyReducer<K, V> {
 
                     @Builder
-                    private CountDistinct(String as, String property) {
+                    private CountDistinct(K as, String property) {
                         super(as, property);
                     }
 
                     @Override
-                    protected <K, V> void buildFunction(RediSearchCommandArgs<K, V> args, String property) {
+                    protected void buildFunction(RediSearchCommandArgs<K, V> args, String property) {
                         args.add(COUNT_DISTINCT);
                         args.add(1);
                         args.addProperty(property);
@@ -193,15 +194,15 @@ public class AggregateOptions implements RediSearchArgument {
 
                 }
 
-                public static class CountDistinctish extends AbstractPropertyReducer {
+                public static class CountDistinctish<K, V> extends AbstractPropertyReducer<K, V> {
 
                     @Builder
-                    private CountDistinctish(String as, String property) {
+                    private CountDistinctish(K as, String property) {
                         super(as, property);
                     }
 
                     @Override
-                    protected <K, V> void buildFunction(RediSearchCommandArgs<K, V> args, String property) {
+                    protected void buildFunction(RediSearchCommandArgs<K, V> args, String property) {
                         args.add(COUNT_DISTINCTISH);
                         args.add(1);
                         args.addProperty(property);
@@ -211,18 +212,18 @@ public class AggregateOptions implements RediSearchArgument {
 
                 @Getter
                 @Setter
-                public static class FirstValue extends AbstractPropertyReducer {
+                public static class FirstValue<K, V> extends AbstractPropertyReducer<K, V> {
 
                     private By by;
 
                     @Builder
-                    private FirstValue(String as, String property, By by) {
+                    private FirstValue(K as, String property, By by) {
                         super(as, property);
                         this.by = by;
                     }
 
                     @Override
-                    protected <K, V> void buildFunction(RediSearchCommandArgs<K, V> args, String property) {
+                    protected void buildFunction(RediSearchCommandArgs<K, V> args, String property) {
                         args.add(FIRST_VALUE);
                         args.add(getNumberOfArgs());
                         args.addProperty(property);
@@ -253,15 +254,15 @@ public class AggregateOptions implements RediSearchArgument {
                     }
                 }
 
-                public static class Max extends AbstractPropertyReducer {
+                public static class Max<K, V> extends AbstractPropertyReducer<K, V> {
 
                     @Builder
-                    private Max(String as, String property) {
+                    private Max(K as, String property) {
                         super(as, property);
                     }
 
                     @Override
-                    protected <K, V> void buildFunction(RediSearchCommandArgs<K, V> args, String property) {
+                    protected void buildFunction(RediSearchCommandArgs<K, V> args, String property) {
                         args.add(MAX);
                         args.add(1);
                         args.addProperty(property);
@@ -269,15 +270,15 @@ public class AggregateOptions implements RediSearchArgument {
 
                 }
 
-                public static class Min extends AbstractPropertyReducer {
+                public static class Min<K, V> extends AbstractPropertyReducer<K, V> {
 
                     @Builder
-                    private Min(String as, String property) {
+                    private Min(K as, String property) {
                         super(as, property);
                     }
 
                     @Override
-                    protected <K, V> void buildFunction(RediSearchCommandArgs<K, V> args, String property) {
+                    protected void buildFunction(RediSearchCommandArgs<K, V> args, String property) {
                         args.add(MIN);
                         args.add(1);
                         args.addProperty(property);
@@ -287,17 +288,17 @@ public class AggregateOptions implements RediSearchArgument {
 
                 @Getter
                 @Setter
-                public static class Quantile extends AbstractPropertyReducer {
+                public static class Quantile<K, V> extends AbstractPropertyReducer<K, V> {
 
                     private double quantile;
 
                     @Builder
-                    private Quantile(String as, String property) {
+                    private Quantile(K as, String property) {
                         super(as, property);
                     }
 
                     @Override
-                    protected <K, V> void buildFunction(RediSearchCommandArgs<K, V> args, String property) {
+                    protected void buildFunction(RediSearchCommandArgs<K, V> args, String property) {
                         args.add(QUANTILE);
                         args.add(2);
                         args.addProperty(property);
@@ -308,18 +309,18 @@ public class AggregateOptions implements RediSearchArgument {
 
                 @Getter
                 @Setter
-                public static class RandomSample extends AbstractPropertyReducer {
+                public static class RandomSample<K, V> extends AbstractPropertyReducer<K, V> {
 
                     private int size;
 
                     @Builder
-                    private RandomSample(String as, String property, int size) {
+                    private RandomSample(K as, String property, int size) {
                         super(as, property);
                         this.size = size;
                     }
 
                     @Override
-                    protected <K, V> void buildFunction(RediSearchCommandArgs<K, V> args, String property) {
+                    protected void buildFunction(RediSearchCommandArgs<K, V> args, String property) {
                         args.add(RANDOM_SAMPLE);
                         args.add(2);
                         args.addProperty(property);
@@ -328,15 +329,15 @@ public class AggregateOptions implements RediSearchArgument {
 
                 }
 
-                public static class StdDev extends AbstractPropertyReducer {
+                public static class StdDev<K, V> extends AbstractPropertyReducer<K, V> {
 
                     @Builder
-                    private StdDev(String as, String property) {
+                    private StdDev(K as, String property) {
                         super(as, property);
                     }
 
                     @Override
-                    protected <K, V> void buildFunction(RediSearchCommandArgs<K, V> args, String property) {
+                    protected void buildFunction(RediSearchCommandArgs<K, V> args, String property) {
                         args.add(STDDEV);
                         args.add(1);
                         args.addProperty(property);
@@ -344,15 +345,15 @@ public class AggregateOptions implements RediSearchArgument {
 
                 }
 
-                public static class Sum extends AbstractPropertyReducer {
+                public static class Sum<K, V> extends AbstractPropertyReducer<K, V> {
 
                     @Builder
-                    private Sum(String as, String property) {
+                    private Sum(K as, String property) {
                         super(as, property);
                     }
 
                     @Override
-                    protected <K, V> void buildFunction(RediSearchCommandArgs<K, V> args, String property) {
+                    protected void buildFunction(RediSearchCommandArgs<K, V> args, String property) {
                         args.add(SUM);
                         args.add(1);
                         args.addProperty(property);
@@ -360,15 +361,15 @@ public class AggregateOptions implements RediSearchArgument {
 
                 }
 
-                public static class ToList extends AbstractPropertyReducer {
+                public static class ToList<K, V> extends AbstractPropertyReducer<K, V> {
 
                     @Builder
-                    private ToList(String as, String property) {
+                    private ToList(K as, String property) {
                         super(as, property);
                     }
 
                     @Override
-                    protected <K, V> void buildFunction(RediSearchCommandArgs<K, V> args, String property) {
+                    protected void buildFunction(RediSearchCommandArgs<K, V> args, String property) {
                         args.add(TOLIST);
                         args.add(1);
                         args.addProperty(property);
@@ -380,34 +381,34 @@ public class AggregateOptions implements RediSearchArgument {
 
             @Getter
             @Setter
-            private abstract static class AbstractPropertyReducer extends Reducer {
+            private abstract static class AbstractPropertyReducer<K, V> extends Reducer<K, V> {
 
                 private String property;
 
-                protected AbstractPropertyReducer(String as, String property) {
+                protected AbstractPropertyReducer(K as, String property) {
                     super(as);
                     this.property = property;
                 }
 
                 @Override
-                protected <K, V> void buildFunction(RediSearchCommandArgs<K, V> args) {
+                protected void buildFunction(RediSearchCommandArgs<K, V> args) {
                     buildFunction(args, property);
                 }
 
-                protected abstract <K, V> void buildFunction(RediSearchCommandArgs<K, V> args, String property);
+                protected abstract void buildFunction(RediSearchCommandArgs<K, V> args, String property);
 
             }
         }
 
         @Data
         @Builder
-        class Limit implements Operation {
+        class Limit<K, V> implements Operation<K, V> {
 
             private long offset;
             private long num;
 
             @Override
-            public <K, V> void build(RediSearchCommandArgs<K, V> args) {
+            public void build(RediSearchCommandArgs<K, V> args) {
                 args.add(LIMIT);
                 args.add(offset);
                 args.add(num);
@@ -417,14 +418,14 @@ public class AggregateOptions implements RediSearchArgument {
 
         @Data
         @Builder
-        class SortBy implements Operation {
+        class SortBy<K, V> implements Operation<K, V> {
 
             @Singular
-            private List<Property> properties;
+            private List<Property<K, V>> properties;
             private Long max;
 
             @Override
-            public <K, V> void build(RediSearchCommandArgs<K, V> args) {
+            public void build(RediSearchCommandArgs<K, V> args) {
                 args.add(SORTBY);
                 args.add((long) properties.size() * 2);
                 properties.forEach(property -> property.build(args));
@@ -437,17 +438,15 @@ public class AggregateOptions implements RediSearchArgument {
 
             @Data
             @Builder
-            public static class Property implements RediSearchArgument {
-
-                public final static Order DEFAULT_ORDER = Order.Asc;
+            public static class Property<K, V> implements RediSearchArgument<K, V> {
 
                 private String property;
-                @Builder.Default
-                private Order order = DEFAULT_ORDER;
+                private Order order;
 
-                public <K, V> void build(RediSearchCommandArgs<K, V> args) {
+                @Override
+                public void build(RediSearchCommandArgs<K, V> args) {
                     args.addProperty(property);
-                    args.add(order == Order.Asc ? ASC : DESC);
+                    args.add(order == Order.Desc ? DESC : ASC);
                 }
 
             }

@@ -4,7 +4,6 @@ import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import com.redislabs.mesclun.search.CreateOptions;
 import com.redislabs.mesclun.search.Field;
-import com.redislabs.mesclun.search.Suggestion;
 import io.lettuce.core.LettuceFutures;
 import io.lettuce.core.RedisFuture;
 import io.lettuce.core.RedisURI;
@@ -33,7 +32,7 @@ public abstract class AbstractSearchTest {
     public final static String ID = "id";
     public final static String NAME = "name";
     public final static String STYLE = "style";
-    public final static Field<String>[] SCHEMA = new Field[]{Field.text(NAME).matcher(Field.Text.PhoneticMatcher.English).build(), Field.tag(STYLE).sortable(true).build(), Field.numeric(ABV).sortable(true).build()};
+    public final static Field<String, String>[] SCHEMA = new Field[]{Field.text(NAME).matcher(Field.Text.PhoneticMatcher.English).build(), Field.tag(STYLE).sortable(true).build(), Field.numeric(ABV).sortable(true).build()};
     public final static String INDEX = "beers";
 
     private static RedisModulesClient client;
@@ -91,7 +90,7 @@ public abstract class AbstractSearchTest {
     protected static List<Map<String, String>> createBeerIndex() throws IOException {
         sync.flushall();
         List<Map<String, String>> beers = beers();
-        sync.create(INDEX, CreateOptions.<String,String>builder().payloadField(NAME).build(), SCHEMA);
+        sync.create(INDEX, CreateOptions.<String, String>builder().payloadField(NAME).build(), SCHEMA);
         async.setAutoFlushCommands(false);
         List<RedisFuture<?>> futures = new ArrayList<>();
         for (Map<String, String> beer : beers) {
@@ -108,7 +107,7 @@ public abstract class AbstractSearchTest {
         async.setAutoFlushCommands(false);
         List<RedisFuture<?>> futures = new ArrayList<>();
         for (Map<String, String> beer : beers) {
-            futures.add(async.sugadd(SUGINDEX, Suggestion.builder(beer.get(NAME)).score(1d).build(), false));
+            futures.add(async.sugadd(SUGINDEX, beer.get(NAME), 1));
         }
         async.flushCommands();
         async.setAutoFlushCommands(true);

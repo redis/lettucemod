@@ -7,15 +7,15 @@ import java.util.List;
 @SuppressWarnings("unchecked")
 public interface RediSearchAsyncCommands<K, V> {
 
-    RedisFuture<String> create(K index, Field<K>... fields);
+    RedisFuture<String> create(K index, Field<K,V>... fields);
 
-    RedisFuture<String> create(K index, CreateOptions<K, V> options, Field<K>... fields);
+    RedisFuture<String> create(K index, CreateOptions<K, V> options, Field<K,V>... fields);
 
     RedisFuture<String> dropIndex(K index);
 
     RedisFuture<String> dropIndex(K index, boolean deleteDocs);
 
-    RedisFuture<String> alter(K index, Field<K> field);
+    RedisFuture<String> alter(K index, Field<K,V> field);
 
     RedisFuture<List<Object>> ftInfo(K index);
 
@@ -29,15 +29,15 @@ public interface RediSearchAsyncCommands<K, V> {
 
     RedisFuture<SearchResults<K, V>> search(K index, V query);
 
-    RedisFuture<SearchResults<K, V>> search(K index, V query, SearchOptions<K> options);
+    RedisFuture<SearchResults<K, V>> search(K index, V query, SearchOptions<K, V> options);
 
     RedisFuture<AggregateResults<K>> aggregate(K index, V query);
 
-    RedisFuture<AggregateResults<K>> aggregate(K index, V query, AggregateOptions options);
+    RedisFuture<AggregateResults<K>> aggregate(K index, V query, AggregateOptions<K, V> options);
 
     RedisFuture<AggregateWithCursorResults<K>> aggregate(K index, V query, Cursor cursor);
 
-    RedisFuture<AggregateWithCursorResults<K>> aggregate(K index, V query, Cursor cursor, AggregateOptions options);
+    RedisFuture<AggregateWithCursorResults<K>> aggregate(K index, V query, Cursor cursor, AggregateOptions<K, V> options);
 
     RedisFuture<AggregateWithCursorResults<K>> cursorRead(K index, long cursor);
 
@@ -45,9 +45,9 @@ public interface RediSearchAsyncCommands<K, V> {
 
     RedisFuture<String> cursorDelete(K index, long cursor);
 
-    RedisFuture<Long> sugadd(K key, Suggestion<V> suggestion);
+    RedisFuture<Long> sugadd(K key, V string, double score);
 
-    RedisFuture<Long> sugadd(K key, Suggestion<V> suggestion, boolean increment);
+    RedisFuture<Long> sugadd(K key, V string, double score, SugaddOptions<K, V> options);
 
     RedisFuture<List<Suggestion<V>>> sugget(K key, V prefix);
 

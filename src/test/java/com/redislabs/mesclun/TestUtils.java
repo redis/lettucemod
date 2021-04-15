@@ -20,15 +20,15 @@ public class TestUtils extends AbstractSearchTest {
     public void ftInfo() throws IOException, ExecutionException, InterruptedException {
         createBeerIndex();
         List<Object> infoList = async.ftInfo(INDEX).get();
-        IndexInfo<String> info = RediSearchUtils.getInfo(infoList);
+        IndexInfo<String, String> info = RediSearchUtils.getInfo(infoList);
         Assertions.assertEquals(2348, info.getNumDocs());
-        List<Field<String>> fields = info.getFields();
-        Field.Text<String> nameField = (Field.Text<String>) fields.get(0);
+        List<Field<String, String>> fields = info.getFields();
+        Field.Text<String, String> nameField = (Field.Text<String, String>) fields.get(0);
         Assertions.assertEquals(NAME, nameField.getName());
         Assertions.assertFalse(nameField.isNoIndex());
         Assertions.assertFalse(nameField.isNoStem());
         Assertions.assertFalse(nameField.isSortable());
-        Field.Tag<String> styleField = (Field.Tag<String>) fields.get(1);
+        Field.Tag<String, String> styleField = (Field.Tag<String, String>) fields.get(1);
         Assertions.assertEquals(STYLE, styleField.getName());
         Assertions.assertTrue(styleField.isSortable());
         Assertions.assertEquals(",", styleField.getSeparator());

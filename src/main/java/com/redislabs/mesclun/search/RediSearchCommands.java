@@ -5,15 +5,15 @@ import java.util.List;
 @SuppressWarnings("unchecked")
 public interface RediSearchCommands<K, V> {
 
-    String create(K index, Field<K>... fields);
+    String create(K index, Field<K,V>... fields);
 
-    String create(K index, CreateOptions<K, V> options, Field<K>... fields);
+    String create(K index, CreateOptions<K, V> options, Field<K,V>... fields);
 
     String dropIndex(K index);
 
     String dropIndex(K index, boolean deleteDocs);
 
-    String alter(K index, Field<K> field);
+    String alter(K index, Field<K,V> field);
 
     List<Object> ftInfo(K index);
 
@@ -27,15 +27,15 @@ public interface RediSearchCommands<K, V> {
 
     SearchResults<K, V> search(K index, V query);
 
-    SearchResults<K, V> search(K index, V query, SearchOptions<K> options);
+    SearchResults<K, V> search(K index, V query, SearchOptions<K, V> options);
 
     AggregateResults<K> aggregate(K index, V query);
 
-    AggregateResults<K> aggregate(K index, V query, AggregateOptions options);
+    AggregateResults<K> aggregate(K index, V query, AggregateOptions<K, V> options);
 
     AggregateWithCursorResults<K> aggregate(K index, V query, Cursor cursor);
 
-    AggregateWithCursorResults<K> aggregate(K index, V query, Cursor cursor, AggregateOptions options);
+    AggregateWithCursorResults<K> aggregate(K index, V query, Cursor cursor, AggregateOptions<K, V> options);
 
     AggregateWithCursorResults<K> cursorRead(K index, long cursor);
 
@@ -43,9 +43,9 @@ public interface RediSearchCommands<K, V> {
 
     String cursorDelete(K index, long cursor);
 
-    Long sugadd(K key, Suggestion<V> suggestion);
+    Long sugadd(K key, V string, double score);
 
-    Long sugadd(K key, Suggestion<V> suggestion, boolean increment);
+    Long sugadd(K key, V string, double score, SugaddOptions<K, V> options);
 
     List<Suggestion<V>> sugget(K key, V prefix);
 

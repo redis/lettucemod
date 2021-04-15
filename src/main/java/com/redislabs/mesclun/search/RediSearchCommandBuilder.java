@@ -28,7 +28,7 @@ public class RediSearchCommandBuilder<K, V> extends RedisModulesCommandBuilder<K
         return new Command<>(type, output, args);
     }
 
-    public Command<K, V, String> create(K index, CreateOptions<K, V> options, Field<K>... fields) {
+    public Command<K, V, String> create(K index, CreateOptions<K, V> options, Field<K, V>... fields) {
         notNull(index, "index");
         LettuceAssert.isTrue(fields.length > 0, "At least one field is required.");
         RediSearchCommandArgs<K, V> args = createArgs(index);
@@ -36,7 +36,7 @@ public class RediSearchCommandBuilder<K, V> extends RedisModulesCommandBuilder<K
             options.build(args);
         }
         args.add(CommandKeyword.SCHEMA);
-        for (Field<K> field : fields) {
+        for (Field<K, V> field : fields) {
             field.build(args);
         }
         return createCommand(CommandType.CREATE, new StatusOutput<>(codec), args);
@@ -57,7 +57,7 @@ public class RediSearchCommandBuilder<K, V> extends RedisModulesCommandBuilder<K
         return createCommand(CommandType.INFO, new NestedMultiOutput<>(codec), args);
     }
 
-    public Command<K, V, String> alter(K index, Field<K> field) {
+    public Command<K, V, String> alter(K index, Field<K,V> field) {
         notNull(index, "index");
         notNull(field, "field");
         RediSearchCommandArgs<K, V> args = createArgs(index);
@@ -71,7 +71,7 @@ public class RediSearchCommandBuilder<K, V> extends RedisModulesCommandBuilder<K
         return new RediSearchCommandArgs<>(codec).addKey(index);
     }
 
-    public Command<K, V, SearchResults<K, V>> search(K index, V query, SearchOptions<K> options) {
+    public Command<K, V, SearchResults<K, V>> search(K index, V query, SearchOptions<K, V> options) {
         notNull(index, "index");
         notNull(query, "query");
         RediSearchCommandArgs<K, V> commandArgs = createArgs(index);
@@ -82,7 +82,7 @@ public class RediSearchCommandBuilder<K, V> extends RedisModulesCommandBuilder<K
         return createCommand(CommandType.SEARCH, searchOutput(options), commandArgs);
     }
 
-    private CommandOutput<K, V, SearchResults<K, V>> searchOutput(SearchOptions<K> options) {
+    private CommandOutput<K, V, SearchResults<K, V>> searchOutput(SearchOptions<K, V> options) {
         if (options == null) {
             return new SearchOutput<>(codec);
         }
@@ -92,7 +92,7 @@ public class RediSearchCommandBuilder<K, V> extends RedisModulesCommandBuilder<K
         return new SearchOutput<>(codec, options.isWithScores(), options.isWithSortKeys(), options.isWithPayloads());
     }
 
-    public Command<K, V, AggregateResults<K>> aggregate(K index, V query, AggregateOptions options) {
+    public Command<K, V, AggregateResults<K>> aggregate(K index, V query, AggregateOptions<K, V> options) {
         notNull(index, "index");
         notNull(query, "query");
         RediSearchCommandArgs<K, V> args = createArgs(index);
@@ -103,7 +103,7 @@ public class RediSearchCommandBuilder<K, V> extends RedisModulesCommandBuilder<K
         return createCommand(CommandType.AGGREGATE, new AggregateOutput<>(codec, new AggregateResults<>()), args);
     }
 
-    public Command<K, V, AggregateWithCursorResults<K>> aggregate(K index, V query, Cursor cursor, AggregateOptions options) {
+    public Command<K, V, AggregateWithCursorResults<K>> aggregate(K index, V query, Cursor cursor, AggregateOptions<K, V> options) {
         notNull(index, "index");
         notNull(query, "query");
         RediSearchCommandArgs<K, V> args = createArgs(index);
@@ -140,24 +140,26 @@ public class RediSearchCommandBuilder<K, V> extends RedisModulesCommandBuilder<K
         return createCommand(CommandType.CURSOR, new StatusOutput<>(codec), args);
     }
 
-    public Command<K, V, Long> sugadd(K key, Suggestion<V> suggestion) {
-        return sugadd(key, suggestion, false);
+
+    public Command<K, V, Long> sugadd(K key, V string, double score) {
+        return sugadd(key, string, score, null);
     }
 
-    public Command<K, V, Long> sugadd(K key, Suggestion<V> suggestion, boolean increment) {
+    public Command<K, V, Long> sugadd(K key, V string, double score, SugaddOptions<K, V> options) {
         notNull(key, "key");
-        notNull(suggestion.getString(), "suggestion string");
-        notNull(suggestion.getScore(), "suggestion score");
+        notNull(string, "suggestion string");
         RediSearchCommandArgs<K, V> args = new RediSearchCommandArgs<>(codec);
         args.addKey(key);
-        args.addValue(suggestion.getString());
-        args.add(suggestion.getScore());
-        if (increment) {
-            args.add(CommandKeyword.INCR);
-        }
-        if (suggestion.getPayload() != null) {
-            args.add(CommandKeyword.PAYLOAD);
-            args.addValue(suggestion.getPayload());
+        args.addValue(string);
+        args.add(score);
+        if (options != null) {
+            if (options.isIncrement()) {
+                args.add(CommandKeyword.INCR);
+            }
+            if (options.getPayload() != null) {
+                args.add(CommandKeyword.PAYLOAD);
+                args.addValue(options.getPayload());
+            }
         }
         return createCommand(CommandType.SUGADD, new IntegerOutput<>(codec), args);
     }
