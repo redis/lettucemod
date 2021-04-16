@@ -37,17 +37,10 @@ dependencies {
     api 'io.lettuce:lettuce-core:6.1.1.RELEASE'
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
-    testImplementation 'org.slf4j:slf4j-simple'
     testImplementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-csv'
-    testImplementation 'io.projectreactor:reactor-test'
-    testImplementation 'org.junit.jupiter:junit-jupiter-api'
-    testImplementation 'org.junit.jupiter:junit-jupiter-engine'
-    testImplementation 'org.junit.jupiter:junit-jupiter-params'
-    testImplementation 'org.testcontainers:testcontainers:1.15.2'
-    testImplementation 'org.testcontainers:junit-jupiter:1.15.2'
-    testImplementation 'org.apache.commons:commons-pool2'
-    testCompileOnly 'org.projectlombok:lombok'
-    testAnnotationProcessor 'org.projectlombok:lombok'
+    testImplementation ('com.redislabs:testcontainers-redis:1.0.1') {
+        exclude group: 'com.redislabs', module: 'mesclun'
+    }
 }
 
 test {
