@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("unchecked")
 @Testcontainers
-public class TestRediSearch extends BaseRedisModulesTest {
+public class TestSearch extends BaseRedisModulesTest {
 
     protected final static int BEER_COUNT = 2348;
     protected final static String SUGINDEX = "beersSug";
@@ -49,7 +49,7 @@ public class TestRediSearch extends BaseRedisModulesTest {
         List<Map<String, String>> beers = new ArrayList<>();
         CsvSchema schema = CsvSchema.builder().setUseHeader(true).setNullValue("").build();
         CsvMapper mapper = new CsvMapper();
-        InputStream inputStream = TestRediSearch.class.getClassLoader().getResourceAsStream("beers.csv");
+        InputStream inputStream = TestSearch.class.getClassLoader().getResourceAsStream("beers.csv");
         mapper.readerFor(Map.class).with(schema).readValues(inputStream).forEachRemaining(e -> beers.add((Map) e));
         return beers;
     }
@@ -87,12 +87,47 @@ public class TestRediSearch extends BaseRedisModulesTest {
 
     @ParameterizedTest
     @MethodSource("containers")
-    void create(RedisModulesContainer redisContainer) throws IOException, ExecutionException, InterruptedException {
-        RedisModulesAsyncCommands<String, String> async = redisContainer.async();
-        RedisModulesCommands<String, String> sync = redisContainer.sync();
-        RedisModulesReactiveCommands<String, String> reactive = redisContainer.reactive();
+    void testSugaddIncr(RedisModulesContainer container) {
+        String key = "testSugadd";
+        RedisModulesCommands<String, String> sync = container.sync();
+        sync.sugadd(key, "value1", 1);
+        sync.sugadd(key, "value1", 1, SugaddOptions.<String,String>builder().increment(true).build());
+        List<Suggestion<String>> suggestions = sync.sugget(key, "value", SuggetOptions.builder().withScores(true).build());
+        Assertions.assertEquals(1, suggestions.size());
+        Assertions.assertEquals(1.4142135381698608, suggestions.get(0).getScore());
+    }
 
-        createBeerIndex(redisContainer);
+    @ParameterizedTest
+    @MethodSource("containers")
+    void testSugaddPayload(RedisModulesContainer container) {
+        String key = "testSugadd";
+        RedisModulesCommands<String, String> sync = container.sync();
+        sync.sugadd(key, "value1", 1, SugaddOptions.<String,String>builder().payload("somepayload").build());
+        List<Suggestion<String>> suggestions = sync.sugget(key, "value", SuggetOptions.builder().withPayloads(true).build());
+        Assertions.assertEquals(1, suggestions.size());
+        Assertions.assertEquals("somepayload", suggestions.get(0).getPayload());
+    }
+
+    @ParameterizedTest
+    @MethodSource("containers")
+    void testSugaddScorePayload(RedisModulesContainer container) {
+        String key = "testSugadd";
+        RedisModulesCommands<String, String> sync = container.sync();
+        sync.sugadd(key, "value1", 2, SugaddOptions.<String,String>builder().payload("somepayload").build());
+        List<Suggestion<String>> suggestions = sync.sugget(key, "value", SuggetOptions.builder().withScores(true).withPayloads(true).build());
+        Assertions.assertEquals(1, suggestions.size());
+        Assertions.assertEquals(1.4142135381698608, suggestions.get(0).getScore());
+        Assertions.assertEquals("somepayload", suggestions.get(0).getPayload());
+    }
+
+    @ParameterizedTest
+    @MethodSource("containers")
+    void create(RedisModulesContainer container) throws IOException, ExecutionException, InterruptedException {
+        RedisModulesAsyncCommands<String, String> async = container.async();
+        RedisModulesCommands<String, String> sync = container.sync();
+        RedisModulesReactiveCommands<String, String> reactive = container.reactive();
+
+        createBeerIndex(container);
         String indexName = "hashIndex";
         sync.create(indexName, CreateOptions.<String, String>builder().prefix("beer:").on(CreateOptions.Structure.HASH).build(), SCHEMA);
         List<Map<String, String>> beers = beers();
@@ -165,10 +200,10 @@ public class TestRediSearch extends BaseRedisModulesTest {
 
     @ParameterizedTest
     @MethodSource("containers")
-    void list(RedisModulesContainer redisContainer) throws ExecutionException, InterruptedException {
-        RedisModulesAsyncCommands<String, String> async = redisContainer.async();
-        RedisModulesCommands<String, String> sync = redisContainer.sync();
-        RedisModulesReactiveCommands<String, String> reactive = redisContainer.reactive();
+    void list(RedisModulesContainer container) throws ExecutionException, InterruptedException {
+        RedisModulesAsyncCommands<String, String> async = container.async();
+        RedisModulesCommands<String, String> sync = container.sync();
+        RedisModulesReactiveCommands<String, String> reactive = container.reactive();
         sync.flushall();
         Set<String> indexNames = new HashSet<>(Arrays.asList("index1", "index2", "index3"));
         for (String indexName : indexNames) {
@@ -181,12 +216,12 @@ public class TestRediSearch extends BaseRedisModulesTest {
 
     @ParameterizedTest
     @MethodSource("containers")
-    void search(RedisModulesContainer redisContainer) throws IOException, ExecutionException, InterruptedException {
-        createBeerIndex(redisContainer);
+    void search(RedisModulesContainer container) throws IOException, ExecutionException, InterruptedException {
+        createBeerIndex(container);
 
-        RedisModulesAsyncCommands<String, String> async = redisContainer.async();
-        RedisModulesCommands<String, String> sync = redisContainer.sync();
-        RedisModulesReactiveCommands<String, String> reactive = redisContainer.reactive();
+        RedisModulesAsyncCommands<String, String> async = container.async();
+        RedisModulesCommands<String, String> sync = container.sync();
+        RedisModulesReactiveCommands<String, String> reactive = container.reactive();
 
         SearchResults<String, String> results = sync.search(INDEX, "eldur");
         assertEquals(7, results.getCount());
@@ -288,9 +323,9 @@ public class TestRediSearch extends BaseRedisModulesTest {
 
     @ParameterizedTest
     @MethodSource("containers")
-    void sugget(RedisModulesContainer redisContainer) throws IOException {
-        createBeerSuggestions(redisContainer);
-        RediSearchCommands<String, String> search = redisContainer.sync();
+    void sugget(RedisModulesContainer container) throws IOException {
+        createBeerSuggestions(container);
+        RediSearchCommands<String, String> search = container.sync();
         List<Suggestion<String>> results = search.sugget(SUGINDEX, "Ame");
         assertEquals(5, results.size());
         results = search.sugget(SUGINDEX, "Ame", SuggetOptions.builder().max(1000L).build());
@@ -304,9 +339,9 @@ public class TestRediSearch extends BaseRedisModulesTest {
 
     @ParameterizedTest
     @MethodSource("containers")
-    void aggregate(RedisModulesContainer redisContainer) throws IOException, ExecutionException, InterruptedException {
-        List<Map<String, String>> beers = createBeerIndex(redisContainer);
-        RediSearchCommands<String, String> search = redisContainer.sync();
+    void aggregate(RedisModulesContainer container) throws IOException, ExecutionException, InterruptedException {
+        List<Map<String, String>> beers = createBeerIndex(container);
+        RediSearchCommands<String, String> search = container.sync();
 
         // Load tests
         AggregateResults<String> results = search.aggregate(INDEX, "*", AggregateOptions.<String, String>builder().load(ID).load(NAME).load(STYLE).build());
@@ -349,11 +384,11 @@ public class TestRediSearch extends BaseRedisModulesTest {
 
     @ParameterizedTest
     @MethodSource("containers")
-    void alias(RedisModulesContainer redisContainer) throws IOException, ExecutionException, InterruptedException {
+    void alias(RedisModulesContainer container) throws IOException, ExecutionException, InterruptedException {
 
         // SYNC
-        RedisModulesCommands<String, String> sync = redisContainer.sync();
-        createBeerIndex(redisContainer);
+        RedisModulesCommands<String, String> sync = container.sync();
+        createBeerIndex(container);
 
         String alias = "alias123";
 
@@ -377,7 +412,7 @@ public class TestRediSearch extends BaseRedisModulesTest {
         sync.aliasDel(alias);
 
         // ASYNC
-        RedisModulesAsyncCommands<String, String> async = redisContainer.async();
+        RedisModulesAsyncCommands<String, String> async = container.async();
         async.aliasAdd(alias, INDEX).get();
         results = async.search(alias, "*").get();
         assertTrue(results.size() > 0);
@@ -396,7 +431,7 @@ public class TestRediSearch extends BaseRedisModulesTest {
         sync.aliasDel(alias);
 
         // REACTIVE
-        RedisModulesReactiveCommands<String, String> reactive = redisContainer.reactive();
+        RedisModulesReactiveCommands<String, String> reactive = container.reactive();
         reactive.aliasAdd(alias, INDEX).block();
         results = reactive.search(alias, "*").block();
         assertTrue(results.size() > 0);
@@ -418,9 +453,9 @@ public class TestRediSearch extends BaseRedisModulesTest {
 
     @ParameterizedTest
     @MethodSource("containers")
-    void info(RedisModulesContainer redisContainer) throws IOException, ExecutionException, InterruptedException {
-        createBeerIndex(redisContainer);
-        RedisModulesAsyncCommands<String, String> async = redisContainer.async();
+    void info(RedisModulesContainer container) throws IOException, ExecutionException, InterruptedException {
+        createBeerIndex(container);
+        RedisModulesAsyncCommands<String, String> async = container.async();
         List<Object> infoList = async.ftInfo(INDEX).get();
         IndexInfo<String, String> info = RediSearchUtils.getInfo(infoList);
         Assertions.assertEquals(2348, info.getNumDocs());

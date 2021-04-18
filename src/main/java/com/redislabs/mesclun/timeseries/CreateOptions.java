@@ -7,11 +7,15 @@ import static com.redislabs.mesclun.timeseries.protocol.CommandKeyword.UNCOMPRES
 
 import io.lettuce.core.CompositeArgument;
 import io.lettuce.core.protocol.CommandArgs;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class CreateOptions implements CompositeArgument {
 
 	private Long retentionTime;

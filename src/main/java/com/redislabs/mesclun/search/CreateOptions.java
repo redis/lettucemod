@@ -1,9 +1,7 @@
 package com.redislabs.mesclun.search;
 
 import com.redislabs.mesclun.search.protocol.RediSearchCommandArgs;
-import lombok.Builder;
-import lombok.Data;
-import lombok.Singular;
+import lombok.*;
 
 import java.util.List;
 
@@ -11,6 +9,8 @@ import static com.redislabs.mesclun.search.protocol.CommandKeyword.*;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class CreateOptions<K, V> implements RediSearchArgument<K, V> {
 
     public enum Structure {

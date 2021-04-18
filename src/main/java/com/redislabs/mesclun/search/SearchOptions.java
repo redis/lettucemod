@@ -8,6 +8,8 @@ import java.util.List;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
 
     private boolean noContent;
