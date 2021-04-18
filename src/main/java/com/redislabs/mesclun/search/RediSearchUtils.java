@@ -40,13 +40,13 @@ public class RediSearchUtils {
     }
 
     @SuppressWarnings("unchecked")
-    private static <K, V> List<Field<K, V>> fields(Object object) {
-        List<Field<K, V>> fields = new ArrayList<>();
+    private static <K> List<Field<K>> fields(Object object) {
+        List<Field<K>> fields = new ArrayList<>();
         for (Object infoObject : (List<Object>) object) {
             List<Object> info = (List<Object>) infoObject;
             K name = (K) info.get(0);
             CommandKeyword type = CommandKeyword.valueOf((String) info.get(2));
-            Field<K, V> field = field(name, type, info);
+            Field<K> field = field(name, type, info);
             for (Object attribute : info.subList(3, info.size())) {
                 if (NOINDEX.name().equals(attribute)) {
                     field.setNoIndex(true);
@@ -60,16 +60,16 @@ public class RediSearchUtils {
         return fields;
     }
 
-    private static <K, V> Field<K, V> field(K name, CommandKeyword type, List<Object> info) {
+    private static <K> Field<K> field(K name, CommandKeyword type, List<Object> info) {
         switch (type) {
             case GEO:
-                return Field.Geo.<K, V>builder(name).build();
+                return Field.Geo.builder(name).build();
             case NUMERIC:
-                return Field.Numeric.<K, V>builder(name).build();
+                return Field.Numeric.builder(name).build();
             case TAG:
-                return Field.Tag.<K, V>builder(name).separator((String) info.get(4)).build();
+                return Field.Tag.builder(name).separator((String) info.get(4)).build();
             default:
-                return Field.Text.<K, V>builder(name).weight((Double) info.get(4)).noStem(NOSTEM.name().equals(info.get(info.size() - 1))).build();
+                return Field.Text.builder(name).weight((Double) info.get(4)).noStem(NOSTEM.name().equals(info.get(info.size() - 1))).build();
         }
     }
 

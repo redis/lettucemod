@@ -33,7 +33,7 @@ public class TestSearch extends BaseRedisModulesTest {
     public final static String ID = "id";
     public final static String NAME = "name";
     public final static String STYLE = "style";
-    public final static Field<String, String>[] SCHEMA = new Field[]{Field.text(NAME).matcher(Field.Text.PhoneticMatcher.English).build(), Field.tag(STYLE).sortable(true).build(), Field.numeric(ABV).sortable(true).build()};
+    public final static Field<String>[] SCHEMA = new Field[]{Field.text(NAME).matcher(Field.Text.PhoneticMatcher.English).build(), Field.tag(STYLE).sortable(true).build(), Field.numeric(ABV).sortable(true).build()};
     public final static String INDEX = "beers";
 
     protected static Map<String, String> mapOf(String... keyValues) {
@@ -54,7 +54,7 @@ public class TestSearch extends BaseRedisModulesTest {
         return beers;
     }
 
-    private List<Map<String, String>> createBeerIndex(RedisModulesContainer container) throws IOException, ExecutionException, InterruptedException {
+    private List<Map<String, String>> createBeerIndex(RedisModulesContainer container) throws IOException {
         RedisModulesCommands<String, String> sync = container.sync();
         sync.flushall();
         List<Map<String, String>> beers = beers();
@@ -91,7 +91,7 @@ public class TestSearch extends BaseRedisModulesTest {
         String key = "testSugadd";
         RedisModulesCommands<String, String> sync = container.sync();
         sync.sugadd(key, "value1", 1);
-        sync.sugadd(key, "value1", 1, SugaddOptions.<String,String>builder().increment(true).build());
+        sync.sugadd(key, "value1", 1, SugaddOptions.<String, String>builder().increment(true).build());
         List<Suggestion<String>> suggestions = sync.sugget(key, "value", SuggetOptions.builder().withScores(true).build());
         Assertions.assertEquals(1, suggestions.size());
         Assertions.assertEquals(1.4142135381698608, suggestions.get(0).getScore());
@@ -102,7 +102,7 @@ public class TestSearch extends BaseRedisModulesTest {
     void testSugaddPayload(RedisModulesContainer container) {
         String key = "testSugadd";
         RedisModulesCommands<String, String> sync = container.sync();
-        sync.sugadd(key, "value1", 1, SugaddOptions.<String,String>builder().payload("somepayload").build());
+        sync.sugadd(key, "value1", 1, SugaddOptions.<String, String>builder().payload("somepayload").build());
         List<Suggestion<String>> suggestions = sync.sugget(key, "value", SuggetOptions.builder().withPayloads(true).build());
         Assertions.assertEquals(1, suggestions.size());
         Assertions.assertEquals("somepayload", suggestions.get(0).getPayload());
@@ -113,7 +113,7 @@ public class TestSearch extends BaseRedisModulesTest {
     void testSugaddScorePayload(RedisModulesContainer container) {
         String key = "testSugadd";
         RedisModulesCommands<String, String> sync = container.sync();
-        sync.sugadd(key, "value1", 2, SugaddOptions.<String,String>builder().payload("somepayload").build());
+        sync.sugadd(key, "value1", 2, SugaddOptions.<String, String>builder().payload("somepayload").build());
         List<Suggestion<String>> suggestions = sync.sugget(key, "value", SuggetOptions.builder().withScores(true).withPayloads(true).build());
         Assertions.assertEquals(1, suggestions.size());
         Assertions.assertEquals(1.4142135381698608, suggestions.get(0).getScore());
@@ -122,11 +122,9 @@ public class TestSearch extends BaseRedisModulesTest {
 
     @ParameterizedTest
     @MethodSource("containers")
-    void create(RedisModulesContainer container) throws IOException, ExecutionException, InterruptedException {
+    void create(RedisModulesContainer container) throws IOException, InterruptedException {
         RedisModulesAsyncCommands<String, String> async = container.async();
         RedisModulesCommands<String, String> sync = container.sync();
-        RedisModulesReactiveCommands<String, String> reactive = container.reactive();
-
         createBeerIndex(container);
         String indexName = "hashIndex";
         sync.create(indexName, CreateOptions.<String, String>builder().prefix("beer:").on(CreateOptions.Structure.HASH).build(), SCHEMA);
@@ -146,7 +144,7 @@ public class TestSearch extends BaseRedisModulesTest {
         assertEquals(2348, numDocs);
 
         CreateOptions<String, String> options = CreateOptions.<String, String>builder().prefix("release:").payloadField("xml").build();
-        Field<String, String>[] fields = new Field[]{Field.text("artist").sortable(true).build(), Field.tag("id").sortable(true).build(), Field.text("title").sortable(true).build()};
+        Field<String>[] fields = new Field[]{Field.text("artist").sortable(true).build(), Field.tag("id").sortable(true).build(), Field.text("title").sortable(true).build()};
         sync.create("releases", options, fields);
         info = RediSearchUtils.getInfo(sync.ftInfo("releases"));
         Assertions.assertEquals(fields.length, info.getFields().size());
@@ -339,7 +337,7 @@ public class TestSearch extends BaseRedisModulesTest {
 
     @ParameterizedTest
     @MethodSource("containers")
-    void aggregate(RedisModulesContainer container) throws IOException, ExecutionException, InterruptedException {
+    void aggregate(RedisModulesContainer container) throws IOException {
         List<Map<String, String>> beers = createBeerIndex(container);
         RediSearchCommands<String, String> search = container.sync();
 
@@ -400,7 +398,6 @@ public class TestSearch extends BaseRedisModulesTest {
         sync.aliasUpdate(newAlias, INDEX);
         assertTrue(sync.search(newAlias, "*").size() > 0);
 
-
         sync.aliasDel(newAlias);
         try {
             sync.search(newAlias, "*");
@@ -459,13 +456,13 @@ public class TestSearch extends BaseRedisModulesTest {
         List<Object> infoList = async.ftInfo(INDEX).get();
         IndexInfo<String, String> info = RediSearchUtils.getInfo(infoList);
         Assertions.assertEquals(2348, info.getNumDocs());
-        List<Field<String, String>> fields = info.getFields();
-        Field.Text<String, String> nameField = (Field.Text<String, String>) fields.get(0);
+        List<Field<String>> fields = info.getFields();
+        Field.Text<String> nameField = (Field.Text<String>) fields.get(0);
         Assertions.assertEquals(NAME, nameField.getName());
         Assertions.assertFalse(nameField.isNoIndex());
         Assertions.assertFalse(nameField.isNoStem());
         Assertions.assertFalse(nameField.isSortable());
-        Field.Tag<String, String> styleField = (Field.Tag<String, String>) fields.get(1);
+        Field.Tag<String> styleField = (Field.Tag<String>) fields.get(1);
         Assertions.assertEquals(STYLE, styleField.getName());
         Assertions.assertTrue(styleField.isSortable());
         Assertions.assertEquals(",", styleField.getSeparator());

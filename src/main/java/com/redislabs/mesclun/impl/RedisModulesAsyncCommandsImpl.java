@@ -143,12 +143,12 @@ public class RedisModulesAsyncCommandsImpl<K, V> extends RedisAsyncCommandsImpl<
 
 
     @Override
-    public RedisFuture<String> create(K index, Field<K,V>... fields) {
+    public RedisFuture<String> create(K index, Field<K>... fields) {
         return create(index, null, fields);
     }
 
     @Override
-    public RedisFuture<String> create(K index, com.redislabs.mesclun.search.CreateOptions<K, V> options, Field<K,V>... fields) {
+    public RedisFuture<String> create(K index, com.redislabs.mesclun.search.CreateOptions<K, V> options, Field<K>... fields) {
         return dispatch(searchCommandBuilder.create(index, options, fields));
     }
 
@@ -243,7 +243,7 @@ public class RedisModulesAsyncCommandsImpl<K, V> extends RedisAsyncCommandsImpl<
     }
 
     @Override
-    public RedisFuture<String> alter(K index, Field<K,V> field) {
+    public RedisFuture<String> alter(K index, Field<K> field) {
         return dispatch(searchCommandBuilder.alter(index, field));
     }
 

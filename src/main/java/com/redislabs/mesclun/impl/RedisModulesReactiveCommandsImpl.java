@@ -143,12 +143,12 @@ public class RedisModulesReactiveCommandsImpl<K, V> extends RedisReactiveCommand
 
 
     @Override
-    public Mono<String> create(K index, Field<K, V>... fields) {
+    public Mono<String> create(K index, Field<K>... fields) {
         return create(index, null, fields);
     }
 
     @Override
-    public Mono<String> create(K index, com.redislabs.mesclun.search.CreateOptions<K, V> options, Field<K,V>... fields) {
+    public Mono<String> create(K index, com.redislabs.mesclun.search.CreateOptions<K, V> options, Field<K>... fields) {
         return createMono(() -> searchCommandBuilder.create(index, options, fields));
     }
 
@@ -243,7 +243,7 @@ public class RedisModulesReactiveCommandsImpl<K, V> extends RedisReactiveCommand
     }
 
     @Override
-    public Mono<String> alter(K index, Field<K,V> field) {
+    public Mono<String> alter(K index, Field<K> field) {
         return createMono(() -> searchCommandBuilder.alter(index, field));
     }
 

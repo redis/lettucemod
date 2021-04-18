@@ -5,15 +5,15 @@ import java.util.List;
 @SuppressWarnings("unchecked")
 public interface RediSearchCommands<K, V> {
 
-    String create(K index, Field<K,V>... fields);
+    String create(K index, Field<K>... fields);
 
-    String create(K index, CreateOptions<K, V> options, Field<K,V>... fields);
+    String create(K index, CreateOptions<K, V> options, Field<K>... fields);
 
     String dropIndex(K index);
 
     String dropIndex(K index, boolean deleteDocs);
 
-    String alter(K index, Field<K,V> field);
+    String alter(K index, Field<K> field);
 
     List<Object> ftInfo(K index);
 

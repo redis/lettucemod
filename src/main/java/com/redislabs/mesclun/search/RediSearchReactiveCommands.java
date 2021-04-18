@@ -6,15 +6,15 @@ import reactor.core.publisher.Mono;
 @SuppressWarnings("unchecked")
 public interface RediSearchReactiveCommands<K, V> {
 
-    Mono<String> create(K index, Field<K, V>... fields);
+    Mono<String> create(K index, Field<K>... fields);
 
-    Mono<String> create(K index, CreateOptions<K, V> options, Field<K, V>... fields);
+    Mono<String> create(K index, CreateOptions<K, V> options, Field<K>... fields);
 
     Mono<String> dropIndex(K index);
 
     Mono<String> dropIndex(K index, boolean deleteDocs);
 
-    Mono<String> alter(K index, Field<K, V> field);
+    Mono<String> alter(K index, Field<K> field);
 
     Flux<Object> ftInfo(K index);
 

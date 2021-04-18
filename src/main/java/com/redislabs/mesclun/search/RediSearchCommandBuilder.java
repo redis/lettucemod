@@ -28,7 +28,7 @@ public class RediSearchCommandBuilder<K, V> extends RedisModulesCommandBuilder<K
         return new Command<>(type, output, args);
     }
 
-    public Command<K, V, String> create(K index, CreateOptions<K, V> options, Field<K, V>... fields) {
+    public Command<K, V, String> create(K index, CreateOptions<K, V> options, Field<K>... fields) {
         notNull(index, "index");
         LettuceAssert.isTrue(fields.length > 0, "At least one field is required.");
         RediSearchCommandArgs<K, V> args = createArgs(index);
@@ -36,8 +36,8 @@ public class RediSearchCommandBuilder<K, V> extends RedisModulesCommandBuilder<K
             options.build(args);
         }
         args.add(CommandKeyword.SCHEMA);
-        for (Field<K, V> field : fields) {
-            field.build(args);
+        for (Field<K> field : fields) {
+            field.build((RediSearchCommandArgs<K, Object>) args);
         }
         return createCommand(CommandType.CREATE, new StatusOutput<>(codec), args);
     }
@@ -57,13 +57,13 @@ public class RediSearchCommandBuilder<K, V> extends RedisModulesCommandBuilder<K
         return createCommand(CommandType.INFO, new NestedMultiOutput<>(codec), args);
     }
 
-    public Command<K, V, String> alter(K index, Field<K,V> field) {
+    public Command<K, V, String> alter(K index, Field<K> field) {
         notNull(index, "index");
         notNull(field, "field");
         RediSearchCommandArgs<K, V> args = createArgs(index);
         args.add(CommandKeyword.SCHEMA);
         args.add(CommandKeyword.ADD);
-        field.build(args);
+        field.build((RediSearchCommandArgs<K, Object>) args);
         return createCommand(CommandType.ALTER, new StatusOutput<>(codec), args);
     }
 

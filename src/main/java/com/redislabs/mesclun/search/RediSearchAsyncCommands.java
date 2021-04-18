@@ -7,15 +7,15 @@ import java.util.List;
 @SuppressWarnings("unchecked")
 public interface RediSearchAsyncCommands<K, V> {
 
-    RedisFuture<String> create(K index, Field<K,V>... fields);
+    RedisFuture<String> create(K index, Field<K>... fields);
 
-    RedisFuture<String> create(K index, CreateOptions<K, V> options, Field<K,V>... fields);
+    RedisFuture<String> create(K index, CreateOptions<K, V> options, Field<K>... fields);
 
     RedisFuture<String> dropIndex(K index);
 
     RedisFuture<String> dropIndex(K index, boolean deleteDocs);
 
-    RedisFuture<String> alter(K index, Field<K,V> field);
+    RedisFuture<String> alter(K index, Field<K> field);
 
     RedisFuture<List<Object>> ftInfo(K index);
 

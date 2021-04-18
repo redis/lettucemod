@@ -1,21 +1,15 @@
 package com.redislabs.mesclun;
 
-import com.redislabs.mesclun.timeseries.*;
+import com.redislabs.mesclun.timeseries.CreateOptions;
+import com.redislabs.mesclun.timeseries.Label;
+import com.redislabs.mesclun.timeseries.RedisTimeSeriesCommands;
 import com.redislabs.testcontainers.BaseRedisModulesTest;
 import com.redislabs.testcontainers.RedisModulesContainer;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.utility.DockerImageName;
 
-import io.lettuce.core.RedisURI;
-
+@SuppressWarnings("unchecked")
 public class TestTimeSeries extends BaseRedisModulesTest {
 
     @ParameterizedTest
