@@ -2,33 +2,23 @@ package com.redislabs.mesclun;
 
 import com.redislabs.mesclun.gears.*;
 import com.redislabs.mesclun.gears.output.ExecutionResults;
-import com.redislabs.testcontainers.BaseRedisModulesTest;
-import com.redislabs.testcontainers.RedisModulesContainer;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.MethodSource;
-import org.testcontainers.junit.jupiter.Testcontainers;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Map;
 
-@SuppressWarnings("SameParameterValue")
-@Testcontainers
 public class TestGears extends BaseRedisModulesTest {
 
-    @ParameterizedTest
-    @MethodSource("containers")
-    void pyExecute(RedisModulesContainer redisContainer) {
-        RedisModulesCommands<String, String> sync = redisContainer.sync();
+    @Test
+    void pyExecute() {
         sync.set("foo", "bar");
         ExecutionResults results = pyExecute(sync, "sleep.py");
         Assertions.assertEquals("1", results.getResults().get(0));
     }
 
-    @ParameterizedTest
-    @MethodSource("containers")
-    void pyExecuteUnblocking(RedisModulesContainer redisContainer) {
-        RedisModulesCommands<String, String> sync = redisContainer.sync();
+    @Test
+    void pyExecuteUnblocking() {
         sync.set("foo", "bar");
         String executionId = pyExecuteUnblocking(sync, "sleep.py");
         String[] array = executionId.split("-");
@@ -37,10 +27,8 @@ public class TestGears extends BaseRedisModulesTest {
         Assertions.assertTrue(Integer.parseInt(array[1]) >= 0);
     }
 
-    @ParameterizedTest
-    @MethodSource("containers")
-    void pyExecuteNoResults(RedisModulesContainer redisContainer) {
-        RedisModulesCommands<String, String> sync = redisContainer.sync();
+    @Test
+    void pyExecuteNoResults() {
         ExecutionResults results = pyExecute(sync, "sleep.py");
         Assertions.assertTrue(results.getResults().isEmpty());
         Assertions.assertTrue(results.getErrors().isEmpty());
@@ -50,6 +38,7 @@ public class TestGears extends BaseRedisModulesTest {
         return sync.pyExecute(load(resourceName));
     }
 
+    @SuppressWarnings("SameParameterValue")
     private String pyExecuteUnblocking(RedisGearsCommands<String, String> sync, String resourceName) {
         return sync.pyExecuteUnblocking(load(resourceName));
     }
@@ -58,11 +47,8 @@ public class TestGears extends BaseRedisModulesTest {
         return RedisGearsUtils.toString(getClass().getClassLoader().getResourceAsStream(resourceName));
     }
 
-    @ParameterizedTest
-    @MethodSource("containers")
-    void dumpRegistrations(RedisModulesContainer redisContainer) {
-        RedisModulesCommands<String, String> sync = redisContainer.sync();
-
+    @Test
+    void dumpRegistrations() {
         // Single registration
         List<Registration> registrations = sync.dumpRegistrations();
         Assertions.assertEquals(0, registrations.size());
@@ -90,20 +76,16 @@ public class TestGears extends BaseRedisModulesTest {
         Assertions.assertEquals(2, registrations.size());
     }
 
-    @ParameterizedTest
-    @MethodSource("containers")
-    void testGetResults(RedisModulesContainer redisContainer) {
-        RedisModulesCommands<String, String> sync = redisContainer.sync();
+    @Test
+    void testGetResults() {
         sync.set("foo", "bar");
         ExecutionResults results = sync.pyExecute("GB().foreach(lambda x: log('test')).register()");
         Assertions.assertTrue(results.isOk());
         Assertions.assertFalse(results.isError());
     }
 
-    @ParameterizedTest
-    @MethodSource("containers")
-    void testDumpExecutions(RedisModulesContainer redisContainer) throws InterruptedException {
-        RedisModulesCommands<String, String> sync = redisContainer.sync();
+    @Test
+    void testDumpExecutions() throws InterruptedException {
         List<Execution> executions = sync.dumpExecutions();
         executions.forEach(e -> sync.dropExecution(e.getId()));
         sync.set("foo", "bar");
@@ -114,10 +96,8 @@ public class TestGears extends BaseRedisModulesTest {
         Assertions.assertEquals(2, executions.size());
     }
 
-    @ParameterizedTest
-    @MethodSource("containers")
-    void testDropExecution(RedisModulesContainer redisContainer) throws InterruptedException {
-        RedisModulesCommands<String, String> sync = redisContainer.sync();
+    @Test
+    void testDropExecution() throws InterruptedException {
         sync.set("foo", "bar");
         pyExecuteUnblocking(sync, "sleep.py");
         pyExecuteUnblocking(sync, "sleep.py");
@@ -128,10 +108,8 @@ public class TestGears extends BaseRedisModulesTest {
         Assertions.assertEquals(0, sync.dumpExecutions().size());
     }
 
-    @ParameterizedTest
-    @MethodSource("containers")
-    void abortExecution(RedisModulesContainer redisContainer) throws InterruptedException {
-        RedisModulesCommands<String,String> sync = redisContainer.sync();
+    @Test
+    void abortExecution() throws InterruptedException {
         sync.set("foo", "bar");
         pyExecuteUnblocking(sync, "sleep.py");
         pyExecuteUnblocking(sync, "sleep.py");
