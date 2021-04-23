@@ -79,6 +79,13 @@ public class TestSearch extends BaseRedisModulesTest {
     }
 
     @Test
+    void testGeoLocation() {
+        RediSearchUtils.GeoLocation location = RediSearchUtils.GeoLocation.of("-118.753604,34.027201");
+        Assertions.assertEquals(-118.753604, location.getLongitude());
+        Assertions.assertEquals(34.027201, location.getLatitude());
+    }
+
+    @Test
     void testSugaddIncr() {
         String key = "testSugadd";
         sync.sugadd(key, "value1", 1);

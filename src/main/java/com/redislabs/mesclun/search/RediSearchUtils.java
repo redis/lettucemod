@@ -1,6 +1,11 @@
 package com.redislabs.mesclun.search;
 
 import com.redislabs.mesclun.search.protocol.CommandKeyword;
+import io.lettuce.core.internal.LettuceAssert;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,6 +17,7 @@ import static com.redislabs.mesclun.search.protocol.CommandKeyword.*;
 public class RediSearchUtils {
 
     private final static Long ZERO = 0L;
+    private static final String GEO_LONLAT_SEPARATOR = ",";
 
     @SuppressWarnings("unchecked")
     public static <K, V> IndexInfo<K, V> getInfo(List<Object> infoList) {
@@ -19,7 +25,7 @@ public class RediSearchUtils {
         for (int i = 0; i < (infoList.size() / 2); i++) {
             map.put((String) infoList.get(i * 2), infoList.get(i * 2 + 1));
         }
-        return IndexInfo.<K, V>builder().indexName(getString(map.get("index_name"))).indexOptions((List<Object>) map.get("index_options")).fields(fields(map.get("fields"))).numDocs(getDouble(map.get("num_docs"))).maxDocId(getString(map.get("max_doc_id"))).numTerms(getLong(map, "num_terms")).numRecords(getLong(map, "num_records")).invertedSizeMb(getDouble(map.get("inverted_sz_mb"))).totalInvertedIndexBlocks(getLong(map, "total_inverted_index_blocks")).offsetVectorsSizeMb(getDouble(map.get("offset_vectors_sz_mb"))).docTableSizeMb(getDouble(map.get("doc_table_size_mb"))).sortableValuesSizeMb(getDouble(map.get("sortable_values_size_mb"))).keyTableSizeMb(getDouble(map.get("key_table_size_mb"))).recordsPerDocAvg(getDouble(map.get("records_per_doc_avg"))).bytesPerRecordAvg(getDouble(map.get("bytes_per_record_avg"))).offsetsPerTermAvg(getDouble(map.get("offsets_per_term_avg"))).offsetBitsPerRecordAvg(getDouble(map.get("offset_bits_per_record_avg"))).gcStats((List<Object>) map.get("gc_stats")).cursorStats((List<Object>) map.get("cursor_stats")).build();
+        return IndexInfo.<K, V>builder().indexName(getString(map.get("index_name"))).indexOptions((List<Object>) map.get("index_options")).fields(fields(map.get("fields"))).numDocs(getDouble(map.get("num_docs"))).maxDocId(getString(map.get("max_doc_id"))).numTerms(toLong(map, "num_terms")).numRecords(toLong(map, "num_records")).invertedSizeMb(getDouble(map.get("inverted_sz_mb"))).totalInvertedIndexBlocks(toLong(map, "total_inverted_index_blocks")).offsetVectorsSizeMb(getDouble(map.get("offset_vectors_sz_mb"))).docTableSizeMb(getDouble(map.get("doc_table_size_mb"))).sortableValuesSizeMb(getDouble(map.get("sortable_values_size_mb"))).keyTableSizeMb(getDouble(map.get("key_table_size_mb"))).recordsPerDocAvg(getDouble(map.get("records_per_doc_avg"))).bytesPerRecordAvg(getDouble(map.get("bytes_per_record_avg"))).offsetsPerTermAvg(getDouble(map.get("offsets_per_term_avg"))).offsetBitsPerRecordAvg(getDouble(map.get("offset_bits_per_record_avg"))).gcStats((List<Object>) map.get("gc_stats")).cursorStats((List<Object>) map.get("cursor_stats")).build();
     }
 
     private static Double getDouble(Object object) {
@@ -73,7 +79,7 @@ public class RediSearchUtils {
         }
     }
 
-    private static Long getLong(Map<String, Object> map, String key) {
+    private static Long toLong(Map<String, Object> map, String key) {
         if (map.containsKey(key)) {
             Object value = map.get(key);
             if (value != null) {
@@ -98,5 +104,31 @@ public class RediSearchUtils {
     public static String escapeTag(String value) {
         return value.replaceAll("([^a-zA-Z0-9])", "\\\\$1");
     }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class GeoLocation {
+
+        private double latitude;
+        private double longitude;
+
+        public static GeoLocation of(String location) {
+            LettuceAssert.notNull(location, "Location string must not be null");
+            String[] lonlat = location.split(GEO_LONLAT_SEPARATOR);
+            LettuceAssert.isTrue(lonlat.length == 2, "Location string not in proper format \"longitude,latitude\"");
+            return GeoLocation.builder().longitude(Double.valueOf(lonlat[0])).latitude(Double.valueOf(lonlat[1])).build();
+        }
+
+        public static String toString(String longitude, String latitude) {
+            if (longitude == null || latitude == null) {
+                return null;
+            }
+            return longitude + GEO_LONLAT_SEPARATOR + latitude;
+        }
+
+    }
+
 
 }
