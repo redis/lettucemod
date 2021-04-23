@@ -44,8 +44,9 @@ public class AggregateOptions<K, V> implements RediSearchArgument<K, V> {
         }
 
         public AggregateOptionsBuilder<K, V> groupBy(Collection<String> properties, Operation.GroupBy.Reducer<K, V>... reducers) {
-            LettuceAssert.isTrue(!properties.isEmpty(), "At least one group-by property is required.");
-            LettuceAssert.isTrue(reducers.length > 0, "At least one reducer is required.");
+            // Removed checks to accept GROUPBY 0
+//            LettuceAssert.isTrue(!properties.isEmpty(), "At least one group-by property is required.");
+//            LettuceAssert.isTrue(reducers.length > 0, "At least one reducer is required.");
             operation(Operation.GroupBy.<K, V>builder().properties(properties).reducers(Arrays.asList(reducers)).build());
             return this;
         }
