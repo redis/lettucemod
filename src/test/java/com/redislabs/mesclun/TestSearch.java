@@ -80,9 +80,14 @@ public class TestSearch extends BaseRedisModulesTest {
 
     @Test
     void testGeoLocation() {
-        RediSearchUtils.GeoLocation location = RediSearchUtils.GeoLocation.of("-118.753604,34.027201");
-        Assertions.assertEquals(-118.753604, location.getLongitude());
-        Assertions.assertEquals(34.027201, location.getLatitude());
+        double longitude = -118.753604;
+        double latitude = 34.027201;
+        String locationString = "-118.753604,34.027201";
+        RediSearchUtils.GeoLocation location = RediSearchUtils.GeoLocation.of(locationString);
+        Assertions.assertEquals(longitude, location.getLongitude());
+        Assertions.assertEquals(latitude, location.getLatitude());
+        Assertions.assertEquals(locationString, RediSearchUtils.GeoLocation.toString(String.valueOf(longitude), String.valueOf(latitude)));
+
     }
 
     @Test
@@ -361,11 +366,11 @@ public class TestSearch extends BaseRedisModulesTest {
 
     @Test
     void aggregateApply() {
-//        HMSET "ktest:k1" name alex date "20210401" note "foo.bar" min 30
-//        HMSET "ktest:k2" name alex date "20210401" note "foo.bar" min 20
-//        HMSET "ktest:k3" name alex date "20210402" note "foo.bar" min 10
-//        FT.DROPINDEX idx:test
-//        FT.CREATE idx:test ON hash PREFIX 1 "ktest:" SCHEMA name TEXT date NUMERIC SORTABLE note TAG SORTABLE min NUMERIC SORTABLE
+        //        HMSET "ktest:k1" name alex date "20210401" note "foo.bar" min 30
+        //        HMSET "ktest:k2" name alex date "20210401" note "foo.bar" min 20
+        //        HMSET "ktest:k3" name alex date "20210402" note "foo.bar" min 10
+        //        FT.DROPINDEX idx:test
+        //        FT.CREATE idx:test ON hash PREFIX 1 "ktest:" SCHEMA name TEXT date NUMERIC SORTABLE note TAG SORTABLE min NUMERIC SORTABLE
     }
 
     @Test
