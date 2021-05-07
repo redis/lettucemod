@@ -15,7 +15,7 @@ public interface RediSearchCommands<K, V> {
 
     String alter(K index, Field<K> field);
 
-    List<Object> ftInfo(K index);
+    List<Object> indexInfo(K index);
 
     String aliasAdd(K name, K index);
 
@@ -45,7 +45,7 @@ public interface RediSearchCommands<K, V> {
 
     Long sugadd(K key, V string, double score);
 
-    Long sugadd(K key, V string, double score, SugaddOptions<K, V> options);
+    Long sugadd(K key, V string, double score, SugaddOptions<V> options);
 
     List<Suggestion<V>> sugget(K key, V prefix);
 

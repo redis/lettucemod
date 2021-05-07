@@ -12,7 +12,6 @@ import io.lettuce.core.protocol.Command;
 import io.lettuce.core.protocol.CommandArgs;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * Dedicated pub/sub command builder to build pub/sub commands.
@@ -145,7 +144,7 @@ public class RediSearchCommandBuilder<K, V> extends RedisModulesCommandBuilder<K
         return sugadd(key, string, score, null);
     }
 
-    public Command<K, V, Long> sugadd(K key, V string, double score, SugaddOptions<K, V> options) {
+    public Command<K, V, Long> sugadd(K key, V string, double score, SugaddOptions<V> options) {
         notNull(key, "key");
         notNull(string, "suggestion string");
         RediSearchCommandArgs<K, V> args = new RediSearchCommandArgs<>(codec);
@@ -199,13 +198,6 @@ public class RediSearchCommandBuilder<K, V> extends RedisModulesCommandBuilder<K
         RediSearchCommandArgs<K, V> args = new RediSearchCommandArgs<>(codec).addKey(key);
         return createCommand(CommandType.SUGLEN, new IntegerOutput<>(codec), args);
 
-    }
-
-    public Command<K, V, Map<K, V>> get(K index, K docId) {
-        notNull(docId, "docId");
-        RediSearchCommandArgs<K, V> args = createArgs(index);
-        args.addKey(docId);
-        return createCommand(CommandType.GET, new MapOutput<>(codec), args);
     }
 
     public Command<K, V, String> aliasAdd(K name, K index) {

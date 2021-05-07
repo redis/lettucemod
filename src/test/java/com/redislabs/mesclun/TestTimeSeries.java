@@ -2,7 +2,6 @@ package com.redislabs.mesclun;
 
 import com.redislabs.mesclun.timeseries.CreateOptions;
 import com.redislabs.mesclun.timeseries.Label;
-import com.redislabs.testcontainers.RedisModulesContainer;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

@@ -163,7 +163,7 @@ public class RedisModulesReactiveCommandsImpl<K, V> extends RedisReactiveCommand
     }
 
     @Override
-    public Flux<Object> ftInfo(K index) {
+    public Flux<Object> indexInfo(K index) {
         return createDissolvingFlux(() -> searchCommandBuilder.info(index));
     }
 
@@ -218,7 +218,7 @@ public class RedisModulesReactiveCommandsImpl<K, V> extends RedisReactiveCommand
     }
 
     @Override
-    public Mono<Long> sugadd(K key, V string, double score, SugaddOptions<K, V> options) {
+    public Mono<Long> sugadd(K key, V string, double score, SugaddOptions<V> options) {
         return createMono(() -> searchCommandBuilder.sugadd(key, string, score, options));
     }
 

@@ -16,7 +16,7 @@ public interface RediSearchReactiveCommands<K, V> {
 
     Mono<String> alter(K index, Field<K> field);
 
-    Flux<Object> ftInfo(K index);
+    Flux<Object> indexInfo(K index);
 
     Mono<String> aliasAdd(K name, K index);
 
@@ -46,7 +46,7 @@ public interface RediSearchReactiveCommands<K, V> {
 
     Mono<Long> sugadd(K key, V string, double score);
 
-    Mono<Long> sugadd(K key, V string, double score, SugaddOptions<K, V> options);
+    Mono<Long> sugadd(K key, V string, double score, SugaddOptions<V> options);
 
     Flux<Suggestion<V>> sugget(K key, V prefix);
 

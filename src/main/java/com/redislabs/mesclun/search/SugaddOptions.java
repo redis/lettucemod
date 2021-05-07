@@ -11,13 +11,13 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class SugaddOptions<K, V> implements RediSearchArgument<K, V> {
+public class SugaddOptions<V> implements RediSearchArgument<Object, V> {
 
     private boolean increment;
     private V payload;
 
     @Override
-    public void build(RediSearchCommandArgs<K, V> args) {
+    public void build(RediSearchCommandArgs<Object, V> args) {
         if (increment) {
             args.add(CommandKeyword.INCR);
         }

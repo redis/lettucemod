@@ -163,7 +163,7 @@ public class RedisModulesAsyncCommandsImpl<K, V> extends RedisAsyncCommandsImpl<
     }
 
     @Override
-    public RedisFuture<List<Object>> ftInfo(K index) {
+    public RedisFuture<List<Object>> indexInfo(K index) {
         return dispatch(searchCommandBuilder.info(index));
     }
 
@@ -218,7 +218,7 @@ public class RedisModulesAsyncCommandsImpl<K, V> extends RedisAsyncCommandsImpl<
     }
 
     @Override
-    public RedisFuture<Long> sugadd(K key, V string, double score, SugaddOptions<K, V> options) {
+    public RedisFuture<Long> sugadd(K key, V string, double score, SugaddOptions<V> options) {
         return dispatch(searchCommandBuilder.sugadd(key, string, score, options));
     }
 

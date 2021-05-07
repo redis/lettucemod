@@ -18,7 +18,7 @@ public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
     private boolean withScores;
     private boolean withPayloads;
     private boolean withSortKeys;
-    private NumericFilter<K, V> filter;
+    private NumericFilter<K> filter;
     @Singular
     private List<K> inKeys;
     @Singular
@@ -27,7 +27,7 @@ public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
     private List<K> returnFields;
     private Highlight<K, V> highlight;
     private Language language;
-    private SortBy<K, V> sortBy;
+    private SortBy<K> sortBy;
     private Limit limit;
 
     @SuppressWarnings({"unchecked", "rawtypes"})
@@ -87,14 +87,14 @@ public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class NumericFilter<K, V> implements RediSearchArgument<K, V> {
+    public static class NumericFilter<K> implements RediSearchArgument<K, Object> {
 
         private K field;
         private double min;
         private double max;
 
         @Override
-        public void build(RediSearchCommandArgs<K, V> args) {
+        public void build(RediSearchCommandArgs<K, Object> args) {
             args.addKey(field);
             args.add(min);
             args.add(max);
@@ -135,7 +135,7 @@ public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
         }
     }
 
-    public static class Limit implements RediSearchArgument {
+    public static class Limit implements RediSearchArgument<Object, Object> {
 
         private final long offset;
         private final long num;
@@ -146,7 +146,7 @@ public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
         }
 
         @Override
-        public void build(RediSearchCommandArgs args) {
+        public void build(RediSearchCommandArgs<Object, Object> args) {
             args.add(CommandKeyword.LIMIT);
             args.add(offset);
             args.add(num);
@@ -161,7 +161,7 @@ public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
 
     @Data
     @Builder
-    public static class SortBy<K, V> implements RediSearchArgument<K, V> {
+    public static class SortBy<K> implements RediSearchArgument<K, Object> {
 
         public final static Direction DEFAULT_DIRECTION = Direction.Ascending;
 
@@ -170,7 +170,7 @@ public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
         private Direction direction = DEFAULT_DIRECTION;
 
         @Override
-        public void build(RediSearchCommandArgs<K, V> args) {
+        public void build(RediSearchCommandArgs<K, Object> args) {
             args.addKey(field);
             args.add(direction == Direction.Ascending ? CommandKeyword.ASC : CommandKeyword.DESC);
         }

@@ -118,7 +118,7 @@ public class RediSearchUtils {
             LettuceAssert.notNull(location, "Location string must not be null");
             String[] lonlat = location.split(GEO_LONLAT_SEPARATOR);
             LettuceAssert.isTrue(lonlat.length == 2, "Location string not in proper format \"longitude,latitude\"");
-            return GeoLocation.builder().longitude(Double.valueOf(lonlat[0])).latitude(Double.valueOf(lonlat[1])).build();
+            return GeoLocation.builder().longitude(Double.parseDouble(lonlat[0])).latitude(Double.parseDouble(lonlat[1])).build();
         }
 
         public static String toString(String longitude, String latitude) {
