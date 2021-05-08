@@ -87,7 +87,6 @@ public class TestSearch extends BaseRedisModulesTest {
         Assertions.assertEquals(longitude, location.getLongitude());
         Assertions.assertEquals(latitude, location.getLatitude());
         Assertions.assertEquals(locationString, RediSearchUtils.GeoLocation.toString(String.valueOf(longitude), String.valueOf(latitude)));
-
     }
 
     @Test
@@ -299,6 +298,14 @@ public class TestSearch extends BaseRedisModulesTest {
         async.hmset("doc1", doc1).get();
         results = async.search(index, "@id:{" + RediSearchUtils.escapeTag("User1#test.org") + "}").get();
         Assertions.assertEquals(1, results.size());
+
+        SearchResults<String, String> filterResults = sync.search(INDEX, "*", SearchOptions.<String, String>builder().filter(SearchOptions.NumericFilter.<String>builder().field(ABV).min(.08).max(.1).build()).build());
+        Assertions.assertEquals(10, filterResults.size());
+        for (Document<String, String> document : filterResults) {
+            double abv = Double.parseDouble(document.get(ABV));
+            Assertions.assertTrue(abv >= 0.08);
+            Assertions.assertTrue(abv <= 0.1);
+        }
 
     }
 

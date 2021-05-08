@@ -18,7 +18,9 @@ public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
     private boolean withScores;
     private boolean withPayloads;
     private boolean withSortKeys;
-    private NumericFilter<K> filter;
+    @Singular
+    private List<NumericFilter<K>> filters;
+    private GeoFilter<K> geoFilter;
     @Singular
     private List<K> inKeys;
     @Singular
@@ -27,12 +29,15 @@ public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
     private List<K> returnFields;
     private Highlight<K, V> highlight;
     private Language language;
+    private String expander;
+    private String scorer;
+    private V payload;
     private SortBy<K> sortBy;
     private Limit limit;
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
+    @SuppressWarnings("unchecked")
     @Override
-    public void build(RediSearchCommandArgs args) {
+    public void build(RediSearchCommandArgs<K, V> args) {
         if (noContent) {
             args.add(CommandKeyword.NOCONTENT);
         }
@@ -50,6 +55,14 @@ public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
         }
         if (withSortKeys) {
             args.add(CommandKeyword.WITHSORTKEYS);
+        }
+        for (NumericFilter<K> filter : filters) {
+            args.add(CommandKeyword.FILTER);
+            filter.build((RediSearchCommandArgs<K, Object>) args);
+        }
+        if (geoFilter != null) {
+            args.add(CommandKeyword.GEOFILTER);
+            geoFilter.build((RediSearchCommandArgs<K, Object>) args);
         }
         if (!inKeys.isEmpty()) {
             args.add(CommandKeyword.INKEYS);
@@ -72,14 +85,26 @@ public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
         }
         if (sortBy != null) {
             args.add(CommandKeyword.SORTBY);
-            sortBy.build(args);
+            sortBy.build((RediSearchCommandArgs<K, Object>) args);
         }
         if (language != null) {
             args.add(CommandKeyword.LANGUAGE);
             args.add(language.name());
         }
+        if (expander != null) {
+            args.add(CommandKeyword.EXPANDER);
+            args.add(expander);
+        }
+        if (scorer != null) {
+            args.add(CommandKeyword.SCORER);
+            args.add(scorer);
+        }
+        if (payload != null) {
+            args.add(CommandKeyword.PAYLOAD);
+            args.addValue(payload);
+        }
         if (limit != null) {
-            limit.build(args);
+            limit.build((RediSearchCommandArgs<Object, Object>) args);
         }
     }
 
@@ -98,6 +123,28 @@ public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
             args.addKey(field);
             args.add(min);
             args.add(max);
+        }
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class GeoFilter<K> implements RediSearchArgument<K, Object> {
+
+        private K field;
+        private double longitude;
+        private double latitude;
+        private double radius;
+        private String unit;
+
+        @Override
+        public void build(RediSearchCommandArgs<K, Object> args) {
+            args.addKey(field);
+            args.add(longitude);
+            args.add(latitude);
+            args.add(radius);
+            args.add(unit);
         }
     }
 
@@ -135,15 +182,14 @@ public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
         }
     }
 
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class Limit implements RediSearchArgument<Object, Object> {
 
-        private final long offset;
-        private final long num;
-
-        public Limit(long offset, long num) {
-            this.offset = offset;
-            this.num = num;
-        }
+        private long offset;
+        private  long num;
 
         @Override
         public void build(RediSearchCommandArgs<Object, Object> args) {
