@@ -28,7 +28,10 @@ public class SearchOptions implements RediSearchArgument {
     private List<String> inFields;
     @Singular
     private List<String> returnFields;
+    private Summarize summarize;
     private Highlight highlight;
+    private Long slop;
+    private boolean inOrder;
     private Language language;
     private String expander;
     private String scorer;
@@ -80,13 +83,20 @@ public class SearchOptions implements RediSearchArgument {
             args.add(returnFields.size());
             returnFields.forEach(args::add);
         }
+        if (summarize != null) {
+            args.add(CommandKeyword.SUMMARIZE);
+            summarize.build(args);
+        }
         if (highlight != null) {
             args.add(CommandKeyword.HIGHLIGHT);
             highlight.build(args);
         }
-        if (sortBy != null) {
-            args.add(CommandKeyword.SORTBY);
-            sortBy.build(args);
+        if (slop != null) {
+            args.add(CommandKeyword.SLOP);
+            args.add(slop);
+        }
+        if (inOrder) {
+            args.add(CommandKeyword.INORDER);
         }
         if (language != null) {
             args.add(CommandKeyword.LANGUAGE);
@@ -103,6 +113,10 @@ public class SearchOptions implements RediSearchArgument {
         if (payload != null) {
             args.add(CommandKeyword.PAYLOAD);
             args.add(payload);
+        }
+        if (sortBy != null) {
+            args.add(CommandKeyword.SORTBY);
+            sortBy.build(args);
         }
         if (limit != null) {
             limit.build(args);
@@ -153,11 +167,14 @@ public class SearchOptions implements RediSearchArgument {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class Highlight implements RediSearchArgument {
+    public static class Summarize implements RediSearchArgument {
 
         @Singular
         private List<String> fields;
-        private Tag tag;
+        private Long frags;
+        private Long length;
+        private String separator;
+
 
         @Override
         public void build(RediSearchCommandArgs args) {
@@ -166,10 +183,17 @@ public class SearchOptions implements RediSearchArgument {
                 args.add(fields.size());
                 fields.forEach(args::add);
             }
-            if (tag != null) {
-                args.add(CommandKeyword.TAGS);
-                args.add(tag.getOpen());
-                args.add(tag.getClose());
+            if (frags != null) {
+                args.add(CommandKeyword.FRAGS);
+                args.add(frags);
+            }
+            if (length != null) {
+                args.add(CommandKeyword.LEN);
+                args.add(length);
+            }
+            if (separator != null) {
+                args.add(CommandKeyword.SEPARATOR);
+                args.add(separator);
             }
         }
 
@@ -187,10 +211,44 @@ public class SearchOptions implements RediSearchArgument {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
+    public static class Highlight implements RediSearchArgument {
+
+        @Singular
+        private List<String> fields;
+        private Tags tags;
+
+        @Override
+        public void build(RediSearchCommandArgs args) {
+            if (fields.size() > 0) {
+                args.add(CommandKeyword.FIELDS);
+                args.add(fields.size());
+                fields.forEach(args::add);
+            }
+            if (tags != null) {
+                args.add(CommandKeyword.TAGS);
+                args.add(tags.getOpen());
+                args.add(tags.getClose());
+            }
+        }
+
+        @Data
+        @Builder
+        public static class Tags {
+
+            private String open;
+            private String close;
+
+        }
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class Limit implements RediSearchArgument<Object, Object> {
 
         private long offset;
-        private  long num;
+        private long num;
 
         @Override
         public void build(RediSearchCommandArgs<Object, Object> args) {

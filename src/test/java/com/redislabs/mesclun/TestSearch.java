@@ -231,7 +231,7 @@ public class TestSearch extends BaseRedisModulesTest {
         assertNotNull(result1.get(STYLE));
         assertNull(result1.get(ABV));
 
-        SearchOptions options = SearchOptions.builder().withPayloads(true).noStopWords(true).limit(new SearchOptions.Limit(10, 100)).withScores(true).highlight(SearchOptions.Highlight.builder().field(NAME).tag(SearchOptions.Highlight.Tag.builder().open("<TAG>").close("</TAG>").build()).build()).language(SearchOptions.Language.English).noContent(false).sortBy(SearchOptions.SortBy.builder().direction(SearchOptions.SortBy.Direction.Ascending).field(NAME).build()).verbatim(false).withSortKeys(true).returnField(NAME).returnField(STYLE).build();
+        SearchOptions options = SearchOptions.builder().withPayloads(true).noStopWords(true).limit(new SearchOptions.Limit(10, 100)).withScores(true).highlight(SearchOptions.Highlight.builder().field(NAME).tags(SearchOptions.Highlight.Tags.builder().open("<TAG>").close("</TAG>").build()).build()).language(SearchOptions.Language.English).noContent(false).sortBy(SearchOptions.SortBy.builder().direction(SearchOptions.SortBy.Direction.Ascending).field(NAME).build()).verbatim(false).withSortKeys(true).returnField(NAME).returnField(STYLE).build();
         sync.search(INDEX, "pale", options);
         assertEquals(256, results.getCount());
         result1 = results.get(0);
@@ -262,19 +262,19 @@ public class TestSearch extends BaseRedisModulesTest {
 
         String term = "pale";
         String query = "@style:" + term;
-        SearchOptions.Highlight.Tag tag = SearchOptions.Highlight.Tag.builder().open("<b>").close("</b>").build();
+        SearchOptions.Highlight.Tags tags = SearchOptions.Highlight.Tags.builder().open("<b>").close("</b>").build();
         results = sync.search(INDEX, query, SearchOptions.builder().highlight(SearchOptions.Highlight.builder().build()).build());
         for (Document<String, String> result : results) {
-            assertTrue(highlighted(result, STYLE, tag, term));
+            assertTrue(highlighted(result, STYLE, tags, term));
         }
         results = sync.search(INDEX, query, SearchOptions.builder().highlight(SearchOptions.Highlight.builder().field(NAME).build()).build());
         for (Document<String, String> result : results) {
-            assertFalse(highlighted(result, STYLE, tag, term));
+            assertFalse(highlighted(result, STYLE, tags, term));
         }
-        tag = SearchOptions.Highlight.Tag.builder().open("[start]").close("[end]").build();
-        results = sync.search(INDEX, query, SearchOptions.builder().highlight(SearchOptions.Highlight.builder().field(STYLE).tag(tag).build()).build());
+        tags = SearchOptions.Highlight.Tags.builder().open("[start]").close("[end]").build();
+        results = sync.search(INDEX, query, SearchOptions.builder().highlight(SearchOptions.Highlight.builder().field(STYLE).tags(tags).build()).build());
         for (Document<String, String> result : results) {
-            assertTrue(highlighted(result, STYLE, tag, term));
+            assertTrue(highlighted(result, STYLE, tags, term));
         }
 
         results = reactive.search(INDEX, "pale", SearchOptions.builder().limit(new SearchOptions.Limit(200, 100)).build()).block();
@@ -310,9 +310,9 @@ public class TestSearch extends BaseRedisModulesTest {
     }
 
     @SuppressWarnings("SameParameterValue")
-    private boolean highlighted(Document<String, String> result, String fieldName, SearchOptions.Highlight.Tag tag, String string) {
+    private boolean highlighted(Document<String, String> result, String fieldName, SearchOptions.Highlight.Tags tags, String string) {
         String fieldValue = result.get(fieldName).toLowerCase();
-        return fieldValue.contains(tag.getOpen() + string + tag.getClose());
+        return fieldValue.contains(tags.getOpen() + string + tags.getClose());
     }
 
     @Test
