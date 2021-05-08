@@ -6,11 +6,12 @@ import lombok.*;
 
 import java.util.List;
 
+@SuppressWarnings("rawtypes")
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
+public class SearchOptions implements RediSearchArgument {
 
     private boolean noContent;
     private boolean verbatim;
@@ -19,25 +20,25 @@ public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
     private boolean withPayloads;
     private boolean withSortKeys;
     @Singular
-    private List<NumericFilter<K>> filters;
-    private GeoFilter<K> geoFilter;
+    private List<NumericFilter> filters;
+    private GeoFilter geoFilter;
     @Singular
-    private List<K> inKeys;
+    private List<String> inKeys;
     @Singular
-    private List<K> inFields;
+    private List<String> inFields;
     @Singular
-    private List<K> returnFields;
-    private Highlight<K, V> highlight;
+    private List<String> returnFields;
+    private Highlight highlight;
     private Language language;
     private String expander;
     private String scorer;
-    private V payload;
-    private SortBy<K> sortBy;
+    private String payload;
+    private SortBy sortBy;
     private Limit limit;
 
     @SuppressWarnings("unchecked")
     @Override
-    public void build(RediSearchCommandArgs<K, V> args) {
+    public void build(RediSearchCommandArgs args) {
         if (noContent) {
             args.add(CommandKeyword.NOCONTENT);
         }
@@ -56,28 +57,28 @@ public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
         if (withSortKeys) {
             args.add(CommandKeyword.WITHSORTKEYS);
         }
-        for (NumericFilter<K> filter : filters) {
+        for (NumericFilter filter : filters) {
             args.add(CommandKeyword.FILTER);
-            filter.build((RediSearchCommandArgs<K, Object>) args);
+            filter.build(args);
         }
         if (geoFilter != null) {
             args.add(CommandKeyword.GEOFILTER);
-            geoFilter.build((RediSearchCommandArgs<K, Object>) args);
+            geoFilter.build(args);
         }
         if (!inKeys.isEmpty()) {
             args.add(CommandKeyword.INKEYS);
             args.add(inKeys.size());
-            inKeys.forEach(args::addKey);
+            inKeys.forEach(args::add);
         }
         if (!inFields.isEmpty()) {
             args.add(CommandKeyword.INFIELDS);
             args.add(inFields.size());
-            inFields.forEach(args::addKey);
+            inFields.forEach(args::add);
         }
         if (!returnFields.isEmpty()) {
             args.add(CommandKeyword.RETURN);
             args.add(returnFields.size());
-            returnFields.forEach(args::addKey);
+            returnFields.forEach(args::add);
         }
         if (highlight != null) {
             args.add(CommandKeyword.HIGHLIGHT);
@@ -85,7 +86,7 @@ public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
         }
         if (sortBy != null) {
             args.add(CommandKeyword.SORTBY);
-            sortBy.build((RediSearchCommandArgs<K, Object>) args);
+            sortBy.build(args);
         }
         if (language != null) {
             args.add(CommandKeyword.LANGUAGE);
@@ -101,10 +102,10 @@ public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
         }
         if (payload != null) {
             args.add(CommandKeyword.PAYLOAD);
-            args.addValue(payload);
+            args.add(payload);
         }
         if (limit != null) {
-            limit.build((RediSearchCommandArgs<Object, Object>) args);
+            limit.build(args);
         }
     }
 
@@ -112,15 +113,15 @@ public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class NumericFilter<K> implements RediSearchArgument<K, Object> {
+    public static class NumericFilter implements RediSearchArgument {
 
-        private K field;
+        private String field;
         private double min;
         private double max;
 
         @Override
-        public void build(RediSearchCommandArgs<K, Object> args) {
-            args.addKey(field);
+        public void build(RediSearchCommandArgs args) {
+            args.add(field);
             args.add(min);
             args.add(max);
         }
@@ -130,17 +131,17 @@ public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class GeoFilter<K> implements RediSearchArgument<K, Object> {
+    public static class GeoFilter implements RediSearchArgument {
 
-        private K field;
+        private String field;
         private double longitude;
         private double latitude;
         private double radius;
         private String unit;
 
         @Override
-        public void build(RediSearchCommandArgs<K, Object> args) {
-            args.addKey(field);
+        public void build(RediSearchCommandArgs args) {
+            args.add(field);
             args.add(longitude);
             args.add(latitude);
             args.add(radius);
@@ -152,32 +153,32 @@ public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class Highlight<K, V> implements RediSearchArgument<K, V> {
+    public static class Highlight implements RediSearchArgument {
 
         @Singular
-        private List<K> fields;
-        private Tag<V> tag;
+        private List<String> fields;
+        private Tag tag;
 
         @Override
-        public void build(RediSearchCommandArgs<K, V> args) {
+        public void build(RediSearchCommandArgs args) {
             if (fields.size() > 0) {
                 args.add(CommandKeyword.FIELDS);
                 args.add(fields.size());
-                fields.forEach(args::addKey);
+                fields.forEach(args::add);
             }
             if (tag != null) {
                 args.add(CommandKeyword.TAGS);
-                args.addValue(tag.getOpen());
-                args.addValue(tag.getClose());
+                args.add(tag.getOpen());
+                args.add(tag.getClose());
             }
         }
 
         @Data
         @Builder
-        public static class Tag<V> {
+        public static class Tag {
 
-            private V open;
-            private V close;
+            private String open;
+            private String close;
 
         }
     }
@@ -207,17 +208,17 @@ public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
 
     @Data
     @Builder
-    public static class SortBy<K> implements RediSearchArgument<K, Object> {
+    public static class SortBy implements RediSearchArgument {
 
         public final static Direction DEFAULT_DIRECTION = Direction.Ascending;
 
-        private K field;
+        private String field;
         @Builder.Default
         private Direction direction = DEFAULT_DIRECTION;
 
         @Override
-        public void build(RediSearchCommandArgs<K, Object> args) {
-            args.addKey(field);
+        public void build(RediSearchCommandArgs args) {
+            args.add(field);
             args.add(direction == Direction.Ascending ? CommandKeyword.ASC : CommandKeyword.DESC);
         }
 

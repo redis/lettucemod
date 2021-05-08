@@ -70,7 +70,7 @@ public class RediSearchCommandBuilder<K, V> extends RedisModulesCommandBuilder<K
         return new RediSearchCommandArgs<>(codec).addKey(index);
     }
 
-    public Command<K, V, SearchResults<K, V>> search(K index, V query, SearchOptions<K, V> options) {
+    public Command<K, V, SearchResults<K, V>> search(K index, V query, SearchOptions options) {
         notNull(index, "index");
         notNull(query, "query");
         RediSearchCommandArgs<K, V> commandArgs = createArgs(index);
@@ -81,7 +81,7 @@ public class RediSearchCommandBuilder<K, V> extends RedisModulesCommandBuilder<K
         return createCommand(CommandType.SEARCH, searchOutput(options), commandArgs);
     }
 
-    private CommandOutput<K, V, SearchResults<K, V>> searchOutput(SearchOptions<K, V> options) {
+    private CommandOutput<K, V, SearchResults<K, V>> searchOutput(SearchOptions options) {
         if (options == null) {
             return new SearchOutput<>(codec);
         }
@@ -91,7 +91,7 @@ public class RediSearchCommandBuilder<K, V> extends RedisModulesCommandBuilder<K
         return new SearchOutput<>(codec, options.isWithScores(), options.isWithSortKeys(), options.isWithPayloads());
     }
 
-    public Command<K, V, AggregateResults<K>> aggregate(K index, V query, AggregateOptions<K, V> options) {
+    public Command<K, V, AggregateResults<K>> aggregate(K index, V query, AggregateOptions options) {
         notNull(index, "index");
         notNull(query, "query");
         RediSearchCommandArgs<K, V> args = createArgs(index);
@@ -102,7 +102,7 @@ public class RediSearchCommandBuilder<K, V> extends RedisModulesCommandBuilder<K
         return createCommand(CommandType.AGGREGATE, new AggregateOutput<>(codec, new AggregateResults<>()), args);
     }
 
-    public Command<K, V, AggregateWithCursorResults<K>> aggregate(K index, V query, Cursor cursor, AggregateOptions<K, V> options) {
+    public Command<K, V, AggregateWithCursorResults<K>> aggregate(K index, V query, Cursor cursor, AggregateOptions options) {
         notNull(index, "index");
         notNull(query, "query");
         RediSearchCommandArgs<K, V> args = createArgs(index);

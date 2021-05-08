@@ -173,7 +173,7 @@ public class RedisModulesReactiveCommandsImpl<K, V> extends RedisReactiveCommand
     }
 
     @Override
-    public Mono<SearchResults<K, V>> search(K index, V query, SearchOptions<K, V> options) {
+    public Mono<SearchResults<K, V>> search(K index, V query, SearchOptions options) {
         return createMono(() -> searchCommandBuilder.search(index, query, options));
     }
 
@@ -183,7 +183,7 @@ public class RedisModulesReactiveCommandsImpl<K, V> extends RedisReactiveCommand
     }
 
     @Override
-    public Mono<AggregateResults<K>> aggregate(K index, V query, AggregateOptions<K, V> options) {
+    public Mono<AggregateResults<K>> aggregate(K index, V query, AggregateOptions options) {
         return createMono(() -> searchCommandBuilder.aggregate(index, query, options));
     }
 
@@ -193,7 +193,7 @@ public class RedisModulesReactiveCommandsImpl<K, V> extends RedisReactiveCommand
     }
 
     @Override
-    public Mono<AggregateWithCursorResults<K>> aggregate(K index, V query, Cursor cursor, AggregateOptions<K, V> options) {
+    public Mono<AggregateWithCursorResults<K>> aggregate(K index, V query, Cursor cursor, AggregateOptions options) {
         return createMono(() -> searchCommandBuilder.aggregate(index, query, cursor, options));
     }
 

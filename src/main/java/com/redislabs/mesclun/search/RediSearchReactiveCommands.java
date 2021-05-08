@@ -28,15 +28,15 @@ public interface RediSearchReactiveCommands<K, V> {
 
     Mono<SearchResults<K, V>> search(K index, V query);
 
-    Mono<SearchResults<K, V>> search(K index, V query, SearchOptions<K, V> options);
+    Mono<SearchResults<K, V>> search(K index, V query, SearchOptions options);
 
     Mono<AggregateResults<K>> aggregate(K index, V query);
 
-    Mono<AggregateResults<K>> aggregate(K index, V query, AggregateOptions<K, V> options);
+    Mono<AggregateResults<K>> aggregate(K index, V query, AggregateOptions options);
 
     Mono<AggregateWithCursorResults<K>> aggregate(K index, V query, Cursor cursor);
 
-    Mono<AggregateWithCursorResults<K>> aggregate(K index, V query, Cursor cursor, AggregateOptions<K, V> options);
+    Mono<AggregateWithCursorResults<K>> aggregate(K index, V query, Cursor cursor, AggregateOptions options);
 
     Mono<AggregateWithCursorResults<K>> cursorRead(K index, long cursor);
 

@@ -29,15 +29,15 @@ public interface RediSearchAsyncCommands<K, V> {
 
     RedisFuture<SearchResults<K, V>> search(K index, V query);
 
-    RedisFuture<SearchResults<K, V>> search(K index, V query, SearchOptions<K, V> options);
+    RedisFuture<SearchResults<K, V>> search(K index, V query, SearchOptions options);
 
     RedisFuture<AggregateResults<K>> aggregate(K index, V query);
 
-    RedisFuture<AggregateResults<K>> aggregate(K index, V query, AggregateOptions<K, V> options);
+    RedisFuture<AggregateResults<K>> aggregate(K index, V query, AggregateOptions options);
 
     RedisFuture<AggregateWithCursorResults<K>> aggregate(K index, V query, Cursor cursor);
 
-    RedisFuture<AggregateWithCursorResults<K>> aggregate(K index, V query, Cursor cursor, AggregateOptions<K, V> options);
+    RedisFuture<AggregateWithCursorResults<K>> aggregate(K index, V query, Cursor cursor, AggregateOptions options);
 
     RedisFuture<AggregateWithCursorResults<K>> cursorRead(K index, long cursor);
 

@@ -27,15 +27,15 @@ public interface RediSearchCommands<K, V> {
 
     SearchResults<K, V> search(K index, V query);
 
-    SearchResults<K, V> search(K index, V query, SearchOptions<K, V> options);
+    SearchResults<K, V> search(K index, V query, SearchOptions options);
 
     AggregateResults<K> aggregate(K index, V query);
 
-    AggregateResults<K> aggregate(K index, V query, AggregateOptions<K, V> options);
+    AggregateResults<K> aggregate(K index, V query, AggregateOptions options);
 
     AggregateWithCursorResults<K> aggregate(K index, V query, Cursor cursor);
 
-    AggregateWithCursorResults<K> aggregate(K index, V query, Cursor cursor, AggregateOptions<K, V> options);
+    AggregateWithCursorResults<K> aggregate(K index, V query, Cursor cursor, AggregateOptions options);
 
     AggregateWithCursorResults<K> cursorRead(K index, long cursor);
 
