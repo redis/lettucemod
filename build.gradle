@@ -103,7 +103,7 @@ nexusPublishing {
 }
 
 githubRelease {
-    token = project.hasProperty('github.token') ? project.property('github.token') : ENV
+    token = project.hasProperty('github.token') ? project.property('github.token') : ''
     owner "redis-developer"
     repo "mesclun"
     body changelog()
