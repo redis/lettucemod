@@ -14,6 +14,7 @@ import io.lettuce.core.RedisCommandExecutionException;
 import io.lettuce.core.RedisFuture;
 import io.lettuce.core.RedisURI;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -31,12 +32,16 @@ public class TestSearch extends BaseRedisModulesTest {
     protected final static int BEER_COUNT = 2348;
     protected final static String SUGINDEX = "beersSug";
 
+    public final static String BREWERY_ID = "brewery_id";
     public final static String ABV = "abv";
     public final static String ID = "id";
     public final static String NAME = "name";
     public final static String STYLE = "style";
     public final static Field[] SCHEMA = new Field[]{Field.text(NAME).matcher(Field.Text.PhoneticMatcher.English).build(), Field.tag(STYLE).sortable(true).build(), Field.numeric(ABV).sortable(true).build()};
     public final static String INDEX = "beers";
+    private static final String KEYSPACE = "beer:";
+
+    private static final List<Map<String, String>> beers = new ArrayList<>();
 
     protected static Map<String, String> mapOf(String... keyValues) {
         Map<String, String> map = new HashMap<>();
@@ -46,34 +51,29 @@ public class TestSearch extends BaseRedisModulesTest {
         return map;
     }
 
+    @BeforeAll
     @SuppressWarnings("rawtypes")
-    private List<Map<String, String>> beers() throws IOException {
-        List<Map<String, String>> beers = new ArrayList<>();
+    public static void loadBeers() throws IOException {
         CsvSchema schema = CsvSchema.builder().setUseHeader(true).setNullValue("").build();
         CsvMapper mapper = new CsvMapper();
         InputStream inputStream = TestSearch.class.getClassLoader().getResourceAsStream("beers.csv");
         mapper.readerFor(Map.class).with(schema).readValues(inputStream).forEachRemaining(e -> beers.add((Map) e));
-        return beers;
     }
 
-    private List<Map<String, String>> createBeerIndex() throws IOException {
+    private void createBeerIndex() {
         sync.flushall();
-        List<Map<String, String>> beers = beers();
-        sync.create(INDEX, CreateOptions.<String, String>builder().payloadField(NAME).build(), SCHEMA);
-
+        sync.create(INDEX, CreateOptions.<String, String>builder().prefix(KEYSPACE).payloadField(BREWERY_ID).build(), SCHEMA);
         async.setAutoFlushCommands(false);
         List<RedisFuture<?>> futures = new ArrayList<>();
         for (Map<String, String> beer : beers) {
-            futures.add(async.hmset("beer:" + beer.get(ID), beer));
+            futures.add(async.hmset(KEYSPACE + beer.get(ID), beer));
         }
         async.flushCommands();
         async.setAutoFlushCommands(true);
         LettuceFutures.awaitAll(RedisURI.DEFAULT_TIMEOUT_DURATION, futures.toArray(new RedisFuture[0]));
-        return beers;
     }
 
-    private void createBeerSuggestions() throws IOException {
-        List<Map<String, String>> beers = beers();
+    private void createBeerSuggestions() {
         async.setAutoFlushCommands(false);
         List<RedisFuture<?>> futures = new ArrayList<>();
         for (Map<String, String> beer : beers) {
@@ -125,11 +125,10 @@ public class TestSearch extends BaseRedisModulesTest {
     }
 
     @Test
-    void create() throws IOException, InterruptedException {
+    void create() throws InterruptedException {
         createBeerIndex();
         String indexName = "hashIndex";
         sync.create(indexName, CreateOptions.<String, String>builder().prefix("beer:").on(CreateOptions.Structure.HASH).build(), SCHEMA);
-        List<Map<String, String>> beers = beers();
         async.setAutoFlushCommands(false);
         List<RedisFuture<?>> futures = new ArrayList<>();
         for (Map<String, String> beer : beers) {
@@ -211,7 +210,7 @@ public class TestSearch extends BaseRedisModulesTest {
 
 
     @Test
-    void search() throws IOException, ExecutionException, InterruptedException {
+    void search() throws ExecutionException, InterruptedException {
         createBeerIndex();
 
         SearchResults<String, String> results = sync.search(INDEX, "eldur");
@@ -228,7 +227,7 @@ public class TestSearch extends BaseRedisModulesTest {
         Document<String, String> result1 = results.get(0);
         assertNotNull(result1.get(NAME));
         assertNotNull(result1.getPayload());
-        assertEquals(result1.get(NAME), result1.getPayload());
+        assertEquals(sync.hget(result1.getId(), BREWERY_ID), result1.getPayload());
 
         results = sync.search(INDEX, "pale", SearchOptions.builder().returnField(NAME).returnField(STYLE).build());
         assertEquals(256, results.getCount());
@@ -321,7 +320,7 @@ public class TestSearch extends BaseRedisModulesTest {
     }
 
     @Test
-    void sugget() throws IOException {
+    void sugget() {
         createBeerSuggestions();
         List<Suggestion<String>> results = sync.sugget(SUGINDEX, "Ame");
         assertEquals(5, results.size());
@@ -335,8 +334,8 @@ public class TestSearch extends BaseRedisModulesTest {
     }
 
     @Test
-    void aggregate() throws IOException {
-        List<Map<String, String>> beers = createBeerIndex();
+    void aggregate() {
+        createBeerIndex();
         // Load tests
         AggregateResults<String> results = sync.aggregate(INDEX, "*", AggregateOptions.builder().load(ID).load(NAME).load(STYLE).build());
         Assertions.assertEquals(1, results.getCount());
@@ -377,7 +376,7 @@ public class TestSearch extends BaseRedisModulesTest {
     }
 
     @Test
-    void alias() throws IOException, ExecutionException, InterruptedException {
+    void alias() throws ExecutionException, InterruptedException {
 
         // SYNC
         createBeerIndex();
@@ -441,7 +440,7 @@ public class TestSearch extends BaseRedisModulesTest {
     }
 
     @Test
-    void info() throws IOException, ExecutionException, InterruptedException {
+    void info() throws ExecutionException, InterruptedException {
         createBeerIndex();
         List<Object> infoList = async.indexInfo(INDEX).get();
         IndexInfo<String, String> info = RediSearchUtils.getInfo(infoList);
@@ -457,6 +456,5 @@ public class TestSearch extends BaseRedisModulesTest {
         Assertions.assertTrue(styleField.isSortable());
         Assertions.assertEquals(",", styleField.getSeparator());
     }
-
 
 }
