@@ -11,7 +11,7 @@ public interface RediSearchReactiveCommands<K, V> {
 
     Mono<String> dropIndex(K index);
 
-    Mono<String> dropIndex(K index, boolean deleteDocs);
+    Mono<String> dropIndexDeleteDocs(K index);
 
     Mono<String> alter(K index, Field field);
 

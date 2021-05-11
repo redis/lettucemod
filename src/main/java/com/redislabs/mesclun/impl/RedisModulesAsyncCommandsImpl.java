@@ -154,12 +154,12 @@ public class RedisModulesAsyncCommandsImpl<K, V> extends RedisAsyncCommandsImpl<
 
     @Override
     public RedisFuture<String> dropIndex(K index) {
-        return dropIndex(index, false);
+        return dispatch(searchCommandBuilder.dropIndex(index, false));
     }
 
     @Override
-    public RedisFuture<String> dropIndex(K index, boolean deleteDocs) {
-        return dispatch(searchCommandBuilder.dropIndex(index, deleteDocs));
+    public RedisFuture<String> dropIndexDeleteDocs(K index) {
+        return dispatch(searchCommandBuilder.dropIndex(index, true));
     }
 
     @Override

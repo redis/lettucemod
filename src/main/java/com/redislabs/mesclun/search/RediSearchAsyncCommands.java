@@ -12,7 +12,7 @@ public interface RediSearchAsyncCommands<K, V> {
 
     RedisFuture<String> dropIndex(K index);
 
-    RedisFuture<String> dropIndex(K index, boolean deleteDocs);
+    RedisFuture<String> dropIndexDeleteDocs(K index);
 
     RedisFuture<String> alter(K index, Field field);
 

@@ -11,8 +11,8 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class IndexInfo<K, V> {
-    private K indexName;
+public class IndexInfo {
+    private String indexName;
     private Double numDocs;
     private List<Object> indexOptions;
     private List<Field> fields;

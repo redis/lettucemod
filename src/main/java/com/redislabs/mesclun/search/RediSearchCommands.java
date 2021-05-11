@@ -10,7 +10,7 @@ public interface RediSearchCommands<K, V> {
 
     String dropIndex(K index);
 
-    String dropIndex(K index, boolean deleteDocs);
+    String dropIndexDeleteDocs(K index);
 
     String alter(K index, Field field);
 

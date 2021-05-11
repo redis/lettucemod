@@ -154,12 +154,12 @@ public class RedisModulesReactiveCommandsImpl<K, V> extends RedisReactiveCommand
 
     @Override
     public Mono<String> dropIndex(K index) {
-        return dropIndex(index, false);
+        return createMono(() -> searchCommandBuilder.dropIndex(index, false));
     }
 
     @Override
-    public Mono<String> dropIndex(K index, boolean deleteDocs) {
-        return createMono(() -> searchCommandBuilder.dropIndex(index, deleteDocs));
+    public Mono<String> dropIndexDeleteDocs(K index) {
+        return createMono(() -> searchCommandBuilder.dropIndex(index, true));
     }
 
     @Override

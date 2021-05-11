@@ -20,23 +20,22 @@ public class RediSearchUtils {
     private static final String GEO_LONLAT_SEPARATOR = ",";
 
     @SuppressWarnings("unchecked")
-    public static <K, V> IndexInfo<K, V> getInfo(List<Object> infoList) {
+    public static IndexInfo indexInfo(List<Object> infoList) {
         Map<String, Object> map = new HashMap<>();
         for (int i = 0; i < (infoList.size() / 2); i++) {
             map.put((String) infoList.get(i * 2), infoList.get(i * 2 + 1));
         }
-        return IndexInfo.<K, V>builder().indexName(getString(map.get("index_name"))).indexOptions((List<Object>) map.get("index_options")).fields(fields(map.get("fields"))).numDocs(getDouble(map.get("num_docs"))).maxDocId(getString(map.get("max_doc_id"))).numTerms(toLong(map, "num_terms")).numRecords(toLong(map, "num_records")).invertedSizeMb(getDouble(map.get("inverted_sz_mb"))).totalInvertedIndexBlocks(toLong(map, "total_inverted_index_blocks")).offsetVectorsSizeMb(getDouble(map.get("offset_vectors_sz_mb"))).docTableSizeMb(getDouble(map.get("doc_table_size_mb"))).sortableValuesSizeMb(getDouble(map.get("sortable_values_size_mb"))).keyTableSizeMb(getDouble(map.get("key_table_size_mb"))).recordsPerDocAvg(getDouble(map.get("records_per_doc_avg"))).bytesPerRecordAvg(getDouble(map.get("bytes_per_record_avg"))).offsetsPerTermAvg(getDouble(map.get("offsets_per_term_avg"))).offsetBitsPerRecordAvg(getDouble(map.get("offset_bits_per_record_avg"))).gcStats((List<Object>) map.get("gc_stats")).cursorStats((List<Object>) map.get("cursor_stats")).build();
+        return IndexInfo.builder().indexName(getString(map.get("index_name"))).indexOptions((List<Object>) map.get("index_options")).fields(fields(map.get("fields"))).numDocs(getDouble(map.get("num_docs"))).maxDocId(getString(map.get("max_doc_id"))).numTerms(toLong(map, "num_terms")).numRecords(toLong(map, "num_records")).invertedSizeMb(getDouble(map.get("inverted_sz_mb"))).totalInvertedIndexBlocks(toLong(map, "total_inverted_index_blocks")).offsetVectorsSizeMb(getDouble(map.get("offset_vectors_sz_mb"))).docTableSizeMb(getDouble(map.get("doc_table_size_mb"))).sortableValuesSizeMb(getDouble(map.get("sortable_values_size_mb"))).keyTableSizeMb(getDouble(map.get("key_table_size_mb"))).recordsPerDocAvg(getDouble(map.get("records_per_doc_avg"))).bytesPerRecordAvg(getDouble(map.get("bytes_per_record_avg"))).offsetsPerTermAvg(getDouble(map.get("offsets_per_term_avg"))).offsetBitsPerRecordAvg(getDouble(map.get("offset_bits_per_record_avg"))).gcStats((List<Object>) map.get("gc_stats")).cursorStats((List<Object>) map.get("cursor_stats")).build();
     }
 
     private static Double getDouble(Object object) {
         return (Double) object;
     }
 
-    @SuppressWarnings("unchecked")
-    private static <K> K getString(Object object) {
+    private static String getString(Object object) {
         if (object != null) {
             if (object instanceof String) {
-                return (K) object;
+                return (String) object;
             }
             if (ZERO.equals(object)) {
                 return null;
