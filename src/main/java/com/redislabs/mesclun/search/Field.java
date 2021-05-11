@@ -2,30 +2,32 @@ package com.redislabs.mesclun.search;
 
 import com.redislabs.mesclun.search.protocol.CommandKeyword;
 import com.redislabs.mesclun.search.protocol.RediSearchCommandArgs;
+import io.lettuce.core.internal.LettuceAssert;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
+@SuppressWarnings("rawtypes")
 @Getter
-@Setter
-public abstract class Field<K> implements RediSearchArgument<K, Object> {
-
-    static final String MUST_NOT_BE_EMPTY = "must not be empty";
-    static final String MUST_NOT_BE_NULL = "must not be null";
+public abstract class Field implements RediSearchArgument {
 
     private final Type type;
-    private final K name;
-    private boolean sortable;
-    private boolean noIndex;
+    private final String name;
+    private final boolean sortable;
+    private final boolean noIndex;
 
-    protected Field(Type type, K name) {
+    protected Field(Type type, String name, boolean sortable, boolean noIndex) {
+        LettuceAssert.notNull(type, "A type is required");
+        LettuceAssert.notNull(name, "A name is required");
         this.type = type;
         this.name = name;
+        this.sortable = sortable;
+        this.noIndex = noIndex;
     }
 
     @Override
-    public void build(RediSearchCommandArgs<K, Object> args) {
-        args.addKey(name);
+    public void build(RediSearchCommandArgs args) {
+        args.add(name);
         buildField(args);
         if (sortable) {
             args.add(CommandKeyword.SORTABLE);
@@ -39,13 +41,13 @@ public abstract class Field<K> implements RediSearchArgument<K, Object> {
     protected abstract void buildField(RediSearchCommandArgs args);
 
     @SuppressWarnings("unchecked")
-    protected static abstract class FieldBuilder<K, F extends Field<K>, B extends FieldBuilder<K, F, B>> {
+    protected static abstract class FieldBuilder<F extends Field, B extends FieldBuilder<F, B>> {
 
-        private final K name;
-        private boolean sortable;
-        private boolean noIndex;
+        protected final String name;
+        protected boolean sortable;
+        protected boolean noIndex;
 
-        protected FieldBuilder(K name) {
+        protected FieldBuilder(String name) {
             this.name = name;
         }
 
@@ -59,37 +61,30 @@ public abstract class Field<K> implements RediSearchArgument<K, Object> {
             return (B) this;
         }
 
-        public F build() {
-            F field = newField(name);
-            field.setNoIndex(noIndex);
-            field.setSortable(sortable);
-            return field;
-        }
-
-        protected abstract F newField(K name);
+        public abstract F build();
 
     }
 
-    public static Text.TextFieldBuilder<String> text(String name) {
+    public static Text.TextFieldBuilder text(String name) {
         return Text.builder(name);
     }
 
-    public static Geo.GeoFieldBuilder<String> geo(String name) {
+    public static Geo.GeoFieldBuilder geo(String name) {
         return Geo.builder(name);
     }
 
-    public static Tag.TagFieldBuilder<String> tag(String name) {
+    public static Tag.TagFieldBuilder tag(String name) {
         return Tag.builder(name);
     }
 
-    public static Numeric.NumericFieldBuilder<String> numeric(String name) {
+    public static Numeric.NumericFieldBuilder numeric(String name) {
         return Numeric.builder(name);
     }
 
-    public static class Geo<K> extends Field<K> {
+    public static class Geo extends Field {
 
-        public Geo(K name) {
-            super(Type.GEO, name);
+        public Geo(String name, boolean sortable, boolean noIndex) {
+            super(Type.GEO, name, sortable, noIndex);
         }
 
         @SuppressWarnings("rawtypes")
@@ -98,27 +93,27 @@ public abstract class Field<K> implements RediSearchArgument<K, Object> {
             args.add(CommandKeyword.GEO);
         }
 
-        public static <K> GeoFieldBuilder<K> builder(K name) {
-            return new GeoFieldBuilder<>(name);
+        public static GeoFieldBuilder builder(String name) {
+            return new GeoFieldBuilder(name);
         }
 
-        public static class GeoFieldBuilder<K> extends FieldBuilder<K, Geo<K>, GeoFieldBuilder<K>> {
+        public static class GeoFieldBuilder extends FieldBuilder<Geo, GeoFieldBuilder> {
 
-            public GeoFieldBuilder(K name) {
+            public GeoFieldBuilder(String name) {
                 super(name);
             }
 
             @Override
-            protected Geo<K> newField(K name) {
-                return new Geo<>(name);
+            public Geo build() {
+                return new Geo(name, sortable, noIndex);
             }
         }
     }
 
-    public static class Numeric<K> extends Field<K> {
+    public static class Numeric extends Field {
 
-        public Numeric(K name) {
-            super(Type.NUMERIC, name);
+        public Numeric(String name, boolean sortable, boolean noIndex) {
+            super(Type.NUMERIC, name, sortable, noIndex);
         }
 
         @SuppressWarnings("rawtypes")
@@ -127,32 +122,32 @@ public abstract class Field<K> implements RediSearchArgument<K, Object> {
             args.add(CommandKeyword.NUMERIC);
         }
 
-        public static <K> NumericFieldBuilder<K> builder(K name) {
-            return new NumericFieldBuilder<>(name);
+        public static NumericFieldBuilder builder(String name) {
+            return new NumericFieldBuilder(name);
         }
 
-        public static class NumericFieldBuilder<K> extends FieldBuilder<K, Numeric<K>, NumericFieldBuilder<K>> {
+        public static class NumericFieldBuilder extends FieldBuilder<Numeric, NumericFieldBuilder> {
 
-            public NumericFieldBuilder(K name) {
+            public NumericFieldBuilder(String name) {
                 super(name);
             }
 
             @Override
-            protected Numeric<K> newField(K name) {
-                return new Numeric<>(name);
+            public Numeric build() {
+                return new Numeric(name, sortable, noIndex);
             }
 
         }
     }
 
     @Getter
-    @Setter
-    public static class Tag<K> extends Field<K> {
+    public static class Tag extends Field {
 
-        private String separator;
+        private final String separator;
 
-        public Tag(K name) {
-            super(Type.TAG, name);
+        public Tag(String name, boolean sortable, boolean noIndex, String separator) {
+            super(Type.TAG, name, sortable, noIndex);
+            this.separator = separator;
         }
 
         @SuppressWarnings("rawtypes")
@@ -165,39 +160,44 @@ public abstract class Field<K> implements RediSearchArgument<K, Object> {
             }
         }
 
-        public static <K> TagFieldBuilder<K> builder(K name) {
-            return new TagFieldBuilder<>(name);
+        public static TagFieldBuilder builder(String name) {
+            return new TagFieldBuilder(name);
         }
 
         @Setter
         @Accessors(fluent = true)
-        public static class TagFieldBuilder<K> extends FieldBuilder<K, Tag<K>, TagFieldBuilder<K>> {
+        public static class TagFieldBuilder extends FieldBuilder<Tag, TagFieldBuilder> {
 
             private String separator;
 
-            public TagFieldBuilder(K name) {
+            public TagFieldBuilder(String name) {
                 super(name);
             }
 
             @Override
-            protected Tag<K> newField(K name) {
-                Tag<K> field = new Tag<>(name);
-                field.setSeparator(separator);
-                return field;
+            public Tag build() {
+                return new Tag(name, sortable, noIndex, separator);
             }
+
         }
     }
 
     @Getter
-    @Setter
-    public static class Text<K> extends Field<K> {
+    public static class Text extends Field {
 
-        private Double weight;
-        private boolean noStem;
-        private PhoneticMatcher matcher;
+        private final Double weight;
+        private final boolean noStem;
+        private final PhoneticMatcher matcher;
 
-        public Text(K name) {
-            super(Type.TEXT, name);
+        public Text(String name, boolean sortable, boolean noIndex, Double weight, boolean noStem) {
+            this(name, sortable, noIndex, weight, noStem, null);
+        }
+
+        public Text(String name, boolean sortable, boolean noIndex, Double weight, boolean noStem, PhoneticMatcher matcher) {
+            super(Type.TEXT, name, sortable, noIndex);
+            this.weight = weight;
+            this.noStem = noStem;
+            this.matcher = matcher;
         }
 
         @SuppressWarnings("rawtypes")
@@ -217,29 +217,25 @@ public abstract class Field<K> implements RediSearchArgument<K, Object> {
             }
         }
 
-        public static <K> TextFieldBuilder<K> builder(K name) {
-            return new TextFieldBuilder<>(name);
+        public static TextFieldBuilder builder(String name) {
+            return new TextFieldBuilder(name);
         }
 
         @Setter
         @Accessors(fluent = true)
-        public static class TextFieldBuilder<K> extends FieldBuilder<K, Text<K>, TextFieldBuilder<K>> {
+        public static class TextFieldBuilder extends FieldBuilder<Text, TextFieldBuilder> {
 
             private Double weight;
             private boolean noStem;
             private PhoneticMatcher matcher;
 
-            public TextFieldBuilder(K name) {
+            public TextFieldBuilder(String name) {
                 super(name);
             }
 
             @Override
-            protected Text<K> newField(K name) {
-                Text<K> field = new Text<>(name);
-                field.setWeight(weight);
-                field.setNoStem(noStem);
-                field.setMatcher(matcher);
-                return field;
+            public Text build() {
+                return new Text(name, sortable, noIndex, weight, noStem, matcher);
             }
 
         }

@@ -3,6 +3,12 @@ package com.redislabs.mesclun;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import com.redislabs.mesclun.search.*;
+import com.redislabs.mesclun.search.aggregate.GroupBy;
+import com.redislabs.mesclun.search.aggregate.Limit;
+import com.redislabs.mesclun.search.aggregate.SortBy;
+import com.redislabs.mesclun.search.aggregate.reducers.Avg;
+import com.redislabs.mesclun.search.aggregate.reducers.Count;
+import com.redislabs.mesclun.search.aggregate.reducers.ToList;
 import io.lettuce.core.LettuceFutures;
 import io.lettuce.core.RedisCommandExecutionException;
 import io.lettuce.core.RedisFuture;
@@ -29,7 +35,7 @@ public class TestSearch extends BaseRedisModulesTest {
     public final static String ID = "id";
     public final static String NAME = "name";
     public final static String STYLE = "style";
-    public final static Field<String>[] SCHEMA = new Field[]{Field.text(NAME).matcher(Field.Text.PhoneticMatcher.English).build(), Field.tag(STYLE).sortable(true).build(), Field.numeric(ABV).sortable(true).build()};
+    public final static Field[] SCHEMA = new Field[]{Field.text(NAME).matcher(Field.Text.PhoneticMatcher.English).build(), Field.tag(STYLE).sortable(true).build(), Field.numeric(ABV).sortable(true).build()};
     public final static String INDEX = "beers";
 
     protected static Map<String, String> mapOf(String... keyValues) {
@@ -139,7 +145,7 @@ public class TestSearch extends BaseRedisModulesTest {
         assertEquals(2348, numDocs);
 
         CreateOptions<String, String> options = CreateOptions.<String, String>builder().prefix("release:").payloadField("xml").build();
-        Field<String>[] fields = new Field[]{Field.text("artist").sortable(true).build(), Field.tag("id").sortable(true).build(), Field.text("title").sortable(true).build()};
+        Field[] fields = new Field[]{Field.text("artist").sortable(true).build(), Field.tag("id").sortable(true).build(), Field.text("title").sortable(true).build()};
         sync.create("releases", options, fields);
         info = RediSearchUtils.getInfo(sync.indexInfo("releases"));
         Assertions.assertEquals(fields.length, info.getFields().size());
@@ -230,8 +236,7 @@ public class TestSearch extends BaseRedisModulesTest {
         assertNotNull(result1.get(NAME));
         assertNotNull(result1.get(STYLE));
         assertNull(result1.get(ABV));
-
-        SearchOptions options = SearchOptions.builder().withPayloads(true).noStopWords(true).limit(new SearchOptions.Limit(10, 100)).withScores(true).highlight(SearchOptions.Highlight.builder().field(NAME).tags(SearchOptions.Highlight.Tags.builder().open("<TAG>").close("</TAG>").build()).build()).language(SearchOptions.Language.English).noContent(false).sortBy(SearchOptions.SortBy.builder().direction(SearchOptions.SortBy.Direction.Ascending).field(NAME).build()).verbatim(false).withSortKeys(true).returnField(NAME).returnField(STYLE).build();
+        SearchOptions options = SearchOptions.builder().withPayloads(true).noStopWords(true).limit(new SearchOptions.Limit(10, 100)).withScores(true).highlight(SearchOptions.Highlight.builder().field(NAME).tags(SearchOptions.Tags.builder().open("<TAG>").close("</TAG>").build()).build()).language(Language.English).noContent(false).sortBy(SearchOptions.SortBy.field(NAME).order(Order.ASC)).verbatim(false).withSortKeys(true).returnField(NAME).returnField(STYLE).build();
         sync.search(INDEX, "pale", options);
         assertEquals(256, results.getCount());
         result1 = results.get(0);
@@ -262,7 +267,7 @@ public class TestSearch extends BaseRedisModulesTest {
 
         String term = "pale";
         String query = "@style:" + term;
-        SearchOptions.Highlight.Tags tags = SearchOptions.Highlight.Tags.builder().open("<b>").close("</b>").build();
+        SearchOptions.Tags tags = SearchOptions.Tags.builder().open("<b>").close("</b>").build();
         results = sync.search(INDEX, query, SearchOptions.builder().highlight(SearchOptions.Highlight.builder().build()).build());
         for (Document<String, String> result : results) {
             assertTrue(highlighted(result, STYLE, tags, term));
@@ -271,7 +276,7 @@ public class TestSearch extends BaseRedisModulesTest {
         for (Document<String, String> result : results) {
             assertFalse(highlighted(result, STYLE, tags, term));
         }
-        tags = SearchOptions.Highlight.Tags.builder().open("[start]").close("[end]").build();
+        tags = SearchOptions.Tags.builder().open("[start]").close("[end]").build();
         results = sync.search(INDEX, query, SearchOptions.builder().highlight(SearchOptions.Highlight.builder().field(STYLE).tags(tags).build()).build());
         for (Document<String, String> result : results) {
             assertTrue(highlighted(result, STYLE, tags, term));
@@ -299,7 +304,7 @@ public class TestSearch extends BaseRedisModulesTest {
         results = async.search(index, "@id:{" + RediSearchUtils.escapeTag("User1#test.org") + "}").get();
         Assertions.assertEquals(1, results.size());
 
-        SearchResults<String, String> filterResults = sync.search(INDEX, "*", SearchOptions.builder().filter(SearchOptions.NumericFilter.builder().field(ABV).min(.08).max(.1).build()).build());
+        SearchResults<String, String> filterResults = sync.search(INDEX, "*", SearchOptions.builder().filter(SearchOptions.NumericFilter.field(ABV).min(.08).max(.1)).build());
         Assertions.assertEquals(10, filterResults.size());
         for (Document<String, String> document : filterResults) {
             double abv = Double.parseDouble(document.get(ABV));
@@ -310,7 +315,7 @@ public class TestSearch extends BaseRedisModulesTest {
     }
 
     @SuppressWarnings("SameParameterValue")
-    private boolean highlighted(Document<String, String> result, String fieldName, SearchOptions.Highlight.Tags tags, String string) {
+    private boolean highlighted(Document<String, String> result, String fieldName, SearchOptions.Tags tags, String string) {
         String fieldValue = result.get(fieldName).toLowerCase();
         return fieldValue.contains(tags.getOpen() + string + tags.getClose());
     }
@@ -348,12 +353,12 @@ public class TestSearch extends BaseRedisModulesTest {
         }
 
         // GroupBy tests
-        results = sync.aggregate(INDEX, "*", AggregateOptions.builder().groupBy(Collections.singletonList(STYLE), AggregateOptions.Operation.GroupBy.Reducer.Avg.builder().property(ABV).as(ABV).build()).sortBy(AggregateOptions.Operation.SortBy.Property.builder().property(ABV).order(AggregateOptions.Operation.Order.Desc).build()).limit(0, 20).build());
+        results = sync.aggregate(INDEX, "*", AggregateOptions.builder().operation(GroupBy.property(STYLE).reducer(Avg.property(ABV).as(ABV).build()).build()).operation(SortBy.property(SortBy.Property.name(ABV).order(Order.DESC)).build()).operation(Limit.offset(0).num(20)).build());
         assertEquals(100, results.getCount());
         List<Double> abvs = results.stream().map(r -> Double.parseDouble((String) r.get(ABV))).collect(Collectors.toList());
         assertTrue(abvs.get(0) > abvs.get(abvs.size() - 1));
         assertEquals(20, results.size());
-        results = sync.aggregate(INDEX, "*", AggregateOptions.builder().groupBy(Collections.singletonList(STYLE), AggregateOptions.Operation.GroupBy.Reducer.ToList.builder().property(NAME).as("names").build(), AggregateOptions.Operation.GroupBy.Reducer.Count.of("count")).limit(0, 1).build());
+        results = sync.aggregate(INDEX, "*", AggregateOptions.builder().operation(GroupBy.property(STYLE).reducer(ToList.property(NAME).as("names").build()).reducer(Count.as("count")).build()).operation(Limit.offset(0).num(1)).build());
         assertEquals(100, results.getCount());
         assertEquals("belgian ipa", ((String) results.get(0).get(STYLE)).toLowerCase());
         Object names = results.get(0).get("names");
@@ -441,13 +446,13 @@ public class TestSearch extends BaseRedisModulesTest {
         List<Object> infoList = async.indexInfo(INDEX).get();
         IndexInfo<String, String> info = RediSearchUtils.getInfo(infoList);
         Assertions.assertEquals(2348, info.getNumDocs());
-        List<Field<String>> fields = info.getFields();
-        Field.Text<String> nameField = (Field.Text<String>) fields.get(0);
+        List<Field> fields = info.getFields();
+        Field.Text nameField = (Field.Text) fields.get(0);
         Assertions.assertEquals(NAME, nameField.getName());
         Assertions.assertFalse(nameField.isNoIndex());
         Assertions.assertFalse(nameField.isNoStem());
         Assertions.assertFalse(nameField.isSortable());
-        Field.Tag<String> styleField = (Field.Tag<String>) fields.get(1);
+        Field.Tag styleField = (Field.Tag) fields.get(1);
         Assertions.assertEquals(STYLE, styleField.getName());
         Assertions.assertTrue(styleField.isSortable());
         Assertions.assertEquals(",", styleField.getSeparator());

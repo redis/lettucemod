@@ -3,6 +3,7 @@ package com.redislabs.mesclun.search;
 import com.redislabs.mesclun.search.protocol.CommandKeyword;
 import com.redislabs.mesclun.search.protocol.RediSearchCommandArgs;
 import lombok.*;
+import lombok.experimental.Accessors;
 
 import java.util.List;
 
@@ -39,7 +40,6 @@ public class SearchOptions implements RediSearchArgument {
     private SortBy sortBy;
     private Limit limit;
 
-    @SuppressWarnings("unchecked")
     @Override
     public void build(RediSearchCommandArgs args) {
         if (noContent) {
@@ -123,15 +123,53 @@ public class SearchOptions implements RediSearchArgument {
         }
     }
 
-    @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
+    public static class Limit implements RediSearchArgument {
+
+        private final long offset;
+        private final long num;
+
+        public Limit(long offset, long num) {
+            this.offset = offset;
+            this.num = num;
+        }
+
+        @Override
+        public void build(RediSearchCommandArgs args) {
+            args.add(CommandKeyword.LIMIT);
+            args.add(offset);
+            args.add(num);
+        }
+
+        public static LimitBuilder offset(long offset) {
+            return new LimitBuilder(offset);
+        }
+
+        public static class LimitBuilder {
+
+            private final long offset;
+
+            public LimitBuilder(long offset) {
+                this.offset = offset;
+            }
+
+            public Limit num(long num) {
+                return new Limit(offset, num);
+            }
+        }
+
+    }
+
     public static class NumericFilter implements RediSearchArgument {
 
-        private String field;
-        private double min;
-        private double max;
+        private final String field;
+        private final double min;
+        private final double max;
+
+        public NumericFilter(String field, double min, double max) {
+            this.field = field;
+            this.min = min;
+            this.max = max;
+        }
 
         @Override
         public void build(RediSearchCommandArgs args) {
@@ -139,19 +177,56 @@ public class SearchOptions implements RediSearchArgument {
             args.add(min);
             args.add(max);
         }
+
+        public static NumericFilterBuilder field(String field) {
+            return new NumericFilterBuilder(field);
+        }
+
+        public static class NumericFilterBuilder {
+
+            private final String field;
+
+            public NumericFilterBuilder(String field) {
+                this.field = field;
+            }
+
+            public MinNumericFilterBuilder min(double min) {
+                return new MinNumericFilterBuilder(field, min);
+            }
+
+        }
+
+        public static class MinNumericFilterBuilder {
+
+            private final String field;
+            private final double min;
+
+            public MinNumericFilterBuilder(String field, double min) {
+                this.field = field;
+                this.min = min;
+            }
+
+            public NumericFilter max(double max) {
+                return new NumericFilter(field, min, max);
+            }
+        }
     }
 
-    @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
     public static class GeoFilter implements RediSearchArgument {
 
-        private String field;
-        private double longitude;
-        private double latitude;
-        private double radius;
-        private String unit;
+        private final String field;
+        private final double longitude;
+        private final double latitude;
+        private final double radius;
+        private final String unit;
+
+        public GeoFilter(String field, double longitude, double latitude, double radius, String unit) {
+            this.field = field;
+            this.longitude = longitude;
+            this.latitude = latitude;
+            this.radius = radius;
+            this.unit = unit;
+        }
 
         @Override
         public void build(RediSearchCommandArgs args) {
@@ -161,6 +236,56 @@ public class SearchOptions implements RediSearchArgument {
             args.add(radius);
             args.add(unit);
         }
+
+        public static GeoFilterBuilder field(String field) {
+            return new GeoFilterBuilder(field);
+        }
+
+        @Setter
+        @Accessors(fluent = true)
+        public static class GeoFilterBuilder {
+
+            private final String field;
+            private double longitude;
+            private double latitude;
+            private double radius;
+            private String unit;
+
+            public GeoFilterBuilder(String field) {
+                this.field = field;
+            }
+
+            public GeoFilter build() {
+                return new GeoFilter(field, longitude, latitude, radius, unit);
+            }
+
+        }
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class Highlight implements RediSearchArgument {
+
+        @Singular
+        private List<String> fields;
+        private SearchOptions.Tags tags;
+
+        @Override
+        public void build(RediSearchCommandArgs args) {
+            if (fields.size() > 0) {
+                args.add(CommandKeyword.FIELDS);
+                args.add(fields.size());
+                fields.forEach(args::add);
+            }
+            if (tags != null) {
+                args.add(CommandKeyword.TAGS);
+                args.add(tags.getOpen());
+                args.add(tags.getClose());
+            }
+        }
+
     }
 
     @Data
@@ -174,7 +299,6 @@ public class SearchOptions implements RediSearchArgument {
         private Long frags;
         private Long length;
         private String separator;
-
 
         @Override
         public void build(RediSearchCommandArgs args) {
@@ -197,92 +321,49 @@ public class SearchOptions implements RediSearchArgument {
             }
         }
 
-        @Data
-        @Builder
-        public static class Tag {
-
-            private String open;
-            private String close;
-
-        }
     }
 
-    @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class Highlight implements RediSearchArgument {
-
-        @Singular
-        private List<String> fields;
-        private Tags tags;
-
-        @Override
-        public void build(RediSearchCommandArgs args) {
-            if (fields.size() > 0) {
-                args.add(CommandKeyword.FIELDS);
-                args.add(fields.size());
-                fields.forEach(args::add);
-            }
-            if (tags != null) {
-                args.add(CommandKeyword.TAGS);
-                args.add(tags.getOpen());
-                args.add(tags.getClose());
-            }
-        }
-
-        @Data
-        @Builder
-        public static class Tags {
-
-            private String open;
-            private String close;
-
-        }
-    }
-
-    @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class Limit implements RediSearchArgument<Object, Object> {
-
-        private long offset;
-        private long num;
-
-        @Override
-        public void build(RediSearchCommandArgs<Object, Object> args) {
-            args.add(CommandKeyword.LIMIT);
-            args.add(offset);
-            args.add(num);
-        }
-
-    }
-
-    @SuppressWarnings("unused")
-    public enum Language {
-        Arabic, Danish, Dutch, English, Finnish, French, German, Hungarian, Italian, Norwegian, Portuguese, Romanian, Russian, Spanish, Swedish, Tamil, Turkish, Chinese
-    }
-
-    @Data
-    @Builder
     public static class SortBy implements RediSearchArgument {
 
-        public final static Direction DEFAULT_DIRECTION = Direction.Ascending;
+        private final String field;
+        private final Order direction;
 
-        private String field;
-        @Builder.Default
-        private Direction direction = DEFAULT_DIRECTION;
+        public SortBy(String field, Order direction) {
+            this.field = field;
+            this.direction = direction;
+        }
 
         @Override
         public void build(RediSearchCommandArgs args) {
             args.add(field);
-            args.add(direction == Direction.Ascending ? CommandKeyword.ASC : CommandKeyword.DESC);
+            args.add(direction == Order.ASC ? CommandKeyword.ASC : CommandKeyword.DESC);
         }
 
-        @SuppressWarnings("unused")
-        public enum Direction {
-            Ascending, Descending
+        public static SortByBuilder field(String field) {
+            return new SortByBuilder(field);
         }
+
+        public static class SortByBuilder {
+
+            private final String field;
+
+            public SortByBuilder(String field) {
+                this.field = field;
+            }
+
+            public SortBy order(Order order) {
+                return new SortBy(field, order);
+            }
+        }
+
+    }
+
+    @Data
+    @Builder
+    public static class Tags {
+
+        private String open;
+        private String close;
+
     }
 }

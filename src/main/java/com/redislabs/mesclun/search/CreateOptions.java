@@ -21,7 +21,7 @@ public class CreateOptions<K, V> implements RediSearchArgument<K, V> {
     @Singular
     private List<K> prefixes;
     private String filter;
-    private SearchOptions.Language defaultLanguage;
+    private Language defaultLanguage;
     private K languageField;
     private Double defaultScore;
     private K scoreField;

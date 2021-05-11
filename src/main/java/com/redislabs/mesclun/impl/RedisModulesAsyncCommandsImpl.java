@@ -1,7 +1,7 @@
 package com.redislabs.mesclun.impl;
 
-import com.redislabs.mesclun.StatefulRedisModulesConnection;
 import com.redislabs.mesclun.RedisModulesAsyncCommands;
+import com.redislabs.mesclun.StatefulRedisModulesConnection;
 import com.redislabs.mesclun.gears.*;
 import com.redislabs.mesclun.gears.output.ExecutionResults;
 import com.redislabs.mesclun.search.*;
@@ -143,12 +143,12 @@ public class RedisModulesAsyncCommandsImpl<K, V> extends RedisAsyncCommandsImpl<
 
 
     @Override
-    public RedisFuture<String> create(K index, Field<K>... fields) {
+    public RedisFuture<String> create(K index, Field... fields) {
         return create(index, null, fields);
     }
 
     @Override
-    public RedisFuture<String> create(K index, com.redislabs.mesclun.search.CreateOptions<K, V> options, Field<K>... fields) {
+    public RedisFuture<String> create(K index, com.redislabs.mesclun.search.CreateOptions<K, V> options, Field... fields) {
         return dispatch(searchCommandBuilder.create(index, options, fields));
     }
 
@@ -243,7 +243,7 @@ public class RedisModulesAsyncCommandsImpl<K, V> extends RedisAsyncCommandsImpl<
     }
 
     @Override
-    public RedisFuture<String> alter(K index, Field<K> field) {
+    public RedisFuture<String> alter(K index, Field field) {
         return dispatch(searchCommandBuilder.alter(index, field));
     }
 

@@ -46,36 +46,38 @@ public class RediSearchUtils {
     }
 
     @SuppressWarnings("unchecked")
-    private static <K> List<Field<K>> fields(Object object) {
-        List<Field<K>> fields = new ArrayList<>();
+    private static List<Field> fields(Object object) {
+        List<Field> fields = new ArrayList<>();
         for (Object infoObject : (List<Object>) object) {
             List<Object> info = (List<Object>) infoObject;
-            K name = (K) info.get(0);
+            String name = (String) info.get(0);
             CommandKeyword type = CommandKeyword.valueOf((String) info.get(2));
-            Field<K> field = field(name, type, info);
+            boolean sortable = false;
+            boolean noIndex = false;
             for (Object attribute : info.subList(3, info.size())) {
                 if (NOINDEX.name().equals(attribute)) {
-                    field.setNoIndex(true);
+                    noIndex = true;
+                    continue;
                 }
                 if (SORTABLE.name().equals(attribute)) {
-                    field.setSortable(true);
+                    sortable = true;
                 }
             }
-            fields.add(field);
+            fields.add(field(type, name, sortable, noIndex, info));
         }
         return fields;
     }
 
-    private static <K> Field<K> field(K name, CommandKeyword type, List<Object> info) {
+    private static Field field(CommandKeyword type, String name, boolean sortable, boolean noIndex, List<Object> info) {
         switch (type) {
             case GEO:
-                return Field.Geo.builder(name).build();
+                return new Field.Geo(name, sortable, noIndex);
             case NUMERIC:
-                return Field.Numeric.builder(name).build();
+                return new Field.Numeric(name, sortable, noIndex);
             case TAG:
-                return Field.Tag.builder(name).separator((String) info.get(4)).build();
+                return new Field.Tag(name, sortable, noIndex, (String) info.get(4));
             default:
-                return Field.Text.builder(name).weight((Double) info.get(4)).noStem(NOSTEM.name().equals(info.get(info.size() - 1))).build();
+                return new Field.Text(name, sortable, noIndex, (Double) info.get(4), NOSTEM.name().equals(info.get(info.size() - 1)));
         }
     }
 

@@ -16,7 +16,6 @@ import java.util.List;
 /**
  * Dedicated pub/sub command builder to build pub/sub commands.
  */
-@SuppressWarnings("unchecked")
 public class RediSearchCommandBuilder<K, V> extends RedisModulesCommandBuilder<K, V> {
 
     public RediSearchCommandBuilder(RedisCodec<K, V> codec) {
@@ -27,7 +26,7 @@ public class RediSearchCommandBuilder<K, V> extends RedisModulesCommandBuilder<K
         return new Command<>(type, output, args);
     }
 
-    public Command<K, V, String> create(K index, CreateOptions<K, V> options, Field<K>... fields) {
+    public Command<K, V, String> create(K index, CreateOptions<K, V> options, Field... fields) {
         notNull(index, "index");
         LettuceAssert.isTrue(fields.length > 0, "At least one field is required.");
         RediSearchCommandArgs<K, V> args = createArgs(index);
@@ -35,8 +34,8 @@ public class RediSearchCommandBuilder<K, V> extends RedisModulesCommandBuilder<K
             options.build(args);
         }
         args.add(CommandKeyword.SCHEMA);
-        for (Field<K> field : fields) {
-            field.build((RediSearchCommandArgs<K, Object>) args);
+        for (Field field : fields) {
+            field.build(args);
         }
         return createCommand(CommandType.CREATE, new StatusOutput<>(codec), args);
     }
@@ -56,13 +55,13 @@ public class RediSearchCommandBuilder<K, V> extends RedisModulesCommandBuilder<K
         return createCommand(CommandType.INFO, new NestedMultiOutput<>(codec), args);
     }
 
-    public Command<K, V, String> alter(K index, Field<K> field) {
+    public Command<K, V, String> alter(K index, Field field) {
         notNull(index, "index");
         notNull(field, "field");
         RediSearchCommandArgs<K, V> args = createArgs(index);
         args.add(CommandKeyword.SCHEMA);
         args.add(CommandKeyword.ADD);
-        field.build((RediSearchCommandArgs<K, Object>) args);
+        field.build(args);
         return createCommand(CommandType.ALTER, new StatusOutput<>(codec), args);
     }
 

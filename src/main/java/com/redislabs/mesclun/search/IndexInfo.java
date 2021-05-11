@@ -15,7 +15,7 @@ public class IndexInfo<K, V> {
     private K indexName;
     private Double numDocs;
     private List<Object> indexOptions;
-    private List<Field<K>> fields;
+    private List<Field> fields;
     private String maxDocId;
     private Long numTerms;
     private Long numRecords;
