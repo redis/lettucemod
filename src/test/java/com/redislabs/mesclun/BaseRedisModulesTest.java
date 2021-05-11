@@ -10,7 +10,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 public class BaseRedisModulesTest {
 
     @Container
-    private static final RedisModulesContainer REDIS = new RedisModulesContainer();
+    protected static final RedisModulesContainer REDIS = new RedisModulesContainer();
     protected RedisModulesClient client;
     protected StatefulRedisModulesConnection<String, String> connection;
     protected RedisModulesCommands<String, String> sync;

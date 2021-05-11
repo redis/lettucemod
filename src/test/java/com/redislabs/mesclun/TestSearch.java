@@ -139,14 +139,14 @@ public class TestSearch extends BaseRedisModulesTest {
         LettuceFutures.awaitAll(RedisURI.DEFAULT_TIMEOUT_DURATION, futures.toArray(new RedisFuture[0]));
         Thread.sleep(1000);
         async.setAutoFlushCommands(true);
-        IndexInfo<String, String> info = RediSearchUtils.getInfo(sync.indexInfo(indexName));
+        IndexInfo info = RediSearchUtils.indexInfo(sync.indexInfo(indexName));
         Double numDocs = info.getNumDocs();
         assertEquals(2348, numDocs);
 
         CreateOptions<String, String> options = CreateOptions.<String, String>builder().prefix("release:").payloadField("xml").build();
         Field[] fields = new Field[]{Field.text("artist").sortable(true).build(), Field.tag("id").sortable(true).build(), Field.text("title").sortable(true).build()};
         sync.create("releases", options, fields);
-        info = RediSearchUtils.getInfo(sync.indexInfo("releases"));
+        info = RediSearchUtils.indexInfo(sync.indexInfo("releases"));
         Assertions.assertEquals(fields.length, info.getFields().size());
 
 
@@ -164,7 +164,7 @@ public class TestSearch extends BaseRedisModulesTest {
         fail("Temporary index not deleted");
 
 
-        sync.dropIndex(INDEX, false);
+        sync.dropIndex(INDEX);
         // allow some time for the index to be deleted
         Thread.sleep(100);
         try {
@@ -183,6 +183,21 @@ public class TestSearch extends BaseRedisModulesTest {
         SearchResults<String, String> results = sync.search(INDEX, "@newField:{value1}");
         assertEquals(1, results.getCount());
         assertEquals(doc.get("newField"), results.get(0).get("newField"));
+    }
+
+    @Test
+    public void testDropIndexDeleteDocs() throws InterruptedException {
+        createBeerIndex();
+        sync.dropIndexDeleteDocs(INDEX);
+        Thread.sleep(300);
+        try {
+            sync.indexInfo(INDEX);
+            Assertions.fail("Expected unknown index exception");
+        } catch (RedisCommandExecutionException e) {
+            // ignore
+        }
+        List<String> keys = sync.keys(KEYSPACE + "*");
+        Assertions.assertEquals(62, keys.size());
     }
 
     private Map<String, Object> toMap(List<Object> indexInfo) {
@@ -443,7 +458,7 @@ public class TestSearch extends BaseRedisModulesTest {
     void info() throws ExecutionException, InterruptedException {
         createBeerIndex();
         List<Object> infoList = async.indexInfo(INDEX).get();
-        IndexInfo<String, String> info = RediSearchUtils.getInfo(infoList);
+        IndexInfo info = RediSearchUtils.indexInfo(infoList);
         Assertions.assertEquals(2348, info.getNumDocs());
         List<Field> fields = info.getFields();
         Field.Text nameField = (Field.Text) fields.get(0);
