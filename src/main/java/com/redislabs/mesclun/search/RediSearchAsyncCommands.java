@@ -58,4 +58,10 @@ public interface RediSearchAsyncCommands<K, V> {
 
     RedisFuture<Long> suglen(K key);
 
+    RedisFuture<Long> dictadd(K dict, V... terms);
+
+    RedisFuture<Long> dictdel(K dict, V... terms);
+
+    RedisFuture<List<V>> dictdump(K dict);
+
 }

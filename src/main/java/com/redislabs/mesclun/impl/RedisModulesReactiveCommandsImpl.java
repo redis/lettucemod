@@ -271,4 +271,19 @@ public class RedisModulesReactiveCommandsImpl<K, V> extends RedisReactiveCommand
     public Flux<V> tagVals(K index, K field) {
         return createDissolvingFlux(() -> searchCommandBuilder.tagVals(index, field));
     }
+
+    @Override
+    public Mono<Long> dictadd(K dict, V... terms) {
+        return createMono(() -> searchCommandBuilder.dictadd(dict, terms));
+    }
+
+    @Override
+    public Mono<Long> dictdel(K dict, V... terms) {
+        return createMono(() -> searchCommandBuilder.dictdel(dict, terms));
+    }
+
+    @Override
+    public Flux<V> dictdump(K dict) {
+        return createDissolvingFlux(() -> searchCommandBuilder.dictdump(dict));
+    }
 }

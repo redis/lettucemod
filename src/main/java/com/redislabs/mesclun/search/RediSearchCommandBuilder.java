@@ -145,6 +145,20 @@ public class RediSearchCommandBuilder<K, V> extends RedisModulesCommandBuilder<K
         return createCommand(CommandType.TAGVALS, new ValueListOutput<>(codec), args);
     }
 
+    public Command<K, V, Long> dictadd(K dict, V... terms) {
+        notNull(dict, "dict");
+        return createCommand(CommandType.DICTADD, new IntegerOutput<>(codec), args(dict).addValues(terms));
+    }
+
+    public Command<K, V, Long> dictdel(K dict, V... terms) {
+        notNull(dict, "dict");
+        return createCommand(CommandType.DICTDEL, new IntegerOutput<>(codec), args(dict).addValues(terms));
+    }
+
+    public Command<K, V, List<V>> dictdump(K dict) {
+        notNull(dict, "dict");
+        return createCommand(CommandType.DICTDUMP, new ValueListOutput<>(codec), args(dict));
+    }
 
     public Command<K, V, Long> sugadd(K key, V string, double score) {
         return sugadd(key, string, score, null);

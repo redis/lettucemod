@@ -55,4 +55,10 @@ public interface RediSearchCommands<K, V> {
     Boolean sugdel(K key, V string);
 
     Long suglen(K key);
+
+    Long dictadd(K dict, V... terms);
+
+    Long dictdel(K dict, V... terms);
+
+    List<V> dictdump(K dict);
 }

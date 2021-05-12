@@ -271,4 +271,19 @@ public class RedisModulesAsyncCommandsImpl<K, V> extends RedisAsyncCommandsImpl<
     public RedisFuture<List<V>> tagVals(K index, K field) {
         return dispatch(searchCommandBuilder.tagVals(index, field));
     }
+
+    @Override
+    public RedisFuture<Long> dictadd(K dict, V... terms) {
+        return dispatch(searchCommandBuilder.dictadd(dict, terms));
+    }
+
+    @Override
+    public RedisFuture<Long> dictdel(K dict, V... terms) {
+        return dispatch(searchCommandBuilder.dictdel(dict, terms));
+    }
+
+    @Override
+    public RedisFuture<List<V>> dictdump(K dict) {
+        return dispatch(searchCommandBuilder.dictdump(dict));
+    }
 }

@@ -480,4 +480,16 @@ public class TestSearch extends BaseRedisModulesTest {
         Assertions.assertEquals(expected, styles);
     }
 
+    @Test
+    void dictadd() {
+        String[] beers = new String[] {"beer", "ale", "brew", "brewski"};
+        sync.dictadd("beers", beers);
+        Assertions.assertEquals(new HashSet<>(Arrays.asList(beers)), new HashSet<>(sync.dictdump("beers")));
+        sync.dictdel("beers", "brew");
+        List<String> beerDict = new ArrayList<>();
+        Collections.addAll(beerDict, beers);
+        beerDict.remove("brew");
+        Assertions.assertEquals(new HashSet<>(beerDict), new HashSet<>(sync.dictdump("beers")));
+    }
+
 }

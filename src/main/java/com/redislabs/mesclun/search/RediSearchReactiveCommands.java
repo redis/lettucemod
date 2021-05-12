@@ -1,7 +1,10 @@
 package com.redislabs.mesclun.search;
 
+import io.lettuce.core.RedisFuture;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 public interface RediSearchReactiveCommands<K, V> {
 
@@ -56,5 +59,11 @@ public interface RediSearchReactiveCommands<K, V> {
     Mono<Boolean> sugdel(K key, V string);
 
     Mono<Long> suglen(K key);
+
+    Mono<Long> dictadd(K dict, V... terms);
+
+    Mono<Long> dictdel(K dict, V... terms);
+
+    Flux<V> dictdump(K dict);
 
 }
