@@ -335,15 +335,22 @@ public class TestSearch extends BaseRedisModulesTest {
     @Test
     void sugget() {
         createBeerSuggestions();
-        List<Suggestion<String>> results = sync.sugget(SUGINDEX, "Ame");
-        assertEquals(5, results.size());
-        results = sync.sugget(SUGINDEX, "Ame", SuggetOptions.builder().max(1000L).build());
-        assertEquals(8, results.size());
-        results = sync.sugget(SUGINDEX, "Ame", SuggetOptions.builder().max(1000L).withScores(true).build());
-        assertEquals(8, results.size());
-        assertEquals("American Hero", results.get(0).getString());
+        assertEquals(5, sync.sugget(SUGINDEX, "Ame").size());
+        assertEquals(5, reactive.sugget(SUGINDEX, "Ame").collectList().block().size());
+        SuggetOptions options = SuggetOptions.builder().max(1000L).build();
+        assertEquals(8, sync.sugget(SUGINDEX, "Ame", options).size());
+        assertEquals(8, reactive.sugget(SUGINDEX, "Ame", options).collectList().block().size());
+        Consumer<List<Suggestion<String>>> withScores = results -> {
+            assertEquals(8, results.size());
+            assertEquals("American Hero", results.get(0).getString());
+            assertEquals(.3, results.get(0).getScore(), .01);
+        };
+        SuggetOptions withScoresOptions = SuggetOptions.builder().max(1000L).withScores(true).build();
+        withScores.accept(sync.sugget(SUGINDEX, "Ame", withScoresOptions));
+        withScores.accept(reactive.sugget(SUGINDEX, "Ame", withScoresOptions).collectList().block());
         assertEquals(2305, sync.suglen(SUGINDEX));
         assertTrue(sync.sugdel(SUGINDEX, "American Hero"));
+        assertTrue(reactive.sugdel(SUGINDEX, "American Lager").block());
     }
 
     @Test
