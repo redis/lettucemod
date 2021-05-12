@@ -11,19 +11,18 @@ import java.nio.charset.StandardCharsets;
  */
 public enum CommandType implements ProtocolKeyword {
 
-	ADD, AGGREGATE, ALTER, CREATE, CURSOR, DEL, DROP, DROPINDEX, GET, MGET, INFO, SEARCH, SUGADD, SUGGET, SUGDEL, SUGLEN, ALIASADD,
-	ALIASUPDATE, ALIASDEL, _LIST;
+    AGGREGATE, ALTER, CREATE, CURSOR, DROPINDEX, INFO, SEARCH, SUGADD, SUGGET, SUGDEL, SUGLEN, ALIASADD, ALIASUPDATE, ALIASDEL, _LIST, TAGVALS;
 
-	private final static String PREFIX = "FT.";
+    private final static String PREFIX = "FT.";
 
-	public final byte[] bytes;
+    public final byte[] bytes;
 
-	CommandType() {
-		bytes = (PREFIX + name()).getBytes(StandardCharsets.US_ASCII);
-	}
+    CommandType() {
+        bytes = (PREFIX + name()).getBytes(StandardCharsets.US_ASCII);
+    }
 
-	@Override
-	public byte[] getBytes() {
-		return bytes;
-	}
+    @Override
+    public byte[] getBytes() {
+        return bytes;
+    }
 }

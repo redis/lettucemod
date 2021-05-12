@@ -43,6 +43,8 @@ public interface RediSearchReactiveCommands<K, V> {
 
     Mono<String> cursorDelete(K index, long cursor);
 
+    Flux<V> tagVals(K index, K field);
+
     Mono<Long> sugadd(K key, V string, double score);
 
     Mono<Long> sugadd(K key, V string, double score, SugaddOptions<V> options);

@@ -44,6 +44,8 @@ public interface RediSearchAsyncCommands<K, V> {
 
     RedisFuture<String> cursorDelete(K index, long cursor);
 
+    RedisFuture<List<V>> tagVals(K index, K field);
+
     RedisFuture<Long> sugadd(K key, V string, double score);
 
     RedisFuture<Long> sugadd(K key, V string, double score, SugaddOptions<V> options);

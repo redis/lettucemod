@@ -29,7 +29,7 @@ public class RediSearchCommandBuilder<K, V> extends RedisModulesCommandBuilder<K
     public Command<K, V, String> create(K index, CreateOptions<K, V> options, Field... fields) {
         notNull(index, "index");
         LettuceAssert.isTrue(fields.length > 0, "At least one field is required.");
-        RediSearchCommandArgs<K, V> args = createArgs(index);
+        RediSearchCommandArgs<K, V> args = args(index);
         if (options != null) {
             options.build(args);
         }
@@ -42,7 +42,7 @@ public class RediSearchCommandBuilder<K, V> extends RedisModulesCommandBuilder<K
 
     public Command<K, V, String> dropIndex(K index, boolean deleteDocs) {
         notNull(index, "index");
-        RediSearchCommandArgs<K, V> args = createArgs(index);
+        RediSearchCommandArgs<K, V> args = args(index);
         if (deleteDocs) {
             args.add(CommandKeyword.DD);
         }
@@ -51,33 +51,33 @@ public class RediSearchCommandBuilder<K, V> extends RedisModulesCommandBuilder<K
 
     public Command<K, V, List<Object>> info(K index) {
         notNull(index, "index");
-        RediSearchCommandArgs<K, V> args = createArgs(index);
+        RediSearchCommandArgs<K, V> args = args(index);
         return createCommand(CommandType.INFO, new NestedMultiOutput<>(codec), args);
     }
 
     public Command<K, V, String> alter(K index, Field field) {
         notNull(index, "index");
         notNull(field, "field");
-        RediSearchCommandArgs<K, V> args = createArgs(index);
+        RediSearchCommandArgs<K, V> args = args(index);
         args.add(CommandKeyword.SCHEMA);
         args.add(CommandKeyword.ADD);
         field.build(args);
         return createCommand(CommandType.ALTER, new StatusOutput<>(codec), args);
     }
 
-    private RediSearchCommandArgs<K, V> createArgs(K index) {
-        return new RediSearchCommandArgs<>(codec).addKey(index);
+    private RediSearchCommandArgs<K, V> args(K key) {
+        return new RediSearchCommandArgs<>(codec).addKey(key);
     }
 
     public Command<K, V, SearchResults<K, V>> search(K index, V query, SearchOptions options) {
         notNull(index, "index");
         notNull(query, "query");
-        RediSearchCommandArgs<K, V> commandArgs = createArgs(index);
-        commandArgs.addValue(query);
+        RediSearchCommandArgs<K, V> args = args(index);
+        args.addValue(query);
         if (options != null) {
-            options.build(commandArgs);
+            options.build(args);
         }
-        return createCommand(CommandType.SEARCH, searchOutput(options), commandArgs);
+        return createCommand(CommandType.SEARCH, searchOutput(options), args);
     }
 
     private CommandOutput<K, V, SearchResults<K, V>> searchOutput(SearchOptions options) {
@@ -93,7 +93,7 @@ public class RediSearchCommandBuilder<K, V> extends RedisModulesCommandBuilder<K
     public Command<K, V, AggregateResults<K>> aggregate(K index, V query, AggregateOptions options) {
         notNull(index, "index");
         notNull(query, "query");
-        RediSearchCommandArgs<K, V> args = createArgs(index);
+        RediSearchCommandArgs<K, V> args = args(index);
         args.addValue(query);
         if (options != null) {
             options.build(args);
@@ -104,7 +104,7 @@ public class RediSearchCommandBuilder<K, V> extends RedisModulesCommandBuilder<K
     public Command<K, V, AggregateWithCursorResults<K>> aggregate(K index, V query, Cursor cursor, AggregateOptions options) {
         notNull(index, "index");
         notNull(query, "query");
-        RediSearchCommandArgs<K, V> args = createArgs(index);
+        RediSearchCommandArgs<K, V> args = args(index);
         args.addValue(query);
         if (options != null) {
             options.build(args);
@@ -138,6 +138,13 @@ public class RediSearchCommandBuilder<K, V> extends RedisModulesCommandBuilder<K
         return createCommand(CommandType.CURSOR, new StatusOutput<>(codec), args);
     }
 
+    public Command<K, V, List<V>> tagVals(K index, K field) {
+        notNull(index, "index");
+        RediSearchCommandArgs<K, V> args = args(index);
+        args.addKey(field);
+        return createCommand(CommandType.TAGVALS, new ValueListOutput<>(codec), args);
+    }
+
 
     public Command<K, V, Long> sugadd(K key, V string, double score) {
         return sugadd(key, string, score, null);
@@ -146,8 +153,7 @@ public class RediSearchCommandBuilder<K, V> extends RedisModulesCommandBuilder<K
     public Command<K, V, Long> sugadd(K key, V string, double score, SugaddOptions<V> options) {
         notNull(key, "key");
         notNull(string, "suggestion string");
-        RediSearchCommandArgs<K, V> args = new RediSearchCommandArgs<>(codec);
-        args.addKey(key);
+        RediSearchCommandArgs<K, V> args = args(key);
         args.addValue(string);
         args.add(score);
         if (options != null) {
@@ -169,8 +175,7 @@ public class RediSearchCommandBuilder<K, V> extends RedisModulesCommandBuilder<K
     public Command<K, V, List<Suggestion<V>>> sugget(K key, V prefix, SuggetOptions options) {
         notNull(key, "key");
         notNull(prefix, "prefix");
-        RediSearchCommandArgs<K, V> args = new RediSearchCommandArgs<>(codec);
-        args.addKey(key);
+        RediSearchCommandArgs<K, V> args = args(key);
         args.addValue(prefix);
         if (options != null) {
             options.build(args);
@@ -188,40 +193,30 @@ public class RediSearchCommandBuilder<K, V> extends RedisModulesCommandBuilder<K
     public Command<K, V, Boolean> sugdel(K key, V string) {
         notNull(key, "key");
         notNull(string, "string");
-        RediSearchCommandArgs<K, V> args = new RediSearchCommandArgs<>(codec).addKey(key).addValue(string);
-        return createCommand(CommandType.SUGDEL, new BooleanOutput<>(codec), args);
+        return createCommand(CommandType.SUGDEL, new BooleanOutput<>(codec), args(key).addValue(string));
     }
 
     public Command<K, V, Long> suglen(K key) {
         notNull(key, "key");
-        RediSearchCommandArgs<K, V> args = new RediSearchCommandArgs<>(codec).addKey(key);
-        return createCommand(CommandType.SUGLEN, new IntegerOutput<>(codec), args);
+        return createCommand(CommandType.SUGLEN, new IntegerOutput<>(codec), args(key));
 
     }
 
     public Command<K, V, String> aliasAdd(K name, K index) {
         notNull(name, "name");
         notNull(index, "index");
-        RediSearchCommandArgs<K, V> args = new RediSearchCommandArgs<>(codec);
-        args.addKey(name);
-        args.addKey(index);
-        return createCommand(CommandType.ALIASADD, new StatusOutput<>(codec), args);
+        return createCommand(CommandType.ALIASADD, new StatusOutput<>(codec), args(name).addKey(index));
     }
 
     public Command<K, V, String> aliasUpdate(K name, K index) {
         notNull(name, "name");
         notNull(index, "index");
-        RediSearchCommandArgs<K, V> args = new RediSearchCommandArgs<>(codec);
-        args.addKey(name);
-        args.addKey(index);
-        return createCommand(CommandType.ALIASUPDATE, new StatusOutput<>(codec), args);
+        return createCommand(CommandType.ALIASUPDATE, new StatusOutput<>(codec), args(name).addKey(index));
     }
 
     public Command<K, V, String> aliasDel(K name) {
         notNull(name, "name");
-        RediSearchCommandArgs<K, V> args = new RediSearchCommandArgs<>(codec);
-        args.addKey(name);
-        return createCommand(CommandType.ALIASDEL, new StatusOutput<>(codec), args);
+        return createCommand(CommandType.ALIASDEL, new StatusOutput<>(codec), args(name));
     }
 
     public Command<K, V, List<K>> list() {

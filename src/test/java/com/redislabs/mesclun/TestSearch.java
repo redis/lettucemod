@@ -472,4 +472,12 @@ public class TestSearch extends BaseRedisModulesTest {
         Assertions.assertEquals(",", styleField.getSeparator());
     }
 
+    @Test
+    void tagVals() {
+        createBeerIndex();
+        List<String> styles = sync.tagVals(INDEX, STYLE);
+        List<String> expected = Arrays.asList("american pale lager", "american pale ale (apa)", "american pale wheat ale", "american porter", "american pilsner", "american ipa", "american india pale lager", "american double / imperial ipa", "american double / imperial stout", "american double / imperial pilsner", "american dark wheat ale", "american barleywine", "american black ale", "american blonde ale", "american brown ale", "american stout", "american strong ale", "american amber / red ale", "american amber / red lager", "american adjunct lager", "american wild ale", "american white ipa", "american malt liquor", "altbier", "abbey single ale", "oatmeal stout", "other", "old ale", "saison / farmhouse ale", "schwarzbier", "scotch ale / wee heavy", "scottish ale", "smoked beer", "shandy", "belgian ipa", "belgian dark ale", "belgian strong dark ale", "belgian strong pale ale", "belgian pale ale", "berliner weissbier", "baltic porter", "bock", "bière de garde", "braggot", "cider", "california common / steam beer", "cream ale", "czech pilsener", "chile beer", "tripel", "winter warmer", "witbier", "wheat ale", "fruit / vegetable beer", "foreign / export stout", "flanders red ale", "flanders oud bruin", "english strong ale", "english stout", "english pale ale", "english pale mild ale", "english barleywine", "english brown ale", "english bitter", "english india pale ale (ipa)", "english dark mild ale", "extra special / strong bitter (esb)", "euro dark lager", "euro pale lager", "kölsch", "kristalweizen", "keller bier / zwickel bier", "milk / sweet stout", "munich helles lager", "munich dunkel lager", "märzen / oktoberfest", "mead", "maibock / helles bock", "german pilsener", "gose", "grisette", "pumpkin ale", "vienna lager", "rye beer", "radler", "rauchbier", "russian imperial stout", "roggenbier", "hefeweizen", "herbed / spiced beer", "dortmunder / export lager", "doppelbock", "dunkelweizen", "dubbel", "irish dry stout", "irish red ale", "quadrupel (quad)", "light lager", "low alcohol beer");
+        Assertions.assertEquals(expected, styles);
+    }
+
 }

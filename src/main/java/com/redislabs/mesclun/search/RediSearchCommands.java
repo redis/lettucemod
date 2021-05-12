@@ -42,6 +42,8 @@ public interface RediSearchCommands<K, V> {
 
     String cursorDelete(K index, long cursor);
 
+    List<V> tagVals(K index, K field);
+
     Long sugadd(K key, V string, double score);
 
     Long sugadd(K key, V string, double score, SugaddOptions<V> options);

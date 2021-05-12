@@ -267,4 +267,8 @@ public class RedisModulesReactiveCommandsImpl<K, V> extends RedisReactiveCommand
         return createDissolvingFlux(searchCommandBuilder::list);
     }
 
+    @Override
+    public Flux<V> tagVals(K index, K field) {
+        return createDissolvingFlux(() -> searchCommandBuilder.tagVals(index, field));
+    }
 }
