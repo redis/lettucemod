@@ -42,6 +42,7 @@ dependencies {
     testImplementation ('com.redislabs:testcontainers-redis:1.1.3') {
         exclude group: 'com.redislabs', module: 'mesclun'
     }
+    testImplementation 'org.slf4j:slf4j-simple'
 }
 
 test {

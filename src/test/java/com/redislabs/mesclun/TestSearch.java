@@ -9,10 +9,7 @@ import com.redislabs.mesclun.search.aggregate.SortBy;
 import com.redislabs.mesclun.search.aggregate.reducers.Avg;
 import com.redislabs.mesclun.search.aggregate.reducers.Count;
 import com.redislabs.mesclun.search.aggregate.reducers.ToList;
-import io.lettuce.core.LettuceFutures;
-import io.lettuce.core.RedisCommandExecutionException;
-import io.lettuce.core.RedisFuture;
-import io.lettuce.core.RedisURI;
+import io.lettuce.core.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -21,6 +18,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -352,40 +350,61 @@ public class TestSearch extends BaseRedisModulesTest {
     void aggregate() {
         createBeerIndex();
         // Load tests
-        AggregateResults<String> results = sync.aggregate(INDEX, "*", AggregateOptions.builder().load(ID).load(NAME).load(STYLE).build());
-        Assertions.assertEquals(1, results.getCount());
-        assertEquals(BEER_COUNT, results.size());
         Map<String, Map<String, String>> beerMap = beers.stream().collect(Collectors.toMap(b -> b.get(ID), b -> b));
-        for (Map<String, Object> result : results) {
-            String id = (String) result.get(ID);
-            Map<String, String> beer = beerMap.get(id);
-            assertEquals(beer.get(NAME).toLowerCase(), ((String) result.get(NAME)).toLowerCase());
-            String style = beer.get(STYLE);
-            if (style != null) {
-                assertEquals(style.toLowerCase(), ((String) result.get(STYLE)).toLowerCase());
+        Consumer<AggregateResults<String>> loadAsserts = results -> {
+            assertEquals(1, results.getCount());
+            assertEquals(BEER_COUNT, results.size());
+            for (Map<String, Object> result : results) {
+                String id = (String) result.get(ID);
+                Map<String, String> beer = beerMap.get(id);
+                assertEquals(beer.get(NAME).toLowerCase(), ((String) result.get(NAME)).toLowerCase());
+                String style = beer.get(STYLE);
+                if (style != null) {
+                    assertEquals(style.toLowerCase(), ((String) result.get(STYLE)).toLowerCase());
+                }
             }
-        }
+
+        };
+        AggregateOptions loadOptions = AggregateOptions.builder().load(ID).load(NAME).load(STYLE).build();
+        loadAsserts.accept(sync.aggregate(INDEX, "*", loadOptions));
+        loadAsserts.accept(reactive.aggregate(INDEX, "*", loadOptions).block());
 
         // GroupBy tests
-        results = sync.aggregate(INDEX, "*", AggregateOptions.builder().operation(GroupBy.property(STYLE).reducer(Avg.property(ABV).as(ABV).build()).build()).operation(SortBy.property(SortBy.Property.name(ABV).order(Order.DESC)).build()).operation(Limit.offset(0).num(20)).build());
-        assertEquals(100, results.getCount());
-        List<Double> abvs = results.stream().map(r -> Double.parseDouble((String) r.get(ABV))).collect(Collectors.toList());
-        assertTrue(abvs.get(0) > abvs.get(abvs.size() - 1));
-        assertEquals(20, results.size());
-        results = sync.aggregate(INDEX, "*", AggregateOptions.builder().operation(GroupBy.property(STYLE).reducer(ToList.property(NAME).as("names").build()).reducer(Count.as("count")).build()).operation(Limit.offset(0).num(1)).build());
-        assertEquals(100, results.getCount());
-        assertEquals("belgian ipa", ((String) results.get(0).get(STYLE)).toLowerCase());
-        Object names = results.get(0).get("names");
-        assertEquals(17, ((List<String>) names).size());
+        Consumer<AggregateResults<String>> groupByAsserts = results -> {
+            assertEquals(100, results.getCount());
+            List<Double> abvs = results.stream().map(r -> Double.parseDouble((String) r.get(ABV))).collect(Collectors.toList());
+            assertTrue(abvs.get(0) > abvs.get(abvs.size() - 1));
+            assertEquals(20, results.size());
+        };
+        AggregateOptions groupByOptions = AggregateOptions.builder().operation(GroupBy.property(STYLE).reducer(Avg.property(ABV).as(ABV).build()).build()).operation(SortBy.property(SortBy.Property.name(ABV).order(Order.DESC)).build()).operation(Limit.offset(0).num(20)).build();
+        groupByAsserts.accept(sync.aggregate(INDEX, "*", groupByOptions));
+        groupByAsserts.accept(reactive.aggregate(INDEX, "*", groupByOptions).block());
+
+        Consumer<AggregateResults<String>> groupBy2Asserts = results -> {
+            assertEquals(100, results.getCount());
+            assertEquals("belgian ipa", ((String) results.get(0).get(STYLE)).toLowerCase());
+            Object names = results.get(0).get("names");
+            assertEquals(17, ((List<String>) names).size());
+        };
+        AggregateOptions groupBy2Options = AggregateOptions.builder().operation(GroupBy.property(STYLE).reducer(ToList.property(NAME).as("names").build()).reducer(Count.as("count")).build()).operation(Limit.offset(0).num(1)).build();
+        groupBy2Asserts.accept(sync.aggregate(INDEX, "*", groupBy2Options));
+        groupBy2Asserts.accept(reactive.aggregate(INDEX, "*", groupBy2Options).block());
 
         // Cursor tests
-        AggregateWithCursorResults<String> cursorResults = sync.aggregate(INDEX, "*", Cursor.builder().build(), AggregateOptions.builder().load(ID).load(NAME).load(ABV).build());
-        assertEquals(1, cursorResults.getCount());
-        assertEquals(1000, cursorResults.size());
-        assertEquals("harpoon ipa (2010)", ((String) cursorResults.get(999).get("name")).toLowerCase());
-        assertEquals("0.086", cursorResults.get(9).get("abv"));
-        cursorResults = sync.cursorRead(INDEX, cursorResults.getCursor());
-        assertEquals(1000, cursorResults.size());
+        Consumer<AggregateWithCursorResults<String>> cursorTests = cursorResults -> {
+            assertEquals(1, cursorResults.getCount());
+            assertEquals(1000, cursorResults.size());
+            assertEquals("harpoon ipa (2010)", ((String) cursorResults.get(999).get("name")).toLowerCase());
+            assertEquals("0.086", cursorResults.get(9).get("abv"));
+        };
+        AggregateOptions cursorOptions = AggregateOptions.builder().load(ID).load(NAME).load(ABV).build();
+        AggregateWithCursorResults<String> cursorResults = sync.aggregate(INDEX, "*", Cursor.builder().build(), cursorOptions);
+        cursorTests.accept(cursorResults);
+        cursorTests.accept(reactive.aggregate(INDEX, "*", Cursor.builder().build(), cursorOptions).block());
+        cursorResults = sync.cursorRead(INDEX, cursorResults.getCursor(), 500);
+        assertEquals(500, cursorResults.size());
+        cursorResults = reactive.cursorRead(INDEX, cursorResults.getCursor()).block();
+        assertEquals(500, cursorResults.size());
         String deleteStatus = sync.cursorDelete(INDEX, cursorResults.getCursor());
         assertEquals("OK", deleteStatus);
     }
@@ -475,21 +494,33 @@ public class TestSearch extends BaseRedisModulesTest {
     @Test
     void tagVals() {
         createBeerIndex();
-        List<String> styles = sync.tagVals(INDEX, STYLE);
-        List<String> expected = Arrays.asList("american pale lager", "american pale ale (apa)", "american pale wheat ale", "american porter", "american pilsner", "american ipa", "american india pale lager", "american double / imperial ipa", "american double / imperial stout", "american double / imperial pilsner", "american dark wheat ale", "american barleywine", "american black ale", "american blonde ale", "american brown ale", "american stout", "american strong ale", "american amber / red ale", "american amber / red lager", "american adjunct lager", "american wild ale", "american white ipa", "american malt liquor", "altbier", "abbey single ale", "oatmeal stout", "other", "old ale", "saison / farmhouse ale", "schwarzbier", "scotch ale / wee heavy", "scottish ale", "smoked beer", "shandy", "belgian ipa", "belgian dark ale", "belgian strong dark ale", "belgian strong pale ale", "belgian pale ale", "berliner weissbier", "baltic porter", "bock", "bière de garde", "braggot", "cider", "california common / steam beer", "cream ale", "czech pilsener", "chile beer", "tripel", "winter warmer", "witbier", "wheat ale", "fruit / vegetable beer", "foreign / export stout", "flanders red ale", "flanders oud bruin", "english strong ale", "english stout", "english pale ale", "english pale mild ale", "english barleywine", "english brown ale", "english bitter", "english india pale ale (ipa)", "english dark mild ale", "extra special / strong bitter (esb)", "euro dark lager", "euro pale lager", "kölsch", "kristalweizen", "keller bier / zwickel bier", "milk / sweet stout", "munich helles lager", "munich dunkel lager", "märzen / oktoberfest", "mead", "maibock / helles bock", "german pilsener", "gose", "grisette", "pumpkin ale", "vienna lager", "rye beer", "radler", "rauchbier", "russian imperial stout", "roggenbier", "hefeweizen", "herbed / spiced beer", "dortmunder / export lager", "doppelbock", "dunkelweizen", "dubbel", "irish dry stout", "irish red ale", "quadrupel (quad)", "light lager", "low alcohol beer");
-        Assertions.assertEquals(expected, styles);
+        Set<String> TAG_VALS = new HashSet<>(Arrays.asList("american pale lager", "american pale ale (apa)", "american pale wheat ale", "american porter", "american pilsner", "american ipa", "american india pale lager", "american double / imperial ipa", "american double / imperial stout", "american double / imperial pilsner", "american dark wheat ale", "american barleywine", "american black ale", "american blonde ale", "american brown ale", "american stout", "american strong ale", "american amber / red ale", "american amber / red lager", "american adjunct lager", "american wild ale", "american white ipa", "american malt liquor", "altbier", "abbey single ale", "oatmeal stout", "other", "old ale", "saison / farmhouse ale", "schwarzbier", "scotch ale / wee heavy", "scottish ale", "smoked beer", "shandy", "belgian ipa", "belgian dark ale", "belgian strong dark ale", "belgian strong pale ale", "belgian pale ale", "berliner weissbier", "baltic porter", "bock", "bière de garde", "braggot", "cider", "california common / steam beer", "cream ale", "czech pilsener", "chile beer", "tripel", "winter warmer", "witbier", "wheat ale", "fruit / vegetable beer", "foreign / export stout", "flanders red ale", "flanders oud bruin", "english strong ale", "english stout", "english pale ale", "english pale mild ale", "english barleywine", "english brown ale", "english bitter", "english india pale ale (ipa)", "english dark mild ale", "extra special / strong bitter (esb)", "euro dark lager", "euro pale lager", "kölsch", "kristalweizen", "keller bier / zwickel bier", "milk / sweet stout", "munich helles lager", "munich dunkel lager", "märzen / oktoberfest", "mead", "maibock / helles bock", "german pilsener", "gose", "grisette", "pumpkin ale", "vienna lager", "rye beer", "radler", "rauchbier", "russian imperial stout", "roggenbier", "hefeweizen", "herbed / spiced beer", "dortmunder / export lager", "doppelbock", "dunkelweizen", "dubbel", "irish dry stout", "irish red ale", "quadrupel (quad)", "light lager", "low alcohol beer"));
+        Assertions.assertEquals(TAG_VALS, new HashSet<>(sync.tagVals(INDEX, STYLE)));
+        Assertions.assertEquals(TAG_VALS, new HashSet<>(reactive.tagVals(INDEX, STYLE).collectList().block()));
     }
+
+    final static String[] DICT_TERMS = new String[]{"beer", "ale", "brew", "brewski"};
 
     @Test
     void dictadd() {
-        String[] beers = new String[] {"beer", "ale", "brew", "brewski"};
-        sync.dictadd("beers", beers);
-        Assertions.assertEquals(new HashSet<>(Arrays.asList(beers)), new HashSet<>(sync.dictdump("beers")));
-        sync.dictdel("beers", "brew");
+        Assertions.assertEquals(DICT_TERMS.length, sync.dictadd("beers", DICT_TERMS));
+        Assertions.assertEquals(new HashSet<>(Arrays.asList(DICT_TERMS)), new HashSet<>(sync.dictdump("beers")));
+        Assertions.assertEquals(1, sync.dictdel("beers", "brew"));
         List<String> beerDict = new ArrayList<>();
-        Collections.addAll(beerDict, beers);
+        Collections.addAll(beerDict, DICT_TERMS);
         beerDict.remove("brew");
         Assertions.assertEquals(new HashSet<>(beerDict), new HashSet<>(sync.dictdump("beers")));
+    }
+
+    @Test
+    void dictaddReactive() {
+        Assertions.assertEquals(DICT_TERMS.length, reactive.dictadd("beers", DICT_TERMS).block());
+        Assertions.assertEquals(new HashSet<>(Arrays.asList(DICT_TERMS)), new HashSet<>(reactive.dictdump("beers").collectList().block()));
+        Assertions.assertEquals(1, reactive.dictdel("beers", "brew").block());
+        List<String> beerDict = new ArrayList<>();
+        Collections.addAll(beerDict, DICT_TERMS);
+        beerDict.remove("brew");
+        Assertions.assertEquals(new HashSet<>(beerDict), new HashSet<>(reactive.dictdump("beers").collectList().block()));
     }
 
 }
