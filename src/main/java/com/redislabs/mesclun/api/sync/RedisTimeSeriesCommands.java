@@ -1,4 +1,8 @@
-package com.redislabs.mesclun.timeseries;
+package com.redislabs.mesclun.api.sync;
+
+import com.redislabs.mesclun.timeseries.Aggregation;
+import com.redislabs.mesclun.timeseries.CreateOptions;
+import com.redislabs.mesclun.timeseries.Label;
 
 public interface RedisTimeSeriesCommands<K,V> {
 

@@ -3,7 +3,7 @@ package com.redislabs.mesclun.gears;
 import com.redislabs.mesclun.gears.output.*;
 import com.redislabs.mesclun.gears.protocol.CommandKeyword;
 import com.redislabs.mesclun.gears.protocol.CommandType;
-import com.redislabs.mesclun.impl.RedisModulesCommandBuilder;
+import com.redislabs.mesclun.RedisModulesCommandBuilder;
 import io.lettuce.core.codec.RedisCodec;
 import io.lettuce.core.internal.LettuceAssert;
 import io.lettuce.core.output.ArrayOutput;

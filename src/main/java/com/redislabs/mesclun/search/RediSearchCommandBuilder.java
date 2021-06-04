@@ -1,6 +1,6 @@
 package com.redislabs.mesclun.search;
 
-import com.redislabs.mesclun.impl.RedisModulesCommandBuilder;
+import com.redislabs.mesclun.RedisModulesCommandBuilder;
 import com.redislabs.mesclun.search.output.*;
 import com.redislabs.mesclun.search.protocol.CommandKeyword;
 import com.redislabs.mesclun.search.protocol.CommandType;
@@ -194,14 +194,14 @@ public class RediSearchCommandBuilder<K, V> extends RedisModulesCommandBuilder<K
         if (options != null) {
             options.build(args);
         }
-        return createCommand(CommandType.SUGGET, suggestOutput(options), args);
+        return createCommand(CommandType.SUGGET, suggetOutput(options), args);
     }
 
-    private SuggestOutput<K, V> suggestOutput(SuggetOptions options) {
+    private SuggetOutput<K, V> suggetOutput(SuggetOptions options) {
         if (options == null) {
-            return new SuggestOutput<>(codec);
+            return new SuggetOutput<>(codec);
         }
-        return new SuggestOutput<>(codec, options.isWithScores(), options.isWithPayloads());
+        return new SuggetOutput<>(codec, options.isWithScores(), options.isWithPayloads());
     }
 
     public Command<K, V, Boolean> sugdel(K key, V string) {

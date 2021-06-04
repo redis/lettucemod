@@ -1,5 +1,8 @@
-package com.redislabs.mesclun.timeseries;
+package com.redislabs.mesclun.api.async;
 
+import com.redislabs.mesclun.timeseries.Aggregation;
+import com.redislabs.mesclun.timeseries.CreateOptions;
+import com.redislabs.mesclun.timeseries.Label;
 import io.lettuce.core.RedisFuture;
 
 public interface RedisTimeSeriesAsyncCommands<K, V> {

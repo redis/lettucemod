@@ -2,7 +2,7 @@ package com.redislabs.mesclun;
 
 import java.time.Duration;
 
-import com.redislabs.mesclun.impl.StatefulRedisModulesConnectionImpl;
+import com.redislabs.mesclun.api.StatefulRedisModulesConnection;
 
 import io.lettuce.core.ClientOptions;
 import io.lettuce.core.RedisChannelWriter;
@@ -16,8 +16,8 @@ import io.lettuce.core.protocol.PushHandler;
 import io.lettuce.core.resource.ClientResources;
 
 /**
- * A scalable and thread-safe
- * <a href="http://redistimeseries.io/">RedisTimeSeries</a> client supporting
+ * A scalable and thread-safe client for
+ * <a href="https://redis.io/modules">Redis Modules</a> supporting
  * synchronous, asynchronous and reactive execution models. Multiple threads may
  * share one connection if they avoid blocking and transactional operations such
  * as BLPOP and MULTI/EXEC.
@@ -51,7 +51,7 @@ public class RedisModulesClient extends RedisClient {
 	}
 
 	/**
-	 * Creates a uri-less RedisTimeSeriesClient. You can connect to different Redis
+	 * Creates a uri-less RedisModulesClient. You can connect to different Redis
 	 * servers but you must supply a {@link RedisURI} on connecting. Methods without
 	 * having a {@link RedisURI} will fail with a
 	 * {@link java.lang.IllegalStateException}. Non-private constructor to make
@@ -62,7 +62,7 @@ public class RedisModulesClient extends RedisClient {
 	}
 
 	/**
-	 * Creates a uri-less RedisTimeSeriesClient with default {@link ClientResources}. You
+	 * Creates a uri-less RedisModulesClient with default {@link ClientResources}. You
 	 * can connect to different Redis servers but you must supply a {@link RedisURI}
 	 * on connecting. Methods without having a {@link RedisURI} will fail with a
 	 * {@link java.lang.IllegalStateException}.
@@ -100,7 +100,7 @@ public class RedisModulesClient extends RedisClient {
 	}
 
 	/**
-	 * Creates a uri-less RedisTimeSeriesClient with shared {@link ClientResources}. You
+	 * Creates a uri-less RedisModulesClient with shared {@link ClientResources}. You
 	 * need to shut down the {@link ClientResources} upon shutting down your
 	 * application. You can connect to different Redis servers but you must supply a
 	 * {@link RedisURI} on connecting. Methods without having a {@link RedisURI}
@@ -153,7 +153,7 @@ public class RedisModulesClient extends RedisClient {
 	}
 
 	/**
-	 * Open a new connection to a RedisTimeSeries server that treats keys and values as
+	 * Open a new connection to a Redis server that treats keys and values as
 	 * UTF-8 strings.
 	 *
 	 * @return A new stateful Redis connection
@@ -164,7 +164,7 @@ public class RedisModulesClient extends RedisClient {
 	}
 
 	/**
-	 * Open a new connection to a RedisTimeSeries server. Use the supplied
+	 * Open a new connection to a Redis server. Use the supplied
 	 * {@link RedisCodec codec} to encode/decode keys and values.
 	 *
 	 * @param codec Use this codec to encode/decode keys and values, must not be
@@ -179,7 +179,7 @@ public class RedisModulesClient extends RedisClient {
 	}
 
 	/**
-	 * Open a new connection to a RedisTimeSeries server using the supplied
+	 * Open a new connection to a Redis server using the supplied
 	 * {@link RedisURI} that treats keys and values as UTF-8 strings.
 	 *
 	 * @param redisURI the Redis server to connect to, must not be {@code null}
@@ -191,7 +191,7 @@ public class RedisModulesClient extends RedisClient {
 	}
 
 	/**
-	 * Open a new connection to a RedisTimeSeries server using the supplied
+	 * Open a new connection to a Redis server using the supplied
 	 * {@link RedisURI} and the supplied {@link RedisCodec codec} to encode/decode
 	 * keys.
 	 *
@@ -222,7 +222,7 @@ public class RedisModulesClient extends RedisClient {
 	 * @param timeout       default timeout
 	 * @param <K>           Key-Type
 	 * @param <V>           Value Type
-	 * @return new instance of StatefulRedisTimeSeriesConnectionImpl
+	 * @return new instance of StatefulRedisModulesConnectionImpl
 	 */
 	@Override
 	protected <K, V> StatefulRedisModulesConnectionImpl<K, V> newStatefulRedisConnection(RedisChannelWriter channelWriter,

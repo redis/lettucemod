@@ -3,6 +3,7 @@ package com.redislabs.mesclun.search.output;
 import com.redislabs.mesclun.search.Document;
 import com.redislabs.mesclun.search.SearchResults;
 import io.lettuce.core.codec.RedisCodec;
+import io.lettuce.core.internal.LettuceStrings;
 import io.lettuce.core.output.CommandOutput;
 import io.lettuce.core.output.MapOutput;
 
@@ -19,8 +20,9 @@ public class SearchOutput<K, V> extends CommandOutput<K, V, SearchResults<K, V>>
 	private MapOutput<K, V> nested;
 	private Document<K, V> current;
 	private int mapCount = -1;
-	private boolean payloadSet = false;
+	private boolean sortKeySet = false;
 	private boolean scoreSet = false;
+	private boolean payloadSet = false;
 
 	public SearchOutput(RedisCodec<K, V> codec) {
 		this(codec, false, false, false);
@@ -40,23 +42,30 @@ public class SearchOutput<K, V> extends CommandOutput<K, V, SearchResults<K, V>>
 			current = new Document<>();
 			payloadSet = false;
 			scoreSet = false;
+			sortKeySet = false;
 			if (bytes != null) {
 				current.setId(codec.decodeKey(bytes));
 			}
 			output.add(current);
 		} else {
-			if (withSortKeys && current.getSortKey() == null) {
+			if (withSortKeys && !sortKeySet) {
 				if (bytes != null) {
 					current.setSortKey(codec.decodeValue(bytes));
 				}
+				sortKeySet = true;
 			} else {
-				if (withPayloads && !payloadSet) {
-					if (bytes != null) {
-						current.setPayload(codec.decodeValue(bytes));
-					}
-					payloadSet = true;
+				if (withScores && !scoreSet) {
+					current.setScore(LettuceStrings.toDouble(decodeAscii(bytes)));
+					scoreSet = true;
 				} else {
-					nested.set(bytes);
+					if (withPayloads && !payloadSet) {
+						if (bytes != null) {
+							current.setPayload(codec.decodeValue(bytes));
+						}
+						payloadSet = true;
+					} else {
+						nested.set(bytes);
+					}
 				}
 			}
 		}
@@ -85,6 +94,7 @@ public class SearchOutput<K, V> extends CommandOutput<K, V, SearchResults<K, V>>
 				current = null;
 				payloadSet = false;
 				scoreSet = false;
+				sortKeySet = false;
 			}
 		}
 	}

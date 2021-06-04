@@ -1,10 +1,11 @@
 package com.redislabs.mesclun;
 
-import com.redislabs.mesclun.gears.RedisGearsCommands;
+import com.redislabs.mesclun.api.StatefulRedisModulesConnection;
+import com.redislabs.mesclun.api.sync.RedisGearsCommands;
 import com.redislabs.mesclun.search.Field;
-import com.redislabs.mesclun.search.RediSearchCommands;
+import com.redislabs.mesclun.api.sync.RediSearchCommands;
 import com.redislabs.mesclun.search.SearchResults;
-import com.redislabs.mesclun.timeseries.RedisTimeSeriesCommands;
+import com.redislabs.mesclun.api.sync.RedisTimeSeriesCommands;
 
 @SuppressWarnings({"unchecked", "unused"})
 public class Usage {

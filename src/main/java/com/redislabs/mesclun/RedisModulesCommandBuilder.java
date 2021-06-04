@@ -1,4 +1,4 @@
-package com.redislabs.mesclun.impl;
+package com.redislabs.mesclun;
 
 import io.lettuce.core.codec.RedisCodec;
 import io.lettuce.core.internal.LettuceAssert;

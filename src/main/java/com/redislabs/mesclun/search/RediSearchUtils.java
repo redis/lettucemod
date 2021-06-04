@@ -2,6 +2,7 @@ package com.redislabs.mesclun.search;
 
 import com.redislabs.mesclun.search.protocol.CommandKeyword;
 import io.lettuce.core.internal.LettuceAssert;
+import io.lettuce.core.internal.LettuceStrings;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -29,6 +30,15 @@ public class RediSearchUtils {
     }
 
     private static Double getDouble(Object object) {
+        if (object == null) {
+            return null;
+        }
+        if (object instanceof String) {
+            return LettuceStrings.toDouble((String) object);
+        }
+        if (object instanceof Long) {
+            return ((Long) object).doubleValue();
+        }
         return (Double) object;
     }
 
@@ -76,7 +86,7 @@ public class RediSearchUtils {
             case TAG:
                 return new Field.Tag(name, sortable, noIndex, (String) info.get(4));
             default:
-                return new Field.Text(name, sortable, noIndex, (Double) info.get(4), NOSTEM.name().equals(info.get(info.size() - 1)));
+                return new Field.Text(name, sortable, noIndex, getDouble(info.get(4)), NOSTEM.name().equals(info.get(info.size() - 1)));
         }
     }
 

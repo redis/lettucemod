@@ -1,6 +1,6 @@
 package com.redislabs.mesclun.timeseries;
 
-import com.redislabs.mesclun.impl.RedisModulesCommandBuilder;
+import com.redislabs.mesclun.RedisModulesCommandBuilder;
 import com.redislabs.mesclun.timeseries.protocol.CommandKeyword;
 import com.redislabs.mesclun.timeseries.protocol.CommandType;
 import io.lettuce.core.codec.RedisCodec;

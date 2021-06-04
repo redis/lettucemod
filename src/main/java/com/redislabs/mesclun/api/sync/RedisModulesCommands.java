@@ -1,8 +1,6 @@
-package com.redislabs.mesclun;
+package com.redislabs.mesclun.api.sync;
 
-import com.redislabs.mesclun.gears.RedisGearsCommands;
-import com.redislabs.mesclun.search.RediSearchCommands;
-import com.redislabs.mesclun.timeseries.RedisTimeSeriesCommands;
+import com.redislabs.mesclun.api.StatefulRedisModulesConnection;
 import io.lettuce.core.api.sync.RedisCommands;
 
 public interface RedisModulesCommands<K, V> extends RedisCommands<K, V>, RedisGearsCommands<K, V>, RediSearchCommands<K, V>, RedisTimeSeriesCommands<K, V> {

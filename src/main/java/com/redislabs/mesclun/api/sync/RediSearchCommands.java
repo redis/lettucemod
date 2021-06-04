@@ -1,4 +1,6 @@
-package com.redislabs.mesclun.search;
+package com.redislabs.mesclun.api.sync;
+
+import com.redislabs.mesclun.search.*;
 
 import java.util.List;
 

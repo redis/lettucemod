@@ -1,5 +1,9 @@
-package com.redislabs.mesclun.gears;
+package com.redislabs.mesclun.api.sync;
 
+import com.redislabs.mesclun.gears.Execution;
+import com.redislabs.mesclun.gears.ExecutionDetails;
+import com.redislabs.mesclun.gears.ExecutionMode;
+import com.redislabs.mesclun.gears.Registration;
 import com.redislabs.mesclun.gears.output.ExecutionResults;
 
 import java.util.List;

@@ -1,11 +1,11 @@
-package com.redislabs.mesclun.impl;
+package com.redislabs.mesclun;
 
 import java.time.Duration;
 
-import com.redislabs.mesclun.StatefulRedisModulesConnection;
-import com.redislabs.mesclun.RedisModulesAsyncCommands;
-import com.redislabs.mesclun.RedisModulesReactiveCommands;
-import com.redislabs.mesclun.RedisModulesCommands;
+import com.redislabs.mesclun.api.StatefulRedisModulesConnection;
+import com.redislabs.mesclun.api.async.RedisModulesAsyncCommands;
+import com.redislabs.mesclun.api.reactive.RedisModulesReactiveCommands;
+import com.redislabs.mesclun.api.sync.RedisModulesCommands;
 
 import io.lettuce.core.RedisChannelWriter;
 import io.lettuce.core.RedisReactiveCommandsImpl;

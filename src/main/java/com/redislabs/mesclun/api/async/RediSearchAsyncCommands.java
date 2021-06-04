@@ -1,5 +1,6 @@
-package com.redislabs.mesclun.search;
+package com.redislabs.mesclun.api.async;
 
+import com.redislabs.mesclun.search.*;
 import io.lettuce.core.RedisFuture;
 
 import java.util.List;

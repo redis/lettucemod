@@ -1,7 +1,7 @@
-package com.redislabs.mesclun.impl;
+package com.redislabs.mesclun;
 
-import com.redislabs.mesclun.RedisModulesAsyncCommands;
-import com.redislabs.mesclun.StatefulRedisModulesConnection;
+import com.redislabs.mesclun.api.async.RedisModulesAsyncCommands;
+import com.redislabs.mesclun.api.StatefulRedisModulesConnection;
 import com.redislabs.mesclun.gears.*;
 import com.redislabs.mesclun.gears.output.ExecutionResults;
 import com.redislabs.mesclun.search.*;
@@ -19,14 +19,12 @@ import java.util.Map;
 @SuppressWarnings("unchecked")
 public class RedisModulesAsyncCommandsImpl<K, V> extends RedisAsyncCommandsImpl<K, V> implements RedisModulesAsyncCommands<K, V> {
 
-    private final StatefulRedisModulesConnection<K, V> connection;
     private final RedisGearsCommandBuilder<K, V> gearsCommandBuilder;
     private final RedisTimeSeriesCommandBuilder<K, V> timeSeriesCommandBuilder;
     private final RediSearchCommandBuilder<K, V> searchCommandBuilder;
 
     public RedisModulesAsyncCommandsImpl(StatefulRedisModulesConnection<K, V> connection, RedisCodec<K, V> codec) {
         super(connection, codec);
-        this.connection = connection;
         this.gearsCommandBuilder = new RedisGearsCommandBuilder<>(codec);
         this.timeSeriesCommandBuilder = new RedisTimeSeriesCommandBuilder<>(codec);
         this.searchCommandBuilder = new RediSearchCommandBuilder<>(codec);
@@ -34,7 +32,7 @@ public class RedisModulesAsyncCommandsImpl<K, V> extends RedisAsyncCommandsImpl<
 
     @Override
     public StatefulRedisModulesConnection<K, V> getStatefulConnection() {
-        return connection;
+        return (StatefulRedisModulesConnection<K, V>) super.getStatefulConnection();
     }
 
     @Override

@@ -1,7 +1,7 @@
-package com.redislabs.mesclun.impl;
+package com.redislabs.mesclun;
 
-import com.redislabs.mesclun.RedisModulesReactiveCommands;
-import com.redislabs.mesclun.StatefulRedisModulesConnection;
+import com.redislabs.mesclun.api.reactive.RedisModulesReactiveCommands;
+import com.redislabs.mesclun.api.StatefulRedisModulesConnection;
 import com.redislabs.mesclun.gears.*;
 import com.redislabs.mesclun.gears.output.ExecutionResults;
 import com.redislabs.mesclun.search.*;

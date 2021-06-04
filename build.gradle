@@ -1,13 +1,13 @@
 plugins {
-    id 'org.springframework.boot' version '2.4.5'
+    id 'org.springframework.boot' version '2.5.0'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
     id 'java-library'
     id 'maven-publish'
     id 'signing'
-    id 'io.github.gradle-nexus.publish-plugin' version '1.1.0'
     id 'net.researchgate.release' version '2.8.1'
-    id 'com.github.ben-manes.versions' version '0.38.0'
     id 'com.github.breadmoirai.github-release' version '2.2.12'
+    id 'io.github.gradle-nexus.publish-plugin' version '1.1.0'
+    id 'com.github.ben-manes.versions' version '0.39.0'
     id 'jacoco'
 }
 
@@ -35,12 +35,19 @@ jar {
 }
 
 dependencies {
-    api 'io.lettuce:lettuce-core:6.1.1.RELEASE'
+    api 'io.lettuce:lettuce-core:6.2.0.BUILD-SNAPSHOT'
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.2'
+    testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.7.2'
+    testImplementation 'org.junit.jupiter:junit-jupiter-params:5.7.2'
     testImplementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-csv'
-    testImplementation 'com.redislabs:testcontainers-redis:1.1.3'
+    testImplementation 'com.redislabs:testcontainers-redis:1.1.4-SNAPSHOT'
+    testImplementation 'org.testcontainers:junit-jupiter:1.15.3'
     testImplementation 'org.slf4j:slf4j-simple'
+    testImplementation 'org.apache.commons:commons-collections4:4.4'
+    testImplementation 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
 }
 
 test {
@@ -102,10 +109,11 @@ nexusPublishing {
 }
 
 githubRelease {
-    token = project.hasProperty('github.token') ? project.property('github.token') : ''
+    token project.hasProperty('github.token') ? project.property('github.token') : ''
     owner "redis-developer"
     repo "mesclun"
     body changelog()
+    tagName "${project.version}"
 }
 
 def isNonStable = { String version ->
@@ -132,7 +140,6 @@ jacocoTestReport {
 
 check.dependsOn jacocoTestReport
 
-afterReleaseBuild.dependsOn ":githubRelease"
-afterReleaseBuild.dependsOn ":publishToSonatype"
-afterReleaseBuild.dependsOn ":closeAndReleaseSonatypeStagingRepository"
-afterReleaseBuild.dependsOn ":publishToMavenLocal"
+release {
+    buildTasks = ['clean', 'build', 'publishToSonatype', 'closeAndReleaseSonatypeStagingRepository', 'githubRelease', 'publishToMavenLocal']
+}

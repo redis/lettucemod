@@ -1,12 +1,20 @@
 package com.redislabs.mesclun;
 
+import com.redislabs.mesclun.api.StatefulRedisModulesConnection;
+import com.redislabs.testcontainers.RedisModulesContainer;
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.codec.StringCodec;
 import io.lettuce.core.resource.DefaultClientResources;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
-public class TestRedisModulesClient extends BaseRedisModulesTest {
+@Testcontainers
+public class TestRedisModulesClient {
+
+    @Container
+    private static final RedisModulesContainer REDIS = new RedisModulesContainer();
 
     @Test
     public void testCreate() {
@@ -20,6 +28,5 @@ public class TestRedisModulesClient extends BaseRedisModulesTest {
     private void testPing(StatefulRedisModulesConnection<String, String> connection) {
         Assertions.assertEquals("PONG", connection.reactive().ping().block());
     }
-
 
 }

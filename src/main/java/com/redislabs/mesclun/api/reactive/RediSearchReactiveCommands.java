@@ -1,5 +1,6 @@
-package com.redislabs.mesclun.search;
+package com.redislabs.mesclun.api.reactive;
 
+import com.redislabs.mesclun.search.*;
 import io.lettuce.core.RedisFuture;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;

@@ -1,8 +1,6 @@
-package com.redislabs.mesclun;
+package com.redislabs.mesclun.api.reactive;
 
-import com.redislabs.mesclun.gears.RedisGearsReactiveCommands;
-import com.redislabs.mesclun.search.RediSearchReactiveCommands;
-import com.redislabs.mesclun.timeseries.RedisTimeSeriesReactiveCommands;
+import com.redislabs.mesclun.api.StatefulRedisModulesConnection;
 import io.lettuce.core.api.reactive.RedisReactiveCommands;
 
 public interface RedisModulesReactiveCommands<K, V> extends RedisReactiveCommands<K, V>, RedisGearsReactiveCommands<K, V>, RediSearchReactiveCommands<K, V>, RedisTimeSeriesReactiveCommands<K, V> {

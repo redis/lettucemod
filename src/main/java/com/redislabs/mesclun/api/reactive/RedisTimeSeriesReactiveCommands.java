@@ -1,5 +1,8 @@
-package com.redislabs.mesclun.timeseries;
+package com.redislabs.mesclun.api.reactive;
 
+import com.redislabs.mesclun.timeseries.Aggregation;
+import com.redislabs.mesclun.timeseries.CreateOptions;
+import com.redislabs.mesclun.timeseries.Label;
 import reactor.core.publisher.Mono;
 
 public interface RedisTimeSeriesReactiveCommands<K, V> {
