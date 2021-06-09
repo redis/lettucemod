@@ -1,22 +1,19 @@
 = Mesclun
-ifdef::env-github[]
-:badges:
-:tag: master
-:!toc-title:
-endif::[]
+:linkattrs:
+:project-owner:   redis-developer
+:project-name:    mesclun
+:project-group:   com.redislabs
+:project-version: 1.3.3
 
-// Badges
-ifdef::badges[]
-image:https://img.shields.io/github/license/redis-developer/mesclun.svg["License", link="https://github.com/redis-developer/mesclun"]
-image:https://img.shields.io/github/release/redis-developer/mesclun.svg["Latest", link="https://github.com/redis-developer/mesclun/releases/latest"]
-image:https://github.com/redis-developer/mesclun/actions/workflows/gradle.yml/badge.svg["Build", link="https://github.com/redis-developer/mesclun/actions/workflows/gradle.yml"]
-image:https://codecov.io/gh/redis-developer/mesclun/branch/master/graph/badge.svg?token=A5IX98M8JT["Coverage", link="https://codecov.io/gh/redis-developer/mesclun"]
+image:https://img.shields.io/github/license/{project-owner}/{project-name}.svg["License", link="https://github.com/{project-owner}/{project-name}"]
+image:https://img.shields.io/github/release/{project-owner}/{project-name}.svg["Latest", link="https://github.com/{project-owner}/{project-name}/releases/latest"]
+image:https://github.com/{project-owner}/{project-name}/actions/workflows/gradle.yml/badge.svg["Build", link="https://github.com/{project-owner}/{project-name}/actions/workflows/gradle.yml"]
+image:https://codecov.io/gh/{project-owner}/{project-name}/branch/master/graph/badge.svg?token=A5IX98M8JT["Coverage", link="https://codecov.io/gh/{project-owner}/{project-name}"]
 image:https://img.shields.io/badge/Forum-Modules-blue["forum", link=https://forum.redislabs.com/c/modules/]
-endif::[]
+
+---
 
 Java client for https://redislabs.com/community/oss-projects/[Redis modules] based on https://lettuce.io[Lettuce]
-
-Latest release: https://github.com/redis-developer/mesclun/releases/latest
 
 == Modules
 
@@ -34,9 +31,9 @@ Add Mesclun to your application dependencies:
 [source,xml]
 ----
 <dependency>
-    <groupId>com.redislabs</groupId>
-    <artifactId>mesclun</artifactId>
-    <version>x.y.z</version>
+    <groupId>{project-group}</groupId>
+    <artifactId>{project-name}</artifactId>
+    <version>{project-version}</version>
 </dependency>
 ----
 
@@ -44,7 +41,7 @@ Add Mesclun to your application dependencies:
 [source,groovy]
 ----
 dependencies {
-    implementation 'com.redislabs:mesclun:x.y.x'
+    implementation '{project-group}:{project-name}:{project-version}'
 }
 ----
 
