@@ -7,7 +7,6 @@ import com.redislabs.mesclun.cluster.api.sync.RedisModulesAdvancedClusterCommand
 import io.lettuce.core.RedisChannelWriter;
 import io.lettuce.core.api.push.PushListener;
 import io.lettuce.core.cluster.ClusterPushHandler;
-import io.lettuce.core.cluster.RedisAdvancedClusterReactiveCommandsImpl;
 import io.lettuce.core.cluster.StatefulRedisClusterConnectionImpl;
 import io.lettuce.core.codec.RedisCodec;
 
@@ -59,12 +58,10 @@ public class StatefulRedisModulesClusterConnectionImpl<K, V> extends StatefulRed
 
     @Override
     public void addListener(PushListener listener) {
-
     }
 
     @Override
     public void removeListener(PushListener listener) {
-
     }
 
     @Override

@@ -1,14 +1,12 @@
 plugins {
-    id 'org.springframework.boot' version '2.5.0'
-    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
     id 'java-library'
+    id 'java-library-distribution'
     id 'maven-publish'
     id 'signing'
-    id 'net.researchgate.release' version '2.8.1'
-    id 'com.github.breadmoirai.github-release' version '2.2.12'
-    id 'io.github.gradle-nexus.publish-plugin' version '1.1.0'
-    id 'com.github.ben-manes.versions' version '0.39.0'
     id 'jacoco'
+    id 'org.jreleaser' version '0.4.0'
+    id 'com.github.ben-manes.versions' version '0.39.0'
+    id 'io.github.gradle-nexus.publish-plugin' version '1.1.0'
 }
 
 group = 'com.redislabs'
@@ -23,31 +21,30 @@ java {
 
 repositories {
     mavenCentral()
-    mavenLocal()
-}
-
-bootJar {
-    enabled = false
-}
-
-jar {
-    enabled = true
+    maven {
+        name = "GitHubPackages"
+        url = uri("https://maven.pkg.github.com/redis-developer/registry")
+        credentials {
+            username = project.findProperty("github.username") ?: System.getenv("GITHUB_USERNAME")
+            password = project.findProperty("github.token") ?: System.getenv("GITHUB_TOKEN")
+        }
+    }
 }
 
 dependencies {
-    api 'io.lettuce:lettuce-core:6.2.0.BUILD-SNAPSHOT'
-    compileOnly 'org.projectlombok:lombok'
-    annotationProcessor 'org.projectlombok:lombok'
+    api 'io.lettuce:lettuce-core:6.2.0.BUILD-SNAPSHOT-REDISLABS'
+    compileOnly 'org.projectlombok:lombok:1.18.20'
+    annotationProcessor 'org.projectlombok:lombok:1.18.20'
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.2'
     testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.7.2'
     testImplementation 'org.junit.jupiter:junit-jupiter-params:5.7.2'
-    testImplementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-csv'
-    testImplementation 'com.redislabs:testcontainers-redis:1.1.4-SNAPSHOT'
-    testImplementation 'org.testcontainers:junit-jupiter:1.15.3'
-    testImplementation 'org.slf4j:slf4j-simple'
+    testImplementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.12.3'
+    testImplementation 'com.redislabs:testcontainers-redis:1.1.5'
+    testImplementation 'org.testcontainers:junit-jupiter:1.15.3-REDISLABS'
+    testImplementation 'org.slf4j:slf4j-simple:1.7.30'
     testImplementation 'org.apache.commons:commons-collections4:4.4'
-    testImplementation 'org.projectlombok:lombok'
-    testAnnotationProcessor 'org.projectlombok:lombok'
+    testImplementation 'org.projectlombok:lombok:1.18.20'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.20'
 }
 
 test {
@@ -102,20 +99,6 @@ tasks.withType(Sign) {
     onlyIf { isReleaseVersion }
 }
 
-nexusPublishing {
-    repositories {
-        sonatype()
-    }
-}
-
-githubRelease {
-    token project.hasProperty('github.token') ? project.property('github.token') : ''
-    owner "redis-developer"
-    repo "mesclun"
-    body changelog()
-    tagName "${project.version}"
-}
-
 def isNonStable = { String version ->
   def nonStableKeyword = ['PREVIEW'].any { it -> version.toUpperCase().contains(it) }
   def stableKeyword = ['RELEASE', 'FINAL', 'GA', 'JRE8'].any { it -> version.toUpperCase().contains(it) }
@@ -140,6 +123,27 @@ jacocoTestReport {
 
 check.dependsOn jacocoTestReport
 
-release {
-    buildTasks = ['clean', 'build', 'publishToSonatype', 'closeAndReleaseSonatypeStagingRepository', 'githubRelease', 'publishToMavenLocal']
+nexusPublishing {
+    repositories {
+        sonatype()
+    }
+}
+
+jreleaser {
+    project {
+        name = 'mesclun'
+        description = 'Redis modules client'
+        longDescription = 'Java client for Redis modules based on Lettuce'
+        website = 'https://github.com/redis-developer/mesclun'
+        authors = ['Julien Ruaux']
+        tags = ['redis', 'modules', 'java', 'lettuce']
+        license = 'Apache-2.0'
+    }
+    release {
+        github {
+            username = 'jruaux'
+            owner = 'redis-developer'
+            overwrite = true
+        }
+    }
 }

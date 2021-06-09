@@ -5,8 +5,6 @@ import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import com.redislabs.mesclun.api.async.RedisModulesAsyncCommands;
 import com.redislabs.mesclun.api.reactive.RedisModulesReactiveCommands;
 import com.redislabs.mesclun.api.sync.RedisModulesCommands;
-import com.redislabs.mesclun.cluster.RedisModulesClusterClient;
-import com.redislabs.mesclun.cluster.api.StatefulRedisModulesClusterConnection;
 import com.redislabs.mesclun.search.*;
 import com.redislabs.mesclun.search.aggregate.GroupBy;
 import com.redislabs.mesclun.search.aggregate.Limit;
@@ -19,11 +17,6 @@ import io.lettuce.core.LettuceFutures;
 import io.lettuce.core.RedisCommandExecutionException;
 import io.lettuce.core.RedisFuture;
 import io.lettuce.core.RedisURI;
-import io.lettuce.core.api.async.RedisAsyncCommands;
-import io.lettuce.core.cluster.RedisClusterClient;
-import io.lettuce.core.cluster.api.StatefulRedisClusterConnection;
-import io.lettuce.core.cluster.api.async.RedisAdvancedClusterAsyncCommands;
-import io.lettuce.core.cluster.api.sync.RedisAdvancedClusterCommands;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.junit.jupiter.api.Assertions;
@@ -86,18 +79,14 @@ public class TestSearch extends BaseRedisModulesTest {
     }
 
     private void createBeerIndex(RedisServer redis) {
-        RedisModulesClusterClient client = RedisModulesClusterClient.create(redis.getRedisURI());
-        StatefulRedisModulesClusterConnection<String, String> connection = client.connect();
         RedisModulesCommands<String, String> sync = sync(redis);
         sync.flushall();
         sync.create(INDEX, CreateOptions.<String, String>builder().prefix(KEYSPACE).payloadField(BREWERY_ID).build(), SCHEMA);
-        RedisAdvancedClusterAsyncCommands<String, String> async = connection.async();
+        RedisModulesAsyncCommands<String, String> async = async(redis);
         async.setAutoFlushCommands(false);
-        Set<String> keys = new HashSet<>();
         List<RedisFuture<?>> futures = new ArrayList<>();
         for (Map<String, String> beer : beers) {
             String key = KEYSPACE + beer.get(ID);
-            keys.add(key);
             futures.add(async.hset(key, beer));
         }
         async.flushCommands();
@@ -561,9 +550,7 @@ public class TestSearch extends BaseRedisModulesTest {
     void tagVals(RedisServer redis) {
         createBeerIndex(redis);
         Set<String> TAG_VALS = new HashSet<>(Arrays.asList("american pale lager", "american pale ale (apa)", "american pale wheat ale", "american porter", "american pilsner", "american ipa", "american india pale lager", "american double / imperial ipa", "american double / imperial stout", "american double / imperial pilsner", "american dark wheat ale", "american barleywine", "american black ale", "american blonde ale", "american brown ale", "american stout", "american strong ale", "american amber / red ale", "american amber / red lager", "american adjunct lager", "american wild ale", "american white ipa", "american malt liquor", "altbier", "abbey single ale", "oatmeal stout", "other", "old ale", "saison / farmhouse ale", "schwarzbier", "scotch ale / wee heavy", "scottish ale", "smoked beer", "shandy", "belgian ipa", "belgian dark ale", "belgian strong dark ale", "belgian strong pale ale", "belgian pale ale", "berliner weissbier", "baltic porter", "bock", "bière de garde", "braggot", "cider", "california common / steam beer", "cream ale", "czech pilsener", "chile beer", "tripel", "winter warmer", "witbier", "wheat ale", "fruit / vegetable beer", "foreign / export stout", "flanders red ale", "flanders oud bruin", "english strong ale", "english stout", "english pale ale", "english pale mild ale", "english barleywine", "english brown ale", "english bitter", "english india pale ale (ipa)", "english dark mild ale", "extra special / strong bitter (esb)", "euro dark lager", "euro pale lager", "kölsch", "kristalweizen", "keller bier / zwickel bier", "milk / sweet stout", "munich helles lager", "munich dunkel lager", "märzen / oktoberfest", "mead", "maibock / helles bock", "german pilsener", "gose", "grisette", "pumpkin ale", "vienna lager", "rye beer", "radler", "rauchbier", "russian imperial stout", "roggenbier", "hefeweizen", "herbed / spiced beer", "dortmunder / export lager", "doppelbock", "dunkelweizen", "dubbel", "irish dry stout", "irish red ale", "quadrupel (quad)", "light lager", "low alcohol beer"));
-        HashSet<String> actual = new HashSet<>(sync(redis).tagVals(INDEX, STYLE));
-        Collection<String> disjunction = CollectionUtils.disjunction(TAG_VALS, actual);
-        Assertions.assertEquals(TAG_VALS, actual);
+        Assertions.assertEquals(TAG_VALS, new HashSet<>(sync(redis).tagVals(INDEX, STYLE)));
         Assertions.assertEquals(TAG_VALS, new HashSet<>(reactive(redis).tagVals(INDEX, STYLE).collectList().block()));
     }
 

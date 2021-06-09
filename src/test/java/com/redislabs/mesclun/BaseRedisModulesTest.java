@@ -5,10 +5,10 @@ import com.redislabs.mesclun.api.async.RedisModulesAsyncCommands;
 import com.redislabs.mesclun.api.reactive.RedisModulesReactiveCommands;
 import com.redislabs.mesclun.api.sync.RedisModulesCommands;
 import com.redislabs.mesclun.cluster.RedisModulesClusterClient;
-import com.redislabs.mesclun.cluster.api.StatefulRedisModulesClusterConnection;
 import com.redislabs.testcontainers.RedisEnterpriseContainer;
 import com.redislabs.testcontainers.RedisModulesContainer;
 import com.redislabs.testcontainers.RedisServer;
+import com.redislabs.testcontainers.support.enterprise.rest.Database;
 import io.lettuce.core.AbstractRedisClient;
 import io.lettuce.core.api.StatefulConnection;
 import org.junit.jupiter.api.AfterEach;
@@ -26,24 +26,15 @@ public class BaseRedisModulesTest {
 
     @Container
     private static final RedisModulesContainer REDIS = new RedisModulesContainer();
-    private static final RedisServer REDIS_ENTERPRISE = new RedisServer() {
-        @Override
-        public String getRedisURI() {
-            return "redis://redis-12000.jrx.demo.redislabs.com:12000";
-        }
-
-        @Override
-        public boolean isCluster() {
-            return true;
-        }
-    };
+    @Container
+    private static final RedisEnterpriseContainer REDIS_ENTERPRISE = new RedisEnterpriseContainer().withModules(Database.Module.GEARS, Database.Module.SEARCH, Database.Module.TIMESERIES).withOSSCluster();
 
     static Stream<RedisServer> redisServers() {
-        return Stream.of(REDIS_ENTERPRISE);
+        return Stream.of(REDIS, REDIS_ENTERPRISE);
     }
 
     protected Map<RedisServer, AbstractRedisClient> clients = new HashMap<>();
-    protected Map<RedisServer, StatefulConnection<String, String>> connections = new HashMap<>();
+    protected Map<RedisServer, StatefulRedisModulesConnection<String, String>> connections = new HashMap<>();
     protected Map<RedisServer, RedisModulesCommands<String, String>> syncs = new HashMap<>();
     protected Map<RedisServer, RedisModulesAsyncCommands<String, String>> asyncs = new HashMap<>();
     protected Map<RedisServer, RedisModulesReactiveCommands<String, String>> reactives = new HashMap<>();
@@ -53,22 +44,20 @@ public class BaseRedisModulesTest {
         for (RedisServer redis : redisServers().collect(Collectors.toList())) {
             if (redis.isCluster()) {
                 RedisModulesClusterClient client = RedisModulesClusterClient.create(redis.getRedisURI());
-                clients.put(redis, client);
-                StatefulRedisModulesClusterConnection<String, String> connection = client.connect();
-                connections.put(redis, connection);
-                syncs.put(redis, connection.sync());
-                asyncs.put(redis, connection.async());
-                reactives.put(redis, connection.reactive());
+                put(redis, client, client.connect());
             } else {
                 RedisModulesClient client = RedisModulesClient.create(redis.getRedisURI());
-                clients.put(redis, client);
-                StatefulRedisModulesConnection<String, String> connection = client.connect();
-                connections.put(redis, connection);
-                syncs.put(redis, connection.sync());
-                asyncs.put(redis, connection.async());
-                reactives.put(redis, connection.reactive());
+                put(redis, client, client.connect());
             }
         }
+    }
+
+    private void put(RedisServer redis, AbstractRedisClient client, StatefulRedisModulesConnection<String,String> connection) {
+        clients.put(redis, client);
+        connections.put(redis, connection);
+        syncs.put(redis, connection.sync());
+        asyncs.put(redis, connection.async());
+        reactives.put(redis, connection.reactive());
     }
 
     @AfterEach
@@ -83,6 +72,10 @@ public class BaseRedisModulesTest {
             client.shutdown();
             client.getResources().shutdown();
         }
+    }
+
+    protected StatefulRedisModulesConnection<String,String> connection(RedisServer redis) {
+        return connections.get(redis);
     }
 
     protected RedisModulesCommands<String, String> sync(RedisServer redis) {

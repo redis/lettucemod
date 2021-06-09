@@ -24,11 +24,15 @@ import com.redislabs.mesclun.timeseries.Aggregation;
 import com.redislabs.mesclun.timeseries.Label;
 import io.lettuce.core.RedisFuture;
 import io.lettuce.core.cluster.MultiNodeExecution;
+import io.lettuce.core.cluster.PipelinedRedisFuture;
 import io.lettuce.core.cluster.RedisAdvancedClusterAsyncCommandsImpl;
 import io.lettuce.core.codec.RedisCodec;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 
 @SuppressWarnings("unchecked")
 public class RedisModulesAdvancedClusterAsyncCommandsImpl<K, V> extends RedisAdvancedClusterAsyncCommandsImpl<K, V> implements RedisModulesAdvancedClusterAsyncCommands<K, V> {
@@ -257,12 +261,12 @@ public class RedisModulesAdvancedClusterAsyncCommandsImpl<K, V> extends RedisAdv
 
     @Override
     public RedisFuture<Long> dictadd(K dict, V... terms) {
-        return MultiNodeExecution.firstOfAsync(executeOnUpstream(commands -> ((RedisModulesAsyncCommands<K,V>)commands).dictadd(dict, terms)));
+        return MultiNodeExecution.firstOfAsync(executeOnUpstream(commands -> ((RedisModulesAsyncCommands<K, V>) commands).dictadd(dict, terms)));
     }
 
     @Override
     public RedisFuture<Long> dictdel(K dict, V... terms) {
-        return MultiNodeExecution.firstOfAsync(executeOnUpstream(commands -> ((RedisModulesAsyncCommands<K,V>)commands).dictdel(dict, terms)));
+        return MultiNodeExecution.firstOfAsync(executeOnUpstream(commands -> ((RedisModulesAsyncCommands<K, V>) commands).dictdel(dict, terms)));
     }
 
     @Override
