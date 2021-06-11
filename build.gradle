@@ -1,12 +1,13 @@
 plugins {
+    id 'java'
     id 'java-library'
     id 'java-library-distribution'
     id 'maven-publish'
     id 'signing'
     id 'jacoco'
+    id 'io.github.gradle-nexus.publish-plugin' version '1.1.0'
     id 'org.jreleaser' version '0.4.0'
     id 'com.github.ben-manes.versions' version '0.39.0'
-    id 'io.github.gradle-nexus.publish-plugin' version '1.1.0'
 }
 
 group = 'com.redislabs'
@@ -49,6 +50,10 @@ dependencies {
 
 test {
     useJUnitPlatform()
+    testLogging {
+        events "failed"
+        exceptionFormat "full"
+    }
 }
 
 ext.isReleaseVersion = !version.endsWith("SNAPSHOT")
@@ -138,6 +143,7 @@ jreleaser {
         authors = ['Julien Ruaux']
         tags = ['redis', 'modules', 'java', 'lettuce']
         license = 'Apache-2.0'
+        copyright = '2021 Julien Ruaux'
     }
     release {
         github {

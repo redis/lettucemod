@@ -25,10 +25,13 @@ Mesclun supports the following modules:
 
 == Getting Started
 
-Add Mesclun to your application dependencies:
-
 === Maven
+
+Add Mesclun dependency to your POM file:
+
 [source,xml]
+[subs="verbatim,attributes"]
+.pom.xml
 ----
 <dependency>
     <groupId>{project-group}</groupId>
@@ -38,7 +41,11 @@ Add Mesclun to your application dependencies:
 ----
 
 === Gradle
+Add Mesclun dependency to your `build.gradle` file:
+
 [source,groovy]
+[subs="verbatim,attributes"]
+.build.gradle
 ----
 dependencies {
     implementation '{project-group}:{project-name}:{project-version}'
