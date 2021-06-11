@@ -9,7 +9,7 @@ public class ProvisionJRX {
 
     public static void main(String[] args) throws Exception {
         String password = System.getenv("JRX_PASSWORD");
-        RestAPI restAPI = RestAPI.credentials(new UsernamePasswordCredentials("julien@redislabs.com", password.toCharArray())).host("jrx.demo.redislabs.com").build();
+        RestAPI restAPI = RestAPI.builder().credentials(new UsernamePasswordCredentials("julien@redislabs.com", password.toCharArray())).host("jrx.demo.redislabs.com").build();
         DatabaseProvisioner provisioner = DatabaseProvisioner.restAPI(restAPI).build();
         Database db = Database.name("sparseclustermod").port(12000).ossCluster(true).shardPlacement(Database.ShardPlacement.SPARSE).modules(Database.Module.SEARCH, Database.Module.GEARS, Database.Module.TIMESERIES).build();
         provisioner.create(db);
