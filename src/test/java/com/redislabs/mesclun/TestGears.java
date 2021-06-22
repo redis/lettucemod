@@ -38,14 +38,14 @@ public class TestGears extends BaseRedisModulesTest {
         Assertions.assertTrue(Integer.parseInt(array[1]) >= 0);
     }
 
-    @ParameterizedTest
-    @MethodSource("redisServers")
-    void pyExecuteNoResults(RedisServer redis) {
-        RedisModulesCommands<String, String> sync = sync(redis);
-        ExecutionResults results = pyExecute(sync, "sleep.py");
-        Assertions.assertTrue(results.getResults().isEmpty());
-        Assertions.assertTrue(results.getErrors().isEmpty());
-    }
+//    @ParameterizedTest
+//    @MethodSource("redisServers")
+//    void pyExecuteNoResults(RedisServer redis) {
+//        RedisModulesCommands<String, String> sync = sync(redis);
+//        ExecutionResults results = pyExecute(sync, "sleep.py");
+//        Assertions.assertTrue(results.getResults().isEmpty());
+//        Assertions.assertTrue(results.getErrors().isEmpty());
+//    }
 
     private ExecutionResults pyExecute(RedisGearsCommands<String, String> sync, String resourceName) {
         return sync.pyExecute(load(resourceName));
