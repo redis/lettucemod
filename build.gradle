@@ -1,6 +1,6 @@
 config {
     info {
-        description = 'Redismod Java'
+        description = 'LettuceMod'
         inceptionYear = '2020'
         tags = ['redis', 'modules', 'java', 'spring']
 

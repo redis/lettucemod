@@ -7,7 +7,7 @@ on:
 jobs:
   earlyaccess:
     name: EarlyAccess
-    if: github.repository == 'redis-developer/redismod-java' && startsWith(github.event.head_commit.message, 'Releasing version') != true
+    if: github.repository == 'redis-developer/lettucemod' && startsWith(github.event.head_commit.message, 'Releasing version') != true
     runs-on: ubuntu-18.04
     steps:
       - name: Checkout
@@ -42,7 +42,7 @@ jobs:
         if: failure()
         with:
           name: reports-${{ runner.os }}
-          path: subprojects/redismod-java/build/reports
+          path: subprojects/lettucemod/build/reports
 
       - name: Version
         id: vars

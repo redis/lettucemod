@@ -12,7 +12,7 @@ buildscript {
 
 apply plugin: 'com.redislabs.gradle.redislabs-parentbuild'
 
-rootProject.name = 'redismod-java'
+rootProject.name = 'lettucemod'
 
 projects {
     directories = ['subprojects']

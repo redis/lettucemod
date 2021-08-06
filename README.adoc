@@ -1,7 +1,7 @@
-= Mesclun
+= LettuceMod
 :linkattrs:
 :project-owner:   redis-developer
-:project-name:    mesclun
+:project-name:    lettucemod
 :project-group:   com.redislabs
 :project-version: 1.3.4
 
@@ -17,7 +17,7 @@ Java client for https://redislabs.com/community/oss-projects/[Redis modules] bas
 
 == Modules
 
-Mesclun supports the following modules:
+LettuceMod supports the following modules:
 
 * https://oss.redislabs.com/redisearch/[RediSearch]
 * https://oss.redislabs.com/redisgears/[RedisGears]
@@ -27,7 +27,7 @@ Mesclun supports the following modules:
 
 === Maven
 
-Add Mesclun dependency to your POM file:
+Add LettuceMod dependency to your POM file:
 
 [source,xml]
 [subs="verbatim,attributes"]
@@ -41,7 +41,7 @@ Add Mesclun dependency to your POM file:
 ----
 
 === Gradle
-Add Mesclun dependency to your `redismod.gradle` file:
+Add LettuceMod dependency to your `build.gradle` file:
 
 [source,groovy]
 [subs="verbatim,attributes"]
