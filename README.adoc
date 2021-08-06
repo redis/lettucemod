@@ -5,9 +5,9 @@
 :project-group:   com.redislabs
 :project-version: 1.3.4
 
+image:https://github.com/{project-owner}/{project-name}/actions/workflows/early-access.yml/badge.svg["Build Status", link="https://github.com/{project-owner}/{project-name}/actions"]
+image:https://img.shields.io/maven-central/v/{project-group}/{project-name}.svg[Download, link="https://search.maven.org/#search|ga|1|{project-name}"]
 image:https://img.shields.io/github/license/{project-owner}/{project-name}.svg["License", link="https://github.com/{project-owner}/{project-name}"]
-image:https://img.shields.io/github/release/{project-owner}/{project-name}.svg["Latest", link="https://github.com/{project-owner}/{project-name}/releases/latest"]
-image:https://github.com/{project-owner}/{project-name}/actions/workflows/gradle.yml/badge.svg["Build", link="https://github.com/{project-owner}/{project-name}/actions/workflows/gradle.yml"]
 image:https://codecov.io/gh/{project-owner}/{project-name}/branch/master/graph/badge.svg?token=A5IX98M8JT["Coverage", link="https://codecov.io/gh/{project-owner}/{project-name}"]
 image:https://img.shields.io/badge/Forum-Modules-blue["forum", link=https://forum.redislabs.com/c/modules/]
 
@@ -41,7 +41,7 @@ Add Mesclun dependency to your POM file:
 ----
 
 === Gradle
-Add Mesclun dependency to your `build.gradle` file:
+Add Mesclun dependency to your `redismod.gradle` file:
 
 [source,groovy]
 [subs="verbatim,attributes"]

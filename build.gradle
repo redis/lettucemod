@@ -1,155 +1,72 @@
-plugins {
-    id 'java'
-    id 'java-library'
-    id 'java-library-distribution'
-    id 'maven-publish'
-    id 'signing'
-    id 'jacoco'
-    id 'io.github.gradle-nexus.publish-plugin' version '1.1.0'
-    id 'org.jreleaser' version '0.4.0'
-    id 'com.github.ben-manes.versions' version '0.39.0'
-}
+config {
+    info {
+        description = 'Redismod Java'
+        inceptionYear = '2020'
+        tags = ['redis', 'modules', 'java', 'spring']
 
-group = 'com.redislabs'
-description = 'Java client for Redis Labs modules'
-sourceCompatibility = '1.8'
-targetCompatibility = '1.8'
+        links {
+            website      = "https://github.com/redis-developer/${project.rootProject.name}"
+            issueTracker = "https://github.com/redis-developer/${project.rootProject.name}/issues"
+            scm          = "https://github.com/redis-developer/${project.rootProject.name}.git"
+        }
 
-java {
-    withJavadocJar()
-    withSourcesJar()
-}
+        scm {
+            url                 = "https://github.com/redis-developer/${project.rootProject.name}"
+            connection          = "scm:git:https://github.com/redis-developer/${project.rootProject.name}.git"
+            developerConnection = "scm:git:git@github.com:jreleaser/${project.rootProject.name}.git"
+        }
 
-repositories {
-    mavenCentral()
-    maven {
-        name = "GitHubPackages"
-        url = uri("https://maven.pkg.github.com/redis-developer/registry")
-        credentials {
-            username = project.findProperty("github.username") ?: System.getenv("GITHUB_USERNAME")
-            password = project.findProperty("github.token") ?: System.getenv("GITHUB_TOKEN")
+        specification {
+            enabled = true
+        }
+        
+        implementation {
+            enabled = true
         }
     }
-}
 
-dependencies {
-    api 'io.lettuce:lettuce-core:6.1.3.RELEASE'
-    compileOnly 'org.projectlombok:lombok:1.18.20'
-    annotationProcessor 'org.projectlombok:lombok:1.18.20'
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.2'
-    testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.7.2'
-    testImplementation 'org.junit.jupiter:junit-jupiter-params:5.7.2'
-    testImplementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.12.3'
-    testImplementation 'com.redislabs:testcontainers-redis:1.1.6'
-    testImplementation 'org.testcontainers:junit-jupiter:1.15.3-REDISLABS'
-    testImplementation 'org.slf4j:slf4j-simple:1.7.30'
-    testImplementation 'org.apache.commons:commons-collections4:4.4'
-    testImplementation 'org.projectlombok:lombok:1.18.20'
-    testAnnotationProcessor 'org.projectlombok:lombok:1.18.20'
-}
-
-test {
-    useJUnitPlatform()
-    testLogging {
-        events "failed"
-        exceptionFormat "full"
+    licensing {
+        enabled = false
+        licenses {
+            license {
+                id = 'Apache-2.0'
+            }
+        }
     }
-}
 
-ext.isReleaseVersion = !version.endsWith("SNAPSHOT")
-
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            from(components.java)
-            versionMapping {
-                usage('java-api') {
-                    fromResolutionOf('runtimeClasspath')
-                }
-                usage('java-runtime') {
-                    fromResolutionResult()
+    docs {
+        javadoc {
+            options {
+                autoLinks {
+                    enabled = false
                 }
             }
-            pom {
-                name = 'Mesclun'
-                description = 'Java client for Redis Labs module'
-                url = 'https://github.com/redis-developer/mesclun'
-                licenses {
-                    license {
-                        name = 'The Apache License, Version 2.0'
-                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                    }
-                }
-                developers {
-                    developer {
-                        id = 'jruaux'
-                        name = 'Julien Ruaux'
-                    }
-                }
-                scm {
-                    connection = 'scm:git:git://github.com/redis-developer/mesclun.git'
-                    developerConnection = 'scm:git:git@github.com:redis-developer/mesclun.git'
-                    url = 'https://github.com/redis-developer/mesclun'
-                }
+            aggregate {
+                enabled = false
             }
         }
     }
 }
 
-signing {
-    sign publishing.publications.mavenJava
-}
-
-tasks.withType(Sign) {
-    onlyIf { isReleaseVersion }
-}
-
-def isNonStable = { String version ->
-  def nonStableKeyword = ['PREVIEW'].any { it -> version.toUpperCase().contains(it) }
-  def stableKeyword = ['RELEASE', 'FINAL', 'GA', 'JRE8'].any { it -> version.toUpperCase().contains(it) }
-  def regex = /^[0-9,.v-]+([.-]r)?$/
-  return nonStableKeyword || (!stableKeyword && !(version ==~ regex))
-}
-
-tasks.named("dependencyUpdates").configure {
-
-  rejectVersionIf {
-    isNonStable(it.candidate.version) && !isNonStable(it.currentVersion)
-  }
-
-}
-
-jacocoTestReport {
-    reports {
-        xml.enabled true
-        html.enabled false
-    }
-}
-
-check.dependsOn jacocoTestReport
-
-nexusPublishing {
+allprojects {
     repositories {
-        sonatype()
+        gradlePluginPortal()
+        mavenCentral()
+        mavenLocal()
+    }
+
+    tasks.withType(GenerateModuleMetadata) {
+        enabled = false
     }
 }
 
-jreleaser {
-    project {
-        name = 'mesclun'
-        description = 'Redis modules client'
-        longDescription = 'Java client for Redis modules based on Lettuce'
-        website = 'https://github.com/redis-developer/mesclun'
-        authors = ['Julien Ruaux']
-        tags = ['redis', 'modules', 'java', 'lettuce']
-        license = 'Apache-2.0'
-        copyright = '2021 Julien Ruaux'
-    }
-    release {
-        github {
-            username = 'jruaux'
-            owner = 'redis-developer'
-            overwrite = true
+subprojects {
+    config {
+        info {
+            description = project.project_description
         }
+    }
+    test {
+        useJUnitPlatform()
     }
 }

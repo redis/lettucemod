@@ -1,1 +1,43 @@
-rootProject.name = 'mesclun'
+buildscript {
+    repositories {
+        gradlePluginPortal()
+        mavenCentral()
+        mavenLocal()
+    }
+    dependencies {
+        classpath "org.kordamp.gradle:java-project-gradle-plugin:$kordampPluginVersion"
+        classpath "com.redislabs.gradle:redislabs-parentbuild:$redislabsBuildVersion"
+    }
+}
+
+apply plugin: 'com.redislabs.gradle.redislabs-parentbuild'
+
+rootProject.name = 'redismod-java'
+
+projects {
+    directories = ['subprojects']
+
+    plugins {
+        all {
+            id 'idea'
+        }
+        path(':') {
+            id 'org.kordamp.gradle.java-project'
+        }
+        dirs(['subprojects']) {
+            id 'java-library'
+            id 'java-library-distribution'
+        }
+    }
+}
+
+enforce {
+    mergeStrategy = 'append'
+
+    rule(enforcer.rules.ForceDependencies) { r ->
+        r.dependencies.addAll "org.slf4j:slf4j-api:1.7.30",
+                "org.junit.jupiter:junit-jupiter-api:5.7.2",
+                "com.fasterxml.jackson.core:jackson-annotations:2.12.3",
+                "junit:junit:4.13.1"
+    }
+}
