@@ -10,4 +10,5 @@ dependencies {
         exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
     }
     testImplementation 'com.redislabs.testcontainers:testcontainers-redis:1.2.0'
+    testImplementation 'com.redislabs.testcontainers:junit-jupiter:1.15.3'
 }
