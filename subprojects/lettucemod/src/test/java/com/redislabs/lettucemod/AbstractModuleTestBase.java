@@ -5,8 +5,10 @@ import com.redislabs.lettucemod.api.async.RedisModulesAsyncCommands;
 import com.redislabs.lettucemod.api.reactive.RedisModulesReactiveCommands;
 import com.redislabs.lettucemod.api.sync.RedisModulesCommands;
 import com.redislabs.lettucemod.cluster.RedisModulesClusterClient;
+import com.redislabs.testcontainers.RedisEnterpriseContainer;
 import com.redislabs.testcontainers.RedisModulesContainer;
 import com.redislabs.testcontainers.RedisServer;
+import com.redislabs.testcontainers.support.enterprise.rest.Database;
 import io.lettuce.core.AbstractRedisClient;
 import io.lettuce.core.api.StatefulConnection;
 import org.junit.jupiter.api.AfterEach;
@@ -20,17 +22,15 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Testcontainers
-public class BaseRedisModulesTest {
+public abstract class AbstractModuleTestBase {
 
     @Container
     private static final RedisModulesContainer REDIS = new RedisModulesContainer();
-//    @Container
-//    private static final RedisEnterpriseContainer REDIS_ENTERPRISE = new RedisEnterpriseContainer().withModules(Database.Module.GEARS, Database.Module.SEARCH, Database.Module.TIMESERIES).withOSSCluster();
+    @Container
+    private static final RedisEnterpriseContainer REDIS_ENTERPRISE = new RedisEnterpriseContainer().withModules(Database.Module.GEARS, Database.Module.SEARCH, Database.Module.TIMESERIES).withOSSCluster();
 
     static Stream<RedisServer> redisServers() {
-        return Stream.of(REDIS
-//                , REDIS_ENTERPRISE
-        );
+        return Stream.of(REDIS, REDIS_ENTERPRISE);
     }
 
     protected final Map<RedisServer, AbstractRedisClient> clients = new HashMap<>();
@@ -52,7 +52,7 @@ public class BaseRedisModulesTest {
         }
     }
 
-    private void put(RedisServer redis, AbstractRedisClient client, StatefulRedisModulesConnection<String,String> connection) {
+    private void put(RedisServer redis, AbstractRedisClient client, StatefulRedisModulesConnection<String, String> connection) {
         clients.put(redis, client);
         connections.put(redis, connection);
         syncs.put(redis, connection.sync());
@@ -74,7 +74,7 @@ public class BaseRedisModulesTest {
         }
     }
 
-    protected StatefulRedisModulesConnection<String,String> connection(RedisServer redis) {
+    protected StatefulRedisModulesConnection<String, String> connection(RedisServer redis) {
         return connections.get(redis);
     }
 

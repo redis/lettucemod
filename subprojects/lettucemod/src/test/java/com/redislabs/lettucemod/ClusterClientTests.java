@@ -13,16 +13,16 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 @Testcontainers
-public class TestRedisModulesClusterClient {
+public class ClusterClientTests {
 
     @Container
-    private static final RedisEnterpriseContainer REDIS = new RedisEnterpriseContainer().withModules(Database.Module.SEARCH).withOSSCluster();
+    private static final RedisEnterpriseContainer REDIS_ENTERPRISE_CLUSTER = new RedisEnterpriseContainer().withModules(Database.Module.SEARCH).withOSSCluster();
 
     @Test
     public void testCreate() {
-        testPing(RedisModulesClusterClient.create(REDIS.getRedisURI()).connect());
-        testPing(RedisModulesClusterClient.create(DefaultClientResources.create(), RedisURI.create(REDIS.getRedisURI())).connect());
-        testPing(RedisModulesClusterClient.create(REDIS.getRedisURI()).connect(StringCodec.UTF8));
+        testPing(RedisModulesClusterClient.create(REDIS_ENTERPRISE_CLUSTER.getRedisURI()).connect());
+        testPing(RedisModulesClusterClient.create(DefaultClientResources.create(), RedisURI.create(REDIS_ENTERPRISE_CLUSTER.getRedisURI())).connect());
+        testPing(RedisModulesClusterClient.create(REDIS_ENTERPRISE_CLUSTER.getRedisURI()).connect(StringCodec.UTF8));
     }
 
     private void testPing(StatefulRedisModulesConnection<String, String> connection) {

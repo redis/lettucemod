@@ -11,18 +11,18 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 @Testcontainers
-public class TestRedisModulesClient {
+public class ClientTests {
 
     @Container
-    private static final RedisModulesContainer REDIS = new RedisModulesContainer();
+    private static final RedisModulesContainer REDISMOD = new RedisModulesContainer();
 
     @Test
     public void testCreate() {
-        testPing(RedisModulesClient.create().connect(RedisURI.create(REDIS.getRedisURI())));
-        testPing(RedisModulesClient.create(DefaultClientResources.create()).connect(RedisURI.create(REDIS.getRedisURI())));
-        testPing(RedisModulesClient.create(DefaultClientResources.create(), REDIS.getRedisURI()).connect());
-        testPing(RedisModulesClient.create(DefaultClientResources.create(), RedisURI.create(REDIS.getRedisURI())).connect());
-        testPing(RedisModulesClient.create().connect(StringCodec.UTF8, RedisURI.create(REDIS.getRedisURI())));
+        testPing(RedisModulesClient.create().connect(RedisURI.create(REDISMOD.getRedisURI())));
+        testPing(RedisModulesClient.create(DefaultClientResources.create()).connect(RedisURI.create(REDISMOD.getRedisURI())));
+        testPing(RedisModulesClient.create(DefaultClientResources.create(), REDISMOD.getRedisURI()).connect());
+        testPing(RedisModulesClient.create(DefaultClientResources.create(), RedisURI.create(REDISMOD.getRedisURI())).connect());
+        testPing(RedisModulesClient.create().connect(StringCodec.UTF8, RedisURI.create(REDISMOD.getRedisURI())));
     }
 
     private void testPing(StatefulRedisModulesConnection<String, String> connection) {

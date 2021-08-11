@@ -8,7 +8,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
 @SuppressWarnings("unchecked")
-public class TestTimeSeries extends BaseRedisModulesTest {
+public class TimeSeriesTests extends AbstractModuleTestBase {
 
     @ParameterizedTest
     @MethodSource("redisServers")

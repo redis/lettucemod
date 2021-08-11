@@ -43,7 +43,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @Slf4j
 @SuppressWarnings({"unchecked", "ConstantConditions"})
-public class TestSearch extends BaseRedisModulesTest {
+public class SearchTests extends AbstractModuleTestBase {
 
     protected final static int BEER_COUNT = 2348;
     protected final static String SUGINDEX = "beersSug";
@@ -72,7 +72,7 @@ public class TestSearch extends BaseRedisModulesTest {
     public static void loadBeers() throws IOException {
         CsvSchema schema = CsvSchema.builder().setUseHeader(true).setNullValue("").build();
         CsvMapper mapper = new CsvMapper();
-        InputStream inputStream = TestSearch.class.getClassLoader().getResourceAsStream("beers.csv");
+        InputStream inputStream = SearchTests.class.getClassLoader().getResourceAsStream("beers.csv");
         mapper.readerFor(Map.class).with(schema).readValues(inputStream).forEachRemaining(e -> beers.add((Map) e));
     }
 

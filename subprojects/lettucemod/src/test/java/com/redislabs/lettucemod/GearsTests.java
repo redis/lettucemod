@@ -15,7 +15,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import java.util.List;
 import java.util.Map;
 
-public class TestGears extends BaseRedisModulesTest {
+public class GearsTests extends AbstractModuleTestBase {
 
     @ParameterizedTest
     @MethodSource("redisServers")
