@@ -7,7 +7,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
-@SuppressWarnings("rawtypes")
 public class FirstValue extends AbstractPropertyReducer {
 
     private final By by;
@@ -17,6 +16,7 @@ public class FirstValue extends AbstractPropertyReducer {
         this.by = by;
     }
 
+    @SuppressWarnings("rawtypes")
     @Override
     protected void buildFunction(RediSearchCommandArgs args) {
         args.add(CommandKeyword.FIRST_VALUE);

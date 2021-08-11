@@ -28,15 +28,15 @@ public interface RediSearchCommands<K, V> {
 
     SearchResults<K, V> search(K index, V query);
 
-    SearchResults<K, V> search(K index, V query, SearchOptions options);
+    SearchResults<K, V> search(K index, V query, SearchOptions<K, V> options);
 
     AggregateResults<K> aggregate(K index, V query);
 
-    AggregateResults<K> aggregate(K index, V query, AggregateOptions options);
+    AggregateResults<K> aggregate(K index, V query, AggregateOptions<K, V> options);
 
     AggregateWithCursorResults<K> aggregate(K index, V query, Cursor cursor);
 
-    AggregateWithCursorResults<K> aggregate(K index, V query, Cursor cursor, AggregateOptions options);
+    AggregateWithCursorResults<K> aggregate(K index, V query, Cursor cursor, AggregateOptions<K, V> options);
 
     AggregateWithCursorResults<K> cursorRead(K index, long cursor);
 
@@ -58,8 +58,10 @@ public interface RediSearchCommands<K, V> {
 
     Long suglen(K key);
 
+    @SuppressWarnings("unchecked")
     Long dictadd(K dict, V... terms);
 
+    @SuppressWarnings("unchecked")
     Long dictdel(K dict, V... terms);
 
     List<V> dictdump(K dict);

@@ -171,7 +171,7 @@ public class RedisModulesAsyncCommandsImpl<K, V> extends RedisAsyncCommandsImpl<
     }
 
     @Override
-    public RedisFuture<SearchResults<K, V>> search(K index, V query, SearchOptions options) {
+    public RedisFuture<SearchResults<K, V>> search(K index, V query, SearchOptions<K, V> options) {
         return dispatch(searchCommandBuilder.search(index, query, options));
     }
 
@@ -181,7 +181,7 @@ public class RedisModulesAsyncCommandsImpl<K, V> extends RedisAsyncCommandsImpl<
     }
 
     @Override
-    public RedisFuture<AggregateResults<K>> aggregate(K index, V query, AggregateOptions options) {
+    public RedisFuture<AggregateResults<K>> aggregate(K index, V query, AggregateOptions<K, V> options) {
         return dispatch(searchCommandBuilder.aggregate(index, query, options));
     }
 
@@ -191,7 +191,7 @@ public class RedisModulesAsyncCommandsImpl<K, V> extends RedisAsyncCommandsImpl<
     }
 
     @Override
-    public RedisFuture<AggregateWithCursorResults<K>> aggregate(K index, V query, Cursor cursor, AggregateOptions options) {
+    public RedisFuture<AggregateWithCursorResults<K>> aggregate(K index, V query, Cursor cursor, AggregateOptions<K, V> options) {
         return dispatch(searchCommandBuilder.aggregate(index, query, cursor, options));
     }
 

@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+@SuppressWarnings("rawtypes")
 public class SortBy implements AggregateOptions.Operation {
 
     private final Property[] properties;
@@ -23,7 +24,6 @@ public class SortBy implements AggregateOptions.Operation {
         this.max = max;
     }
 
-    @SuppressWarnings("rawtypes")
     @Override
     public void build(RediSearchCommandArgs args) {
         args.add(CommandKeyword.SORTBY);
@@ -69,7 +69,6 @@ public class SortBy implements AggregateOptions.Operation {
 
     }
 
-    @SuppressWarnings("rawtypes")
     public static class Property implements RediSearchArgument {
 
         private final String name;
@@ -82,7 +81,6 @@ public class SortBy implements AggregateOptions.Operation {
             this.order = order;
         }
 
-        @SuppressWarnings("rawtypes")
         @Override
         public void build(RediSearchCommandArgs args) {
             args.addProperty(name);

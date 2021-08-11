@@ -188,7 +188,7 @@ public class RedisModulesAdvancedClusterReactiveCommandsImpl<K, V> extends Redis
     }
 
     @Override
-    public Mono<SearchResults<K, V>> search(K index, V query, SearchOptions options) {
+    public Mono<SearchResults<K, V>> search(K index, V query, SearchOptions<K, V> options) {
         return delegate.search(index, query, options);
     }
 
@@ -198,7 +198,7 @@ public class RedisModulesAdvancedClusterReactiveCommandsImpl<K, V> extends Redis
     }
 
     @Override
-    public Mono<AggregateResults<K>> aggregate(K index, V query, AggregateOptions options) {
+    public Mono<AggregateResults<K>> aggregate(K index, V query, AggregateOptions<K, V> options) {
         return delegate.aggregate(index, query, options);
     }
 
@@ -208,7 +208,7 @@ public class RedisModulesAdvancedClusterReactiveCommandsImpl<K, V> extends Redis
     }
 
     @Override
-    public Mono<AggregateWithCursorResults<K>> aggregate(K index, V query, Cursor cursor, AggregateOptions options) {
+    public Mono<AggregateWithCursorResults<K>> aggregate(K index, V query, Cursor cursor, AggregateOptions<K, V> options) {
         return delegate.aggregate(index, query, cursor, options);
     }
 

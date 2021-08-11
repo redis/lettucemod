@@ -4,6 +4,7 @@ import com.redislabs.lettucemod.search.AggregateOptions;
 import com.redislabs.lettucemod.search.protocol.CommandKeyword;
 import com.redislabs.lettucemod.search.protocol.RediSearchCommandArgs;
 
+@SuppressWarnings("rawtypes")
 public class Limit implements AggregateOptions.Operation {
 
     private final long offset;
@@ -14,7 +15,6 @@ public class Limit implements AggregateOptions.Operation {
         this.num = num;
     }
 
-    @SuppressWarnings("rawtypes")
     @Override
     public void build(RediSearchCommandArgs args) {
         args.add(CommandKeyword.LIMIT);

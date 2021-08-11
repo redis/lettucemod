@@ -67,17 +67,17 @@ public class RedisModulesClusterClient extends RedisClusterClient {
                 verifyPeer = redisURI.isVerifyPeer();
             }
 
-            if (ssl.booleanValue() != redisURI.isSsl()) {
+            if (ssl != redisURI.isSsl()) {
                 throw new IllegalArgumentException(
                         "RedisURI " + redisURI + " SSL is not consistent with the other seed URI SSL settings");
             }
 
-            if (startTls.booleanValue() != redisURI.isStartTls()) {
+            if (startTls != redisURI.isStartTls()) {
                 throw new IllegalArgumentException(
                         "RedisURI " + redisURI + " StartTLS is not consistent with the other seed URI StartTLS settings");
             }
 
-            if (verifyPeer.booleanValue() != redisURI.isVerifyPeer()) {
+            if (verifyPeer != redisURI.isVerifyPeer()) {
                 throw new IllegalArgumentException(
                         "RedisURI " + redisURI + " VerifyPeer is not consistent with the other seed URI VerifyPeer settings");
             }
@@ -162,12 +162,12 @@ public class RedisModulesClusterClient extends RedisClusterClient {
 
     @Override
     protected <K, V> StatefulRedisModulesConnectionImpl<K, V> newStatefulRedisConnection(RedisChannelWriter channelWriter, PushHandler pushHandler, RedisCodec<K, V> codec, Duration timeout) {
-        return new StatefulRedisModulesConnectionImpl(channelWriter, pushHandler, codec, timeout);
+        return new StatefulRedisModulesConnectionImpl<>(channelWriter, pushHandler, codec, timeout);
     }
 
     @Override
     protected <V, K> StatefulRedisModulesClusterConnectionImpl<K, V> newStatefulRedisClusterConnection(RedisChannelWriter channelWriter, ClusterPushHandler pushHandler, RedisCodec<K, V> codec, Duration timeout) {
-        return new StatefulRedisModulesClusterConnectionImpl(channelWriter, pushHandler, codec, timeout);
+        return new StatefulRedisModulesClusterConnectionImpl<>(channelWriter, pushHandler, codec, timeout);
     }
 
 }

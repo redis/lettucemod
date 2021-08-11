@@ -3,7 +3,6 @@ package com.redislabs.lettucemod.search.aggregate.reducers;
 import com.redislabs.lettucemod.search.protocol.CommandKeyword;
 import com.redislabs.lettucemod.search.protocol.RediSearchCommandArgs;
 
-@SuppressWarnings("rawtypes")
 public class Avg extends AbstractPropertyReducer {
 
     public Avg(String as, String property) {

@@ -69,7 +69,7 @@ public class RediSearchCommandBuilder<K, V> extends RedisModulesCommandBuilder<K
         return new RediSearchCommandArgs<>(codec).addKey(key);
     }
 
-    public Command<K, V, SearchResults<K, V>> search(K index, V query, SearchOptions options) {
+    public Command<K, V, SearchResults<K, V>> search(K index, V query, SearchOptions<K, V> options) {
         notNull(index, "index");
         notNull(query, "query");
         RediSearchCommandArgs<K, V> args = args(index);
@@ -80,7 +80,7 @@ public class RediSearchCommandBuilder<K, V> extends RedisModulesCommandBuilder<K
         return createCommand(CommandType.SEARCH, searchOutput(options), args);
     }
 
-    private CommandOutput<K, V, SearchResults<K, V>> searchOutput(SearchOptions options) {
+    private CommandOutput<K, V, SearchResults<K, V>> searchOutput(SearchOptions<K, V> options) {
         if (options == null) {
             return new SearchOutput<>(codec);
         }
@@ -90,7 +90,7 @@ public class RediSearchCommandBuilder<K, V> extends RedisModulesCommandBuilder<K
         return new SearchOutput<>(codec, options.isWithScores(), options.isWithSortKeys(), options.isWithPayloads());
     }
 
-    public Command<K, V, AggregateResults<K>> aggregate(K index, V query, AggregateOptions options) {
+    public Command<K, V, AggregateResults<K>> aggregate(K index, V query, AggregateOptions<K, V> options) {
         notNull(index, "index");
         notNull(query, "query");
         RediSearchCommandArgs<K, V> args = args(index);
@@ -101,7 +101,7 @@ public class RediSearchCommandBuilder<K, V> extends RedisModulesCommandBuilder<K
         return createCommand(CommandType.AGGREGATE, new AggregateOutput<>(codec, new AggregateResults<>()), args);
     }
 
-    public Command<K, V, AggregateWithCursorResults<K>> aggregate(K index, V query, Cursor cursor, AggregateOptions options) {
+    public Command<K, V, AggregateWithCursorResults<K>> aggregate(K index, V query, Cursor cursor, AggregateOptions<K, V> options) {
         notNull(index, "index");
         notNull(query, "query");
         RediSearchCommandArgs<K, V> args = args(index);
@@ -145,11 +145,13 @@ public class RediSearchCommandBuilder<K, V> extends RedisModulesCommandBuilder<K
         return createCommand(CommandType.TAGVALS, new ValueListOutput<>(codec), args);
     }
 
+    @SuppressWarnings("unchecked")
     public Command<K, V, Long> dictadd(K dict, V... terms) {
         notNull(dict, "dict");
         return createCommand(CommandType.DICTADD, new IntegerOutput<>(codec), args(dict).addValues(terms));
     }
 
+    @SuppressWarnings("unchecked")
     public Command<K, V, Long> dictdel(K dict, V... terms) {
         notNull(dict, "dict");
         return createCommand(CommandType.DICTDEL, new IntegerOutput<>(codec), args(dict).addValues(terms));

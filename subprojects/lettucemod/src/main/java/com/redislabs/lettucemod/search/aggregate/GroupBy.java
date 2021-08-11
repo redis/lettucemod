@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-@SuppressWarnings({"rawtypes", "unchecked"})
+@SuppressWarnings("rawtypes")
 public class GroupBy implements AggregateOptions.Operation {
 
     private final String[] properties;
@@ -24,6 +24,7 @@ public class GroupBy implements AggregateOptions.Operation {
         this.reducers = reducers;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void build(RediSearchCommandArgs args) {
         args.add(CommandKeyword.GROUPBY);

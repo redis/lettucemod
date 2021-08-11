@@ -4,40 +4,38 @@ import com.redislabs.lettucemod.search.AggregateOptions;
 import com.redislabs.lettucemod.search.protocol.CommandKeyword;
 import com.redislabs.lettucemod.search.protocol.RediSearchCommandArgs;
 
-@SuppressWarnings("rawtypes")
-public class Apply implements AggregateOptions.Operation {
+public class Apply<K, V> implements AggregateOptions.Operation<K, V> {
 
-    private final String expression;
-    private final String as;
+    private final V expression;
+    private final K as;
 
-    public Apply(String expression, String as) {
+    public Apply(V expression, K as) {
         this.expression = expression;
         this.as = as;
     }
 
-    @SuppressWarnings("rawtypes")
     @Override
-    public void build(RediSearchCommandArgs args) {
+    public void build(RediSearchCommandArgs<K, V> args) {
         args.add(CommandKeyword.APPLY);
-        args.add(expression);
+        args.addValue(expression);
         args.add(CommandKeyword.AS);
-        args.add(as);
+        args.addKey(as);
     }
 
-    public static ApplyBuilder expression(String expression) {
-        return new ApplyBuilder(expression);
+    public static <K, V> ApplyBuilder<K, V> expression(V expression) {
+        return new ApplyBuilder<>(expression);
     }
 
-    public static class ApplyBuilder {
+    public static class ApplyBuilder<K, V> {
 
-        private final String expression;
+        private final V expression;
 
-        public ApplyBuilder(String expression) {
+        public ApplyBuilder(V expression) {
             this.expression = expression;
         }
 
-        public Apply as(String as) {
-            return new Apply(expression, as);
+        public Apply<K, V> as(K as) {
+            return new Apply<>(expression, as);
         }
     }
 

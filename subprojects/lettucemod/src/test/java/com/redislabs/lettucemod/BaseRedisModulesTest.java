@@ -5,10 +5,8 @@ import com.redislabs.lettucemod.api.async.RedisModulesAsyncCommands;
 import com.redislabs.lettucemod.api.reactive.RedisModulesReactiveCommands;
 import com.redislabs.lettucemod.api.sync.RedisModulesCommands;
 import com.redislabs.lettucemod.cluster.RedisModulesClusterClient;
-import com.redislabs.testcontainers.RedisEnterpriseContainer;
 import com.redislabs.testcontainers.RedisModulesContainer;
 import com.redislabs.testcontainers.RedisServer;
-import com.redislabs.testcontainers.support.enterprise.rest.Database;
 import io.lettuce.core.AbstractRedisClient;
 import io.lettuce.core.api.StatefulConnection;
 import org.junit.jupiter.api.AfterEach;
@@ -26,18 +24,20 @@ public class BaseRedisModulesTest {
 
     @Container
     private static final RedisModulesContainer REDIS = new RedisModulesContainer();
-    @Container
-    private static final RedisEnterpriseContainer REDIS_ENTERPRISE = new RedisEnterpriseContainer().withModules(Database.Module.GEARS, Database.Module.SEARCH, Database.Module.TIMESERIES).withOSSCluster();
+//    @Container
+//    private static final RedisEnterpriseContainer REDIS_ENTERPRISE = new RedisEnterpriseContainer().withModules(Database.Module.GEARS, Database.Module.SEARCH, Database.Module.TIMESERIES).withOSSCluster();
 
     static Stream<RedisServer> redisServers() {
-        return Stream.of(REDIS, REDIS_ENTERPRISE);
+        return Stream.of(REDIS
+//                , REDIS_ENTERPRISE
+        );
     }
 
-    protected Map<RedisServer, AbstractRedisClient> clients = new HashMap<>();
-    protected Map<RedisServer, StatefulRedisModulesConnection<String, String>> connections = new HashMap<>();
-    protected Map<RedisServer, RedisModulesCommands<String, String>> syncs = new HashMap<>();
-    protected Map<RedisServer, RedisModulesAsyncCommands<String, String>> asyncs = new HashMap<>();
-    protected Map<RedisServer, RedisModulesReactiveCommands<String, String>> reactives = new HashMap<>();
+    protected final Map<RedisServer, AbstractRedisClient> clients = new HashMap<>();
+    protected final Map<RedisServer, StatefulRedisModulesConnection<String, String>> connections = new HashMap<>();
+    protected final Map<RedisServer, RedisModulesCommands<String, String>> syncs = new HashMap<>();
+    protected final Map<RedisServer, RedisModulesAsyncCommands<String, String>> asyncs = new HashMap<>();
+    protected final Map<RedisServer, RedisModulesReactiveCommands<String, String>> reactives = new HashMap<>();
 
     @BeforeEach
     public void setupEach() {

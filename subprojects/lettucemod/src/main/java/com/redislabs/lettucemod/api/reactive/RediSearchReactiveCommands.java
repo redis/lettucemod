@@ -28,15 +28,15 @@ public interface RediSearchReactiveCommands<K, V> {
 
     Mono<SearchResults<K, V>> search(K index, V query);
 
-    Mono<SearchResults<K, V>> search(K index, V query, SearchOptions options);
+    Mono<SearchResults<K, V>> search(K index, V query, SearchOptions<K, V> options);
 
     Mono<AggregateResults<K>> aggregate(K index, V query);
 
-    Mono<AggregateResults<K>> aggregate(K index, V query, AggregateOptions options);
+    Mono<AggregateResults<K>> aggregate(K index, V query, AggregateOptions<K, V> options);
 
     Mono<AggregateWithCursorResults<K>> aggregate(K index, V query, Cursor cursor);
 
-    Mono<AggregateWithCursorResults<K>> aggregate(K index, V query, Cursor cursor, AggregateOptions options);
+    Mono<AggregateWithCursorResults<K>> aggregate(K index, V query, Cursor cursor, AggregateOptions<K, V> options);
 
     Mono<AggregateWithCursorResults<K>> cursorRead(K index, long cursor);
 
@@ -58,8 +58,10 @@ public interface RediSearchReactiveCommands<K, V> {
 
     Mono<Long> suglen(K key);
 
+    @SuppressWarnings("unchecked")
     Mono<Long> dictadd(K dict, V... terms);
 
+    @SuppressWarnings("unchecked")
     Mono<Long> dictdel(K dict, V... terms);
 
     Flux<V> dictdump(K dict);

@@ -20,7 +20,7 @@ public class CreateOptions<K, V> implements RediSearchArgument<K, V> {
     private Structure on;
     @Singular
     private List<K> prefixes;
-    private String filter;
+    private V filter;
     private Language defaultLanguage;
     private K languageField;
     private Double defaultScore;
@@ -51,7 +51,7 @@ public class CreateOptions<K, V> implements RediSearchArgument<K, V> {
         }
         if (filter != null) {
             args.add(FILTER);
-            args.add(filter);
+            args.addValue(filter);
         }
         if (defaultLanguage != null) {
             args.add(LANGUAGE);

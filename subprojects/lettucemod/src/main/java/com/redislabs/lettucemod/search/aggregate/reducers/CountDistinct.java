@@ -3,7 +3,6 @@ package com.redislabs.lettucemod.search.aggregate.reducers;
 import com.redislabs.lettucemod.search.protocol.CommandKeyword;
 import com.redislabs.lettucemod.search.protocol.RediSearchCommandArgs;
 
-@SuppressWarnings("rawtypes")
 public class CountDistinct extends AbstractPropertyReducer {
 
     public CountDistinct(String as, String property) {
