@@ -5,7 +5,7 @@
 :project-group:   com.redislabs
 :project-version: 1.4.0
 
-image:https://github.com/{project-owner}/{project-name}/actions/workflows/early-access.yml/badge.svg["Build Status", link="https://github.com/{project-owner}/{project-name}/actions"]
+image:https://github.com/redis-developer/lettucemod/actions/workflows/early-access.yml/badge.svg["Build Status", link="https://github.com/{project-owner}/{project-name}/actions"]
 image:https://img.shields.io/maven-central/v/{project-group}/{project-name}.svg[Download, link="https://search.maven.org/#search|ga|1|{project-name}"]
 image:https://img.shields.io/github/license/{project-owner}/{project-name}.svg["License", link="https://github.com/{project-owner}/{project-name}"]
 image:https://codecov.io/gh/{project-owner}/{project-name}/branch/master/graph/badge.svg?token=A5IX98M8JT["Coverage", link="https://codecov.io/gh/{project-owner}/{project-name}"]
