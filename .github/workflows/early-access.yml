@@ -35,7 +35,10 @@ jobs:
             ${{ runner.os }}-gradlew-
 
       - name: Build
-        run: ./gradlew -Prelease=true build -S
+        run: ./gradlew -Prelease=true build aggregateJacocoReport -S
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v1
 
       - name: Show Reports
         uses: actions/upload-artifact@v1
@@ -67,6 +70,7 @@ jobs:
           JRELEASER_GPG_PUBLIC_KEY: ${{ secrets.GPG_PUBLIC_KEY }}
           JRELEASER_GPG_SECRET_KEY: ${{ secrets.GPG_SECRET_KEY }}
           JRELEASER_DOCKER_DEFAULT_PASSWORD: ${{ secrets.JRELEASER_DOCKER_PASSWORD }}
+          JRELEASER_SLACK_WEBHOOK: ${{ secrets.JRELEASER_SLACK_WEBHOOK }}
 
       - name: JReleaser output
         if: always()
