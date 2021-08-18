@@ -58,3 +58,5 @@ release:
 files:
   artifacts:
     - path: VERSION
+    - path: subprojects/lettucemod/build/distributions/lettucemod-{{projectVersion}}.zip
+    - path: subprojects/spring-lettucemod/build/distributions/spring-lettucemod-{{projectVersion}}.zip
