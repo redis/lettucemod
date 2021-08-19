@@ -256,6 +256,9 @@ public class SearchTests extends AbstractModuleTestBase {
         RedisModulesCommands<String, String> sync = sync(redis);
         SearchResults<String, String> results = sync.search(INDEX, "eldur");
         assertEquals(7, results.getCount());
+        results = sync.search(INDEX, "Hefeweizen", SearchOptions.<String, String>builder().noContent(true).build());
+        assertEquals(10, results.size());
+        assertTrue(results.get(0).getId().startsWith("beer:"));
         results = sync.search(INDEX, "Hefeweizen", SearchOptions.<String, String>builder().withScores(true).noContent(true).limit(new SearchOptions.Limit(0, 100)).build());
         assertEquals(22, results.getCount());
         assertEquals(22, results.size());
