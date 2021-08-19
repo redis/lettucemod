@@ -4,6 +4,7 @@ import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import com.redislabs.lettucemod.api.async.RedisModulesAsyncCommands;
 import com.redislabs.lettucemod.api.reactive.RedisModulesReactiveCommands;
+import com.redislabs.lettucemod.api.sync.RediSearchCommands;
 import com.redislabs.lettucemod.api.sync.RedisModulesCommands;
 import com.redislabs.lettucemod.search.*;
 import com.redislabs.lettucemod.search.aggregate.GroupBy;
@@ -54,7 +55,7 @@ public class SearchTests extends AbstractModuleTestBase {
     protected static Map<String, String> mapOf(String... keyValues) {
         Map<String, String> map = new HashMap<>();
         for (int index = 0; index < keyValues.length / 2; index++) {
-            map.put(keyValues[index], keyValues[index + 1]);
+            map.put(keyValues[index * 2], keyValues[index * 2 + 1]);
         }
         return map;
     }
@@ -545,6 +546,34 @@ public class SearchTests extends AbstractModuleTestBase {
         Set<String> TAG_VALS = new HashSet<>(Arrays.asList("american pale lager", "american pale ale (apa)", "american pale wheat ale", "american porter", "american pilsner", "american ipa", "american india pale lager", "american double / imperial ipa", "american double / imperial stout", "american double / imperial pilsner", "american dark wheat ale", "american barleywine", "american black ale", "american blonde ale", "american brown ale", "american stout", "american strong ale", "american amber / red ale", "american amber / red lager", "american adjunct lager", "american wild ale", "american white ipa", "american malt liquor", "altbier", "abbey single ale", "oatmeal stout", "other", "old ale", "saison / farmhouse ale", "schwarzbier", "scotch ale / wee heavy", "scottish ale", "smoked beer", "shandy", "belgian ipa", "belgian dark ale", "belgian strong dark ale", "belgian strong pale ale", "belgian pale ale", "berliner weissbier", "baltic porter", "bock", "bière de garde", "braggot", "cider", "california common / steam beer", "cream ale", "czech pilsener", "chile beer", "tripel", "winter warmer", "witbier", "wheat ale", "fruit / vegetable beer", "foreign / export stout", "flanders red ale", "flanders oud bruin", "english strong ale", "english stout", "english pale ale", "english pale mild ale", "english barleywine", "english brown ale", "english bitter", "english india pale ale (ipa)", "english dark mild ale", "extra special / strong bitter (esb)", "euro dark lager", "euro pale lager", "kölsch", "kristalweizen", "keller bier / zwickel bier", "milk / sweet stout", "munich helles lager", "munich dunkel lager", "märzen / oktoberfest", "mead", "maibock / helles bock", "german pilsener", "gose", "grisette", "pumpkin ale", "vienna lager", "rye beer", "radler", "rauchbier", "russian imperial stout", "roggenbier", "hefeweizen", "herbed / spiced beer", "dortmunder / export lager", "doppelbock", "dunkelweizen", "dubbel", "irish dry stout", "irish red ale", "quadrupel (quad)", "light lager", "low alcohol beer"));
         Assertions.assertEquals(TAG_VALS, new HashSet<>(sync(redis).tagVals(INDEX, STYLE)));
         Assertions.assertEquals(TAG_VALS, new HashSet<>(reactive(redis).tagVals(INDEX, STYLE).collectList().block()));
+    }
+
+    @ParameterizedTest
+    @MethodSource("redisServers")
+    void emptyToListReducer(RedisServer redis) {
+        RedisModulesCommands<String, String> sync = sync(redis);
+        // FT.CREATE idx ON HASH PREFIX 1 my_prefix: SCHEMA category TAG SORTABLE color TAG SORTABLE size TAG SORTABLE
+        sync.create("idx", CreateOptions.<String, String>builder().prefix("my_prefix:").build(), Field.tag("category").sortable(true).build(), Field.tag("color").sortable(true).build(), Field.tag("size").sortable(true).build());
+        Map<String, String> doc1 = mapOf("category", "31", "color", "red");
+        sync.hset("my_prefix:1", doc1);
+        AggregateOptions<String, String> aggregateOptions = AggregateOptions.<String, String>builder()
+                .operation(GroupBy.<String, String>property("category")
+                        .reducers(
+                                ToList.property("color")
+                                        .as("color")
+                                        .build(),
+                                ToList.property("size")
+                                        .as("size")
+                                        .build()
+                        ).build())
+                .build();
+        AggregateResults<String> results = sync.aggregate("idx", "@color:{red|blue}", aggregateOptions);
+        Assertions.assertEquals(1, results.size());
+        Map<String, Object> expectedResult = new LinkedHashMap<>();
+        expectedResult.put("category", "31");
+        expectedResult.put("color", Collections.singleton("red"));
+        expectedResult.put("size", Collections.emptyList());
+        Assertions.assertEquals(expectedResult, results.get(0));
     }
 
     final static String[] DICT_TERMS = new String[]{"beer", "ale", "brew", "brewski"};

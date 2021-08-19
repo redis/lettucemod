@@ -13,7 +13,6 @@ public class AggregateOutput<K, V, R extends AggregateResults<K>> extends Comman
 
     private final AggregateResultOutput<K, V> nested;
     protected int mapCount = -1;
-    private final List<Integer> counts = new ArrayList<>();
 
     public AggregateOutput(RedisCodec<K, V> codec, R results) {
         super(codec, results);
@@ -27,13 +26,8 @@ public class AggregateOutput<K, V, R extends AggregateResults<K>> extends Comman
 
     @Override
     public void complete(int depth) {
-        if (!counts.isEmpty()) {
-            int expectedSize = counts.get(0);
-            if (nested.get().size() == expectedSize) {
-                counts.remove(0);
-                output.add(new LinkedHashMap<>(nested.get()));
-                nested.get().clear();
-            }
+        if (nested.isComplete()) {
+            output.add(nested.getAndClear());
         }
     }
 
@@ -44,12 +38,10 @@ public class AggregateOutput<K, V, R extends AggregateResults<K>> extends Comman
 
     @Override
     public void multi(int count) {
-        nested.multi(count);
         if (mapCount == -1) {
             mapCount = count - 1;
         } else {
-            // div 2 because of key value pair counts twice
-            counts.add(count / 2);
+            nested.multi(count);
         }
     }
 

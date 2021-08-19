@@ -35,7 +35,7 @@ public class Usage {
     }
 
     public void warnings() {
-        AggregateOptions.AggregateOptionsBuilder<String, String> optionsBuilder = AggregateOptions.operation(Filter.<String, String>expression("foo")).operation(GroupBy.<String, String>property("bar").build());
+        AggregateOptions.AggregateOptionsBuilder<String, String> optionsBuilder = AggregateOptions.operation(new Filter<String, String>("foo")).operation(GroupBy.<String, String>property("bar").build());
     }
 
 }

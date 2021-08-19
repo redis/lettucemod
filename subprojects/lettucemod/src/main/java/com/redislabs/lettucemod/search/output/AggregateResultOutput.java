@@ -12,6 +12,7 @@ public class AggregateResultOutput<K, V> extends CommandOutput<K, V, Map<K, Obje
     private boolean initialized;
     private K key;
     private int count;
+    private int expectedSize = -1;
 
     public AggregateResultOutput(RedisCodec<K, V> codec) {
         super(codec, Collections.emptyMap());
@@ -57,13 +58,35 @@ public class AggregateResultOutput<K, V> extends CommandOutput<K, V, Map<K, Obje
     public void multi(int count) {
         if (initialized) {
             if (key != null) {
+                // Case where result array is empty
+                if (count == 0) {
+                    output.put(key, new ArrayList<>(array));
+                    key = null;
+                    array.clear();
+                }
                 this.count = count;
             }
         } else {
-            output = new LinkedHashMap<>(count / 2, 1);
+            expectedSize = count / 2;
+            output = new LinkedHashMap<>(expectedSize, 1);
             initialized = true;
         }
     }
 
 
+    public boolean isComplete() {
+        return get().size() == expectedSize;
+    }
+
+    public Map<K, Object> getAndClear() {
+        try {
+            return new LinkedHashMap<>(get());
+        } finally {
+            get().clear();
+            initialized = false;
+            key = null;
+            count = 0;
+            expectedSize = -1;
+        }
+    }
 }
