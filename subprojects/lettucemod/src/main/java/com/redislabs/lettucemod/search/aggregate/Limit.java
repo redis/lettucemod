@@ -4,8 +4,7 @@ import com.redislabs.lettucemod.search.AggregateOptions;
 import com.redislabs.lettucemod.search.protocol.CommandKeyword;
 import com.redislabs.lettucemod.search.protocol.RediSearchCommandArgs;
 
-@SuppressWarnings("rawtypes")
-public class Limit implements AggregateOptions.Operation {
+public class Limit<K, V> implements AggregateOptions.Operation<K, V> {
 
     private final long offset;
     private final long num;
@@ -16,17 +15,17 @@ public class Limit implements AggregateOptions.Operation {
     }
 
     @Override
-    public void build(RediSearchCommandArgs args) {
+    public void build(RediSearchCommandArgs<K, V> args) {
         args.add(CommandKeyword.LIMIT);
         args.add(offset);
         args.add(num);
     }
 
-    public static LimitBuilder offset(long offset) {
-        return new LimitBuilder(offset);
+    public static <K, V> LimitBuilder<K, V> offset(long offset) {
+        return new LimitBuilder<>(offset);
     }
 
-    public static class LimitBuilder {
+    public static class LimitBuilder<K, V> {
 
         private final long offset;
 
@@ -34,8 +33,8 @@ public class Limit implements AggregateOptions.Operation {
             this.offset = offset;
         }
 
-        public Limit num(long num) {
-            return new Limit(offset, num);
+        public Limit<K, V> num(long num) {
+            return new Limit<>(offset, num);
         }
     }
 

@@ -49,7 +49,7 @@ public interface RediSearchAsyncCommands<K, V> {
 
     RedisFuture<Long> sugadd(K key, V string, double score);
 
-    RedisFuture<Long> sugadd(K key, V string, double score, SugaddOptions<V> options);
+    RedisFuture<Long> sugadd(K key, V string, double score, SugaddOptions<K, V> options);
 
     RedisFuture<List<Suggestion<V>>> sugget(K key, V prefix);
 

@@ -166,7 +166,7 @@ public class RediSearchCommandBuilder<K, V> extends RedisModulesCommandBuilder<K
         return sugadd(key, string, score, null);
     }
 
-    public Command<K, V, Long> sugadd(K key, V string, double score, SugaddOptions<V> options) {
+    public Command<K, V, Long> sugadd(K key, V string, double score, SugaddOptions<K, V> options) {
         notNull(key, "key");
         notNull(string, "suggestion string");
         RediSearchCommandArgs<K, V> args = args(key);

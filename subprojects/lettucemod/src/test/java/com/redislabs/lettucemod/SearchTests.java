@@ -26,15 +26,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -42,7 +34,7 @@ import java.util.stream.Collectors;
 import static org.junit.jupiter.api.Assertions.*;
 
 @Slf4j
-@SuppressWarnings({"unchecked", "ConstantConditions"})
+@SuppressWarnings("ConstantConditions")
 public class SearchTests extends AbstractModuleTestBase {
 
     protected final static int BEER_COUNT = 2348;
@@ -67,13 +59,13 @@ public class SearchTests extends AbstractModuleTestBase {
         return map;
     }
 
+    @SuppressWarnings("unchecked")
     @BeforeAll
-    @SuppressWarnings("rawtypes")
     public static void loadBeers() throws IOException {
         CsvSchema schema = CsvSchema.builder().setUseHeader(true).setNullValue("").build();
         CsvMapper mapper = new CsvMapper();
         InputStream inputStream = SearchTests.class.getClassLoader().getResourceAsStream("beers.csv");
-        mapper.readerFor(Map.class).with(schema).readValues(inputStream).forEachRemaining(e -> beers.add((Map) e));
+        mapper.readerFor(Map.class).with(schema).readValues(inputStream).forEachRemaining(e -> beers.add((Map<String, String>) e));
     }
 
     private void createBeerIndex(RedisServer redis) {
@@ -121,7 +113,7 @@ public class SearchTests extends AbstractModuleTestBase {
         RedisModulesCommands<String, String> sync = sync(redis);
         String key = "testSugadd";
         sync.sugadd(key, "value1", 1);
-        sync.sugadd(key, "value1", 1, SugaddOptions.<String>builder().increment(true).build());
+        sync.sugadd(key, "value1", 1, SugaddOptions.<String, String>builder().increment(true).build());
         List<Suggestion<String>> suggestions = sync.sugget(key, "value", SuggetOptions.builder().withScores(true).build());
         Assertions.assertEquals(1, suggestions.size());
         Assertions.assertEquals(1.4142135381698608, suggestions.get(0).getScore());
@@ -132,7 +124,7 @@ public class SearchTests extends AbstractModuleTestBase {
     void testSugaddPayload(RedisServer redis) {
         RedisModulesCommands<String, String> sync = sync(redis);
         String key = "testSugadd";
-        sync.sugadd(key, "value1", 1, SugaddOptions.<String>builder().payload("somepayload").build());
+        sync.sugadd(key, "value1", 1, SugaddOptions.<String, String>builder().payload("somepayload").build());
         List<Suggestion<String>> suggestions = sync.sugget(key, "value", SuggetOptions.builder().withPayloads(true).build());
         Assertions.assertEquals(1, suggestions.size());
         Assertions.assertEquals("somepayload", suggestions.get(0).getPayload());
@@ -143,7 +135,7 @@ public class SearchTests extends AbstractModuleTestBase {
     void testSugaddScorePayload(RedisServer redis) {
         RedisModulesCommands<String, String> sync = sync(redis);
         String key = "testSugadd";
-        sync.sugadd(key, "value1", 2, SugaddOptions.<String>builder().payload("somepayload").build());
+        sync.sugadd(key, "value1", 2, SugaddOptions.<String, String>builder().payload("somepayload").build());
         List<Suggestion<String>> suggestions = sync.sugget(key, "value", SuggetOptions.builder().withScores(true).withPayloads(true).build());
         Assertions.assertEquals(1, suggestions.size());
         Assertions.assertEquals(1.4142135381698608, suggestions.get(0).getScore());
@@ -282,7 +274,7 @@ public class SearchTests extends AbstractModuleTestBase {
         assertNotNull(result1.get(NAME));
         assertNotNull(result1.get(STYLE));
         assertNull(result1.get(ABV));
-        SearchOptions<String, String> options = SearchOptions.<String, String>builder().withPayloads(true).noStopWords(true).limit(new SearchOptions.Limit(10, 100)).withScores(true).highlight(SearchOptions.Highlight.<String, String>builder().field(NAME).tags(SearchOptions.Tags.<String>builder().open("<TAG>").close("</TAG>").build()).build()).language(Language.English).noContent(false).sortBy(SearchOptions.SortBy.field(NAME).order(Order.ASC)).verbatim(false).withSortKeys(true).returnField(NAME).returnField(STYLE).build();
+        SearchOptions<String, String> options = SearchOptions.<String, String>builder().withPayloads(true).noStopWords(true).limit(new SearchOptions.Limit(10, 100)).withScores(true).highlight(SearchOptions.Highlight.<String, String>builder().field(NAME).tags(SearchOptions.Tags.<String>builder().open("<TAG>").close("</TAG>").build()).build()).language(Language.English).noContent(false).sortBy(SearchOptions.SortBy.<String, String>field(NAME).order(Order.ASC)).verbatim(false).withSortKeys(true).returnField(NAME).returnField(STYLE).build();
         sync.search(INDEX, "pale", options);
         assertEquals(256, results.getCount());
         result1 = results.get(0);
@@ -351,7 +343,7 @@ public class SearchTests extends AbstractModuleTestBase {
         results = async.search(index, "@id:{" + RediSearchUtils.escapeTag("User1#test.org") + "}").get();
         Assertions.assertEquals(1, results.size());
 
-        SearchResults<String, String> filterResults = sync.search(INDEX, "*", SearchOptions.<String, String>builder().filter(SearchOptions.NumericFilter.field(ABV).min(.08).max(.1)).build());
+        SearchResults<String, String> filterResults = sync.search(INDEX, "*", SearchOptions.<String, String>builder().filter(SearchOptions.NumericFilter.<String, String>field(ABV).min(.08).max(.1)).build());
         Assertions.assertEquals(10, filterResults.size());
         for (Document<String, String> document : filterResults) {
             double abv = Double.parseDouble(document.get(ABV));
@@ -391,6 +383,7 @@ public class SearchTests extends AbstractModuleTestBase {
         assertTrue(reactive.sugdel(SUGINDEX, "American Lager").block());
     }
 
+    @SuppressWarnings("unchecked")
     @ParameterizedTest
     @MethodSource("redisServers")
     void aggregate(RedisServer redis) {
@@ -424,7 +417,7 @@ public class SearchTests extends AbstractModuleTestBase {
             assertTrue(abvs.get(0) > abvs.get(abvs.size() - 1));
             assertEquals(20, results.size());
         };
-        AggregateOptions<String, String> groupByOptions = AggregateOptions.builder().operation(GroupBy.property(STYLE).reducer(Avg.property(ABV).as(ABV).build()).build()).operation(SortBy.property(SortBy.Property.name(ABV).order(Order.DESC)).build()).operation(Limit.offset(0).num(20)).build();
+        AggregateOptions<String, String> groupByOptions = AggregateOptions.operation(GroupBy.<String, String>property(STYLE).reducer(Avg.property(ABV).as(ABV).build()).build()).operation(SortBy.<String, String>property(SortBy.Property.name(ABV).order(Order.DESC)).build()).operation(Limit.<String, String>offset(0).num(20)).build();
         groupByAsserts.accept(sync.aggregate(INDEX, "*", groupByOptions));
         groupByAsserts.accept(reactive.aggregate(INDEX, "*", groupByOptions).block());
 
@@ -434,7 +427,9 @@ public class SearchTests extends AbstractModuleTestBase {
             Object names = results.get(0).get("names");
             assertEquals(17, ((List<String>) names).size());
         };
-        AggregateOptions<String, String> groupBy2Options = AggregateOptions.<String, String>builder().operation(GroupBy.property(STYLE).reducer(ToList.property(NAME).as("names").build()).reducer(Count.as("count")).build()).operation(Limit.offset(0).num(1)).build();
+        GroupBy<String, String> groupBy = GroupBy.<String, String>property(STYLE).reducer(ToList.property(NAME).as("names").build()).reducer(Count.as("count")).build();
+        Limit<String, String> limit = Limit.<String, String>offset(0).num(1);
+        AggregateOptions<String, String> groupBy2Options = AggregateOptions.operation(groupBy).operation(limit).build();
         groupBy2Asserts.accept(sync.aggregate(INDEX, "*", groupBy2Options));
         groupBy2Asserts.accept(reactive.aggregate(INDEX, "*", groupBy2Options).block());
 

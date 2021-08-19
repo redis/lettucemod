@@ -9,8 +9,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-@SuppressWarnings("rawtypes")
-public class GroupBy implements AggregateOptions.Operation {
+public class GroupBy<K, V> implements AggregateOptions.Operation<K, V> {
 
     private final String[] properties;
     private final AggregateOptions.Reducer[] reducers;
@@ -26,7 +25,7 @@ public class GroupBy implements AggregateOptions.Operation {
 
     @SuppressWarnings("unchecked")
     @Override
-    public void build(RediSearchCommandArgs args) {
+    public void build(RediSearchCommandArgs<K, V> args) {
         args.add(CommandKeyword.GROUPBY);
         args.add(properties.length);
         for (String property : properties) {
@@ -37,15 +36,15 @@ public class GroupBy implements AggregateOptions.Operation {
         }
     }
 
-    public static GroupByBuilder property(String property) {
+    public static <K, V> GroupByBuilder<K, V> property(String property) {
         return properties(property);
     }
 
-    public static GroupByBuilder properties(String... properties) {
-        return new GroupByBuilder(properties);
+    public static <K,V> GroupByBuilder<K, V> properties(String... properties) {
+        return new GroupByBuilder<>(properties);
     }
 
-    public static class GroupByBuilder {
+    public static class GroupByBuilder<K, V> {
 
         private final List<String> properties = new ArrayList<>();
         private final List<AggregateOptions.Reducer> reducers = new ArrayList<>();
@@ -54,21 +53,21 @@ public class GroupBy implements AggregateOptions.Operation {
             Collections.addAll(this.properties, properties);
         }
 
-        public GroupByBuilder property(String property) {
-            return properties(property);
+        public GroupByBuilder<K, V> property(String property) {
+            return new GroupByBuilder<>(property);
         }
 
-        public GroupByBuilder reducer(AggregateOptions.Reducer reducer) {
+        public GroupByBuilder<K, V> reducer(AggregateOptions.Reducer reducer) {
             return reducers(reducer);
         }
 
-        public GroupByBuilder reducers(AggregateOptions.Reducer... reducers) {
+        public GroupByBuilder<K, V> reducers(AggregateOptions.Reducer... reducers) {
             Collections.addAll(this.reducers, reducers);
             return this;
         }
 
-        public GroupBy build() {
-            return new GroupBy(properties.toArray(new String[0]), reducers.toArray(new AggregateOptions.Reducer[0]));
+        public GroupBy<K, V> build() {
+            return new GroupBy<>(properties.toArray(new String[0]), reducers.toArray(new AggregateOptions.Reducer[0]));
         }
 
     }

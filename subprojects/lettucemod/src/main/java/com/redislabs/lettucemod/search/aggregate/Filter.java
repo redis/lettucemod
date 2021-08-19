@@ -4,8 +4,7 @@ import com.redislabs.lettucemod.search.AggregateOptions;
 import com.redislabs.lettucemod.search.protocol.CommandKeyword;
 import com.redislabs.lettucemod.search.protocol.RediSearchCommandArgs;
 
-@SuppressWarnings("rawtypes")
-public class Filter<V> implements AggregateOptions.Operation {
+public class Filter<K, V> implements AggregateOptions.Operation<K, V> {
 
     private final V expression;
 
@@ -13,13 +12,12 @@ public class Filter<V> implements AggregateOptions.Operation {
         this.expression = expression;
     }
 
-    public static <V> Filter<V> expression(V expression) {
+    public static <K, V> Filter<K, V> expression(V expression) {
         return new Filter<>(expression);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    public void build(RediSearchCommandArgs args) {
+    public void build(RediSearchCommandArgs<K, V> args) {
         args.add(CommandKeyword.FILTER);
         args.addValue(expression);
     }

@@ -33,6 +33,7 @@ public class RediSearchCommandArgs<K, V> extends CommandArgs<K, V> {
 		return null;
 	}
 
+	@SuppressWarnings("UnusedReturnValue")
 	public RediSearchCommandArgs<K, V> addProperty(String property) {
 		add(property(property));
 		return this;

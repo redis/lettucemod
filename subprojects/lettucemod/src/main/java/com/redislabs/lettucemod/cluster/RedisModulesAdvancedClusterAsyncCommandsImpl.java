@@ -9,17 +9,7 @@ import com.redislabs.lettucemod.gears.ExecutionDetails;
 import com.redislabs.lettucemod.gears.ExecutionMode;
 import com.redislabs.lettucemod.gears.Registration;
 import com.redislabs.lettucemod.gears.output.ExecutionResults;
-import com.redislabs.lettucemod.search.AggregateOptions;
-import com.redislabs.lettucemod.search.AggregateResults;
-import com.redislabs.lettucemod.search.AggregateWithCursorResults;
-import com.redislabs.lettucemod.search.CreateOptions;
-import com.redislabs.lettucemod.search.Cursor;
-import com.redislabs.lettucemod.search.Field;
-import com.redislabs.lettucemod.search.SearchOptions;
-import com.redislabs.lettucemod.search.SearchResults;
-import com.redislabs.lettucemod.search.SugaddOptions;
-import com.redislabs.lettucemod.search.Suggestion;
-import com.redislabs.lettucemod.search.SuggetOptions;
+import com.redislabs.lettucemod.search.*;
 import com.redislabs.lettucemod.timeseries.Aggregation;
 import com.redislabs.lettucemod.timeseries.Label;
 import io.lettuce.core.RedisFuture;
@@ -231,7 +221,7 @@ public class RedisModulesAdvancedClusterAsyncCommandsImpl<K, V> extends RedisAdv
     }
 
     @Override
-    public RedisFuture<Long> sugadd(K key, V string, double score, SugaddOptions<V> options) {
+    public RedisFuture<Long> sugadd(K key, V string, double score, SugaddOptions<K, V> options) {
         return delegate.sugadd(key, string, score, options);
     }
 

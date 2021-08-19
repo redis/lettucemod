@@ -11,8 +11,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-@SuppressWarnings("rawtypes")
-public class SortBy implements AggregateOptions.Operation {
+public class SortBy<K, V> implements AggregateOptions.Operation<K, V> {
 
     private final Property[] properties;
     private final Long max;
@@ -25,7 +24,7 @@ public class SortBy implements AggregateOptions.Operation {
     }
 
     @Override
-    public void build(RediSearchCommandArgs args) {
+    public void build(RediSearchCommandArgs<K, V> args) {
         args.add(CommandKeyword.SORTBY);
         args.add((long) properties.length * 2);
         for (Property property : properties) {
@@ -37,15 +36,15 @@ public class SortBy implements AggregateOptions.Operation {
         }
     }
 
-    public static SortByBuilder property(Property property) {
+    public static <K, V> SortByBuilder<K, V> property(Property property) {
         return properties(property);
     }
 
-    public static SortByBuilder properties(Property... properties) {
-        return new SortByBuilder(properties);
+    public static <K, V> SortByBuilder<K, V> properties(Property... properties) {
+        return new SortByBuilder<>(properties);
     }
 
-    public static class SortByBuilder {
+    public static class SortByBuilder<K, V> {
 
         private final List<Property> properties = new ArrayList<>();
         private Long max;
@@ -54,21 +53,22 @@ public class SortBy implements AggregateOptions.Operation {
             Collections.addAll(this.properties, properties);
         }
 
-        public SortByBuilder property(Property property) {
+        public SortByBuilder<K, V> property(Property property) {
             return properties(property);
         }
 
-        public SortByBuilder max(long max) {
+        public SortByBuilder<K, V> max(long max) {
             this.max = max;
             return this;
         }
 
-        public SortBy build() {
-            return new SortBy(properties.toArray(new Property[0]), max);
+        public SortBy<K, V> build() {
+            return new SortBy<>(properties.toArray(new Property[0]), max);
         }
 
     }
 
+    @SuppressWarnings("rawtypes")
     public static class Property implements RediSearchArgument {
 
         private final String name;

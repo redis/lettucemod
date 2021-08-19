@@ -1,7 +1,7 @@
 package com.redislabs.lettucemod;
 
-import com.redislabs.lettucemod.api.async.RedisModulesAsyncCommands;
 import com.redislabs.lettucemod.api.StatefulRedisModulesConnection;
+import com.redislabs.lettucemod.api.async.RedisModulesAsyncCommands;
 import com.redislabs.lettucemod.gears.*;
 import com.redislabs.lettucemod.gears.output.ExecutionResults;
 import com.redislabs.lettucemod.search.*;
@@ -216,7 +216,7 @@ public class RedisModulesAsyncCommandsImpl<K, V> extends RedisAsyncCommandsImpl<
     }
 
     @Override
-    public RedisFuture<Long> sugadd(K key, V string, double score, SugaddOptions<V> options) {
+    public RedisFuture<Long> sugadd(K key, V string, double score, SugaddOptions<K, V> options) {
         return dispatch(searchCommandBuilder.sugadd(key, string, score, options));
     }
 

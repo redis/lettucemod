@@ -14,8 +14,6 @@ import java.util.Map;
 @EqualsAndHashCode(callSuper = true)
 public class Document<K, V> extends LinkedHashMap<K, V> {
 
-    private static final long serialVersionUID = 8972665675834263492L;
-
     private K id;
     private Double score;
     private V sortKey;

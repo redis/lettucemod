@@ -48,7 +48,7 @@ public interface RediSearchReactiveCommands<K, V> {
 
     Mono<Long> sugadd(K key, V string, double score);
 
-    Mono<Long> sugadd(K key, V string, double score, SugaddOptions<V> options);
+    Mono<Long> sugadd(K key, V string, double score, SugaddOptions<K, V> options);
 
     Flux<Suggestion<V>> sugget(K key, V prefix);
 

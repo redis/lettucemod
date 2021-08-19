@@ -12,7 +12,6 @@ import lombok.experimental.Accessors;
 
 import java.util.List;
 
-@SuppressWarnings("unchecked")
 @Data
 @Builder
 @NoArgsConstructor
@@ -26,8 +25,8 @@ public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
     private boolean withPayloads;
     private boolean withSortKeys;
     @Singular
-    private List<NumericFilter<K>> filters;
-    private GeoFilter<K> geoFilter;
+    private List<NumericFilter<K, V>> filters;
+    private GeoFilter<K, V> geoFilter;
     @Singular
     private List<K> inKeys;
     @Singular
@@ -42,7 +41,7 @@ public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
     private String expander;
     private String scorer;
     private V payload;
-    private SortBy<K> sortBy;
+    private SortBy<K, V> sortBy;
     private Limit limit;
 
     @Override
@@ -65,7 +64,7 @@ public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
         if (withSortKeys) {
             args.add(CommandKeyword.WITHSORTKEYS);
         }
-        for (NumericFilter<K> filter : filters) {
+        for (NumericFilter<K, V> filter : filters) {
             args.add(CommandKeyword.FILTER);
             filter.build(args);
         }
@@ -165,8 +164,7 @@ public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
 
     }
 
-    @SuppressWarnings("rawtypes")
-    public static class NumericFilter<K> implements RediSearchArgument {
+    public static class NumericFilter<K, V> implements RediSearchArgument<K, V> {
 
         private final K field;
         private final double min;
@@ -179,17 +177,17 @@ public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
         }
 
         @Override
-        public void build(RediSearchCommandArgs args) {
+        public void build(RediSearchCommandArgs<K, V> args) {
             args.addKey(field);
             args.add(min);
             args.add(max);
         }
 
-        public static <K> NumericFilterBuilder<K> field(K field) {
+        public static <K, V> NumericFilterBuilder<K, V> field(K field) {
             return new NumericFilterBuilder<>(field);
         }
 
-        public static class NumericFilterBuilder<K> {
+        public static class NumericFilterBuilder<K, V> {
 
             private final K field;
 
@@ -197,13 +195,13 @@ public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
                 this.field = field;
             }
 
-            public MinNumericFilterBuilder<K> min(double min) {
+            public MinNumericFilterBuilder<K, V> min(double min) {
                 return new MinNumericFilterBuilder<>(field, min);
             }
 
         }
 
-        public static class MinNumericFilterBuilder<K> {
+        public static class MinNumericFilterBuilder<K, V> {
 
             private final K field;
             private final double min;
@@ -213,14 +211,13 @@ public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
                 this.min = min;
             }
 
-            public NumericFilter<K> max(double max) {
+            public NumericFilter<K, V> max(double max) {
                 return new NumericFilter<>(field, min, max);
             }
         }
     }
 
-    @SuppressWarnings("rawtypes")
-    public static class GeoFilter<K> implements RediSearchArgument {
+    public static class GeoFilter<K, V> implements RediSearchArgument<K, V> {
 
         private final K field;
         private final double longitude;
@@ -237,7 +234,7 @@ public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
         }
 
         @Override
-        public void build(RediSearchCommandArgs args) {
+        public void build(RediSearchCommandArgs<K, V> args) {
             args.addKey(field);
             args.add(longitude);
             args.add(latitude);
@@ -245,13 +242,13 @@ public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
             args.add(unit);
         }
 
-        public static <K> GeoFilterBuilder<K> field(K field) {
+        public static <K, V> GeoFilterBuilder<K, V> field(K field) {
             return new GeoFilterBuilder<>(field);
         }
 
         @Setter
         @Accessors(fluent = true)
-        public static class GeoFilterBuilder<K> {
+        public static class GeoFilterBuilder<K, V> {
 
             private final K field;
             private double longitude;
@@ -263,7 +260,7 @@ public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
                 this.field = field;
             }
 
-            public GeoFilter<K> build() {
+            public GeoFilter<K, V> build() {
                 return new GeoFilter<>(field, longitude, latitude, radius, unit);
             }
 
@@ -331,8 +328,7 @@ public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
 
     }
 
-    @SuppressWarnings("rawtypes")
-    public static class SortBy<K> implements RediSearchArgument {
+    public static class SortBy<K, V> implements RediSearchArgument<K, V> {
 
         private final K field;
         private final Order direction;
@@ -343,16 +339,16 @@ public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
         }
 
         @Override
-        public void build(RediSearchCommandArgs args) {
+        public void build(RediSearchCommandArgs<K, V> args) {
             args.addKey(field);
             args.add(direction == Order.ASC ? CommandKeyword.ASC : CommandKeyword.DESC);
         }
 
-        public static <K> SortByBuilder<K> field(K field) {
+        public static <K, V> SortByBuilder<K, V> field(K field) {
             return new SortByBuilder<>(field);
         }
 
-        public static class SortByBuilder<K> {
+        public static class SortByBuilder<K, V> {
 
             private final K field;
 
@@ -360,7 +356,7 @@ public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
                 this.field = field;
             }
 
-            public SortBy<K> order(Order order) {
+            public SortBy<K, V> order(Order order) {
                 return new SortBy<>(field, order);
             }
         }

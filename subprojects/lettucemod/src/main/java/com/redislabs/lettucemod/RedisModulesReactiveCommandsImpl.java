@@ -218,7 +218,7 @@ public class RedisModulesReactiveCommandsImpl<K, V> extends RedisReactiveCommand
     }
 
     @Override
-    public Mono<Long> sugadd(K key, V string, double score, SugaddOptions<V> options) {
+    public Mono<Long> sugadd(K key, V string, double score, SugaddOptions<K, V> options) {
         return createMono(() -> searchCommandBuilder.sugadd(key, string, score, options));
     }
 

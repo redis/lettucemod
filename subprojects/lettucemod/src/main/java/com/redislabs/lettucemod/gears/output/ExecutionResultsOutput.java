@@ -9,12 +9,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class ExecutionResultsOutput<K, V> extends CommandOutput<K, V, ExecutionResults> {
 
     private static final ByteBuffer OK = StandardCharsets.US_ASCII.encode("OK");
 
-    private List current;
+    private List<Object> current;
     private boolean initialized;
 
     public ExecutionResultsOutput(RedisCodec<K, V> codec) {
@@ -54,9 +53,8 @@ public class ExecutionResultsOutput<K, V> extends CommandOutput<K, V, ExecutionR
             current = results;
             return;
         }
-        List<String> errors = new ArrayList<>(count);
-        output.setErrors(errors);
-        current = errors;
+        output.setErrors(new ArrayList<>(count));
+        current = new ArrayList<>(count);
     }
 
 
