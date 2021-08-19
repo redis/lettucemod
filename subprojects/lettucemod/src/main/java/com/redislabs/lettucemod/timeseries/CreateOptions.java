@@ -1,21 +1,14 @@
 package com.redislabs.lettucemod.timeseries;
 
-import static com.redislabs.lettucemod.timeseries.protocol.CommandKeyword.CHUNK_SIZE;
-import static com.redislabs.lettucemod.timeseries.protocol.CommandKeyword.ON_DUPLICATE;
-import static com.redislabs.lettucemod.timeseries.protocol.CommandKeyword.RETENTION;
-import static com.redislabs.lettucemod.timeseries.protocol.CommandKeyword.UNCOMPRESSED;
-
 import io.lettuce.core.CompositeArgument;
 import io.lettuce.core.protocol.CommandArgs;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+
+import static com.redislabs.lettucemod.timeseries.protocol.CommandKeyword.*;
 
 @Data
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class CreateOptions implements CompositeArgument {
 
 	private Long retentionTime;

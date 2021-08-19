@@ -2,20 +2,13 @@ package com.redislabs.lettucemod.search;
 
 import com.redislabs.lettucemod.search.protocol.CommandKeyword;
 import com.redislabs.lettucemod.search.protocol.RediSearchCommandArgs;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.Singular;
+import lombok.*;
 import lombok.experimental.Accessors;
 
 import java.util.List;
 
 @Data
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
 
     private boolean noContent;
@@ -269,8 +262,6 @@ public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
 
     @Data
     @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
     public static class Highlight<K, V> implements RediSearchArgument<K, V> {
 
         @Singular
@@ -295,8 +286,6 @@ public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
 
     @Data
     @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
     public static class Summarize<K, V> implements RediSearchArgument<K, V> {
 
         @Singular

@@ -2,15 +2,11 @@ package com.redislabs.lettucemod.search;
 
 import com.redislabs.lettucemod.search.protocol.CommandKeyword;
 import com.redislabs.lettucemod.search.protocol.RediSearchCommandArgs;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class SugaddOptions<K, V> implements RediSearchArgument<K, V> {
 
     private boolean increment;

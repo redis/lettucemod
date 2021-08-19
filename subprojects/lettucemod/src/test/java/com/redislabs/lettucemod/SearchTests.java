@@ -261,7 +261,7 @@ public class SearchTests extends AbstractModuleTestBase {
         assertTrue(results.get(0).getId().startsWith("beer:"));
         results = sync.search(INDEX, "Hefeweizen", SearchOptions.<String, String>builder().withScores(true).build());
         assertEquals(10, results.size());
-        assertTrue(results.get(0).getScore()>0);
+        assertTrue(results.get(0).getScore() > 0);
         results = sync.search(INDEX, "Hefeweizen", SearchOptions.<String, String>builder().withScores(true).noContent(true).limit(new SearchOptions.Limit(0, 100)).build());
         assertEquals(22, results.getCount());
         assertEquals(22, results.size());
@@ -575,9 +575,9 @@ public class SearchTests extends AbstractModuleTestBase {
                 .build();
         AggregateResults<String> results = sync.aggregate("idx", "@color:{red|blue}", aggregateOptions);
         Assertions.assertEquals(1, results.size());
-        Map<String, Object> expectedResult = new LinkedHashMap<>();
+        Map<String, Object> expectedResult = new HashMap<>();
         expectedResult.put("category", "31");
-        expectedResult.put("color", Collections.singleton("red"));
+        expectedResult.put("color", Collections.singletonList("red"));
         expectedResult.put("size", Collections.emptyList());
         Assertions.assertEquals(expectedResult, results.get(0));
     }

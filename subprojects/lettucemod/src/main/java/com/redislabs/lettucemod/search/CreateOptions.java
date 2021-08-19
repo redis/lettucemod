@@ -9,8 +9,6 @@ import static com.redislabs.lettucemod.search.protocol.CommandKeyword.*;
 
 @Data
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class CreateOptions<K, V> implements RediSearchArgument<K, V> {
 
     public enum Structure {
