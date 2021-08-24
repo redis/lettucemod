@@ -4,3 +4,4 @@ build
 /dump.rdb
 .DS_Store
 *.iml
+/out/

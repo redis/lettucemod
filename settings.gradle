@@ -6,11 +6,12 @@ buildscript {
     }
     dependencies {
         classpath "org.kordamp.gradle:java-project-gradle-plugin:$kordampPluginVersion"
-        classpath "com.redislabs.gradle:redislabs-parentbuild:$redislabsBuildVersion"
+        classpath "com.redis.gradle:redis-parentbuild:$redisBuildVersion"
+        classpath "io.freefair.gradle:lombok-plugin:$lombokPluginVersion"
     }
 }
 
-apply plugin: 'com.redislabs.gradle.redislabs-parentbuild'
+apply plugin: 'com.redis.gradle.redis-parentbuild'
 
 rootProject.name = 'lettucemod'
 
@@ -27,6 +28,7 @@ projects {
         dirs(['subprojects']) {
             id 'java-library'
             id 'java-library-distribution'
+            id 'io.freefair.lombok'
         }
     }
 }
@@ -35,9 +37,9 @@ enforce {
     mergeStrategy = 'append'
 
     rule(enforcer.rules.ForceDependencies) { r ->
-        r.dependencies.addAll "org.slf4j:slf4j-api:1.7.30",
+        r.dependencies.addAll "org.slf4j:slf4j-api:1.7.32",
                 "org.junit.jupiter:junit-jupiter-api:5.7.2",
-                "com.fasterxml.jackson.core:jackson-annotations:2.12.3",
+                "com.fasterxml.jackson.core:jackson-annotations:2.12.4",
                 "junit:junit:4.13.1"
     }
 }

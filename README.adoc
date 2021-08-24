@@ -9,19 +9,17 @@ image:https://github.com/redis-developer/lettucemod/actions/workflows/early-acce
 image:https://img.shields.io/maven-central/v/{project-group}/{project-name}.svg[Download, link="https://search.maven.org/#search|ga|1|{project-name}"]
 image:https://img.shields.io/github/license/{project-owner}/{project-name}.svg["License", link="https://github.com/{project-owner}/{project-name}"]
 image:https://codecov.io/gh/{project-owner}/{project-name}/branch/master/graph/badge.svg?token=A5IX98M8JT["Coverage", link="https://codecov.io/gh/{project-owner}/{project-name}"]
-image:https://img.shields.io/badge/Forum-Modules-blue["forum", link=https://forum.redislabs.com/c/modules/]
+image:https://img.shields.io/badge/Forum-Modules-blue["forum", link=https://forum.redis.com/c/modules/]
 
----
-
-Java client for https://redislabs.com/community/oss-projects/[Redis modules] based on https://lettuce.io[Lettuce]
+Java client for https://docs.redis.com/latest/modules/[Redis Modules] based on https://lettuce.io[Lettuce]
 
 == Modules
 
 LettuceMod supports the following modules:
 
-* https://oss.redislabs.com/redisearch/[RediSearch]
-* https://oss.redislabs.com/redisgears/[RedisGears]
-* https://oss.redislabs.com/redistimeseries/[RedisTimeSeries]
+* https://oss.redis.com/redisearch/[RediSearch]
+* https://oss.redis.com/redisgears/[RedisGears]
+* https://oss.redis.com/redistimeseries/[RedisTimeSeries]
 
 == Getting Started
 

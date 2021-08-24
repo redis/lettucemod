@@ -15,13 +15,12 @@ project:
 
 release:
   github:
-    branch: master
     username: jruaux
     overwrite: true
     changelog:
       sort: DESC
       formatted: ALWAYS
-      change: '- {{commitShortHash}} {{commitTitle}}'
+      format: '- {{commitShortHash}} {{commitTitle}}'
       labelers:
         - label: 'feature'
           title: 'Resolves #'
@@ -59,4 +58,6 @@ files:
   artifacts:
     - path: VERSION
     - path: subprojects/lettucemod/build/distributions/lettucemod-{{projectVersion}}.zip
+      transform: lettucemod-{{projectEffectiveVersion}}.zip
     - path: subprojects/spring-lettucemod/build/distributions/spring-lettucemod-{{projectVersion}}.zip
+      transform: spring-lettucemod-{{projectEffectiveVersion}}.zip

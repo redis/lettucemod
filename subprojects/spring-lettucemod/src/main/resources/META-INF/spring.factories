@@ -1,4 +1,4 @@
 # Auto Configure
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-com.redislabs.spring.lettucemod.RedisModulesAutoConfiguration,\
+RedisModulesAutoConfiguration,\
 org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
