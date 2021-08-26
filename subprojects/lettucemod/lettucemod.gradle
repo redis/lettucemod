@@ -1,5 +1,6 @@
 dependencies {
     api 'io.lettuce:lettuce-core:6.1.4.RELEASE'
+    testImplementation 'org.apache.commons:commons-pool2:2.11.1'
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.2'
     testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.7.2'
     testImplementation 'org.junit.jupiter:junit-jupiter-params:5.7.2'
