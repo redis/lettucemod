@@ -1,5 +1,6 @@
 = LettuceMod
 :linkattrs:
+:icons: font
 :project-owner:   redis-developer
 :project-name:    lettucemod
 :project-group:   com.redis
