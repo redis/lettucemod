@@ -52,7 +52,7 @@ dependencies {
 
 == Usage
 
-.Connect
+=== Client
 [source,java]
 ----
 RedisModulesClient client = RedisModulesClient.create("redis://localhost:6379"); <1>
@@ -61,7 +61,7 @@ StatefulRedisModulesConnection<String, String> connection = client.connect(); <2
 <1> Create a modules client
 <2> Connect to Redis server
 
-.RedisGears
+=== RedisGears
 [source,java]
 ----
 RedisGearsCommands<String, String> gears = connection.sync(); <1>
@@ -70,7 +70,7 @@ gears.pyExecute("GearsBuilder().run('person:*')"); <2>
 <1> Use sync, async, or reactive RedisGears commands
 <2> Execute a RedisGears Python function
 
-.RedisJSON
+=== RedisJSON
 [source,java]
 ----
 RedisJSONCommands<String, String> json = connection.sync(); <1>
@@ -79,7 +79,7 @@ json.set("arr", ".", "[1,2,3]"); <2>
 <1> Use sync, async, or reactive RedisJSON commands
 <2> Set a JSON value
 
-.RediSearch
+=== RediSearch
 [source,java]
 ----
 RediSearchCommands<String, String> search = connection.sync(); <1>
@@ -90,7 +90,7 @@ SearchResults<String, String> results = search.search("beers", "chou*"); <3>
 <2> Create an index
 <3> Search the index
 
-.RedisTimeSeries
+=== RedisTimeSeries
 [source,java]
 ----
 RedisTimeSeriesCommands<String, String> ts = connection.sync(); <1>
@@ -98,5 +98,3 @@ ts.add("temp:3:11", 1548149181, 30); <2>
 ----
 <1> Use sync, async, or reactive RedisTimeSeries commands
 <2> Append a new sample to the series
-
-
