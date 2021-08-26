@@ -11,7 +11,7 @@ import io.lettuce.core.protocol.Command;
 import io.lettuce.core.protocol.CommandArgs;
 
 /**
- * Dedicated builder to build RedisTimeSeries commands.
+ * Builder dedicated to RedisTimeSeries commands.
  */
 public class RedisTimeSeriesCommandBuilder<K, V> extends RedisModulesCommandBuilder<K, V> {
 
@@ -49,11 +49,6 @@ public class RedisTimeSeriesCommandBuilder<K, V> extends RedisModulesCommandBuil
 				args.addValue(label.getValue());
 			}
 		}
-	}
-
-	private CommandArgs<K, V> args(K key) {
-		notNull(key, "key");
-		return new CommandArgs<>(codec).addKey(key);
 	}
 
 	public Command<K, V, String> createRule(K sourceKey, K destKey, Aggregation aggregation, long timeBucket) {

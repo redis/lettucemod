@@ -14,7 +14,7 @@ import io.lettuce.core.protocol.CommandArgs;
 import java.util.List;
 
 /**
- * Dedicated pub/sub command builder to build pub/sub commands.
+ * Builder dedicated to RediSearch commands.
  */
 public class RediSearchCommandBuilder<K, V> extends RedisModulesCommandBuilder<K, V> {
 
@@ -65,7 +65,8 @@ public class RediSearchCommandBuilder<K, V> extends RedisModulesCommandBuilder<K
         return createCommand(CommandType.ALTER, new StatusOutput<>(codec), args);
     }
 
-    private RediSearchCommandArgs<K, V> args(K key) {
+    @Override
+    protected RediSearchCommandArgs<K, V> args(K key) {
         return new RediSearchCommandArgs<>(codec).addKey(key);
     }
 

@@ -1,23 +1,39 @@
 package com.redis.lettucemod.cluster;
 
-import com.redis.lettucemod.cluster.api.StatefulRedisModulesClusterConnection;
-import com.redis.lettucemod.cluster.api.async.RedisModulesAdvancedClusterAsyncCommands;
-import com.redis.lettucemod.search.*;
-import com.redis.lettucemod.timeseries.Aggregation;
-import com.redis.lettucemod.timeseries.CreateOptions;
-import com.redis.lettucemod.timeseries.Label;
 import com.redis.lettucemod.RedisModulesAsyncCommandsImpl;
 import com.redis.lettucemod.api.async.RedisModulesAsyncCommands;
+import com.redis.lettucemod.cluster.api.StatefulRedisModulesClusterConnection;
+import com.redis.lettucemod.cluster.api.async.RedisModulesAdvancedClusterAsyncCommands;
 import com.redis.lettucemod.gears.Execution;
 import com.redis.lettucemod.gears.ExecutionDetails;
 import com.redis.lettucemod.gears.ExecutionMode;
 import com.redis.lettucemod.gears.Registration;
 import com.redis.lettucemod.gears.output.ExecutionResults;
+import com.redis.lettucemod.json.GetOptions;
+import com.redis.lettucemod.search.AggregateOptions;
+import com.redis.lettucemod.search.AggregateResults;
+import com.redis.lettucemod.search.AggregateWithCursorResults;
+import com.redis.lettucemod.search.Cursor;
+import com.redis.lettucemod.search.Field;
+import com.redis.lettucemod.search.SearchOptions;
+import com.redis.lettucemod.search.SearchResults;
+import com.redis.lettucemod.search.SugaddOptions;
+import com.redis.lettucemod.search.Suggestion;
+import com.redis.lettucemod.search.SuggetOptions;
+import com.redis.lettucemod.timeseries.Aggregation;
+import com.redis.lettucemod.timeseries.CreateOptions;
+import com.redis.lettucemod.timeseries.Label;
+import io.lettuce.core.KeyValue;
 import io.lettuce.core.RedisFuture;
 import io.lettuce.core.cluster.MultiNodeExecution;
+import io.lettuce.core.cluster.PipelinedRedisFuture;
 import io.lettuce.core.cluster.RedisAdvancedClusterAsyncCommandsImpl;
 import io.lettuce.core.codec.RedisCodec;
+import io.lettuce.core.output.KeyValueStreamingChannel;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -25,9 +41,11 @@ import java.util.Map;
 public class RedisModulesAdvancedClusterAsyncCommandsImpl<K, V> extends RedisAdvancedClusterAsyncCommandsImpl<K, V> implements RedisModulesAdvancedClusterAsyncCommands<K, V> {
 
     private final RedisModulesAsyncCommandsImpl<K, V> delegate;
+    private final RedisCodec<K, V> codec;
 
     public RedisModulesAdvancedClusterAsyncCommandsImpl(StatefulRedisModulesClusterConnection<K, V> connection, RedisCodec<K, V> codec) {
         super(connection, codec);
+        this.codec = codec;
         this.delegate = new RedisModulesAsyncCommandsImpl<>(connection, codec);
     }
 
@@ -289,5 +307,212 @@ public class RedisModulesAdvancedClusterAsyncCommandsImpl<K, V> extends RedisAdv
     @Override
     public RedisFuture<String> deleteRule(K sourceKey, K destKey) {
         return delegate.deleteRule(sourceKey, destKey);
+    }
+
+    @Override
+    public RedisFuture<Long> del(K key) {
+        return delegate.del(key);
+    }
+
+    @Override
+    public RedisFuture<Long> del(K key, K path) {
+        return delegate.del(key, path);
+    }
+
+    @Override
+    public RedisFuture<V> get(K key, K... paths) {
+        return delegate.get(key, paths);
+    }
+
+    @Override
+    public RedisFuture<V> get(K key, GetOptions<K, V> options, K... paths) {
+        return delegate.get(key, options, paths);
+    }
+
+    @Override
+    public RedisFuture<List<KeyValue<K, V>>> mget(K path, K... keys) {
+        return mget(path, Arrays.asList(keys));
+    }
+
+    @Override
+    public RedisFuture<Long> mget(KeyValueStreamingChannel<K, V> channel, K path, K... keys) {
+        return mget(channel, path, Arrays.asList(keys));
+    }
+
+    public RedisFuture<List<KeyValue<K, V>>> mget(K path, Iterable<K> keys) {
+        Map<Integer, List<K>> partitioned = ModulesSlotHash.partition(codec, keys);
+
+        if (partitioned.size() < 2) {
+            return delegate.mget(path, keys);
+        }
+
+        Map<K, Integer> slots = ModulesSlotHash.getSlots(partitioned);
+        Map<Integer, RedisFuture<List<KeyValue<K, V>>>> executions = new HashMap<>();
+
+        for (Map.Entry<Integer, List<K>> entry : partitioned.entrySet()) {
+            RedisFuture<List<KeyValue<K, V>>> mget = delegate.mget(path, entry.getValue());
+            executions.put(entry.getKey(), mget);
+        }
+
+        // restore order of key
+        return new PipelinedRedisFuture<>(executions, objectPipelinedRedisFuture -> {
+            List<KeyValue<K, V>> result = new ArrayList<>();
+            for (K opKey : keys) {
+                int slot = slots.get(opKey);
+
+                int position = partitioned.get(slot).indexOf(opKey);
+                RedisFuture<List<KeyValue<K, V>>> listRedisFuture = executions.get(slot);
+                result.add(MultiNodeExecution.execute(() -> listRedisFuture.get().get(position)));
+            }
+
+            return result;
+        });
+    }
+
+    public RedisFuture<Long> mget(KeyValueStreamingChannel<K, V> channel, K path, Iterable<K> keys) {
+        Map<Integer, List<K>> partitioned = ModulesSlotHash.partition(codec, keys);
+
+        if (partitioned.size() < 2) {
+            return delegate.mget(channel, path, keys);
+        }
+
+        Map<Integer, RedisFuture<Long>> executions = new HashMap<>();
+
+        for (Map.Entry<Integer, List<K>> entry : partitioned.entrySet()) {
+            RedisFuture<Long> del = delegate.mget(channel, path, entry.getValue());
+            executions.put(entry.getKey(), del);
+        }
+
+        return MultiNodeExecution.aggregateAsync(executions);
+    }
+
+    @Override
+    public RedisFuture<String> set(K key, K path, V json) {
+        return delegate.set(key, path, json);
+    }
+
+    @Override
+    public RedisFuture<String> setNX(K key, K path, V json) {
+        return delegate.setNX(key, path, json);
+    }
+
+    @Override
+    public RedisFuture<String> setXX(K key, K path, V json) {
+        return delegate.setXX(key, path, json);
+    }
+
+    @Override
+    public RedisFuture<String> type(K key) {
+        return delegate.type(key);
+    }
+
+    @Override
+    public RedisFuture<String> type(K key, K path) {
+        return delegate.type(key, path);
+    }
+
+    @Override
+    public RedisFuture<V> numIncrBy(K key, K path, double number) {
+        return delegate.numIncrBy(key, path, number);
+    }
+
+    @Override
+    public RedisFuture<V> numMultBy(K key, K path, double number) {
+        return delegate.numMultBy(key, path, number);
+    }
+
+    @Override
+    public RedisFuture<Long> strAppend(K key, V json) {
+        return delegate.strAppend(key, json);
+    }
+
+    @Override
+    public RedisFuture<Long> strAppend(K key, K path, V json) {
+        return delegate.strAppend(key, path, json);
+    }
+
+    @Override
+    public RedisFuture<Long> strLen(K key) {
+        return delegate.strLen(key);
+    }
+
+    @Override
+    public RedisFuture<Long> strLen(K key, K path) {
+        return delegate.strLen(key, path);
+    }
+
+    @Override
+    public RedisFuture<Long> arrAppend(K key, K path, V... jsons) {
+        return delegate.arrAppend(key, path, jsons);
+    }
+
+    @Override
+    public RedisFuture<Long> arrIndex(K key, K path, V scalar) {
+        return delegate.arrIndex(key, path, scalar);
+    }
+
+    @Override
+    public RedisFuture<Long> arrIndex(K key, K path, V scalar, long start) {
+        return delegate.arrIndex(key, path, scalar, start);
+    }
+
+    @Override
+    public RedisFuture<Long> arrIndex(K key, K path, V scalar, long start, long stop) {
+        return delegate.arrIndex(key, path, scalar, start, stop);
+    }
+
+    @Override
+    public RedisFuture<Long> arrInsert(K key, K path, long index, V... jsons) {
+        return delegate.arrInsert(key, path, index, jsons);
+    }
+
+    @Override
+    public RedisFuture<Long> arrLen(K key) {
+        return delegate.arrLen(key);
+    }
+
+    @Override
+    public RedisFuture<Long> arrLen(K key, K path) {
+        return delegate.arrLen(key, path);
+    }
+
+    @Override
+    public RedisFuture<V> arrPop(K key) {
+        return delegate.arrPop(key);
+    }
+
+    @Override
+    public RedisFuture<V> arrPop(K key, K path) {
+        return delegate.arrPop(key, path);
+    }
+
+    @Override
+    public RedisFuture<V> arrPop(K key, K path, long index) {
+        return delegate.arrPop(key, path, index);
+    }
+
+    @Override
+    public RedisFuture<Long> arrTrim(K key, K path, long start, long stop) {
+        return delegate.arrTrim(key, path, start, stop);
+    }
+
+    @Override
+    public RedisFuture<List<K>> objKeys(K key) {
+        return delegate.objKeys(key);
+    }
+
+    @Override
+    public RedisFuture<List<K>> objKeys(K key, K path) {
+        return delegate.objKeys(key, path);
+    }
+
+    @Override
+    public RedisFuture<Long> objLen(K key) {
+        return delegate.objLen(key);
+    }
+
+    @Override
+    public RedisFuture<Long> objLen(K key, K path) {
+        return delegate.objLen(key, path);
     }
 }

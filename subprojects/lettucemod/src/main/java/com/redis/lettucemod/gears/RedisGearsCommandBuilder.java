@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Dedicated builder to build RedisGears commands.
+ * Builder dedicated to RedisGears commands.
  */
 @SuppressWarnings("unchecked")
 public class RedisGearsCommandBuilder<K, V> extends RedisModulesCommandBuilder<K, V> {

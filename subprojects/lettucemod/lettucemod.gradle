@@ -4,8 +4,8 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.7.2'
     testImplementation 'org.junit.jupiter:junit-jupiter-params:5.7.2'
     testImplementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.12.4'
-    testImplementation 'com.redislabs.testcontainers:testcontainers-redis:1.3.1'
-    testImplementation 'com.redislabs.testcontainers:junit-jupiter:1.15.3'
+    testImplementation 'com.redis.testcontainers:testcontainers-redis:1.3.2'
+    testImplementation 'com.redis.testcontainers:junit-jupiter:1.15.3'
     testImplementation 'org.slf4j:slf4j-simple:1.7.32'
     testImplementation 'org.apache.commons:commons-collections4:4.4'
 }

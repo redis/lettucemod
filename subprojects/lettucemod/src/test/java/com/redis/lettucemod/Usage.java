@@ -2,6 +2,7 @@ package com.redis.lettucemod;
 
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
 import com.redis.lettucemod.api.sync.RedisGearsCommands;
+import com.redis.lettucemod.api.sync.RedisJSONCommands;
 import com.redis.lettucemod.search.AggregateOptions;
 import com.redis.lettucemod.search.Field;
 import com.redis.lettucemod.api.sync.RediSearchCommands;
@@ -13,7 +14,6 @@ import com.redis.lettucemod.search.aggregate.GroupBy;
 @SuppressWarnings("unused")
 public class Usage {
 
-    @SuppressWarnings("unchecked")
     public void basic() {
 
         RedisModulesClient client = RedisModulesClient.create("redis://localhost:6379"); // <1>
@@ -31,6 +31,10 @@ public class Usage {
         // RedisTimeSeries
         RedisTimeSeriesCommands<String, String> ts = connection.sync(); // <8>
         ts.add("temp:3:11", 1548149181, 30); // <9>
+
+        // RedisJSON
+        RedisJSONCommands<String, String> json = connection.sync(); // <1>
+        json.set("arr", ".", "[1,2,3]"); // <2>
 
     }
 

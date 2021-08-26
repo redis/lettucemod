@@ -7,7 +7,7 @@ project:
     - Julien Ruaux
   license: Apache-2.0
   java:
-    groupId: com.redislabs
+    groupId: com.redis
     version: 8
     multiProject: true
   extraProperties:

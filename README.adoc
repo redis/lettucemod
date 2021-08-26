@@ -2,7 +2,7 @@
 :linkattrs:
 :project-owner:   redis-developer
 :project-name:    lettucemod
-:project-group:   com.redislabs
+:project-group:   com.redis
 :project-version: 1.5.0
 
 image:https://github.com/redis-developer/lettucemod/actions/workflows/early-access.yml/badge.svg["Build Status", link="https://github.com/{project-owner}/{project-name}/actions"]
@@ -52,32 +52,51 @@ dependencies {
 
 == Usage
 
+.Connect
 [source,java]
 ----
-RedisModulesClient client = RedisModulesClient.create("redis://localhost:6379"); // <1>
-StatefulRedisModulesConnection<String, String> connection = client.connect(); // <2>
-
-// RediSearch
-RediSearchCommands<String, String> search = connection.sync(); // <3>
-search.create("beers", Field.text("name").build(), Field.numeric("ibu").build()); // <4>
-SearchResults<String, String> results = search.search("beers", "chou*"); // <5>
-
-// RedisGears
-RedisGearsCommands<String, String> gears = connection.sync(); // <6>
-gears.pyExecute("GearsBuilder().run('person:*')"); // <7>
-
-// RedisTimeSeries
-RedisTimeSeriesCommands<String, String> ts = connection.sync(); // <8>
-ts.add("temp:3:11", 1548149181, 30); // <9>
+RedisModulesClient client = RedisModulesClient.create("redis://localhost:6379"); <1>
+StatefulRedisModulesConnection<String, String> connection = client.connect(); <2>
 ----
 <1> Create a modules client
 <2> Connect to Redis server
-<3> Use sync, async, or reactive RediSearch commands
-<4> Create an index
-<5> Search the index
-<6> Use sync, async, or reactive RedisGears commands
-<7> Execute a RedisGears Python function
-<8> Use sync, async, or reactive RedisTimeSeries commands
-<9> Append a new sample to the series
+
+.RedisGears
+[source,java]
+----
+RedisGearsCommands<String, String> gears = connection.sync(); <1>
+gears.pyExecute("GearsBuilder().run('person:*')"); <2>
+----
+<1> Use sync, async, or reactive RedisGears commands
+<2> Execute a RedisGears Python function
+
+.RedisJSON
+[source,java]
+----
+RedisJSONCommands<String, String> json = connection.sync(); <1>
+json.set("arr", ".", "[1,2,3]"); <2>
+----
+<1> Use sync, async, or reactive RedisJSON commands
+<2> Set a JSON value
+
+.RediSearch
+[source,java]
+----
+RediSearchCommands<String, String> search = connection.sync(); <1>
+search.create("beers", Field.text("name").build(), Field.numeric("ibu").build()); <2>
+SearchResults<String, String> results = search.search("beers", "chou*"); <3>
+----
+<1> Use sync, async, or reactive RediSearch commands
+<2> Create an index
+<3> Search the index
+
+.RedisTimeSeries
+[source,java]
+----
+RedisTimeSeriesCommands<String, String> ts = connection.sync(); <1>
+ts.add("temp:3:11", 1548149181, 30); <2>
+----
+<1> Use sync, async, or reactive RedisTimeSeries commands
+<2> Append a new sample to the series
 
 

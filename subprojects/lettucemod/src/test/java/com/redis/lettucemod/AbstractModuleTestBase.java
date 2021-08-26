@@ -27,7 +27,7 @@ public abstract class AbstractModuleTestBase {
     @Container
     private static final RedisModulesContainer REDIS = new RedisModulesContainer();
     @Container
-    private static final RedisEnterpriseContainer REDIS_ENTERPRISE = new RedisEnterpriseContainer().withModules(Database.Module.GEARS, Database.Module.SEARCH, Database.Module.TIMESERIES).withOSSCluster();
+    private static final RedisEnterpriseContainer REDIS_ENTERPRISE = new RedisEnterpriseContainer().withModules(Database.Module.GEARS, Database.Module.SEARCH, Database.Module.TIMESERIES, Database.Module.JSON).withOSSCluster();
 
     static Stream<RedisServer> redisServers() {
         return Stream.of(REDIS, REDIS_ENTERPRISE);
@@ -72,10 +72,6 @@ public abstract class AbstractModuleTestBase {
             client.shutdown();
             client.getResources().shutdown();
         }
-    }
-
-    protected StatefulRedisModulesConnection<String, String> connection(RedisServer redis) {
-        return connections.get(redis);
     }
 
     protected RedisModulesCommands<String, String> sync(RedisServer redis) {
