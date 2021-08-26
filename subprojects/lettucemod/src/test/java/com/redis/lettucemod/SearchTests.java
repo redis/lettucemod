@@ -148,7 +148,7 @@ public class SearchTests extends AbstractModuleTestBase {
         createBeerIndex(redis);
         RedisModulesCommands<String, String> sync = sync(redis);
         String indexName = "hashIndex";
-        sync.create(indexName, CreateOptions.<String, String>builder().prefix("beer:").on(CreateOptions.Structure.HASH).build(), SCHEMA);
+        sync.create(indexName, CreateOptions.<String, String>builder().prefix("beer:").on(CreateOptions.DataType.HASH).build(), SCHEMA);
         RedisModulesAsyncCommands<String, String> async = async(redis);
         async.setAutoFlushCommands(false);
         List<RedisFuture<?>> futures = new ArrayList<>();

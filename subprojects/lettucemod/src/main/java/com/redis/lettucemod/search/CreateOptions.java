@@ -10,11 +10,11 @@ import java.util.List;
 @Builder
 public class CreateOptions<K, V> implements RediSearchArgument<K, V> {
 
-    public enum Structure {
-        HASH
+    public enum DataType {
+        HASH, JSON
     }
 
-    private Structure on;
+    private DataType on;
     @Singular
     private List<K> prefixes;
     private V filter;
