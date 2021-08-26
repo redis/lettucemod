@@ -17,8 +17,9 @@ Java client for https://docs.redis.com/latest/modules/[Redis Modules] based on h
 
 LettuceMod supports the following modules:
 
-* https://oss.redis.com/redisearch/[RediSearch]
 * https://oss.redis.com/redisgears/[RedisGears]
+* https://oss.redis.com/redisjson/[RedisJSON]
+* https://oss.redis.com/redisearch/[RediSearch]
 * https://oss.redis.com/redistimeseries/[RedisTimeSeries]
 
 == Getting Started
