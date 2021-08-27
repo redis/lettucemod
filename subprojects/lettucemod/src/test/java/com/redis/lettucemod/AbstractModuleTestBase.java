@@ -25,7 +25,7 @@ import java.util.stream.Stream;
 public abstract class AbstractModuleTestBase {
 
     @Container
-    private static final RedisModulesContainer REDIS = new RedisModulesContainer("preview");
+    private static final RedisModulesContainer REDIS = new RedisModulesContainer();
     @Container
     private static final RedisEnterpriseContainer REDIS_ENTERPRISE = new RedisEnterpriseContainer().withModules(Database.Module.GEARS, Database.Module.SEARCH, Database.Module.TIMESERIES, Database.Module.JSON).withOSSCluster();
 

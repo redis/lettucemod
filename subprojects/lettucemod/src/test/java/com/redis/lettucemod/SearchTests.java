@@ -1,16 +1,26 @@
 package com.redis.lettucemod;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import com.redis.lettucemod.api.async.RedisModulesAsyncCommands;
 import com.redis.lettucemod.api.reactive.RedisModulesReactiveCommands;
-import com.redis.lettucemod.api.sync.RediSearchCommands;
-import com.redis.lettucemod.api.sync.RedisJSONCommands;
 import com.redis.lettucemod.api.sync.RedisModulesCommands;
-import com.redis.lettucemod.search.*;
+import com.redis.lettucemod.search.AggregateOptions;
+import com.redis.lettucemod.search.AggregateResults;
+import com.redis.lettucemod.search.AggregateWithCursorResults;
+import com.redis.lettucemod.search.CreateOptions;
+import com.redis.lettucemod.search.Cursor;
+import com.redis.lettucemod.search.Document;
+import com.redis.lettucemod.search.Field;
+import com.redis.lettucemod.search.IndexInfo;
+import com.redis.lettucemod.search.Language;
+import com.redis.lettucemod.search.Order;
+import com.redis.lettucemod.search.RediSearchUtils;
+import com.redis.lettucemod.search.SearchOptions;
+import com.redis.lettucemod.search.SearchResults;
+import com.redis.lettucemod.search.SugaddOptions;
+import com.redis.lettucemod.search.Suggestion;
+import com.redis.lettucemod.search.SuggetOptions;
 import com.redis.lettucemod.search.aggregate.GroupBy;
 import com.redis.lettucemod.search.aggregate.Limit;
 import com.redis.lettucemod.search.aggregate.SortBy;
@@ -22,27 +32,34 @@ import io.lettuce.core.LettuceFutures;
 import io.lettuce.core.RedisCommandExecutionException;
 import io.lettuce.core.RedisFuture;
 import io.lettuce.core.RedisURI;
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.springframework.batch.item.ExecutionContext;
-import org.springframework.batch.item.json.JacksonJsonObjectReader;
-import org.springframework.batch.item.json.JsonItemReader;
-import org.springframework.batch.item.json.builder.JsonItemReaderBuilder;
-import org.springframework.core.io.ClassPathResource;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 @Slf4j
 @SuppressWarnings("ConstantConditions")
@@ -618,44 +635,6 @@ public class SearchTests extends AbstractModuleTestBase {
         Collections.addAll(beerDict, DICT_TERMS);
         beerDict.remove("brew");
         Assertions.assertEquals(new HashSet<>(beerDict), new HashSet<>(reactive.dictdump("beers").collectList().block()));
-    }
-
-    @Data
-    private static class Beer {
-        private String id;
-        private String name;
-        private Style style;
-    }
-
-    @Data
-    private static class Style {
-        private long id;
-        private String name;
-    }
-
-    @ParameterizedTest
-    @MethodSource("redisServers")
-    void testJSONSearch(RedisServer redis) throws Exception {
-        JsonItemReaderBuilder<Beer> jsonReaderBuilder = new JsonItemReaderBuilder<>();
-        jsonReaderBuilder.name("beer-json-reader");
-        jsonReaderBuilder.resource(new ClassPathResource("beers.json"));
-        JacksonJsonObjectReader<Beer> jsonObjectReader = new JacksonJsonObjectReader<>(Beer.class);
-        jsonObjectReader.setMapper(new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false));
-        jsonReaderBuilder.jsonObjectReader(jsonObjectReader);
-        JsonItemReader<Beer> reader = jsonReaderBuilder.build();
-        reader.open(new ExecutionContext());
-        ObjectWriter jsonWriter = new ObjectMapper().writer();
-        RediSearchCommands<String,String> redisearch = sync(redis);
-        String index = "beers";
-        // FT.CREATE userIdx ON JSON SCHEMA $.user.name AS name TEXT $.user.tag AS countr
-        redisearch.create(index, CreateOptions.<String, String>builder().on(CreateOptions.DataType.JSON).build(), Field.tag("$.id").as("id").build(), Field.text("$.name").as("name").build(), Field.numeric("$.style.id").as("styleId").build(), Field.text("$.style.name").as("styleName").build());
-        RedisJSONCommands<String, String> redisjson = sync(redis);
-        Beer beer;
-        while ((beer = reader.read()) != null) {
-            redisjson.set("beer:" + beer.getId(), "$", jsonWriter.writeValueAsString(beer));
-        }
-        SearchResults<String, String> results = redisearch.search(index, "@name:California");
-        Assertions.assertEquals(1, results.getCount());
     }
 
 }
