@@ -8,6 +8,8 @@ buildscript {
         classpath "org.kordamp.gradle:java-project-gradle-plugin:$kordampPluginVersion"
         classpath "com.redis.gradle:redis-parentbuild:$redisBuildVersion"
         classpath "io.freefair.gradle:lombok-plugin:$lombokPluginVersion"
+        classpath "org.springframework.boot:spring-boot-gradle-plugin:$bootPluginVersion"
+        classpath "io.spring.gradle:dependency-management-plugin:$dependencyPluginVersion"
     }
 }
 
@@ -28,18 +30,9 @@ projects {
         dirs(['subprojects']) {
             id 'java-library'
             id 'java-library-distribution'
+            id 'org.springframework.boot'
+            id 'io.spring.dependency-management'
             id 'io.freefair.lombok'
         }
-    }
-}
-
-enforce {
-    mergeStrategy = 'append'
-
-    rule(enforcer.rules.ForceDependencies) { r ->
-        r.dependencies.addAll "org.slf4j:slf4j-api:1.7.32",
-                "org.junit.jupiter:junit-jupiter-api:5.7.2",
-                "com.fasterxml.jackson.core:jackson-annotations:2.12.4",
-                "junit:junit:4.13.1"
     }
 }
