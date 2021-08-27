@@ -59,32 +59,38 @@ public class RediSearchUtils {
             List<Object> info = (List<Object>) infoObject;
             String name = (String) info.get(0);
             CommandKeyword type = CommandKeyword.valueOf((String) info.get(2));
-            boolean sortable = false;
-            boolean noIndex = false;
+            Field.Options.OptionsBuilder options = Field.Options.builder();
             for (Object attribute : info.subList(3, info.size())) {
+                if (CommandKeyword.CASESENSITIVE.name().equals(attribute)) {
+                    options.caseSensitive(true);
+                    continue;
+                }
                 if (CommandKeyword.NOINDEX.name().equals(attribute)) {
-                    noIndex = true;
+                    options.noIndex(true);
                     continue;
                 }
                 if (CommandKeyword.SORTABLE.name().equals(attribute)) {
-                    sortable = true;
+                    options.sortable(true);
+                }
+                if (CommandKeyword.UNF.name().equals(attribute)) {
+                    options.unNormalizedForm(true);
                 }
             }
-            fields.add(field(type, name, sortable, noIndex, info));
+            fields.add(field(type, name, options.build(), info));
         }
         return fields;
     }
 
-    private static Field field(CommandKeyword type, String name, boolean sortable, boolean noIndex, List<Object> info) {
+    private static Field field(CommandKeyword type, String name, Field.Options options, List<Object> info) {
         switch (type) {
             case GEO:
-                return new Field.Geo(name, sortable, noIndex);
+                return new Field.Geo(name, options);
             case NUMERIC:
-                return new Field.Numeric(name, sortable, noIndex);
+                return new Field.Numeric(name, options);
             case TAG:
-                return new Field.Tag(name, sortable, noIndex, (String) info.get(4));
+                return new Field.Tag(name, options, (String) info.get(4));
             default:
-                return new Field.Text(name, sortable, noIndex, getDouble(info.get(4)), CommandKeyword.NOSTEM.name().equals(info.get(info.size() - 1)));
+                return new Field.Text(name, options, getDouble(info.get(4)), CommandKeyword.NOSTEM.name().equals(info.get(info.size() - 1)));
         }
     }
 

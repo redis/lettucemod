@@ -3,6 +3,8 @@ package com.redis.lettucemod.search;
 import com.redis.lettucemod.search.protocol.CommandKeyword;
 import com.redis.lettucemod.search.protocol.RediSearchCommandArgs;
 import io.lettuce.core.internal.LettuceAssert;
+import lombok.Builder;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -13,26 +15,35 @@ public abstract class Field implements RediSearchArgument {
 
     private final Type type;
     private final String name;
-    private final boolean sortable;
-    private final boolean noIndex;
+    private final Options options;
 
-    protected Field(Type type, String name, boolean sortable, boolean noIndex) {
+    protected Field(Type type, String name, Options options) {
         LettuceAssert.notNull(type, "A type is required");
         LettuceAssert.notNull(name, "A name is required");
+        LettuceAssert.notNull(options, "Options are required");
         this.type = type;
         this.name = name;
-        this.sortable = sortable;
-        this.noIndex = noIndex;
+        this.options = options;
     }
 
     @Override
     public void build(RediSearchCommandArgs args) {
         args.add(name);
-        buildField(args);
-        if (sortable) {
-            args.add(CommandKeyword.SORTABLE);
+        if (options.getAs() != null) {
+            args.add(CommandKeyword.AS);
+            args.add(options.getAs());
         }
-        if (noIndex) {
+        buildField(args);
+        if (options.isCaseSensitive()) {
+            args.add(CommandKeyword.CASESENSITIVE);
+        }
+        if (options.isSortable()) {
+            args.add(CommandKeyword.SORTABLE);
+            if (options.isUnNormalizedForm()) {
+                args.add(CommandKeyword.UNF);
+            }
+        }
+        if (options.isNoIndex()) {
             args.add(CommandKeyword.NOINDEX);
         }
     }
@@ -44,20 +55,41 @@ public abstract class Field implements RediSearchArgument {
     protected static abstract class FieldBuilder<F extends Field, B extends FieldBuilder<F, B>> {
 
         protected final String name;
-        protected boolean sortable;
-        protected boolean noIndex;
+        protected Options options = Options.builder().build();
 
         protected FieldBuilder(String name) {
             this.name = name;
         }
 
-        public B sortable(boolean sortable) {
-            this.sortable = sortable;
+        public B options(Options options) {
+            LettuceAssert.notNull(options, "Options must not be null");
+            this.options = options;
             return (B) this;
         }
 
-        public B noIndex(boolean noIndex) {
-            this.noIndex = noIndex;
+        public B sortable() {
+            options.setSortable(true);
+            return (B) this;
+        }
+
+        public B sortableUNF() {
+            options.setSortable(true);
+            options.setUnNormalizedForm(true);
+            return (B) this;
+        }
+
+        public B noIndex() {
+            options.setNoIndex(true);
+            return (B) this;
+        }
+
+        public B caseSensitive() {
+            options.setCaseSensitive(true);
+            return (B) this;
+        }
+
+        public B as(String attribute) {
+            options.setAs(attribute);
             return (B) this;
         }
 
@@ -83,8 +115,8 @@ public abstract class Field implements RediSearchArgument {
 
     public static class Geo extends Field {
 
-        public Geo(String name, boolean sortable, boolean noIndex) {
-            super(Type.GEO, name, sortable, noIndex);
+        public Geo(String name, Options options) {
+            super(Type.GEO, name, options);
         }
 
         @SuppressWarnings("rawtypes")
@@ -105,15 +137,15 @@ public abstract class Field implements RediSearchArgument {
 
             @Override
             public Geo build() {
-                return new Geo(name, sortable, noIndex);
+                return new Geo(name, options);
             }
         }
     }
 
     public static class Numeric extends Field {
 
-        public Numeric(String name, boolean sortable, boolean noIndex) {
-            super(Type.NUMERIC, name, sortable, noIndex);
+        public Numeric(String name, Options options) {
+            super(Type.NUMERIC, name, options);
         }
 
         @SuppressWarnings("rawtypes")
@@ -134,7 +166,7 @@ public abstract class Field implements RediSearchArgument {
 
             @Override
             public Numeric build() {
-                return new Numeric(name, sortable, noIndex);
+                return new Numeric(name, options);
             }
 
         }
@@ -145,8 +177,8 @@ public abstract class Field implements RediSearchArgument {
 
         private final String separator;
 
-        public Tag(String name, boolean sortable, boolean noIndex, String separator) {
-            super(Type.TAG, name, sortable, noIndex);
+        public Tag(String name, Options options, String separator) {
+            super(Type.TAG, name, options);
             this.separator = separator;
         }
 
@@ -176,7 +208,7 @@ public abstract class Field implements RediSearchArgument {
 
             @Override
             public Tag build() {
-                return new Tag(name, sortable, noIndex, separator);
+                return new Tag(name, options, separator);
             }
 
         }
@@ -189,12 +221,12 @@ public abstract class Field implements RediSearchArgument {
         private final boolean noStem;
         private final PhoneticMatcher matcher;
 
-        public Text(String name, boolean sortable, boolean noIndex, Double weight, boolean noStem) {
-            this(name, sortable, noIndex, weight, noStem, null);
+        public Text(String name, Options options, Double weight, boolean noStem) {
+            this(name, options, weight, noStem, null);
         }
 
-        public Text(String name, boolean sortable, boolean noIndex, Double weight, boolean noStem, PhoneticMatcher matcher) {
-            super(Type.TEXT, name, sortable, noIndex);
+        public Text(String name, Options options, Double weight, boolean noStem, PhoneticMatcher matcher) {
+            super(Type.TEXT, name, options);
             this.weight = weight;
             this.noStem = noStem;
             this.matcher = matcher;
@@ -235,7 +267,7 @@ public abstract class Field implements RediSearchArgument {
 
             @Override
             public Text build() {
-                return new Text(name, sortable, noIndex, weight, noStem, matcher);
+                return new Text(name, options, weight, noStem, matcher);
             }
 
         }
@@ -257,8 +289,18 @@ public abstract class Field implements RediSearchArgument {
     }
 
     public enum Type {
-
         TEXT, NUMERIC, GEO, TAG
+    }
+
+    @Data
+    @Builder
+    public static class Options {
+        private String as;
+        private boolean caseSensitive;
+        private boolean sortable;
+        private boolean unNormalizedForm;
+        private boolean noIndex;
 
     }
+
 }

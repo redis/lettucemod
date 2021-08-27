@@ -61,7 +61,7 @@ public class RedisModulesAutoConfiguration {
             config.setMaxIdle(poolProps.getMaxIdle());
             config.setMinIdle(poolProps.getMinIdle());
             if (poolProps.getMaxWait() != null) {
-                config.setMaxWait(poolProps.getMaxWait());
+                config.setMaxWaitMillis(poolProps.getMaxWait().toMillis());
             }
         }
         return config;

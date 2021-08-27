@@ -1,9 +1,14 @@
 package com.redis.lettucemod;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import com.redis.lettucemod.api.async.RedisModulesAsyncCommands;
 import com.redis.lettucemod.api.reactive.RedisModulesReactiveCommands;
+import com.redis.lettucemod.api.sync.RediSearchCommands;
+import com.redis.lettucemod.api.sync.RedisJSONCommands;
 import com.redis.lettucemod.api.sync.RedisModulesCommands;
 import com.redis.lettucemod.search.*;
 import com.redis.lettucemod.search.aggregate.GroupBy;
@@ -17,12 +22,18 @@ import io.lettuce.core.LettuceFutures;
 import io.lettuce.core.RedisCommandExecutionException;
 import io.lettuce.core.RedisFuture;
 import io.lettuce.core.RedisURI;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.springframework.batch.item.ExecutionContext;
+import org.springframework.batch.item.json.JacksonJsonObjectReader;
+import org.springframework.batch.item.json.JsonItemReader;
+import org.springframework.batch.item.json.builder.JsonItemReaderBuilder;
+import org.springframework.core.io.ClassPathResource;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -45,7 +56,7 @@ public class SearchTests extends AbstractModuleTestBase {
     public final static String ID = "id";
     public final static String NAME = "name";
     public final static String STYLE = "style";
-    public final static Field[] SCHEMA = new Field[]{Field.text(NAME).matcher(Field.Text.PhoneticMatcher.English).build(), Field.tag(STYLE).sortable(true).build(), Field.numeric(ABV).sortable(true).build()};
+    public final static Field[] SCHEMA = new Field[]{Field.text(NAME).matcher(Field.Text.PhoneticMatcher.English).build(), Field.tag(STYLE).sortable().build(), Field.numeric(ABV).sortable().build()};
     public final static String INDEX = "beers";
     private static final String KEYSPACE = "beer:";
 
@@ -165,7 +176,7 @@ public class SearchTests extends AbstractModuleTestBase {
         assertEquals(2348, numDocs);
 
         CreateOptions<String, String> options = CreateOptions.<String, String>builder().prefix("release:").payloadField("xml").build();
-        Field[] fields = new Field[]{Field.text("artist").sortable(true).build(), Field.tag("id").sortable(true).build(), Field.text("title").sortable(true).build()};
+        Field[] fields = new Field[]{Field.text("artist").sortable().build(), Field.tag("id").sortable().build(), Field.text("title").sortable().build()};
         sync.create("releases", options, fields);
         info = RediSearchUtils.indexInfo(sync.indexInfo("releases"));
         Assertions.assertEquals(fields.length, info.getFields().size());
@@ -241,7 +252,7 @@ public class SearchTests extends AbstractModuleTestBase {
         sync.flushall();
         Set<String> indexNames = new HashSet<>(Arrays.asList("index1", "index2", "index3"));
         for (String indexName : indexNames) {
-            sync.create(indexName, Field.text("field1").sortable(true).build());
+            sync.create(indexName, Field.text("field1").sortable().build());
         }
         assertEquals(indexNames, new HashSet<>(sync.list()));
         assertEquals(indexNames, new HashSet<>(async(redis).list().get()));
@@ -535,12 +546,12 @@ public class SearchTests extends AbstractModuleTestBase {
         List<Field> fields = info.getFields();
         Field.Text nameField = (Field.Text) fields.get(0);
         Assertions.assertEquals(NAME, nameField.getName());
-        Assertions.assertFalse(nameField.isNoIndex());
+        Assertions.assertFalse(nameField.getOptions().isNoIndex());
         Assertions.assertFalse(nameField.isNoStem());
-        Assertions.assertFalse(nameField.isSortable());
+        Assertions.assertFalse(nameField.getOptions().isSortable());
         Field.Tag styleField = (Field.Tag) fields.get(1);
         Assertions.assertEquals(STYLE, styleField.getName());
-        Assertions.assertTrue(styleField.isSortable());
+        Assertions.assertTrue(styleField.getOptions().isSortable());
         Assertions.assertEquals(",", styleField.getSeparator());
     }
 
@@ -558,7 +569,7 @@ public class SearchTests extends AbstractModuleTestBase {
     void emptyToListReducer(RedisServer redis) {
         RedisModulesCommands<String, String> sync = sync(redis);
         // FT.CREATE idx ON HASH PREFIX 1 my_prefix: SCHEMA category TAG SORTABLE color TAG SORTABLE size TAG SORTABLE
-        sync.create("idx", CreateOptions.<String, String>builder().prefix("my_prefix:").build(), Field.tag("category").sortable(true).build(), Field.tag("color").sortable(true).build(), Field.tag("size").sortable(true).build());
+        sync.create("idx", CreateOptions.<String, String>builder().prefix("my_prefix:").build(), Field.tag("category").sortable().build(), Field.tag("color").sortable().build(), Field.tag("size").sortable().build());
         Map<String, String> doc1 = mapOf("category", "31", "color", "red");
         sync.hset("my_prefix:1", doc1);
         AggregateOptions<String, String> aggregateOptions = AggregateOptions.<String, String>builder()
@@ -607,6 +618,44 @@ public class SearchTests extends AbstractModuleTestBase {
         Collections.addAll(beerDict, DICT_TERMS);
         beerDict.remove("brew");
         Assertions.assertEquals(new HashSet<>(beerDict), new HashSet<>(reactive.dictdump("beers").collectList().block()));
+    }
+
+    @Data
+    private static class Beer {
+        private String id;
+        private String name;
+        private Style style;
+    }
+
+    @Data
+    private static class Style {
+        private long id;
+        private String name;
+    }
+
+    @ParameterizedTest
+    @MethodSource("redisServers")
+    void testJSONSearch(RedisServer redis) throws Exception {
+        JsonItemReaderBuilder<Beer> jsonReaderBuilder = new JsonItemReaderBuilder<>();
+        jsonReaderBuilder.name("beer-json-reader");
+        jsonReaderBuilder.resource(new ClassPathResource("beers.json"));
+        JacksonJsonObjectReader<Beer> jsonObjectReader = new JacksonJsonObjectReader<>(Beer.class);
+        jsonObjectReader.setMapper(new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false));
+        jsonReaderBuilder.jsonObjectReader(jsonObjectReader);
+        JsonItemReader<Beer> reader = jsonReaderBuilder.build();
+        reader.open(new ExecutionContext());
+        ObjectWriter jsonWriter = new ObjectMapper().writer();
+        RediSearchCommands<String,String> redisearch = sync(redis);
+        String index = "beers";
+        // FT.CREATE userIdx ON JSON SCHEMA $.user.name AS name TEXT $.user.tag AS countr
+        redisearch.create(index, CreateOptions.<String, String>builder().on(CreateOptions.DataType.JSON).build(), Field.tag("$.id").as("id").build(), Field.text("$.name").as("name").build(), Field.numeric("$.style.id").as("styleId").build(), Field.text("$.style.name").as("styleName").build());
+        RedisJSONCommands<String, String> redisjson = sync(redis);
+        Beer beer;
+        while ((beer = reader.read()) != null) {
+            redisjson.set("beer:" + beer.getId(), "$", jsonWriter.writeValueAsString(beer));
+        }
+        SearchResults<String, String> results = redisearch.search(index, "@name:California");
+        Assertions.assertEquals(1, results.getCount());
     }
 
 }

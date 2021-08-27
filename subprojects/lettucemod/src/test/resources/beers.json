@@ -1,0 +1,2457 @@
+[
+    {
+        "id": "StdoHr",
+        "name": "!",
+        "nameDisplay": "!",
+        "description": "Imperial Bitter",
+        "abv": "8.2",
+        "availableId": 3,
+        "styleId": 13,
+        "isOrganic": "N",
+        "isRetired": "Y",
+        "status": "verified",
+        "statusDisplay": "Verified",
+        "createDate": "2018-05-10 19:07:18",
+        "updateDate": "2018-11-02 02:13:07",
+        "available": {
+            "id": 3,
+            "name": "Not Available",
+            "description": "Beer is not currently available."
+        },
+        "style": {
+            "id": 13,
+            "categoryId": 1,
+            "category": {
+                "id": 1,
+                "name": "British Origin Ales",
+                "createDate": "2012-03-21 20:06:45"
+            },
+            "name": "Old Ale",
+            "shortName": "Old Ale",
+            "description": "Dark amber to brown in color, old ales are medium to full bodied with a malty sweetness. Hop aroma should be minimal and flavor can vary from none to medium in character intensity. Fruity-ester flavors and aromas can contribute to the character of this ale. Bitterness should be minimal but evident and balanced with malt and\/or caramel-like sweetness. Alcohol types can be varied and complex. A distinctive quality of these ales is that they undergo an aging process (often for years) on their yeast either in bulk storage or through conditioning in the bottle, which contributes to a rich, wine-like and often sweet oxidation character. Complex estery characters may also emerge. Some very low diacetyl character may be evident and acceptable. Wood aged characters such as vanillin and other woody characters are acceptable. Horsey, goaty, leathery and phenolic character evolved from Brettanomyces organisms and acidity may be present but should be at low levels and balanced with other flavors Residual flavors that come from liquids previously aged in a barrel such as bourbon or sherry should not be present. Chill haze is acceptable at low temperatures. (This style may often be split into two categories, strong and very strong. Brettanomyces organisms and acidic characters reflect historical character. Competition organizers may choose to distinguish these types of old ale from modern versions.)",
+            "ibuMin": "30",
+            "ibuMax": "65",
+            "abvMin": "6",
+            "abvMax": "9",
+            "srmMin": "12",
+            "srmMax": "30",
+            "ogMin": "1.058",
+            "fgMin": "1.014",
+            "fgMax": "1.03",
+            "createDate": "2012-03-21 20:06:45",
+            "updateDate": "2015-04-07 15:21:03"
+        },
+        "breweries": [
+            {
+                "id": "AAxJnJ",
+                "name": "N\u00e4rke Kulturbryggeri",
+                "nameShortDisplay": "N\u00e4rke Kulturbryggeri",
+                "website": "http:\/\/www.kulturbryggeri.se\/",
+                "established": "2003",
+                "isOrganic": "N",
+                "images": {
+                    "icon": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/AAxJnJ\/upload_QtoAMC-icon.png",
+                    "medium": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/AAxJnJ\/upload_QtoAMC-medium.png",
+                    "large": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/AAxJnJ\/upload_QtoAMC-large.png",
+                    "squareMedium": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/AAxJnJ\/upload_QtoAMC-squareMedium.png",
+                    "squareLarge": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/AAxJnJ\/upload_QtoAMC-squareLarge.png"
+                },
+                "status": "verified",
+                "statusDisplay": "Verified",
+                "createDate": "2015-02-25 18:29:18",
+                "updateDate": "2018-11-08 18:59:55",
+                "isMassOwned": "N",
+                "isInBusiness": "Y",
+                "isVerified": "N",
+                "locations": [
+                    {
+                        "id": "9z1ni1",
+                        "name": "N\u00e4rke Kulturbryggeri",
+                        "streetAddress": "Bev\u00e4ringsgatan 2",
+                        "locality": "\u00d6rebro",
+                        "postalCode": "703 65",
+                        "phone": "019-33 34 82",
+                        "website": "http:\/\/www.kulturbryggeri.se\/",
+                        "latitude": 59.2827084,
+                        "longitude": 15.2328471,
+                        "isPrimary": "Y",
+                        "inPlanning": "N",
+                        "isClosed": "N",
+                        "openToPublic": "Y",
+                        "locationType": "micro",
+                        "locationTypeDisplay": "Micro Brewery",
+                        "countryIsoCode": "SE",
+                        "status": "verified",
+                        "statusDisplay": "Verified",
+                        "createDate": "2015-02-25 18:30:29",
+                        "updateDate": "2017-08-24 18:14:11",
+                        "country": {
+                            "isoCode": "SE",
+                            "name": "SWEDEN",
+                            "displayName": "Sweden",
+                            "isoThree": "SWE",
+                            "numberCode": 752,
+                            "createDate": "2012-01-03 02:41:33"
+                        }
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "id": "cBLTUw",
+        "name": "\"18\" Imperial IPA 2",
+        "nameDisplay": "\"18\" Imperial IPA 2",
+        "description": "Hop Heads this one's for you!  Checking in with 143 IBU's this ale punches you in the mouth with extreme bitterness then rounds out with toffee flavors and finishes with a citrus aroma.  Made with tons of US 2 Row Barley to get this to ABV 11.1%",
+        "abv": "11.1",
+        "glasswareId": 5,
+        "srmId": 33,
+        "styleId": 43,
+        "isOrganic": "N",
+        "isRetired": "N",
+        "status": "verified",
+        "statusDisplay": "Verified",
+        "createDate": "2013-01-20 21:38:15",
+        "updateDate": "2019-06-05 12:54:45",
+        "glass": {
+            "id": 5,
+            "name": "Pint",
+            "createDate": "2012-01-03 02:41:33"
+        },
+        "srm": {
+            "id": 33,
+            "name": "33",
+            "hex": "520907"
+        },
+        "style": {
+            "id": 43,
+            "categoryId": 3,
+            "category": {
+                "id": 3,
+                "name": "North American Origin Ales",
+                "createDate": "2012-03-21 20:06:45"
+            },
+            "name": "American-Style Imperial Stout",
+            "shortName": "American Imperial Stout",
+            "description": "Black in color, American-style imperial stouts typically have a high alcohol content. Generally characterized as very robust. The extremely rich malty flavor and aroma are balanced with assertive hopping and fruity-ester characteristics. Bitterness should be moderately high to very high and balanced with full sweet malt character. Roasted malt astringency and bitterness can be moderately perceived but should not overwhelm the overall character. Hop aroma is usually moderately-high to overwhelmingly hop-floral, -citrus or -herbal. Diacetyl (butterscotch) levels should be absent.",
+            "ibuMin": "50",
+            "ibuMax": "80",
+            "abvMin": "7",
+            "abvMax": "12",
+            "srmMin": "40",
+            "srmMax": "40",
+            "ogMin": "1.08",
+            "fgMin": "1.02",
+            "fgMax": "1.03",
+            "createDate": "2012-03-21 20:06:46",
+            "updateDate": "2015-04-07 15:28:49"
+        },
+        "breweries": [
+            {
+                "id": "qa1QZU",
+                "name": "Ship Bottom Brewery",
+                "nameShortDisplay": "Ship Bottom",
+                "description": "Our humble beginnings started in the Summer of 1995 in Ship Bottom, NJ. Back then we made our first batch of beer using a home brew kit that consisted of a plastic bucket, large spoon, bottling bucket and some bottle caps. We hardly knew what what would be ahead of us 16 years later! We learned a lot over the last 16 years and feel that we really refined our craft. We are a small (Nano) brewer...See More",
+                "website": "http:\/\/www.shipbottombrewery.com\/",
+                "established": "2011",
+                "isOrganic": "N",
+                "images": {
+                    "icon": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/qa1QZU\/upload_ZwdBjC-icon.png",
+                    "medium": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/qa1QZU\/upload_ZwdBjC-medium.png",
+                    "large": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/qa1QZU\/upload_ZwdBjC-large.png",
+                    "squareMedium": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/qa1QZU\/upload_ZwdBjC-squareMedium.png",
+                    "squareLarge": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/qa1QZU\/upload_ZwdBjC-squareLarge.png"
+                },
+                "status": "verified",
+                "statusDisplay": "Verified",
+                "createDate": "2013-01-20 21:32:30",
+                "updateDate": "2018-11-08 21:21:48",
+                "isMassOwned": "N",
+                "isInBusiness": "Y",
+                "brewersAssociation": {
+                    "brewersAssocationId": "9NIJM871QR",
+                    "isCertifiedCraftBrewer": "Y"
+                },
+                "isVerified": "N",
+                "locations": [
+                    {
+                        "id": "mvsNhg",
+                        "name": "Main Brewery",
+                        "locality": "Wallingford",
+                        "region": "Pennsylvania",
+                        "postalCode": "19086",
+                        "website": "http:\/\/www.shipbottombrewery.com\/",
+                        "latitude": 39.8909454,
+                        "longitude": -75.3629687,
+                        "isPrimary": "Y",
+                        "inPlanning": "N",
+                        "isClosed": "N",
+                        "openToPublic": "Y",
+                        "locationType": "micro",
+                        "locationTypeDisplay": "Micro Brewery",
+                        "countryIsoCode": "US",
+                        "yearOpened": "2011",
+                        "status": "verified",
+                        "statusDisplay": "Verified",
+                        "createDate": "2013-01-20 21:33:44",
+                        "updateDate": "2018-03-27 15:55:24",
+                        "country": {
+                            "isoCode": "US",
+                            "name": "UNITED STATES",
+                            "displayName": "United States",
+                            "isoThree": "USA",
+                            "numberCode": 840,
+                            "createDate": "2012-01-03 02:41:33"
+                        }
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "id": "ZsQEJt",
+        "name": "\"633\" American Pale Ale",
+        "nameDisplay": "\"633\" American Pale Ale",
+        "description": "Our first beer has been aptly named \u201c633\u201d after the Regions telephone exchange for starters. It is a mildly hoppy pale ale using a 2 row pale base malt and several other specialty malts for body, color, and head retention. It is hopped with American west coast hops throughout the boil giving it a nice hop bite and mild aroma. This one is a bit stronger than the usual pale ale coincidently weighing in at 6.33 alcohol by volume!",
+        "abv": "6.33",
+        "ibu": "25",
+        "availableId": 1,
+        "styleId": 25,
+        "isOrganic": "N",
+        "isRetired": "N",
+        "status": "verified",
+        "statusDisplay": "Verified",
+        "createDate": "2015-04-20 21:43:59",
+        "updateDate": "2018-03-06 16:24:54",
+        "available": {
+            "id": 1,
+            "name": "Year Round",
+            "description": "Available year round as a staple beer."
+        },
+        "style": {
+            "id": 25,
+            "categoryId": 3,
+            "category": {
+                "id": 3,
+                "name": "North American Origin Ales",
+                "createDate": "2012-03-21 20:06:45"
+            },
+            "name": "American-Style Pale Ale",
+            "shortName": "American Pale",
+            "description": "American pale ales range from deep golden to copper in color. The style is characterized by fruity, floral and citrus-like American-variety hop character producing medium to medium-high hop bitterness, flavor, and aroma. Note that the \"traditional\" style of this beer has its origins with certain floral, fruity, citrus-like, piney, resinous, or sulfur-like American hop varietals. One or more of these hop characters is the perceived end, but the perceived hop characters may be a result of the skillful use of hops of other national origins. American pale ales have medium body and low to medium maltiness. Low caramel character is allowable. Fruity-ester flavor and aroma should be moderate to strong. Diacetyl should be absent or present at very low levels. Chill haze is allowable at cold temperatures.",
+            "ibuMin": "30",
+            "ibuMax": "42",
+            "abvMin": "4.5",
+            "abvMax": "5.6",
+            "srmMin": "6",
+            "srmMax": "14",
+            "ogMin": "1.044",
+            "fgMin": "1.008",
+            "fgMax": "1.014",
+            "createDate": "2012-03-21 20:06:45",
+            "updateDate": "2015-04-07 15:25:18"
+        },
+        "breweries": [
+            {
+                "id": "DBkLHq",
+                "name": "Boothbay Craft Brewery, Inc",
+                "nameShortDisplay": "Boothbay Craft",
+                "description": "The 1st brewery in the Boothbay Region. Our idea is to let the locals become a part by donating trees so we can saw them into beams for the brewery! Got wood?",
+                "website": "http:\/\/www.boothbaycraftbrewery.com",
+                "isOrganic": "N",
+                "status": "verified",
+                "statusDisplay": "Verified",
+                "createDate": "2012-01-03 02:41:47",
+                "updateDate": "2018-11-08 20:21:05",
+                "isMassOwned": "N",
+                "isInBusiness": "Y",
+                "brewersAssociation": {
+                    "brewersAssocationId": "1T7N6EYJ0L",
+                    "isCertifiedCraftBrewer": "Y"
+                },
+                "isVerified": "N",
+                "locations": [
+                    {
+                        "id": "GhJ5ei",
+                        "name": "Main Brewery",
+                        "streetAddress": "301 Adams Pond Rd",
+                        "locality": "Boothbay",
+                        "region": "Maine",
+                        "postalCode": "04537",
+                        "phone": "217-633-3411",
+                        "website": "http:\/\/www.boothbaycraftbrewery.com",
+                        "latitude": 43.8807856,
+                        "longitude": -69.6331261,
+                        "isPrimary": "Y",
+                        "inPlanning": "N",
+                        "isClosed": "N",
+                        "openToPublic": "Y",
+                        "locationType": "micro",
+                        "locationTypeDisplay": "Micro Brewery",
+                        "countryIsoCode": "US",
+                        "status": "verified",
+                        "statusDisplay": "Verified",
+                        "createDate": "2012-01-03 02:41:47",
+                        "updateDate": "2014-07-23 19:11:34",
+                        "country": {
+                            "isoCode": "US",
+                            "name": "UNITED STATES",
+                            "displayName": "United States",
+                            "isoThree": "USA",
+                            "numberCode": 840,
+                            "createDate": "2012-01-03 02:41:33"
+                        }
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "id": "tmEthz",
+        "name": "\"Admiral\" Stache",
+        "nameDisplay": "\"Admiral\" Stache",
+        "description": "Milwaukee Brewing Co\u2019s take on a classic European style. Baltic Porters are the stronger lager fermented cousin of the classic London Porter. The higher strength and cold fermentation help to create a smooth, less fruity porter, rich in roasted malt flavors and aromas. The \u201cAdmiral\u201d Stache has a deep brown hue with a light caramel head. Toffee and milk chocolate dominate the flavor with subtle hints of dried fruit. One month of aging in Bourbon Barrels imparted a layer of vanilla and oak.\r\n\r\nWe first developed this beer in 2007. Our first attempted batch of beer at the 2nd street location was a Baltic Porter. What we ended up with became known as \u201cShake Down Nut Brown\u201d. You can guess what went wrong from there\u2026 But, so many things right! Every year that has gone by, the beer has gotten a little bit stronger, in flavor and alcohol.\r\n\r\nWe use a black malt for the dark rich color and an extra special malt for the dried fruit flavors. Baltic Porters are fermented cold with a lager yeast. That long slow maturation creates a smooth flavor profile. The anticipation of the bourbon barrel aging it the most exciting part of this brew process. We want that oak character with hints of bourbon, we use 3rd run barrels for this result. Each batch has been slightly different from the last.",
+        "abv": "7",
+        "ibu": "23",
+        "glasswareId": 5,
+        "srmId": 37,
+        "availableId": 4,
+        "styleId": 104,
+        "isOrganic": "N",
+        "isRetired": "N",
+        "labels": {
+            "icon": "https:\/\/brewerydb-images.s3.amazonaws.com\/beer\/tmEthz\/upload_3Jl1St-icon.png",
+            "medium": "https:\/\/brewerydb-images.s3.amazonaws.com\/beer\/tmEthz\/upload_3Jl1St-medium.png",
+            "large": "https:\/\/brewerydb-images.s3.amazonaws.com\/beer\/tmEthz\/upload_3Jl1St-large.png",
+            "contentAwareIcon": "https:\/\/brewerydb-images.s3.amazonaws.com\/beer\/tmEthz\/upload_3Jl1St-contentAwareIcon.png",
+            "contentAwareMedium": "https:\/\/brewerydb-images.s3.amazonaws.com\/beer\/tmEthz\/upload_3Jl1St-contentAwareMedium.png",
+            "contentAwareLarge": "https:\/\/brewerydb-images.s3.amazonaws.com\/beer\/tmEthz\/upload_3Jl1St-contentAwareLarge.png"
+        },
+        "status": "verified",
+        "statusDisplay": "Verified",
+        "originalGravity": "1.071",
+        "createDate": "2012-09-09 13:35:27",
+        "updateDate": "2016-11-11 14:23:06",
+        "glass": {
+            "id": 5,
+            "name": "Pint",
+            "createDate": "2012-01-03 02:41:33"
+        },
+        "srm": {
+            "id": 37,
+            "name": "37",
+            "hex": "3F0708"
+        },
+        "available": {
+            "id": 4,
+            "name": "Seasonal",
+            "description": "Available at the same time of year, every year."
+        },
+        "style": {
+            "id": 104,
+            "categoryId": 9,
+            "category": {
+                "id": 9,
+                "name": "Other Lager",
+                "createDate": "2012-03-21 20:06:46"
+            },
+            "name": "Baltic-Style Porter",
+            "shortName": "Baltic Porter",
+            "description": "A true smooth cold-fermented and cold lagered beer, brewed with lager yeast. Black to very deep ruby\/garnet in color. Overall, Baltic Porters have a very smooth lagered character with distinctive caramelized sugars, licorice and chocolate-like character of roasted malts and dark sugars. Roasted dark malts should not contribute bitterness, or astringent roast character. A low degree of smokiness from malt may be evident. Debitterized roast malts are best used for this style. Because of its alcoholic strength, aroma may include gentle (low) lager fruitiness (berries, grapes, plums, not banana; ale-like fruitiness from warm temperature fermentation is not appropriate), complex alcohols, cocoa-like, roast malt (and sometimes coffee-like roast barley, yet not bitter). Hop aroma is very low, though a hint of floral or sweet hop aroma can complement aromatics and flavor without dominance. Baltic Porters are not hop bitter dominated and expressed as low to medium-low. Baltic porters range from having medium to full body complemented with a medium-low to medium level of malty sweetness. No butterscotch-like diacetyl or sweet corn-like dimethylsulfide (DMS) should be apparent in aroma or flavor.",
+            "ibuMin": "35",
+            "ibuMax": "40",
+            "abvMin": "7.5",
+            "abvMax": "9",
+            "srmMin": "40",
+            "srmMax": "40",
+            "ogMin": "1.072",
+            "fgMin": "1.016",
+            "fgMax": "1.022",
+            "createDate": "2012-03-21 20:06:46",
+            "updateDate": "2015-04-07 15:41:46"
+        },
+        "breweries": [
+            {
+                "id": "BU4IJP",
+                "name": "Milwaukee Brewing Company",
+                "nameShortDisplay": "Milwaukee",
+                "description": "The Milwaukee Brewing Company is the 'grown up' brewery name for the familiar Milwaukee Ale House in Milwaukee's Historic 3rd Ward.\r\n\r\nThe Ale House has always been brewing under the name Milwaukee Brewing Company. While we continue to brew at the Ale House, we have the 2nd Street Brewery located in Walkers Point.",
+                "website": "http:\/\/mkebrewing.com\/",
+                "established": "1997",
+                "mailingListUrl": "http:\/\/mkebrewing.com\/email-signup\/",
+                "isOrganic": "N",
+                "images": {
+                    "icon": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/BU4IJP\/upload_KhW53P-icon.png",
+                    "medium": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/BU4IJP\/upload_KhW53P-medium.png",
+                    "large": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/BU4IJP\/upload_KhW53P-large.png",
+                    "squareMedium": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/BU4IJP\/upload_KhW53P-squareMedium.png",
+                    "squareLarge": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/BU4IJP\/upload_KhW53P-squareLarge.png"
+                },
+                "status": "verified",
+                "statusDisplay": "Verified",
+                "createDate": "2012-01-03 02:42:02",
+                "updateDate": "2018-11-08 19:34:22",
+                "isMassOwned": "N",
+                "isInBusiness": "Y",
+                "brewersAssociation": {
+                    "brewersAssocationId": "D2KEWIR6AU",
+                    "isCertifiedCraftBrewer": "Y"
+                },
+                "isVerified": "N",
+                "locations": [
+                    {
+                        "id": "NJbyiS",
+                        "name": "Main Brewery",
+                        "streetAddress": "613 South 2nd Street",
+                        "locality": "Milwaukee",
+                        "region": "Wisconsin",
+                        "postalCode": "53204",
+                        "phone": "414-226-2337",
+                        "website": "http:\/\/Mkebrewing.com",
+                        "latitude": 43.024914,
+                        "longitude": -87.9130348,
+                        "isPrimary": "Y",
+                        "inPlanning": "N",
+                        "isClosed": "N",
+                        "openToPublic": "Y",
+                        "locationType": "micro",
+                        "locationTypeDisplay": "Micro Brewery",
+                        "countryIsoCode": "US",
+                        "yearOpened": "2007",
+                        "status": "verified",
+                        "statusDisplay": "Verified",
+                        "createDate": "2012-01-03 02:42:02",
+                        "updateDate": "2016-09-20 15:44:12",
+                        "timezoneId": "America\/Chicago",
+                        "country": {
+                            "isoCode": "US",
+                            "name": "UNITED STATES",
+                            "displayName": "United States",
+                            "isoThree": "USA",
+                            "numberCode": 840,
+                            "createDate": "2012-01-03 02:41:33"
+                        }
+                    },
+                    {
+                        "id": "2SQXoB",
+                        "name": "Milwaukee Ale House",
+                        "streetAddress": "233 North Water St.",
+                        "locality": "Milwaukee",
+                        "region": "Wisconsin",
+                        "postalCode": "53202",
+                        "phone": "414.276.BEER",
+                        "website": "http:\/\/ale-house.com\/",
+                        "hoursOfOperation": "Mon - Thu: 11:00 am - 12:00 am\r\nFri - Sat:  11:00 am - 2:00 am\r\nSun:  11:00 am - 12:00 am",
+                        "latitude": 43.032936,
+                        "longitude": -87.909214,
+                        "isPrimary": "N",
+                        "inPlanning": "N",
+                        "isClosed": "N",
+                        "openToPublic": "Y",
+                        "locationType": "restaurant",
+                        "locationTypeDisplay": "Restaurant\/Ale House",
+                        "countryIsoCode": "US",
+                        "yearOpened": "2009",
+                        "status": "verified",
+                        "statusDisplay": "Verified",
+                        "createDate": "2012-09-09 13:07:15",
+                        "updateDate": "2014-07-23 19:11:34",
+                        "hoursOfOperationNotes": "Mon - Thu: 11:00 am - 12:00 am\r\nFri - Sat:  11:00 am - 2:00 am\r\nSun:  11:00 am - 12:00 am",
+                        "country": {
+                            "isoCode": "US",
+                            "name": "UNITED STATES",
+                            "displayName": "United States",
+                            "isoThree": "USA",
+                            "numberCode": 840,
+                            "createDate": "2012-01-03 02:41:33"
+                        }
+                    },
+                    {
+                        "id": "em9Lxc",
+                        "name": "Milwaukee Ale House Grafton",
+                        "streetAddress": "1208 13th Ave.",
+                        "locality": "Grafton",
+                        "region": "Wisconsin",
+                        "postalCode": "53024",
+                        "phone": "1 (262) 375-2337",
+                        "website": "http:\/\/www.alehousegrafton.com\/",
+                        "hoursOfOperation": "Mon - Wed:  11:00 am - 12:00 am\r\nThu - Sat:  11:00 am - 2:00 am\r\nSun:  11:00 am - 12:00 am",
+                        "latitude": 43.319725,
+                        "longitude": -87.950469,
+                        "isPrimary": "N",
+                        "inPlanning": "N",
+                        "isClosed": "N",
+                        "openToPublic": "Y",
+                        "locationType": "restaurant",
+                        "locationTypeDisplay": "Restaurant\/Ale House",
+                        "countryIsoCode": "US",
+                        "yearOpened": "2010",
+                        "status": "verified",
+                        "statusDisplay": "Verified",
+                        "createDate": "2012-09-09 13:09:10",
+                        "updateDate": "2014-07-23 19:11:34",
+                        "hoursOfOperationNotes": "Mon - Wed:  11:00 am - 12:00 am\r\nThu - Sat:  11:00 am - 2:00 am\r\nSun:  11:00 am - 12:00 am",
+                        "country": {
+                            "isoCode": "US",
+                            "name": "UNITED STATES",
+                            "displayName": "United States",
+                            "isoThree": "USA",
+                            "numberCode": 840,
+                            "createDate": "2012-01-03 02:41:33"
+                        }
+                    }
+                ]
+            }
+        ],
+        "ingredients": {
+            "hops": [
+                {
+                    "id": 98,
+                    "name": "Perle (American)",
+                    "description": "Bred in Germany from Northern Brewer, Perle was an attempt at a higher-alpha replacement for Hallertauer Mittelfr?her. It has a pleasant aroma with a minty character. American versions have a very different profile than those grown in Germany.",
+                    "countryOfOrigin": "US",
+                    "alphaAcidMin": 7,
+                    "betaAcidMin": 4,
+                    "betaAcidMax": 5,
+                    "humuleneMin": 28,
+                    "humuleneMax": 33,
+                    "caryophylleneMin": 10,
+                    "caryophylleneMax": 12,
+                    "cohumuloneMin": 27,
+                    "cohumuloneMax": 32,
+                    "myrceneMin": 45,
+                    "myrceneMax": 55,
+                    "farneseneMin": 0,
+                    "farneseneMax": 1,
+                    "category": "hop",
+                    "categoryDisplay": "Hops",
+                    "createDate": "2013-06-24 16:07:34",
+                    "updateDate": "2013-06-24 16:10:37",
+                    "country": {
+                        "isoCode": "US",
+                        "name": "UNITED STATES",
+                        "displayName": "United States",
+                        "isoThree": "USA",
+                        "numberCode": 840,
+                        "createDate": "2012-01-03 02:41:33"
+                    }
+                },
+                {
+                    "id": 113,
+                    "name": "Saaz (American)",
+                    "description": "Some American growers also grow a version of the Czech Saazer hop, although American versions are usually considered to lack true noble hop character, with higher myrcene and total oil than true Saaz Saazer. Saaz is a difficult hop to grow in the United States due to inconsistent yields and susceptibility to disease.",
+                    "countryOfOrigin": "US",
+                    "alphaAcidMin": 3,
+                    "betaAcidMin": 3,
+                    "betaAcidMax": 4.5,
+                    "humuleneMin": 35,
+                    "humuleneMax": 40,
+                    "caryophylleneMin": 9,
+                    "caryophylleneMax": 11,
+                    "cohumuloneMin": 24,
+                    "cohumuloneMax": 28,
+                    "myrceneMin": 25,
+                    "myrceneMax": 30,
+                    "farneseneMin": 9,
+                    "farneseneMax": 13,
+                    "category": "hop",
+                    "categoryDisplay": "Hops",
+                    "createDate": "2013-06-24 16:07:35",
+                    "updateDate": "2013-06-24 16:10:38",
+                    "country": {
+                        "isoCode": "US",
+                        "name": "UNITED STATES",
+                        "displayName": "United States",
+                        "isoThree": "USA",
+                        "numberCode": 840,
+                        "createDate": "2012-01-03 02:41:33"
+                    }
+                }
+            ],
+            "malt": [
+                {
+                    "id": 1947,
+                    "name": "Barley - Malted",
+                    "category": "malt",
+                    "categoryDisplay": "Malts, Grains, & Fermentables",
+                    "createDate": "2013-06-24 16:07:58"
+                },
+                {
+                    "id": 429,
+                    "name": "Chocolate Malt",
+                    "description": "A dark malt that gives a rich red or brown color and a nutty flavor, used in brown ales, porters, and some stouts.",
+                    "countryOfOrigin": "US",
+                    "srmId": 41,
+                    "srmPrecise": 350,
+                    "moistureContent": 4,
+                    "coarseFineDifference": 1.5,
+                    "dryYield": 60,
+                    "potential": 1.028,
+                    "protein": 13.2,
+                    "maxInBatch": 10,
+                    "maltType": 0,
+                    "requiresMashing": "N",
+                    "characteristics": [
+                        {
+                            "id": 6,
+                            "name": "Chocolate",
+                            "description": "Imparts a chocolate quality upon the beer.",
+                            "createDate": "2013-06-24 16:07:26"
+                        },
+                        {
+                            "id": 7,
+                            "name": "Coffee",
+                            "description": "Imparts a coffee flavor upon the beer.",
+                            "createDate": "2013-06-24 16:07:26"
+                        },
+                        {
+                            "id": 11,
+                            "name": "Nutty",
+                            "description": "Imparts a nutty flavor upon the beer.",
+                            "createDate": "2013-06-24 16:07:26"
+                        },
+                        {
+                            "id": 15,
+                            "name": "Toasted",
+                            "description": "Imparts a toasted flavor upon the beer.",
+                            "createDate": "2013-06-24 16:07:26"
+                        }
+                    ],
+                    "category": "malt",
+                    "categoryDisplay": "Malts, Grains, & Fermentables",
+                    "createDate": "2013-06-24 16:07:47",
+                    "updateDate": "2013-06-24 16:10:14",
+                    "srm": {
+                        "id": 41,
+                        "name": "Over 40",
+                        "hex": "000000"
+                    },
+                    "country": {
+                        "isoCode": "US",
+                        "name": "UNITED STATES",
+                        "displayName": "United States",
+                        "isoThree": "USA",
+                        "numberCode": 840,
+                        "createDate": "2012-01-03 02:41:33"
+                    }
+                },
+                {
+                    "id": 650,
+                    "name": "Munich Malt",
+                    "description": "Munich Malt has a malty sweet flavor characteristic and adds a reddish amber color to the beer. It has enough diastatic power to convert itself, but needs help from another malt, such as 2-row malt, to convert other grains.",
+                    "countryOfOrigin": "DE",
+                    "srmId": 9,
+                    "srmPrecise": 9,
+                    "moistureContent": 5,
+                    "coarseFineDifference": 1.3,
+                    "diastaticPower": 72,
+                    "dryYield": 80,
+                    "potential": 1.037,
+                    "protein": 11.5,
+                    "maxInBatch": 80,
+                    "maltType": 0,
+                    "requiresMashing": "Y",
+                    "characteristics": [
+                        {
+                            "id": 10,
+                            "name": "Malty",
+                            "description": "Imparts a malty flavor upon the beer.",
+                            "createDate": "2013-06-24 16:07:26"
+                        },
+                        {
+                            "id": 14,
+                            "name": "Sweet",
+                            "description": "Imparts a sweet flavor upon the beer.",
+                            "createDate": "2013-06-24 16:07:26"
+                        }
+                    ],
+                    "category": "malt",
+                    "categoryDisplay": "Malts, Grains, & Fermentables",
+                    "createDate": "2013-06-24 16:07:52",
+                    "updateDate": "2013-06-24 16:10:14",
+                    "srm": {
+                        "id": 9,
+                        "name": "9",
+                        "hex": "E58500"
+                    },
+                    "country": {
+                        "isoCode": "DE",
+                        "name": "GERMANY",
+                        "displayName": "Germany",
+                        "isoThree": "DEU",
+                        "numberCode": 276,
+                        "createDate": "2012-01-03 02:41:33"
+                    }
+                },
+                {
+                    "id": 536,
+                    "name": "Oats - Flaked",
+                    "category": "malt",
+                    "categoryDisplay": "Malts, Grains, & Fermentables",
+                    "createDate": "2013-06-24 16:07:50"
+                }
+            ]
+        }
+    },
+    {
+        "id": "b7SfHG",
+        "name": "\"Ah Me Joy\" Porter",
+        "nameDisplay": "\"Ah Me Joy\" Porter",
+        "description": "A robust porter style ale with a twist. This beer has moderate roastiness with a bitter finish, complemented by the sweetness of almond and coconut, which may remind you of a certain candy. Sit back with a pint and you'll say \"ah, me joy!\"",
+        "abv": "5.4",
+        "ibu": "51",
+        "srmId": 40,
+        "styleId": 19,
+        "isOrganic": "N",
+        "isRetired": "N",
+        "status": "verified",
+        "statusDisplay": "Verified",
+        "createDate": "2015-11-02 20:42:02",
+        "updateDate": "2017-04-20 17:38:37",
+        "srm": {
+            "id": 40,
+            "name": "40",
+            "hex": "36080A"
+        },
+        "style": {
+            "id": 19,
+            "categoryId": 1,
+            "category": {
+                "id": 1,
+                "name": "British Origin Ales",
+                "createDate": "2012-03-21 20:06:45"
+            },
+            "name": "Robust Porter",
+            "shortName": "Robust Porter",
+            "description": "Robust porters are black in color and have a roast malt flavor, often reminiscent of cocoa, but no roast barley flavor. These porters have a sharp bitterness of black malt without a highly burnt\/charcoal flavor. Caramel and other malt sweetness should be present and in harmony with other distinguishing porter characters. Robust porters range from medium to full in body and have a malty sweetness. Hop bitterness is medium to high, with hop aroma and flavor ranging from negligible to medium. Diacetyl is acceptable at very low levels. Fruity esters should be evident, balanced with roast malt and hop bitterness.",
+            "ibuMin": "25",
+            "ibuMax": "40",
+            "abvMin": "5",
+            "abvMax": "6.5",
+            "srmMin": "30",
+            "srmMax": "30",
+            "ogMin": "1.045",
+            "fgMin": "1.008",
+            "fgMax": "1.016",
+            "createDate": "2012-03-21 20:06:45",
+            "updateDate": "2015-04-07 15:21:45"
+        },
+        "breweries": [
+            {
+                "id": "pvE2w5",
+                "name": "GAEL Brewing Company",
+                "nameShortDisplay": "GAEL",
+                "website": "http:\/\/www.gaelbrewing.com\/",
+                "isOrganic": "N",
+                "images": {
+                    "icon": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/pvE2w5\/upload_Z1kmoQ-icon.png",
+                    "medium": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/pvE2w5\/upload_Z1kmoQ-medium.png",
+                    "large": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/pvE2w5\/upload_Z1kmoQ-large.png",
+                    "squareMedium": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/pvE2w5\/upload_Z1kmoQ-squareMedium.png",
+                    "squareLarge": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/pvE2w5\/upload_Z1kmoQ-squareLarge.png"
+                },
+                "status": "verified",
+                "statusDisplay": "Verified",
+                "createDate": "2015-08-02 13:52:35",
+                "updateDate": "2018-11-08 21:24:28",
+                "isMassOwned": "N",
+                "isInBusiness": "Y",
+                "brewersAssociation": {
+                    "brewersAssocationId": "SLGFNPEY3H",
+                    "isCertifiedCraftBrewer": "Y"
+                },
+                "isVerified": "N",
+                "locations": [
+                    {
+                        "id": "c6Lvo1",
+                        "name": "Main Brewery",
+                        "streetAddress": "4180 State Route 14",
+                        "locality": "Geneva",
+                        "region": "New York",
+                        "postalCode": "14456",
+                        "phone": "315-220-0190",
+                        "website": "http:\/\/www.gaelbrewing.com",
+                        "latitude": 42.8332538,
+                        "longitude": -76.979864,
+                        "isPrimary": "Y",
+                        "inPlanning": "N",
+                        "isClosed": "N",
+                        "openToPublic": "Y",
+                        "locationType": "micro",
+                        "locationTypeDisplay": "Micro Brewery",
+                        "countryIsoCode": "US",
+                        "status": "verified",
+                        "statusDisplay": "Verified",
+                        "createDate": "2015-08-02 13:52:37",
+                        "updateDate": "2017-08-22 16:31:29",
+                        "timezoneId": "America\/New_York",
+                        "country": {
+                            "isoCode": "US",
+                            "name": "UNITED STATES",
+                            "displayName": "United States",
+                            "isoThree": "USA",
+                            "numberCode": 840,
+                            "createDate": "2012-01-03 02:41:33"
+                        }
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "id": "zcJMId",
+        "name": "\"Alternating Currant\" Sour",
+        "nameDisplay": "\"Alternating Currant\" Sour",
+        "description": "Black Currant Kettle Sour.",
+        "abv": "4.8",
+        "ibu": "12",
+        "styleId": 40,
+        "isOrganic": "N",
+        "isRetired": "N",
+        "status": "verified",
+        "statusDisplay": "Verified",
+        "createDate": "2015-11-03 17:04:44",
+        "updateDate": "2015-11-03 17:04:45",
+        "style": {
+            "id": 40,
+            "categoryId": 3,
+            "category": {
+                "id": 3,
+                "name": "North American Origin Ales",
+                "createDate": "2012-03-21 20:06:45"
+            },
+            "name": "American-Style Sour Ale",
+            "shortName": "Sour",
+            "description": "American sour ales can be very light to black or take on the color of added fruits or other ingredients. There is no Brettanomyces character in this style of beer. Wood- and barrel-aged sour ales are classified elsewhere. If acidity is present it is usually in the form of lactic, acetic and other organic acids naturally developed with acidified malt in the mash or in fermentation by the use of various microorganisms including certain bacteria and yeasts. Acidic character can be a complex balance of several types of acid and characteristics of age. The evolution of natural acidity develops balanced complexity. Residual flavors that come from liquids previously aged in a barrel such as bourbon or sherry should not be present. Wood vessels may be used during the fermentation and aging process, but wood-derived flavors such as vanillin must not be present. In darker versions, roasted malt, caramel-like and chocolate-like characters should be subtle in both flavor and aroma. American sour may have evident full range of hop aroma and hop bitterness with a full range of body. Estery and fruity-ester characters are evident, sometimes moderate and sometimes intense, yet balanced. Diacetyl and sweet corn-like dimethylsulfide (DMS) should not be perceived. Chill haze, bacteria and yeast-induced haze are allowable at low to medium levels at any temperature. Fruited American-Style Sour Ales will exhibit fruit flavors in harmonious balance with other characters.",
+            "createDate": "2012-03-21 20:06:46",
+            "updateDate": "2015-04-07 15:28:32"
+        },
+        "breweries": [
+            {
+                "id": "FfMi8U",
+                "name": "Little Machine Beer",
+                "nameShortDisplay": "Little Machine Beer",
+                "description": "It\u2019s inevitable. Robots will take over the earth someday. Until then, our humans will be making award-winning beer. We make a variety of tasty standards and some exceptional seasonal and unique offerings. Here, we embrace the local.  From our home in Jefferson Park right next to Mile High Stadium, to our completely Colorado-made brewing system.  \r\n\r\nStop by for a draw from our 10 barrel system, and there\u2019s a good chance you\u2019ll start to believe. Cheers!",
+                "website": "http:\/\/www.littlemachinebeer.com",
+                "established": "2015",
+                "isOrganic": "N",
+                "images": {
+                    "icon": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/FfMi8U\/upload_PjdQ7m-icon.png",
+                    "medium": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/FfMi8U\/upload_PjdQ7m-medium.png",
+                    "large": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/FfMi8U\/upload_PjdQ7m-large.png",
+                    "squareMedium": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/FfMi8U\/upload_PjdQ7m-squareMedium.png",
+                    "squareLarge": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/FfMi8U\/upload_PjdQ7m-squareLarge.png"
+                },
+                "status": "verified",
+                "statusDisplay": "Verified",
+                "createDate": "2015-10-31 03:37:26",
+                "updateDate": "2018-11-08 23:41:46",
+                "isMassOwned": "N",
+                "isInBusiness": "Y",
+                "brewersAssociation": {
+                    "brewersAssocationId": "0EXB95JHNU",
+                    "isCertifiedCraftBrewer": "Y"
+                },
+                "isVerified": "Y",
+                "locations": [
+                    {
+                        "id": "o1cTsM",
+                        "name": "Main Brewery",
+                        "streetAddress": "2924 W 20th Ave.",
+                        "locality": "Denver",
+                        "region": "Colorado",
+                        "postalCode": "80211",
+                        "website": "http:\/\/www.littlemachinebeer.com",
+                        "latitude": 39.747316,
+                        "longitude": -105.024345,
+                        "isPrimary": "Y",
+                        "inPlanning": "N",
+                        "isClosed": "N",
+                        "openToPublic": "Y",
+                        "locationType": "micro",
+                        "locationTypeDisplay": "Micro Brewery",
+                        "countryIsoCode": "US",
+                        "status": "verified",
+                        "statusDisplay": "Verified",
+                        "createDate": "2015-10-31 03:37:27",
+                        "updateDate": "2017-08-22 17:01:18",
+                        "timezoneId": "America\/Denver",
+                        "country": {
+                            "isoCode": "US",
+                            "name": "UNITED STATES",
+                            "displayName": "United States",
+                            "isoThree": "USA",
+                            "numberCode": 840,
+                            "createDate": "2012-01-03 02:41:33"
+                        }
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "id": "UM8GL6",
+        "name": "\"B\" Street Pineapple Blonde",
+        "nameDisplay": "\"B\" Street Pineapple Blonde",
+        "description": "This is the beer that started it all at La Verne Brewing Company. Brewed with fresh cut pineapple, pale malt, wheat malt, caramel malt, and cascade hops. Super juicy and incredibly delicious. We dare you not to like it.",
+        "abv": "4.6",
+        "glasswareId": 5,
+        "srmId": 5,
+        "availableId": 1,
+        "styleId": 36,
+        "isOrganic": "N",
+        "isRetired": "N",
+        "status": "verified",
+        "statusDisplay": "Verified",
+        "createDate": "2013-04-28 18:27:33",
+        "updateDate": "2018-06-20 17:40:39",
+        "glass": {
+            "id": 5,
+            "name": "Pint",
+            "createDate": "2012-01-03 02:41:33"
+        },
+        "srm": {
+            "id": 5,
+            "name": "5",
+            "hex": "FBB123"
+        },
+        "available": {
+            "id": 1,
+            "name": "Year Round",
+            "description": "Available year round as a staple beer."
+        },
+        "style": {
+            "id": 36,
+            "categoryId": 3,
+            "category": {
+                "id": 3,
+                "name": "North American Origin Ales",
+                "createDate": "2012-03-21 20:06:45"
+            },
+            "name": "Golden or Blonde Ale",
+            "shortName": "Blonde",
+            "description": "Golden or Blonde ales are straw to golden blonde in color. They have a crisp, dry palate, light to medium body, and light malt sweetness. Low to medium hop aroma may be present but does not dominate. Bitterness is low to medium. Fruity esters may be perceived but do not predominate. Diacetyl should not be perceived. Chill haze should be absent.",
+            "ibuMin": "15",
+            "ibuMax": "25",
+            "abvMin": "4",
+            "abvMax": "5",
+            "srmMin": "3",
+            "srmMax": "7",
+            "ogMin": "1.045",
+            "fgMin": "1.008",
+            "fgMax": "1.016",
+            "createDate": "2012-03-21 20:06:46",
+            "updateDate": "2015-04-07 15:27:26"
+        },
+        "breweries": [
+            {
+                "id": "cZDnM8",
+                "name": "La Verne Brewing Co.",
+                "nameShortDisplay": "La Verne",
+                "description": "La Verne Brewing Company is a local brewery centrally located next to the Pomona Raceway and Brackett Field Airport. It all started with backyard brewing, the love of craft beer and has turned into a passion we want to share with the world.",
+                "website": "http:\/\/www.lavernebrewingco.com\/",
+                "established": "2012",
+                "mailingListUrl": "http:\/\/eepurl.com\/bozkzX",
+                "isOrganic": "N",
+                "images": {
+                    "icon": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/cZDnM8\/upload_I7TpUG-icon.png",
+                    "medium": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/cZDnM8\/upload_I7TpUG-medium.png",
+                    "large": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/cZDnM8\/upload_I7TpUG-large.png",
+                    "squareMedium": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/cZDnM8\/upload_I7TpUG-squareMedium.png",
+                    "squareLarge": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/cZDnM8\/upload_I7TpUG-squareLarge.png"
+                },
+                "status": "verified",
+                "statusDisplay": "Verified",
+                "createDate": "2013-04-28 18:23:41",
+                "updateDate": "2018-11-08 23:58:20",
+                "isMassOwned": "N",
+                "isInBusiness": "Y",
+                "brewersAssociation": {
+                    "brewersAssocationId": "H8Y37DBCUG",
+                    "isCertifiedCraftBrewer": "Y"
+                },
+                "isVerified": "N",
+                "locations": [
+                    {
+                        "id": "TKShj9",
+                        "name": "Main Brewery",
+                        "streetAddress": "2125 Wright Ave C15",
+                        "locality": "La Verne",
+                        "region": "California",
+                        "postalCode": "91750",
+                        "phone": "(909) 596-5804",
+                        "website": "http:\/\/www.lavernebrewingco.com\/",
+                        "hoursOfOperation": "Mon - Thur : 4:00 pm - 10:00 pm\r\nFriday : 4:00 pm - 11:00 pm\r\nSaturday : noon - 11:00 pm\r\nSunday : noon - 8:00 pm",
+                        "latitude": 34.095248,
+                        "longitude": -117.7719245,
+                        "isPrimary": "Y",
+                        "inPlanning": "N",
+                        "isClosed": "N",
+                        "openToPublic": "Y",
+                        "locationType": "micro",
+                        "locationTypeDisplay": "Micro Brewery",
+                        "countryIsoCode": "US",
+                        "yearOpened": "2012",
+                        "status": "verified",
+                        "statusDisplay": "Verified",
+                        "createDate": "2013-04-28 18:24:49",
+                        "updateDate": "2018-06-20 18:02:39",
+                        "hoursOfOperationNotes": "Mon - Thur : 4:00 pm - 10:00 pm\r\nFriday : 4:00 pm - 11:00 pm\r\nSaturday : noon - 11:00 pm\r\nSunday : noon - 8:00 pm",
+                        "timezoneId": "America\/Los_Angeles",
+                        "country": {
+                            "isoCode": "US",
+                            "name": "UNITED STATES",
+                            "displayName": "United States",
+                            "isoThree": "USA",
+                            "numberCode": 840,
+                            "createDate": "2012-01-03 02:41:33"
+                        }
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "id": "NIaY9C",
+        "name": "\"B.B. Rodriguez\" Double Brown",
+        "nameDisplay": "\"B.B. Rodriguez\" Double Brown",
+        "description": "Caramel. Walnut. Toast. Luxury.",
+        "abv": "8.5",
+        "ibu": "30",
+        "styleId": 37,
+        "isOrganic": "N",
+        "isRetired": "N",
+        "status": "verified",
+        "statusDisplay": "Verified",
+        "createDate": "2015-11-03 17:02:33",
+        "updateDate": "2016-05-05 14:04:50",
+        "style": {
+            "id": 37,
+            "categoryId": 3,
+            "category": {
+                "id": 3,
+                "name": "North American Origin Ales",
+                "createDate": "2012-03-21 20:06:45"
+            },
+            "name": "American-Style Brown Ale",
+            "shortName": "American Brown",
+            "description": "American brown ales range from deep copper to brown in color. Roasted malt caramel-like and chocolate-like characters should be of medium intensity in both flavor and aroma. American brown ales have evident low to medium hop flavor and aroma, medium to high hop bitterness, and a medium body. Estery and fruity-ester characters should be subdued. Diacetyl should not be perceived. Chill haze is allowable at cold temperatures.",
+            "ibuMin": "25",
+            "ibuMax": "45",
+            "abvMin": "4",
+            "abvMax": "6.4",
+            "srmMin": "15",
+            "srmMax": "26",
+            "ogMin": "1.04",
+            "fgMin": "1.01",
+            "fgMax": "1.018",
+            "createDate": "2012-03-21 20:06:46",
+            "updateDate": "2015-04-07 15:27:35"
+        },
+        "breweries": [
+            {
+                "id": "FfMi8U",
+                "name": "Little Machine Beer",
+                "nameShortDisplay": "Little Machine Beer",
+                "description": "It\u2019s inevitable. Robots will take over the earth someday. Until then, our humans will be making award-winning beer. We make a variety of tasty standards and some exceptional seasonal and unique offerings. Here, we embrace the local.  From our home in Jefferson Park right next to Mile High Stadium, to our completely Colorado-made brewing system.  \r\n\r\nStop by for a draw from our 10 barrel system, and there\u2019s a good chance you\u2019ll start to believe. Cheers!",
+                "website": "http:\/\/www.littlemachinebeer.com",
+                "established": "2015",
+                "isOrganic": "N",
+                "images": {
+                    "icon": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/FfMi8U\/upload_PjdQ7m-icon.png",
+                    "medium": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/FfMi8U\/upload_PjdQ7m-medium.png",
+                    "large": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/FfMi8U\/upload_PjdQ7m-large.png",
+                    "squareMedium": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/FfMi8U\/upload_PjdQ7m-squareMedium.png",
+                    "squareLarge": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/FfMi8U\/upload_PjdQ7m-squareLarge.png"
+                },
+                "status": "verified",
+                "statusDisplay": "Verified",
+                "createDate": "2015-10-31 03:37:26",
+                "updateDate": "2018-11-08 23:41:46",
+                "isMassOwned": "N",
+                "isInBusiness": "Y",
+                "brewersAssociation": {
+                    "brewersAssocationId": "0EXB95JHNU",
+                    "isCertifiedCraftBrewer": "Y"
+                },
+                "isVerified": "Y",
+                "locations": [
+                    {
+                        "id": "o1cTsM",
+                        "name": "Main Brewery",
+                        "streetAddress": "2924 W 20th Ave.",
+                        "locality": "Denver",
+                        "region": "Colorado",
+                        "postalCode": "80211",
+                        "website": "http:\/\/www.littlemachinebeer.com",
+                        "latitude": 39.747316,
+                        "longitude": -105.024345,
+                        "isPrimary": "Y",
+                        "inPlanning": "N",
+                        "isClosed": "N",
+                        "openToPublic": "Y",
+                        "locationType": "micro",
+                        "locationTypeDisplay": "Micro Brewery",
+                        "countryIsoCode": "US",
+                        "status": "verified",
+                        "statusDisplay": "Verified",
+                        "createDate": "2015-10-31 03:37:27",
+                        "updateDate": "2017-08-22 17:01:18",
+                        "timezoneId": "America\/Denver",
+                        "country": {
+                            "isoCode": "US",
+                            "name": "UNITED STATES",
+                            "displayName": "United States",
+                            "isoThree": "USA",
+                            "numberCode": 840,
+                            "createDate": "2012-01-03 02:41:33"
+                        }
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "id": "PBEXhV",
+        "name": "\"Bison Eye Rye\" Pale Ale | 2 of 4 Part Pale Ale Series",
+        "nameDisplay": "\"Bison Eye Rye\" Pale Ale | 2 of 4 Part Pale Ale Series",
+        "description": "The second in the rotating 4-part series of pale ales explores the adventurous boundaries of balancing various hops and unique malts. This particular brew was crafted with a healthy dose of toasted rye malt and a bodacious amount of New Zealand hops. Tropical aromas of melon and pineapple are balanced with a touch of sweet honey and a refreshing snap due to the mix of bittering hops and rye. Unfiltered, adventurous and crushable.",
+        "abv": "5.8",
+        "ibu": "51",
+        "srmId": 8,
+        "styleId": 25,
+        "isOrganic": "N",
+        "isRetired": "N",
+        "status": "verified",
+        "statusDisplay": "Verified",
+        "createDate": "2016-05-11 15:05:00",
+        "updateDate": "2016-05-11 15:05:00",
+        "srm": {
+            "id": 8,
+            "name": "8",
+            "hex": "EA8F00"
+        },
+        "style": {
+            "id": 25,
+            "categoryId": 3,
+            "category": {
+                "id": 3,
+                "name": "North American Origin Ales",
+                "createDate": "2012-03-21 20:06:45"
+            },
+            "name": "American-Style Pale Ale",
+            "shortName": "American Pale",
+            "description": "American pale ales range from deep golden to copper in color. The style is characterized by fruity, floral and citrus-like American-variety hop character producing medium to medium-high hop bitterness, flavor, and aroma. Note that the \"traditional\" style of this beer has its origins with certain floral, fruity, citrus-like, piney, resinous, or sulfur-like American hop varietals. One or more of these hop characters is the perceived end, but the perceived hop characters may be a result of the skillful use of hops of other national origins. American pale ales have medium body and low to medium maltiness. Low caramel character is allowable. Fruity-ester flavor and aroma should be moderate to strong. Diacetyl should be absent or present at very low levels. Chill haze is allowable at cold temperatures.",
+            "ibuMin": "30",
+            "ibuMax": "42",
+            "abvMin": "4.5",
+            "abvMax": "5.6",
+            "srmMin": "6",
+            "srmMax": "14",
+            "ogMin": "1.044",
+            "fgMin": "1.008",
+            "fgMax": "1.014",
+            "createDate": "2012-03-21 20:06:45",
+            "updateDate": "2015-04-07 15:25:18"
+        },
+        "breweries": [
+            {
+                "id": "mMnrjZ",
+                "name": "Bow & Arrow Brewing Co",
+                "nameShortDisplay": "Bow & Arrow",
+                "description": "We brew wild, sour, and Barrel-aged beers in the heart of the American Southwest.",
+                "website": "http:\/\/www.bowandarrowbrewing.com\/",
+                "established": "2016",
+                "isOrganic": "N",
+                "images": {
+                    "icon": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/mMnrjZ\/upload_EBQsL2-icon.png",
+                    "medium": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/mMnrjZ\/upload_EBQsL2-medium.png",
+                    "large": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/mMnrjZ\/upload_EBQsL2-large.png",
+                    "squareMedium": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/mMnrjZ\/upload_EBQsL2-squareMedium.png",
+                    "squareLarge": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/mMnrjZ\/upload_EBQsL2-squareLarge.png"
+                },
+                "status": "verified",
+                "statusDisplay": "Verified",
+                "createDate": "2016-04-16 06:30:51",
+                "updateDate": "2018-11-08 23:17:42",
+                "isMassOwned": "N",
+                "isInBusiness": "Y",
+                "brewersAssociation": {
+                    "brewersAssocationId": "RJQETC6B5V",
+                    "isCertifiedCraftBrewer": "Y"
+                },
+                "isVerified": "N",
+                "locations": [
+                    {
+                        "id": "m3TsBo",
+                        "name": "Main Brewery",
+                        "streetAddress": "602 McKnight Ave NW",
+                        "locality": "Albuquerque",
+                        "region": "New Mexico",
+                        "postalCode": "87102",
+                        "phone": "5052479800",
+                        "website": "http:\/\/www.bowandarrowbrewing.com\/",
+                        "latitude": 35.1058608,
+                        "longitude": -106.651184,
+                        "isPrimary": "Y",
+                        "inPlanning": "N",
+                        "isClosed": "N",
+                        "openToPublic": "Y",
+                        "locationType": "micro",
+                        "locationTypeDisplay": "Micro Brewery",
+                        "countryIsoCode": "US",
+                        "status": "verified",
+                        "statusDisplay": "Verified",
+                        "createDate": "2016-04-16 06:30:52",
+                        "updateDate": "2017-07-05 20:18:34",
+                        "hoursOfOperationExplicit": {
+                            "wed": [
+                                {
+                                    "startTime": "3:00pm",
+                                    "endTime": "10:00pm"
+                                }
+                            ],
+                            "thu": [
+                                {
+                                    "startTime": "3:00pm",
+                                    "endTime": "10:00pm"
+                                }
+                            ],
+                            "fri": [
+                                {
+                                    "startTime": "12:00pm",
+                                    "endTime": "11:00pm"
+                                }
+                            ],
+                            "sat": [
+                                {
+                                    "startTime": "12:00pm",
+                                    "endTime": "11:00pm"
+                                }
+                            ],
+                            "sun": [
+                                {
+                                    "startTime": "12:00pm",
+                                    "endTime": "9:00pm"
+                                }
+                            ],
+                            "mon": [
+                                {
+                                    "startTime": "3:00pm",
+                                    "endTime": "10:00pm"
+                                }
+                            ],
+                            "tue": [
+                                {
+                                    "startTime": "3:00pm",
+                                    "endTime": "10:00pm"
+                                }
+                            ]
+                        },
+                        "hoursOfOperationExplicitString": "wed-3:00pm-10:00pm,thu-3:00pm-10:00pm,fri-12:00pm-11:00pm,sat-12:00pm-11:00pm,sun-12:00pm-9:00pm,mon-3:00pm-10:00pm,tue-3:00pm-10:00pm",
+                        "timezoneId": "America\/Denver",
+                        "country": {
+                            "isoCode": "US",
+                            "name": "UNITED STATES",
+                            "displayName": "United States",
+                            "isoThree": "USA",
+                            "numberCode": 840,
+                            "createDate": "2012-01-03 02:41:33"
+                        }
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "id": "wRmmdv",
+        "name": "\"California Crude\" Black IPA",
+        "nameDisplay": "\"California Crude\" Black IPA",
+        "description": "Black ale that is aggressively hopped to balance the malt character. This beer is rich and robust with the additions of black malt for a creamy finish.",
+        "abv": "7.6",
+        "ibu": "80",
+        "styleId": 41,
+        "isOrganic": "N",
+        "isRetired": "N",
+        "status": "verified",
+        "statusDisplay": "Verified",
+        "createDate": "2013-07-27 14:04:42",
+        "updateDate": "2015-03-18 18:14:44",
+        "style": {
+            "id": 41,
+            "categoryId": 3,
+            "category": {
+                "id": 3,
+                "name": "North American Origin Ales",
+                "createDate": "2012-03-21 20:06:45"
+            },
+            "name": "American-Style Black Ale",
+            "shortName": "Black Ale",
+            "description": "American-style Black Ales are very dark to black and perceived to have medium high to high hop bitterness, flavor and aroma with medium-high alcohol content, balanced with a medium body. Fruity, floral and herbal character from hops of all origins may contribute character. The style is further characterized by a balanced and moderate degree of caramel malt and dark roasted malt flavor and aroma. High astringency and high degree of burnt roast malt character should be absent.",
+            "ibuMin": "50",
+            "ibuMax": "70",
+            "abvMin": "6",
+            "abvMax": "7.5",
+            "srmMin": "35",
+            "srmMax": "35",
+            "ogMin": "1.056",
+            "fgMin": "1.012",
+            "fgMax": "1.018",
+            "createDate": "2012-03-21 20:06:46",
+            "updateDate": "2015-04-07 15:28:36"
+        },
+        "breweries": [
+            {
+                "id": "H8jawh",
+                "name": "Working Man Brewing Company",
+                "nameShortDisplay": "Working Man",
+                "description": "Working Man Brewing is Livermore\u2019s newest brewery, located at 5542 Brisa Street, just off of Vasco Road.  Getting the brewery up and running has been a labor of love for the owners, taking the better part of 18 months to turn the space into a full production brewery.  We are excited to finally bring our love of beer and commitment to quality to Livermore, the Tri-Valley, and beyond.\r\n\r\nOur story is one of two independent breweries, Mt. Diablo Brewing and Working Man Brewing Company, coming together to work on one common goal.  Both companies were founded by award-winning home brewers who have a passion to bring high quality, well crafted beer that is fresh and local.  A chance meeting brought these working men together; a shared vision now combines forces under one name, Working Man Brewing Company.\r\n\r\nThe company\u2019s brewers have each have spent years working to perfect great beer recipes.  Beer geeks at heart, both will tinker and tweak the ingredients until the product is just right.  The main goal always being to make a beer they could be proud to share and proud to drink. We never let a beer go out the door that we don\u2019t believe in.",
+                "website": "http:\/\/www.workingmanbrewing.com\/",
+                "established": "2013",
+                "mailingListUrl": "http:\/\/beer.wickedcode.com\/?page_id=641",
+                "isOrganic": "N",
+                "images": {
+                    "icon": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/H8jawh\/upload_8EmbmI-icon.png",
+                    "medium": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/H8jawh\/upload_8EmbmI-medium.png",
+                    "large": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/H8jawh\/upload_8EmbmI-large.png",
+                    "squareMedium": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/H8jawh\/upload_8EmbmI-squareMedium.png",
+                    "squareLarge": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/H8jawh\/upload_8EmbmI-squareLarge.png"
+                },
+                "status": "verified",
+                "statusDisplay": "Verified",
+                "createDate": "2013-07-26 18:34:10",
+                "updateDate": "2018-11-08 20:57:42",
+                "isMassOwned": "N",
+                "isInBusiness": "Y",
+                "brewersAssociation": {
+                    "brewersAssocationId": "UJ82YQDSGH",
+                    "isCertifiedCraftBrewer": "Y"
+                },
+                "isVerified": "N",
+                "locations": [
+                    {
+                        "id": "kDhJT9",
+                        "name": "Main Brewery",
+                        "streetAddress": "5542 Brisa Street",
+                        "extendedAddress": "Suite F",
+                        "locality": "Livermore",
+                        "region": "California",
+                        "postalCode": "94550",
+                        "phone": "(925) 269-9622",
+                        "website": "http:\/\/www.workingmanbrewing.com\/",
+                        "hoursOfOperation": "Friday 4-7PM\r\nSaturday 12-6PM\r\nSunday 12-4PM",
+                        "latitude": 37.697526,
+                        "longitude": -121.725189,
+                        "isPrimary": "Y",
+                        "inPlanning": "N",
+                        "isClosed": "N",
+                        "openToPublic": "Y",
+                        "locationType": "micro",
+                        "locationTypeDisplay": "Micro Brewery",
+                        "countryIsoCode": "US",
+                        "yearOpened": "2013",
+                        "status": "verified",
+                        "statusDisplay": "Verified",
+                        "createDate": "2013-07-27 14:00:54",
+                        "updateDate": "2014-07-23 19:11:34",
+                        "hoursOfOperationNotes": "Friday 4-7PM\r\nSaturday 12-6PM\r\nSunday 12-4PM",
+                        "country": {
+                            "isoCode": "US",
+                            "name": "UNITED STATES",
+                            "displayName": "United States",
+                            "isoThree": "USA",
+                            "numberCode": 840,
+                            "createDate": "2012-01-03 02:41:33"
+                        }
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "id": "EPYNpW",
+        "name": "\"C\u2019est Noir\" Imperial Stout",
+        "nameDisplay": "\"C\u2019est Noir\" Imperial Stout",
+        "description": "10.8% ABV 70 IBU\u2019s A rich and creamy stout with loads of roasted barley and roasted oats infused with 70 IBU\u2019s of hop bitterness to balance this really big beer. (SAY NOIR)",
+        "abv": "10.8",
+        "ibu": "70",
+        "styleId": 16,
+        "isOrganic": "N",
+        "isRetired": "N",
+        "status": "verified",
+        "statusDisplay": "Verified",
+        "createDate": "2015-03-18 18:19:54",
+        "updateDate": "2015-03-18 18:19:55",
+        "style": {
+            "id": 16,
+            "categoryId": 1,
+            "category": {
+                "id": 1,
+                "name": "British Origin Ales",
+                "createDate": "2012-03-21 20:06:45"
+            },
+            "name": "British-Style Imperial Stout",
+            "shortName": "British Imperial Stout",
+            "description": "Dark copper to very dark brown, British-style imperial stouts typically have high alcohol content. The extremely rich malty flavor (often characterized as toffee-like or caramel-like) and aroma are balanced with medium hopping and high fruity-ester characteristics. Bitterness should be moderate and balanced with sweet malt character. The bitterness may be higher in the darker versions. Roasted malt astringency is very low or absent. Bitterness should not overwhelm the overall character. Hop aroma can be subtle to moderately hop-floral, -citrus or -herbal. Diacetyl (butterscotch) levels should be absent.",
+            "ibuMin": "45",
+            "ibuMax": "65",
+            "abvMin": "7",
+            "abvMax": "12",
+            "srmMin": "20",
+            "srmMax": "35",
+            "ogMin": "1.08",
+            "fgMin": "1.02",
+            "fgMax": "1.03",
+            "createDate": "2012-03-21 20:06:45",
+            "updateDate": "2015-04-07 15:22:41"
+        },
+        "breweries": [
+            {
+                "id": "H8jawh",
+                "name": "Working Man Brewing Company",
+                "nameShortDisplay": "Working Man",
+                "description": "Working Man Brewing is Livermore\u2019s newest brewery, located at 5542 Brisa Street, just off of Vasco Road.  Getting the brewery up and running has been a labor of love for the owners, taking the better part of 18 months to turn the space into a full production brewery.  We are excited to finally bring our love of beer and commitment to quality to Livermore, the Tri-Valley, and beyond.\r\n\r\nOur story is one of two independent breweries, Mt. Diablo Brewing and Working Man Brewing Company, coming together to work on one common goal.  Both companies were founded by award-winning home brewers who have a passion to bring high quality, well crafted beer that is fresh and local.  A chance meeting brought these working men together; a shared vision now combines forces under one name, Working Man Brewing Company.\r\n\r\nThe company\u2019s brewers have each have spent years working to perfect great beer recipes.  Beer geeks at heart, both will tinker and tweak the ingredients until the product is just right.  The main goal always being to make a beer they could be proud to share and proud to drink. We never let a beer go out the door that we don\u2019t believe in.",
+                "website": "http:\/\/www.workingmanbrewing.com\/",
+                "established": "2013",
+                "mailingListUrl": "http:\/\/beer.wickedcode.com\/?page_id=641",
+                "isOrganic": "N",
+                "images": {
+                    "icon": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/H8jawh\/upload_8EmbmI-icon.png",
+                    "medium": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/H8jawh\/upload_8EmbmI-medium.png",
+                    "large": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/H8jawh\/upload_8EmbmI-large.png",
+                    "squareMedium": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/H8jawh\/upload_8EmbmI-squareMedium.png",
+                    "squareLarge": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/H8jawh\/upload_8EmbmI-squareLarge.png"
+                },
+                "status": "verified",
+                "statusDisplay": "Verified",
+                "createDate": "2013-07-26 18:34:10",
+                "updateDate": "2018-11-08 20:57:42",
+                "isMassOwned": "N",
+                "isInBusiness": "Y",
+                "brewersAssociation": {
+                    "brewersAssocationId": "UJ82YQDSGH",
+                    "isCertifiedCraftBrewer": "Y"
+                },
+                "isVerified": "N",
+                "locations": [
+                    {
+                        "id": "kDhJT9",
+                        "name": "Main Brewery",
+                        "streetAddress": "5542 Brisa Street",
+                        "extendedAddress": "Suite F",
+                        "locality": "Livermore",
+                        "region": "California",
+                        "postalCode": "94550",
+                        "phone": "(925) 269-9622",
+                        "website": "http:\/\/www.workingmanbrewing.com\/",
+                        "hoursOfOperation": "Friday 4-7PM\r\nSaturday 12-6PM\r\nSunday 12-4PM",
+                        "latitude": 37.697526,
+                        "longitude": -121.725189,
+                        "isPrimary": "Y",
+                        "inPlanning": "N",
+                        "isClosed": "N",
+                        "openToPublic": "Y",
+                        "locationType": "micro",
+                        "locationTypeDisplay": "Micro Brewery",
+                        "countryIsoCode": "US",
+                        "yearOpened": "2013",
+                        "status": "verified",
+                        "statusDisplay": "Verified",
+                        "createDate": "2013-07-27 14:00:54",
+                        "updateDate": "2014-07-23 19:11:34",
+                        "hoursOfOperationNotes": "Friday 4-7PM\r\nSaturday 12-6PM\r\nSunday 12-4PM",
+                        "country": {
+                            "isoCode": "US",
+                            "name": "UNITED STATES",
+                            "displayName": "United States",
+                            "isoThree": "USA",
+                            "numberCode": 840,
+                            "createDate": "2012-01-03 02:41:33"
+                        }
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "id": "AXmvOd",
+        "name": "\"Dust Up\" Cloudy Pale Ale | 1 of 4 Part Pale Ale Series",
+        "nameDisplay": "\"Dust Up\" Cloudy Pale Ale | 1 of 4 Part Pale Ale Series",
+        "description": "The Pale Ale series will feature 4 distinct variations within the Pale Ale category. \"Dust Up\" Cloudy Pale Ale, the first of the series, showcases caramelized wheat, an abundant amount of earthy forest hops and finishes crisp and snappy. Unfiltered, untamed, yet friendly to consume.",
+        "abv": "5.4",
+        "ibu": "54",
+        "srmId": 11,
+        "styleId": 25,
+        "isOrganic": "N",
+        "isRetired": "N",
+        "status": "verified",
+        "statusDisplay": "Verified",
+        "createDate": "2016-05-11 15:02:31",
+        "updateDate": "2016-05-11 15:02:32",
+        "srm": {
+            "id": 11,
+            "name": "11",
+            "hex": "D77200"
+        },
+        "style": {
+            "id": 25,
+            "categoryId": 3,
+            "category": {
+                "id": 3,
+                "name": "North American Origin Ales",
+                "createDate": "2012-03-21 20:06:45"
+            },
+            "name": "American-Style Pale Ale",
+            "shortName": "American Pale",
+            "description": "American pale ales range from deep golden to copper in color. The style is characterized by fruity, floral and citrus-like American-variety hop character producing medium to medium-high hop bitterness, flavor, and aroma. Note that the \"traditional\" style of this beer has its origins with certain floral, fruity, citrus-like, piney, resinous, or sulfur-like American hop varietals. One or more of these hop characters is the perceived end, but the perceived hop characters may be a result of the skillful use of hops of other national origins. American pale ales have medium body and low to medium maltiness. Low caramel character is allowable. Fruity-ester flavor and aroma should be moderate to strong. Diacetyl should be absent or present at very low levels. Chill haze is allowable at cold temperatures.",
+            "ibuMin": "30",
+            "ibuMax": "42",
+            "abvMin": "4.5",
+            "abvMax": "5.6",
+            "srmMin": "6",
+            "srmMax": "14",
+            "ogMin": "1.044",
+            "fgMin": "1.008",
+            "fgMax": "1.014",
+            "createDate": "2012-03-21 20:06:45",
+            "updateDate": "2015-04-07 15:25:18"
+        },
+        "breweries": [
+            {
+                "id": "mMnrjZ",
+                "name": "Bow & Arrow Brewing Co",
+                "nameShortDisplay": "Bow & Arrow",
+                "description": "We brew wild, sour, and Barrel-aged beers in the heart of the American Southwest.",
+                "website": "http:\/\/www.bowandarrowbrewing.com\/",
+                "established": "2016",
+                "isOrganic": "N",
+                "images": {
+                    "icon": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/mMnrjZ\/upload_EBQsL2-icon.png",
+                    "medium": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/mMnrjZ\/upload_EBQsL2-medium.png",
+                    "large": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/mMnrjZ\/upload_EBQsL2-large.png",
+                    "squareMedium": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/mMnrjZ\/upload_EBQsL2-squareMedium.png",
+                    "squareLarge": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/mMnrjZ\/upload_EBQsL2-squareLarge.png"
+                },
+                "status": "verified",
+                "statusDisplay": "Verified",
+                "createDate": "2016-04-16 06:30:51",
+                "updateDate": "2018-11-08 23:17:42",
+                "isMassOwned": "N",
+                "isInBusiness": "Y",
+                "brewersAssociation": {
+                    "brewersAssocationId": "RJQETC6B5V",
+                    "isCertifiedCraftBrewer": "Y"
+                },
+                "isVerified": "N",
+                "locations": [
+                    {
+                        "id": "m3TsBo",
+                        "name": "Main Brewery",
+                        "streetAddress": "602 McKnight Ave NW",
+                        "locality": "Albuquerque",
+                        "region": "New Mexico",
+                        "postalCode": "87102",
+                        "phone": "5052479800",
+                        "website": "http:\/\/www.bowandarrowbrewing.com\/",
+                        "latitude": 35.1058608,
+                        "longitude": -106.651184,
+                        "isPrimary": "Y",
+                        "inPlanning": "N",
+                        "isClosed": "N",
+                        "openToPublic": "Y",
+                        "locationType": "micro",
+                        "locationTypeDisplay": "Micro Brewery",
+                        "countryIsoCode": "US",
+                        "status": "verified",
+                        "statusDisplay": "Verified",
+                        "createDate": "2016-04-16 06:30:52",
+                        "updateDate": "2017-07-05 20:18:34",
+                        "hoursOfOperationExplicit": {
+                            "wed": [
+                                {
+                                    "startTime": "3:00pm",
+                                    "endTime": "10:00pm"
+                                }
+                            ],
+                            "thu": [
+                                {
+                                    "startTime": "3:00pm",
+                                    "endTime": "10:00pm"
+                                }
+                            ],
+                            "fri": [
+                                {
+                                    "startTime": "12:00pm",
+                                    "endTime": "11:00pm"
+                                }
+                            ],
+                            "sat": [
+                                {
+                                    "startTime": "12:00pm",
+                                    "endTime": "11:00pm"
+                                }
+                            ],
+                            "sun": [
+                                {
+                                    "startTime": "12:00pm",
+                                    "endTime": "9:00pm"
+                                }
+                            ],
+                            "mon": [
+                                {
+                                    "startTime": "3:00pm",
+                                    "endTime": "10:00pm"
+                                }
+                            ],
+                            "tue": [
+                                {
+                                    "startTime": "3:00pm",
+                                    "endTime": "10:00pm"
+                                }
+                            ]
+                        },
+                        "hoursOfOperationExplicitString": "wed-3:00pm-10:00pm,thu-3:00pm-10:00pm,fri-12:00pm-11:00pm,sat-12:00pm-11:00pm,sun-12:00pm-9:00pm,mon-3:00pm-10:00pm,tue-3:00pm-10:00pm",
+                        "timezoneId": "America\/Denver",
+                        "country": {
+                            "isoCode": "US",
+                            "name": "UNITED STATES",
+                            "displayName": "United States",
+                            "isoThree": "USA",
+                            "numberCode": 840,
+                            "createDate": "2012-01-03 02:41:33"
+                        }
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "id": "c5pZg5",
+        "name": "\"EVL1\" Imperial Red Ale",
+        "nameDisplay": "\"EVL1\" Imperial Red Ale",
+        "description": "10.4% ABV 64 IBU\u2019s Born from a Robust Porter recipe, it shows it origins with coffee and roasted malt notes. A kicked-up red ale with a deep copper red color and a rich, malty sweet flavor.",
+        "abv": "10.4",
+        "ibu": "64",
+        "styleId": 33,
+        "isOrganic": "N",
+        "isRetired": "N",
+        "status": "verified",
+        "statusDisplay": "Verified",
+        "createDate": "2015-03-18 18:17:15",
+        "updateDate": "2015-03-18 18:17:15",
+        "style": {
+            "id": 33,
+            "categoryId": 3,
+            "category": {
+                "id": 3,
+                "name": "North American Origin Ales",
+                "createDate": "2012-03-21 20:06:45"
+            },
+            "name": "Imperial Red Ale",
+            "shortName": "Imperial Red",
+            "description": "Imperial Red Ales are deep amber to dark copper\/reddish brown. A small amount of chill haze is allowable at cold temperatures. Fruity-ester aroma is medium. Hop aroma is intense, arising from any variety of hops. Medium to high caramel malt character is present. Hop flavor is intense, and balanced with other beer characters. They may use any variety of hops. Hop bitterness is intense. Alcohol content is very high and of notable character. Complex alcohol flavors may be evident. Fruity-ester flavors are medium. Diacetyl should not be perceived. Body is full.",
+            "ibuMin": "55",
+            "ibuMax": "85",
+            "abvMin": "7.9",
+            "abvMax": "10.5",
+            "srmMin": "10",
+            "srmMax": "15",
+            "ogMin": "1.08",
+            "fgMin": "1.02",
+            "fgMax": "1.028",
+            "createDate": "2012-03-21 20:06:46",
+            "updateDate": "2015-04-07 17:05:43"
+        },
+        "breweries": [
+            {
+                "id": "H8jawh",
+                "name": "Working Man Brewing Company",
+                "nameShortDisplay": "Working Man",
+                "description": "Working Man Brewing is Livermore\u2019s newest brewery, located at 5542 Brisa Street, just off of Vasco Road.  Getting the brewery up and running has been a labor of love for the owners, taking the better part of 18 months to turn the space into a full production brewery.  We are excited to finally bring our love of beer and commitment to quality to Livermore, the Tri-Valley, and beyond.\r\n\r\nOur story is one of two independent breweries, Mt. Diablo Brewing and Working Man Brewing Company, coming together to work on one common goal.  Both companies were founded by award-winning home brewers who have a passion to bring high quality, well crafted beer that is fresh and local.  A chance meeting brought these working men together; a shared vision now combines forces under one name, Working Man Brewing Company.\r\n\r\nThe company\u2019s brewers have each have spent years working to perfect great beer recipes.  Beer geeks at heart, both will tinker and tweak the ingredients until the product is just right.  The main goal always being to make a beer they could be proud to share and proud to drink. We never let a beer go out the door that we don\u2019t believe in.",
+                "website": "http:\/\/www.workingmanbrewing.com\/",
+                "established": "2013",
+                "mailingListUrl": "http:\/\/beer.wickedcode.com\/?page_id=641",
+                "isOrganic": "N",
+                "images": {
+                    "icon": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/H8jawh\/upload_8EmbmI-icon.png",
+                    "medium": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/H8jawh\/upload_8EmbmI-medium.png",
+                    "large": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/H8jawh\/upload_8EmbmI-large.png",
+                    "squareMedium": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/H8jawh\/upload_8EmbmI-squareMedium.png",
+                    "squareLarge": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/H8jawh\/upload_8EmbmI-squareLarge.png"
+                },
+                "status": "verified",
+                "statusDisplay": "Verified",
+                "createDate": "2013-07-26 18:34:10",
+                "updateDate": "2018-11-08 20:57:42",
+                "isMassOwned": "N",
+                "isInBusiness": "Y",
+                "brewersAssociation": {
+                    "brewersAssocationId": "UJ82YQDSGH",
+                    "isCertifiedCraftBrewer": "Y"
+                },
+                "isVerified": "N",
+                "locations": [
+                    {
+                        "id": "kDhJT9",
+                        "name": "Main Brewery",
+                        "streetAddress": "5542 Brisa Street",
+                        "extendedAddress": "Suite F",
+                        "locality": "Livermore",
+                        "region": "California",
+                        "postalCode": "94550",
+                        "phone": "(925) 269-9622",
+                        "website": "http:\/\/www.workingmanbrewing.com\/",
+                        "hoursOfOperation": "Friday 4-7PM\r\nSaturday 12-6PM\r\nSunday 12-4PM",
+                        "latitude": 37.697526,
+                        "longitude": -121.725189,
+                        "isPrimary": "Y",
+                        "inPlanning": "N",
+                        "isClosed": "N",
+                        "openToPublic": "Y",
+                        "locationType": "micro",
+                        "locationTypeDisplay": "Micro Brewery",
+                        "countryIsoCode": "US",
+                        "yearOpened": "2013",
+                        "status": "verified",
+                        "statusDisplay": "Verified",
+                        "createDate": "2013-07-27 14:00:54",
+                        "updateDate": "2014-07-23 19:11:34",
+                        "hoursOfOperationNotes": "Friday 4-7PM\r\nSaturday 12-6PM\r\nSunday 12-4PM",
+                        "country": {
+                            "isoCode": "US",
+                            "name": "UNITED STATES",
+                            "displayName": "United States",
+                            "isoThree": "USA",
+                            "numberCode": 840,
+                            "createDate": "2012-01-03 02:41:33"
+                        }
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "id": "xBKAka",
+        "name": "\"Galactic Wrath\" IPA",
+        "nameDisplay": "\"Galactic Wrath\" IPA",
+        "description": "In August 2012, for the First Year Anniversary at our Tap Room and Restaurant, we decided to take two of our favorite Dust Bowl beers\u2026Galaxy Pale Ale and Son of Wrath Double IPA\u2026and formulate a new IPA recipe using elements from both beers. The result was a delicious, bold IPA with the fruity, citrus character and malt backbone of Son of Wrath, as well as the tropical aroma and easy drinkability of Galaxy Pale. It was so popular with our fans, we decided to brew more.",
+        "abv": "7.5",
+        "ibu": "75",
+        "availableId": 2,
+        "styleId": 30,
+        "isOrganic": "N",
+        "isRetired": "N",
+        "status": "verified",
+        "statusDisplay": "Verified",
+        "createDate": "2015-03-25 20:28:19",
+        "updateDate": "2015-03-25 20:28:19",
+        "available": {
+            "id": 2,
+            "name": "Limited",
+            "description": "Limited availability."
+        },
+        "style": {
+            "id": 30,
+            "categoryId": 3,
+            "category": {
+                "id": 3,
+                "name": "North American Origin Ales",
+                "createDate": "2012-03-21 20:06:45"
+            },
+            "name": "American-Style India Pale Ale",
+            "shortName": "American IPA",
+            "description": "American-style India pale ales are perceived to have medium-high to intense hop bitterness, flavor and aroma with medium-high alcohol content. The style is further characterized by floral, fruity, citrus-like, piney, resinous, or sulfur-like American-variety hop character. Note that one or more of these American-variety hop characters is the perceived end, but the hop characters may be a result of the skillful use of hops of other national origins. The use of water with high mineral content results in a crisp, dry beer. This pale gold to deep copper-colored ale has a full, flowery hop aroma and may have a strong hop flavor (in addition to the perception of hop bitterness). India pale ales possess medium maltiness which contributes to a medium body. Fruity-ester flavors and aromas are moderate to very strong. Diacetyl can be absent or may be perceived at very low levels. Chill and\/or hop haze is allowable at cold temperatures. (English and citrus-like American hops are considered enough of a distinction justifying separate American-style IPA and English-style IPA categories or subcategories. Hops of other origins may be used for bitterness or approximating traditional American or English character. See English-style India Pale Ale",
+            "ibuMin": "50",
+            "ibuMax": "70",
+            "abvMin": "6.3",
+            "abvMax": "7.5",
+            "srmMin": "6",
+            "srmMax": "14",
+            "ogMin": "1.06",
+            "fgMin": "1.012",
+            "fgMax": "1.018",
+            "createDate": "2012-03-21 20:06:45",
+            "updateDate": "2015-04-07 15:26:37"
+        },
+        "breweries": [
+            {
+                "id": "Xnf2WT",
+                "name": "Dust Bowl Brewing Company",
+                "nameShortDisplay": "Dust Bowl",
+                "description": "Welcome to Dust Bowl Brewing Company located in Turlock, Ca. We are a small brewing company in the Central Valley of California. Our size allows us to have a very personal and passionate connection to each of our beers. We are continuously testing new flavors and styles to develop our selection of beers. Our goal is to help create a thriving beer culture in the Central Valley.\r\n\r\nOur company is a tribute to the strong-willed, gritty people of the Dust Bowl and Great Depression era. Inspired by the families who came west in search of a new start as well as those who stayed behind to weather the storm. This is great beer born of hard times. Storm\u2019s comin\u2019!",
+                "website": "http:\/\/dustbowlbrewing.com\/",
+                "established": "2009",
+                "isOrganic": "N",
+                "images": {
+                    "icon": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/Xnf2WT\/upload_3SATfB-icon.png",
+                    "medium": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/Xnf2WT\/upload_3SATfB-medium.png",
+                    "large": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/Xnf2WT\/upload_3SATfB-large.png",
+                    "squareMedium": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/Xnf2WT\/upload_3SATfB-squareMedium.png",
+                    "squareLarge": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/Xnf2WT\/upload_3SATfB-squareLarge.png"
+                },
+                "status": "verified",
+                "statusDisplay": "Verified",
+                "createDate": "2012-01-03 02:41:53",
+                "updateDate": "2018-11-08 20:38:22",
+                "isMassOwned": "N",
+                "isInBusiness": "Y",
+                "brewersAssociation": {
+                    "brewersAssocationId": "HLM67XR9E3",
+                    "isCertifiedCraftBrewer": "Y"
+                },
+                "isVerified": "Y",
+                "locations": [
+                    {
+                        "id": "lKsltx",
+                        "name": "Main Brewery",
+                        "streetAddress": "3000 Fulkerth Rd.",
+                        "locality": "Turlock",
+                        "region": "California",
+                        "postalCode": "95380",
+                        "website": "http:\/\/dustbowlbrewing.com\/",
+                        "latitude": 37.5072202,
+                        "longitude": -120.8835209,
+                        "isPrimary": "N",
+                        "inPlanning": "N",
+                        "isClosed": "N",
+                        "openToPublic": "N",
+                        "locationType": "micro",
+                        "locationTypeDisplay": "Micro Brewery",
+                        "countryIsoCode": "US",
+                        "status": "deleted",
+                        "statusDisplay": "Deleted",
+                        "createDate": "2012-01-03 02:41:53",
+                        "updateDate": "2017-08-31 18:57:31",
+                        "forwardingId": "Xnf2WT",
+                        "timezoneId": "America\/Los_Angeles",
+                        "country": {
+                            "isoCode": "US",
+                            "name": "UNITED STATES",
+                            "displayName": "United States",
+                            "isoThree": "USA",
+                            "numberCode": 840,
+                            "createDate": "2012-01-03 02:41:33"
+                        }
+                    },
+                    {
+                        "id": "V8Zeed",
+                        "name": "Dust Bowl Brewing Co.",
+                        "streetAddress": "3000 Fulkerth Rd.",
+                        "locality": "Turlock",
+                        "region": "California",
+                        "postalCode": "95380",
+                        "phone": "209.250.2043",
+                        "website": "http:\/\/www.dustbowlbrewing.com",
+                        "latitude": 37.5065169,
+                        "longitude": -120.8826756,
+                        "isPrimary": "Y",
+                        "inPlanning": "N",
+                        "isClosed": "N",
+                        "openToPublic": "Y",
+                        "locationType": "micro",
+                        "locationTypeDisplay": "Micro Brewery",
+                        "countryIsoCode": "US",
+                        "yearOpened": "2016",
+                        "status": "verified",
+                        "statusDisplay": "Verified",
+                        "createDate": "2016-09-09 18:54:16",
+                        "updateDate": "2017-08-31 18:59:55",
+                        "timezoneId": "America\/Los_Angeles",
+                        "country": {
+                            "isoCode": "US",
+                            "name": "UNITED STATES",
+                            "displayName": "United States",
+                            "isoThree": "USA",
+                            "numberCode": 840,
+                            "createDate": "2012-01-03 02:41:33"
+                        }
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "id": "Hr5A0t",
+        "name": "\"God Country\" Kolsch",
+        "nameDisplay": "\"God Country\" Kolsch",
+        "description": "Good, dense head retention is desirable. Light pearapple-Riesling wine-like fruitiness may be apparent, but is not necessary for this style. Caramel character should not be evident. The body is light to medium-light. This beer has low hop flavor and aroma with medium bitterness. Wheat can be used in brewing this beer. Ale yeast is used for fermentation, though lager yeast is sometimes used in the bottle or final cold conditioning process. Fruity esters should be minimally perceived, if at all. Chill haze should be absent.",
+        "abv": "5.6",
+        "ibu": "28.2",
+        "srmId": 5,
+        "availableId": 1,
+        "styleId": 45,
+        "isOrganic": "N",
+        "isRetired": "N",
+        "status": "verified",
+        "statusDisplay": "Verified",
+        "createDate": "2013-04-28 20:21:56",
+        "updateDate": "2016-05-05 14:07:35",
+        "srm": {
+            "id": 5,
+            "name": "5",
+            "hex": "FBB123"
+        },
+        "available": {
+            "id": 1,
+            "name": "Year Round",
+            "description": "Available year round as a staple beer."
+        },
+        "style": {
+            "id": 45,
+            "categoryId": 4,
+            "category": {
+                "id": 4,
+                "name": "German Origin Ales",
+                "createDate": "2012-03-21 20:06:46"
+            },
+            "name": "German-Style K\u00f6lsch \/ K\u00f6ln-Style K\u00f6lsch",
+            "shortName": "K\u00f6lsch",
+            "description": "K\u00f6lsch is warm fermented and aged at cold temperatures (German ale or alt-style beer). K\u00f6lsch is characterized by a golden to straw color and a slightly dry, subtly sweet softness on the palate, yet crisp. Good, dense head retention is desirable. Light pearapple-Riesling wine-like fruitiness may be apparent, but is not necessary for this style. Caramel character should not be evident. The body is light to medium-light. This beer has low hop flavor and aroma with medium bitterness. Wheat can be used in brewing this beer. Ale yeast is used for fermentation, though lager yeast is sometimes used in the bottle or final cold conditioning process. Fruity esters should be minimally perceived, if at all. Chill haze should be absent.",
+            "ibuMin": "18",
+            "ibuMax": "25",
+            "abvMin": "4.8",
+            "abvMax": "5.3",
+            "srmMin": "4",
+            "srmMax": "6",
+            "ogMin": "1.042",
+            "fgMin": "1.006",
+            "fgMax": "1.01",
+            "createDate": "2012-03-21 20:06:46",
+            "updateDate": "2015-04-07 15:29:04"
+        },
+        "breweries": [
+            {
+                "id": "nkRssU",
+                "name": "Urban Legend Brewing Company",
+                "nameShortDisplay": "Urban Legend",
+                "description": "Urban Legend Brewing Company makes unique beers the traditional way. Beer is our passion. We believe that our beer can make the world and our local community a better place! We use only the highest quality ingredients and make small batches to ensure that we supply our community with the purest, freshest, highest quality beer possible. Our goal is to support local businesses and American manufacturing wherever possible. We are committed to recycling, reusing, and reducing our carbon footprint while at the same time making unique beers for discerning beer lovers and craft beer newbies. We will think local and will contribute to the local economy. \r\nThe beer we produce will be available in our brewery and at local bars, restaurants and liquor stores. Fresh beer always tastes the best! Pints in the taproom, growlers to go, and small scale, local distribution is our way of ensuring our product is in its prime when it gets to your glass. We have a number of staple beers on draught plus we will be providing a rotating line of seasonal and specialty brews. We love to rediscover ancient beer recipes as well as spend a lot of time developing a unique styles.\r\nAs we say.....Great Beer, Born Here.",
+                "website": "http:\/\/www.urbanlegendbrewing.com",
+                "established": "2013",
+                "isOrganic": "N",
+                "images": {
+                    "icon": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/nkRssU\/upload_LYQvIi-icon.png",
+                    "medium": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/nkRssU\/upload_LYQvIi-medium.png",
+                    "large": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/nkRssU\/upload_LYQvIi-large.png",
+                    "squareMedium": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/nkRssU\/upload_LYQvIi-squareMedium.png",
+                    "squareLarge": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/nkRssU\/upload_LYQvIi-squareLarge.png"
+                },
+                "status": "verified",
+                "statusDisplay": "Verified",
+                "createDate": "2013-04-28 19:58:04",
+                "updateDate": "2018-11-08 21:36:45",
+                "isMassOwned": "N",
+                "isInBusiness": "Y",
+                "brewersAssociation": {
+                    "brewersAssocationId": "P7MJ20I5RD",
+                    "isCertifiedCraftBrewer": "Y"
+                },
+                "isVerified": "N",
+                "locations": [
+                    {
+                        "id": "eVgnFV",
+                        "name": "Main Brewery",
+                        "streetAddress": "1115 Zygmunt Circle",
+                        "locality": "Westmont",
+                        "region": "Illinois",
+                        "postalCode": "60559",
+                        "phone": "(630) 442-7684",
+                        "website": "http:\/\/www.urbanlegendbrewing.com\/",
+                        "latitude": 41.7754595,
+                        "longitude": -87.9822332,
+                        "isPrimary": "Y",
+                        "inPlanning": "N",
+                        "isClosed": "Y",
+                        "openToPublic": "N",
+                        "locationType": "micro",
+                        "locationTypeDisplay": "Micro Brewery",
+                        "countryIsoCode": "US",
+                        "yearOpened": "2012",
+                        "status": "verified",
+                        "statusDisplay": "Verified",
+                        "createDate": "2013-04-28 20:15:44",
+                        "updateDate": "2019-06-13 16:21:49",
+                        "country": {
+                            "isoCode": "US",
+                            "name": "UNITED STATES",
+                            "displayName": "United States",
+                            "isoThree": "USA",
+                            "numberCode": 840,
+                            "createDate": "2012-01-03 02:41:33"
+                        }
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "id": "UjFyXJ",
+        "name": "\"Hey Victor\" Smoked Porter",
+        "nameDisplay": "\"Hey Victor\" Smoked Porter",
+        "description": "Rooted in Western pop culture, our porter is named for the film, Smoke Signals, and is also related to Sherman Alexie\u2019s story, \u201cThis is What it Means to Say, \u2018Phoenix, Arizona.\u2019\u201d\r\n\r\nOur smoked porter is very approachable; it\u2019s not overly smoky and its blend of malts (Maris Otter, English Brown and chocolate) and hops (East Kent Golding, & Fuggle) will remind you of hikes, s\u2019mores and cool, dusky campfires in the Snowies. Take a growler to the mountains and enjoy its rich color and flavor.",
+        "abv": "5.5",
+        "styleId": 129,
+        "isOrganic": "N",
+        "isRetired": "N",
+        "status": "verified",
+        "statusDisplay": "Verified",
+        "createDate": "2014-09-18 18:42:18",
+        "updateDate": "2015-05-20 13:48:06",
+        "style": {
+            "id": 129,
+            "categoryId": 11,
+            "category": {
+                "id": 11,
+                "name": "Hybrid\/mixed Beer",
+                "createDate": "2012-03-21 20:06:46"
+            },
+            "name": "Smoke Beer (Lager or Ale)",
+            "shortName": "Smoke Beer",
+            "description": "Any style of beer can be smoked; the goal is to reach a balance between the style's character and the smoky properties. Type of wood or other sources of smoke should be specified as well as the style the beer is based upon.",
+            "createDate": "2012-03-21 20:06:46",
+            "updateDate": "2015-04-07 15:45:19"
+        },
+        "breweries": [
+            {
+                "id": "Eu8QY2",
+                "name": "Coal Creek TAP",
+                "nameShortDisplay": "Coal Creek TAP",
+                "description": "Coal Creek turned 21, so naturally, we opened a nano-brewery! Visit us at 108 Grand Ave. located right next door to the downtown Coal Creek Coffee shop. Currently, we have 13 different brews on tap, ensuring that everyone will find something to love. Every beer is hand-crafted on site by owner and brew-master, John Guerin, a long-time business owner and Laramie entrepreneur. At Coal Creek TAP we encourage you to break out of your beer comfort zone and experience something new. And, if you're not ready to commit to a pint, we offer 5oz. and 10oz. pours as well as flights of our beers. We've got something for everyone's palate: a light, fruity and refreshing pilsner; a rich and creamy smoked porter, a variety of pale ales and IPA's, and big, bright and spicy Belgians!",
+                "isOrganic": "N",
+                "images": {
+                    "icon": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/Eu8QY2\/upload_U5zfe7-icon.png",
+                    "medium": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/Eu8QY2\/upload_U5zfe7-medium.png",
+                    "large": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/Eu8QY2\/upload_U5zfe7-large.png",
+                    "squareMedium": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/Eu8QY2\/upload_U5zfe7-squareMedium.png",
+                    "squareLarge": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/Eu8QY2\/upload_U5zfe7-squareLarge.png"
+                },
+                "status": "verified",
+                "statusDisplay": "Verified",
+                "createDate": "2014-09-18 18:35:32",
+                "updateDate": "2018-11-08 23:14:18",
+                "isMassOwned": "N",
+                "isInBusiness": "Y",
+                "brewersAssociation": {
+                    "brewersAssocationId": "P5JZD3FY9W",
+                    "isCertifiedCraftBrewer": "Y"
+                },
+                "isVerified": "N",
+                "locations": [
+                    {
+                        "id": "uzOl1k",
+                        "name": "Main Brewery",
+                        "streetAddress": "108 E Grand Ave",
+                        "locality": "Laramie",
+                        "region": "Wyoming",
+                        "postalCode": "82070",
+                        "phone": "(307)460-9556",
+                        "latitude": 41.3109894,
+                        "longitude": -105.5957587,
+                        "isPrimary": "Y",
+                        "inPlanning": "N",
+                        "isClosed": "N",
+                        "openToPublic": "Y",
+                        "locationType": "micro",
+                        "locationTypeDisplay": "Micro Brewery",
+                        "countryIsoCode": "US",
+                        "status": "verified",
+                        "statusDisplay": "Verified",
+                        "createDate": "2014-09-18 18:37:45",
+                        "updateDate": "2014-09-18 18:37:45",
+                        "hoursOfOperationExplicit": {
+                            "mon": [
+                                {
+                                    "startTime": "12:00pm",
+                                    "endTime": "11:00pm"
+                                }
+                            ],
+                            "tue": [
+                                {
+                                    "startTime": "12:00pm",
+                                    "endTime": "11:00pm"
+                                }
+                            ],
+                            "wed": [
+                                {
+                                    "startTime": "12:00pm",
+                                    "endTime": "11:00pm"
+                                }
+                            ],
+                            "thu": [
+                                {
+                                    "startTime": "12:00pm",
+                                    "endTime": "11:00pm"
+                                }
+                            ],
+                            "fri": [
+                                {
+                                    "startTime": "12:00pm",
+                                    "endTime": "11:00pm"
+                                }
+                            ],
+                            "sat": [
+                                {
+                                    "startTime": "12:00pm",
+                                    "endTime": "11:00pm"
+                                }
+                            ],
+                            "sun": [
+                                {
+                                    "startTime": "12:00pm",
+                                    "endTime": "11:00pm"
+                                }
+                            ]
+                        },
+                        "hoursOfOperationExplicitString": "mon-12:00pm-11:00pm,tue-12:00pm-11:00pm,wed-12:00pm-11:00pm,thu-12:00pm-11:00pm,fri-12:00pm-11:00pm,sat-12:00pm-11:00pm,sun-12:00pm-11:00pm",
+                        "timezoneId": "America\/Denver",
+                        "country": {
+                            "isoCode": "US",
+                            "name": "UNITED STATES",
+                            "displayName": "United States",
+                            "isoThree": "USA",
+                            "numberCode": 840,
+                            "createDate": "2012-01-03 02:41:33"
+                        }
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "id": "mwTzYN",
+        "name": "\"I'm Idaho!\" XPA",
+        "nameDisplay": "\"I'm Idaho!\" XPA",
+        "description": "This beer might be light in color but it's definitely flavour fuelled! We wanted to showcase tropical American hops in this XPA, and among them the new hop variety Idaho 7.",
+        "abv": "4.8",
+        "ibu": "40",
+        "styleId": 25,
+        "isOrganic": "N",
+        "isRetired": "N",
+        "labels": {
+            "icon": "https:\/\/brewerydb-images.s3.amazonaws.com\/beer\/mwTzYN\/upload_79fUJ5-icon.png",
+            "medium": "https:\/\/brewerydb-images.s3.amazonaws.com\/beer\/mwTzYN\/upload_79fUJ5-medium.png",
+            "large": "https:\/\/brewerydb-images.s3.amazonaws.com\/beer\/mwTzYN\/upload_79fUJ5-large.png",
+            "contentAwareIcon": "https:\/\/brewerydb-images.s3.amazonaws.com\/beer\/mwTzYN\/upload_79fUJ5-contentAwareIcon.png",
+            "contentAwareMedium": "https:\/\/brewerydb-images.s3.amazonaws.com\/beer\/mwTzYN\/upload_79fUJ5-contentAwareMedium.png",
+            "contentAwareLarge": "https:\/\/brewerydb-images.s3.amazonaws.com\/beer\/mwTzYN\/upload_79fUJ5-contentAwareLarge.png"
+        },
+        "status": "verified",
+        "statusDisplay": "Verified",
+        "createDate": "2018-07-11 19:38:21",
+        "updateDate": "2018-07-11 19:39:17",
+        "style": {
+            "id": 25,
+            "categoryId": 3,
+            "category": {
+                "id": 3,
+                "name": "North American Origin Ales",
+                "createDate": "2012-03-21 20:06:45"
+            },
+            "name": "American-Style Pale Ale",
+            "shortName": "American Pale",
+            "description": "American pale ales range from deep golden to copper in color. The style is characterized by fruity, floral and citrus-like American-variety hop character producing medium to medium-high hop bitterness, flavor, and aroma. Note that the \"traditional\" style of this beer has its origins with certain floral, fruity, citrus-like, piney, resinous, or sulfur-like American hop varietals. One or more of these hop characters is the perceived end, but the perceived hop characters may be a result of the skillful use of hops of other national origins. American pale ales have medium body and low to medium maltiness. Low caramel character is allowable. Fruity-ester flavor and aroma should be moderate to strong. Diacetyl should be absent or present at very low levels. Chill haze is allowable at cold temperatures.",
+            "ibuMin": "30",
+            "ibuMax": "42",
+            "abvMin": "4.5",
+            "abvMax": "5.6",
+            "srmMin": "6",
+            "srmMax": "14",
+            "ogMin": "1.044",
+            "fgMin": "1.008",
+            "fgMax": "1.014",
+            "createDate": "2012-03-21 20:06:45",
+            "updateDate": "2015-04-07 15:25:18"
+        },
+        "breweries": [
+            {
+                "id": "E3f430",
+                "name": "Deep Creek Brewing (New Zealand)",
+                "nameShortDisplay": "Deep Creek (New Zealand)",
+                "description": "Deep Creek Brewery is located a short hop from our Browns Bay birthplace. Located in Silverdale, Auckland, our awesome team of craft brewers consistently strive to produce interesting, flavour-fuelled brews of the highest quality.\r\n\r\nIt\u2019s also here where you\u2019ll find the Deep Creek tap room, so you can get beer directly from the source!\r\n\r\nHamish is our head brewer here at Deep Creek and leads the team of dedicated and highly skilled brewers.  Hamish, Johan, Dylan and the team are behind our award-winning beers and work closely with Jarred and Paul on brewing styles and new and interesting flavours, constantly pushing to achieve the best brews possible.\r\n\r\nWe still periodically brew at the brew pub in Browns Bay, making unique brewpub beers, including bringing back some of the original beers for old time\u2019s sake.",
+                "website": "http:\/\/www.dcbrewing.co.nz\/",
+                "established": "1996",
+                "isOrganic": "N",
+                "images": {
+                    "icon": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/E3f430\/upload_4DqgUW-icon.png",
+                    "medium": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/E3f430\/upload_4DqgUW-medium.png",
+                    "large": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/E3f430\/upload_4DqgUW-large.png",
+                    "squareMedium": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/E3f430\/upload_4DqgUW-squareMedium.png",
+                    "squareLarge": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/E3f430\/upload_4DqgUW-squareLarge.png"
+                },
+                "status": "verified",
+                "statusDisplay": "Verified",
+                "createDate": "2012-01-03 02:41:52",
+                "updateDate": "2018-11-08 18:59:55",
+                "isMassOwned": "N",
+                "isInBusiness": "Y",
+                "isVerified": "N",
+                "locations": [
+                    {
+                        "id": "wCmrsY",
+                        "name": "Main Brewery",
+                        "streetAddress": "4i Titan Place",
+                        "region": "Silverdale",
+                        "postalCode": "0932",
+                        "phone": "64 (9) 215-6030",
+                        "website": "http:\/\/www.dcbrewing.co.nz\/",
+                        "latitude": -36.6169248,
+                        "longitude": 174.6815822,
+                        "isPrimary": "Y",
+                        "inPlanning": "N",
+                        "isClosed": "Y",
+                        "openToPublic": "N",
+                        "locationType": "micro",
+                        "locationTypeDisplay": "Micro Brewery",
+                        "countryIsoCode": "NZ",
+                        "yearOpened": "1996",
+                        "status": "verified",
+                        "statusDisplay": "Verified",
+                        "createDate": "2012-01-03 02:41:52",
+                        "updateDate": "2018-07-10 17:54:58",
+                        "hoursOfOperationExplicit": {
+                            "mon": [
+                                {
+                                    "startTime": "9:00am",
+                                    "endTime": "5:00pm"
+                                }
+                            ],
+                            "tue": [
+                                {
+                                    "startTime": "9:00am",
+                                    "endTime": "5:00pm"
+                                }
+                            ],
+                            "wed": [
+                                {
+                                    "startTime": "9:00am",
+                                    "endTime": "5:00pm"
+                                }
+                            ],
+                            "thu": [
+                                {
+                                    "startTime": "9:00am",
+                                    "endTime": "5:00pm"
+                                }
+                            ],
+                            "fri": [
+                                {
+                                    "startTime": "9:00am",
+                                    "endTime": "7:00pm"
+                                }
+                            ],
+                            "sat": [
+                                {
+                                    "startTime": "11:00am",
+                                    "endTime": "6:00pm"
+                                }
+                            ]
+                        },
+                        "hoursOfOperationExplicitString": "mon-9:00am-5:00pm,tue-9:00am-5:00pm,wed-9:00am-5:00pm,thu-9:00am-5:00pm,fri-9:00am-7:00pm,sat-11:00am-6:00pm",
+                        "timezoneId": "Pacific\/Auckland",
+                        "country": {
+                            "isoCode": "NZ",
+                            "name": "NEW ZEALAND",
+                            "displayName": "New Zealand",
+                            "isoThree": "NZL",
+                            "numberCode": 554,
+                            "createDate": "2012-01-03 02:41:33"
+                        }
+                    },
+                    {
+                        "id": "t7h3IF",
+                        "name": "Deep Creek Brews and Eats",
+                        "streetAddress": "111 Clyde Road",
+                        "locality": "Browns Bay",
+                        "region": "Auckland",
+                        "postalCode": "0630",
+                        "phone": "09-479-6665",
+                        "website": "http:\/\/deepcreekbrewbar.co.nz\/contact\/",
+                        "latitude": -36.7136342,
+                        "longitude": 174.7486667,
+                        "isPrimary": "N",
+                        "inPlanning": "N",
+                        "isClosed": "N",
+                        "openToPublic": "Y",
+                        "locationType": "brewpub",
+                        "locationTypeDisplay": "Brewpub",
+                        "countryIsoCode": "NZ",
+                        "status": "verified",
+                        "statusDisplay": "Verified",
+                        "createDate": "2018-07-10 17:57:25",
+                        "updateDate": "2018-07-10 17:58:15",
+                        "hoursOfOperationExplicit": {
+                            "mon": [
+                                {
+                                    "startTime": "11:00am",
+                                    "endTime": "11:00pm"
+                                }
+                            ],
+                            "tue": [
+                                {
+                                    "startTime": "11:00am",
+                                    "endTime": "11:00pm"
+                                }
+                            ],
+                            "wed": [
+                                {
+                                    "startTime": "11:00am",
+                                    "endTime": "11:00pm"
+                                }
+                            ],
+                            "thu": [
+                                {
+                                    "startTime": "11:00am",
+                                    "endTime": "11:00pm"
+                                }
+                            ],
+                            "fri": [
+                                {
+                                    "startTime": "11:00am",
+                                    "endTime": "11:00pm"
+                                }
+                            ],
+                            "sat": [
+                                {
+                                    "startTime": "11:00am",
+                                    "endTime": "11:00pm"
+                                }
+                            ],
+                            "sun": [
+                                {
+                                    "startTime": "11:00am",
+                                    "endTime": "11:00pm"
+                                }
+                            ]
+                        },
+                        "hoursOfOperationExplicitString": "mon-11:00am-11:00pm,tue-11:00am-11:00pm,wed-11:00am-11:00pm,thu-11:00am-11:00pm,fri-11:00am-11:00pm,sat-11:00am-11:00pm,sun-11:00am-11:00pm",
+                        "timezoneId": "Pacific\/Auckland",
+                        "country": {
+                            "isoCode": "NZ",
+                            "name": "NEW ZEALAND",
+                            "displayName": "New Zealand",
+                            "isoThree": "NZL",
+                            "numberCode": 554,
+                            "createDate": "2012-01-03 02:41:33"
+                        }
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "id": "5UcMBc",
+        "name": "\"Ignition\" IPA",
+        "nameDisplay": "\"Ignition\" IPA",
+        "description": "This medium amber beer is infused with a blend of 2-row malted barley and caramel malts. Its balance acquired by using a combination of Pacific Northwest hops for bitterness and aroma.",
+        "abv": "6.6",
+        "ibu": "45",
+        "glasswareId": 5,
+        "availableId": 1,
+        "styleId": 30,
+        "isOrganic": "N",
+        "isRetired": "N",
+        "status": "verified",
+        "statusDisplay": "Verified",
+        "createDate": "2013-07-27 14:02:13",
+        "updateDate": "2015-03-18 18:05:08",
+        "glass": {
+            "id": 5,
+            "name": "Pint",
+            "createDate": "2012-01-03 02:41:33"
+        },
+        "available": {
+            "id": 1,
+            "name": "Year Round",
+            "description": "Available year round as a staple beer."
+        },
+        "style": {
+            "id": 30,
+            "categoryId": 3,
+            "category": {
+                "id": 3,
+                "name": "North American Origin Ales",
+                "createDate": "2012-03-21 20:06:45"
+            },
+            "name": "American-Style India Pale Ale",
+            "shortName": "American IPA",
+            "description": "American-style India pale ales are perceived to have medium-high to intense hop bitterness, flavor and aroma with medium-high alcohol content. The style is further characterized by floral, fruity, citrus-like, piney, resinous, or sulfur-like American-variety hop character. Note that one or more of these American-variety hop characters is the perceived end, but the hop characters may be a result of the skillful use of hops of other national origins. The use of water with high mineral content results in a crisp, dry beer. This pale gold to deep copper-colored ale has a full, flowery hop aroma and may have a strong hop flavor (in addition to the perception of hop bitterness). India pale ales possess medium maltiness which contributes to a medium body. Fruity-ester flavors and aromas are moderate to very strong. Diacetyl can be absent or may be perceived at very low levels. Chill and\/or hop haze is allowable at cold temperatures. (English and citrus-like American hops are considered enough of a distinction justifying separate American-style IPA and English-style IPA categories or subcategories. Hops of other origins may be used for bitterness or approximating traditional American or English character. See English-style India Pale Ale",
+            "ibuMin": "50",
+            "ibuMax": "70",
+            "abvMin": "6.3",
+            "abvMax": "7.5",
+            "srmMin": "6",
+            "srmMax": "14",
+            "ogMin": "1.06",
+            "fgMin": "1.012",
+            "fgMax": "1.018",
+            "createDate": "2012-03-21 20:06:45",
+            "updateDate": "2015-04-07 15:26:37"
+        },
+        "breweries": [
+            {
+                "id": "H8jawh",
+                "name": "Working Man Brewing Company",
+                "nameShortDisplay": "Working Man",
+                "description": "Working Man Brewing is Livermore\u2019s newest brewery, located at 5542 Brisa Street, just off of Vasco Road.  Getting the brewery up and running has been a labor of love for the owners, taking the better part of 18 months to turn the space into a full production brewery.  We are excited to finally bring our love of beer and commitment to quality to Livermore, the Tri-Valley, and beyond.\r\n\r\nOur story is one of two independent breweries, Mt. Diablo Brewing and Working Man Brewing Company, coming together to work on one common goal.  Both companies were founded by award-winning home brewers who have a passion to bring high quality, well crafted beer that is fresh and local.  A chance meeting brought these working men together; a shared vision now combines forces under one name, Working Man Brewing Company.\r\n\r\nThe company\u2019s brewers have each have spent years working to perfect great beer recipes.  Beer geeks at heart, both will tinker and tweak the ingredients until the product is just right.  The main goal always being to make a beer they could be proud to share and proud to drink. We never let a beer go out the door that we don\u2019t believe in.",
+                "website": "http:\/\/www.workingmanbrewing.com\/",
+                "established": "2013",
+                "mailingListUrl": "http:\/\/beer.wickedcode.com\/?page_id=641",
+                "isOrganic": "N",
+                "images": {
+                    "icon": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/H8jawh\/upload_8EmbmI-icon.png",
+                    "medium": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/H8jawh\/upload_8EmbmI-medium.png",
+                    "large": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/H8jawh\/upload_8EmbmI-large.png",
+                    "squareMedium": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/H8jawh\/upload_8EmbmI-squareMedium.png",
+                    "squareLarge": "https:\/\/brewerydb-images.s3.amazonaws.com\/brewery\/H8jawh\/upload_8EmbmI-squareLarge.png"
+                },
+                "status": "verified",
+                "statusDisplay": "Verified",
+                "createDate": "2013-07-26 18:34:10",
+                "updateDate": "2018-11-08 20:57:42",
+                "isMassOwned": "N",
+                "isInBusiness": "Y",
+                "brewersAssociation": {
+                    "brewersAssocationId": "UJ82YQDSGH",
+                    "isCertifiedCraftBrewer": "Y"
+                },
+                "isVerified": "N",
+                "locations": [
+                    {
+                        "id": "kDhJT9",
+                        "name": "Main Brewery",
+                        "streetAddress": "5542 Brisa Street",
+                        "extendedAddress": "Suite F",
+                        "locality": "Livermore",
+                        "region": "California",
+                        "postalCode": "94550",
+                        "phone": "(925) 269-9622",
+                        "website": "http:\/\/www.workingmanbrewing.com\/",
+                        "hoursOfOperation": "Friday 4-7PM\r\nSaturday 12-6PM\r\nSunday 12-4PM",
+                        "latitude": 37.697526,
+                        "longitude": -121.725189,
+                        "isPrimary": "Y",
+                        "inPlanning": "N",
+                        "isClosed": "N",
+                        "openToPublic": "Y",
+                        "locationType": "micro",
+                        "locationTypeDisplay": "Micro Brewery",
+                        "countryIsoCode": "US",
+                        "yearOpened": "2013",
+                        "status": "verified",
+                        "statusDisplay": "Verified",
+                        "createDate": "2013-07-27 14:00:54",
+                        "updateDate": "2014-07-23 19:11:34",
+                        "hoursOfOperationNotes": "Friday 4-7PM\r\nSaturday 12-6PM\r\nSunday 12-4PM",
+                        "country": {
+                            "isoCode": "US",
+                            "name": "UNITED STATES",
+                            "displayName": "United States",
+                            "isoThree": "USA",
+                            "numberCode": 840,
+                            "createDate": "2012-01-03 02:41:33"
+                        }
+                    }
+                ]
+            }
+        ]
+    }
+]

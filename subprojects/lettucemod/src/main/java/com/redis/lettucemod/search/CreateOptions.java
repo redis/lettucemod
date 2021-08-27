@@ -5,6 +5,7 @@ import com.redis.lettucemod.search.protocol.RediSearchCommandArgs;
 import lombok.*;
 
 import java.util.List;
+import java.util.Objects;
 
 @Data
 @Builder
@@ -41,7 +42,7 @@ public class CreateOptions<K, V> implements RediSearchArgument<K, V> {
             args.add(CommandKeyword.ON);
             args.add(on.name());
         }
-        if (prefixes != null) {
+        if (prefixes != null && !prefixes.isEmpty()) {
             args.add(CommandKeyword.PREFIX);
             args.add(prefixes.size());
             prefixes.forEach(args::addKey);
