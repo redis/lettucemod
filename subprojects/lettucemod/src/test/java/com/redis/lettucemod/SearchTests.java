@@ -26,6 +26,7 @@ import com.redis.lettucemod.search.aggregate.Limit;
 import com.redis.lettucemod.search.aggregate.SortBy;
 import com.redis.lettucemod.search.aggregate.reducers.Avg;
 import com.redis.lettucemod.search.aggregate.reducers.Count;
+import com.redis.lettucemod.search.aggregate.reducers.Max;
 import com.redis.lettucemod.search.aggregate.reducers.ToList;
 import com.redis.testcontainers.RedisServer;
 import io.lettuce.core.LettuceFutures;
@@ -454,6 +455,17 @@ public class SearchTests extends AbstractModuleTestBase {
         AggregateOptions<String, String> groupByOptions = AggregateOptions.operation(GroupBy.<String, String>property(STYLE).reducer(Avg.property(ABV).as(ABV).build()).build()).operation(SortBy.<String, String>property(SortBy.Property.name(ABV).order(Order.DESC)).build()).operation(Limit.<String, String>offset(0).num(20)).build();
         groupByAsserts.accept(sync.aggregate(INDEX, "*", groupByOptions));
         groupByAsserts.accept(reactive.aggregate(INDEX, "*", groupByOptions).block());
+
+        Consumer<AggregateResults<String>> groupBy0Asserts = results -> {
+            assertEquals(1, results.getCount());
+            assertEquals(1, results.size());
+            Double maxAbv = Double.parseDouble((String) results.get(0).get(ABV));
+            assertEquals(0.128, maxAbv);
+        };
+
+        AggregateOptions<String, String> groupBy0Options = AggregateOptions.operation(GroupBy.<String, String>reducer(Max.property(ABV).as(ABV).build()).build()).build();
+        groupBy0Asserts.accept(sync.aggregate(INDEX, "*", groupBy0Options));
+        groupBy0Asserts.accept(reactive.aggregate(INDEX, "*", groupBy0Options).block());
 
         Consumer<AggregateResults<String>> groupBy2Asserts = results -> {
             assertEquals(100, results.getCount());

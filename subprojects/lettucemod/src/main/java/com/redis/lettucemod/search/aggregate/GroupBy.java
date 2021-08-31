@@ -15,10 +15,10 @@ public class GroupBy<K, V> implements AggregateOptions.Operation<K, V> {
     private final AggregateOptions.Reducer[] reducers;
 
     public GroupBy(String[] properties, AggregateOptions.Reducer[] reducers) {
-        LettuceAssert.notEmpty(properties, "Group must have at least one property");
-        LettuceAssert.noNullElements(properties, "Properties must not be null");
+        LettuceAssert.notNull(properties, "Properties must not be null");
+        LettuceAssert.noNullElements(properties, "Property elements must not be null");
         LettuceAssert.notEmpty(reducers, "Group must have at least one reducer");
-        LettuceAssert.noNullElements(reducers, "Reducers must not be null");
+        LettuceAssert.noNullElements(reducers, "Reducer elements must not be null");
         this.properties = properties;
         this.reducers = reducers;
     }
@@ -40,8 +40,12 @@ public class GroupBy<K, V> implements AggregateOptions.Operation<K, V> {
         return properties(property);
     }
 
-    public static <K,V> GroupByBuilder<K, V> properties(String... properties) {
+    public static <K, V> GroupByBuilder<K, V> properties(String... properties) {
         return new GroupByBuilder<>(properties);
+    }
+
+    public static <K, V> GroupByBuilder<K, V> reducer(AggregateOptions.Reducer reducer) {
+        return new GroupByBuilder<K, V>().reducer(reducer);
     }
 
     public static class GroupByBuilder<K, V> {
