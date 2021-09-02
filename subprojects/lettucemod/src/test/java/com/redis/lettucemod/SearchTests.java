@@ -5,29 +5,28 @@ import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import com.redis.lettucemod.api.async.RedisModulesAsyncCommands;
 import com.redis.lettucemod.api.reactive.RedisModulesReactiveCommands;
 import com.redis.lettucemod.api.sync.RedisModulesCommands;
-import com.redis.lettucemod.search.AggregateOptions;
-import com.redis.lettucemod.search.AggregateResults;
-import com.redis.lettucemod.search.AggregateWithCursorResults;
-import com.redis.lettucemod.search.CreateOptions;
-import com.redis.lettucemod.search.Cursor;
-import com.redis.lettucemod.search.Document;
-import com.redis.lettucemod.search.Field;
-import com.redis.lettucemod.search.IndexInfo;
-import com.redis.lettucemod.search.Language;
-import com.redis.lettucemod.search.Order;
-import com.redis.lettucemod.search.RediSearchUtils;
-import com.redis.lettucemod.search.SearchOptions;
-import com.redis.lettucemod.search.SearchResults;
-import com.redis.lettucemod.search.SugaddOptions;
-import com.redis.lettucemod.search.Suggestion;
-import com.redis.lettucemod.search.SuggetOptions;
-import com.redis.lettucemod.search.aggregate.GroupBy;
-import com.redis.lettucemod.search.aggregate.Limit;
-import com.redis.lettucemod.search.aggregate.SortBy;
-import com.redis.lettucemod.search.aggregate.reducers.Avg;
-import com.redis.lettucemod.search.aggregate.reducers.Count;
-import com.redis.lettucemod.search.aggregate.reducers.Max;
-import com.redis.lettucemod.search.aggregate.reducers.ToList;
+import com.redis.lettucemod.api.search.AggregateOptions;
+import com.redis.lettucemod.api.search.AggregateResults;
+import com.redis.lettucemod.api.search.AggregateWithCursorResults;
+import com.redis.lettucemod.api.search.CreateOptions;
+import com.redis.lettucemod.api.search.Cursor;
+import com.redis.lettucemod.api.search.Document;
+import com.redis.lettucemod.api.search.Field;
+import com.redis.lettucemod.api.search.IndexInfo;
+import com.redis.lettucemod.api.search.Language;
+import com.redis.lettucemod.api.search.Order;
+import com.redis.lettucemod.api.search.SearchOptions;
+import com.redis.lettucemod.api.search.SearchResults;
+import com.redis.lettucemod.api.search.SugaddOptions;
+import com.redis.lettucemod.api.search.Suggestion;
+import com.redis.lettucemod.api.search.SuggetOptions;
+import com.redis.lettucemod.api.search.aggregate.GroupBy;
+import com.redis.lettucemod.api.search.aggregate.Limit;
+import com.redis.lettucemod.api.search.aggregate.SortBy;
+import com.redis.lettucemod.api.search.aggregate.reducers.Avg;
+import com.redis.lettucemod.api.search.aggregate.reducers.Count;
+import com.redis.lettucemod.api.search.aggregate.reducers.Max;
+import com.redis.lettucemod.api.search.aggregate.reducers.ToList;
 import com.redis.testcontainers.RedisServer;
 import io.lettuce.core.LettuceFutures;
 import io.lettuce.core.RedisCommandExecutionException;
@@ -130,10 +129,10 @@ public class SearchTests extends AbstractModuleTestBase {
         double longitude = -118.753604;
         double latitude = 34.027201;
         String locationString = "-118.753604,34.027201";
-        RediSearchUtils.GeoLocation location = RediSearchUtils.GeoLocation.of(locationString);
+        Utils.GeoLocation location = Utils.GeoLocation.of(locationString);
         Assertions.assertEquals(longitude, location.getLongitude());
         Assertions.assertEquals(latitude, location.getLatitude());
-        Assertions.assertEquals(locationString, RediSearchUtils.GeoLocation.toString(String.valueOf(longitude), String.valueOf(latitude)));
+        Assertions.assertEquals(locationString, Utils.GeoLocation.toString(String.valueOf(longitude), String.valueOf(latitude)));
     }
 
     @ParameterizedTest
@@ -189,14 +188,14 @@ public class SearchTests extends AbstractModuleTestBase {
         LettuceFutures.awaitAll(RedisURI.DEFAULT_TIMEOUT_DURATION, futures.toArray(new RedisFuture[0]));
         Thread.sleep(1000);
         async.setAutoFlushCommands(true);
-        IndexInfo info = RediSearchUtils.indexInfo(sync.indexInfo(indexName));
+        IndexInfo info = Utils.indexInfo(sync.indexInfo(indexName));
         Double numDocs = info.getNumDocs();
         assertEquals(2348, numDocs);
 
         CreateOptions<String, String> options = CreateOptions.<String, String>builder().prefix("release:").payloadField("xml").build();
         Field[] fields = new Field[]{Field.text("artist").sortable().build(), Field.tag("id").sortable().build(), Field.text("title").sortable().build()};
         sync.create("releases", options, fields);
-        info = RediSearchUtils.indexInfo(sync.indexInfo("releases"));
+        info = Utils.indexInfo(sync.indexInfo("releases"));
         Assertions.assertEquals(fields.length, info.getFields().size());
 
 
@@ -214,7 +213,7 @@ public class SearchTests extends AbstractModuleTestBase {
         fail("Temporary index not deleted");
 
 
-        sync.dropIndex(INDEX);
+        sync.dropindex(INDEX);
         // allow some time for the index to be deleted
         Thread.sleep(100);
         try {
@@ -240,7 +239,7 @@ public class SearchTests extends AbstractModuleTestBase {
     public void testDropIndexDeleteDocs(RedisServer redis) throws InterruptedException {
         createBeerIndex(redis);
         RedisModulesCommands<String, String> sync = sync(redis);
-        sync.dropIndexDeleteDocs(INDEX);
+        sync.dropindexDeleteDocs(INDEX);
         Thread.sleep(1000);
         try {
             sync.indexInfo(INDEX);
@@ -375,7 +374,7 @@ public class SearchTests extends AbstractModuleTestBase {
         Map<String, String> doc1 = new HashMap<>();
         doc1.put(idField, "chris@blah.org,User1#test.org,usersdfl@example.com");
         async.hmset("doc1", doc1).get();
-        results = async.search(index, "@id:{" + RediSearchUtils.escapeTag("User1#test.org") + "}").get();
+        results = async.search(index, "@id:{" + Utils.escapeTag("User1#test.org") + "}").get();
         Assertions.assertEquals(1, results.size());
 
         SearchResults<String, String> filterResults = sync.search(INDEX, "*", SearchOptions.<String, String>builder().filter(SearchOptions.NumericFilter.<String, String>field(ABV).min(.08).max(.1)).build());
@@ -508,15 +507,15 @@ public class SearchTests extends AbstractModuleTestBase {
         String alias = "alias123";
 
         RedisModulesCommands<String, String> sync = sync(redis);
-        sync.aliasAdd(alias, INDEX);
+        sync.aliasadd(alias, INDEX);
         SearchResults<String, String> results = sync.search(alias, "*");
         assertTrue(results.size() > 0);
 
         String newAlias = "alias456";
-        sync.aliasUpdate(newAlias, INDEX);
+        sync.aliasupdate(newAlias, INDEX);
         assertTrue(sync.search(newAlias, "*").size() > 0);
 
-        sync.aliasDel(newAlias);
+        sync.aliasdel(newAlias);
         try {
             sync.search(newAlias, "*");
             fail("Alias was not removed");
@@ -524,17 +523,17 @@ public class SearchTests extends AbstractModuleTestBase {
             assertTrue(e.getMessage().contains("no such index") || e.getMessage().contains("Unknown Index name"));
         }
 
-        sync.aliasDel(alias);
+        sync.aliasdel(alias);
         RedisModulesAsyncCommands<String, String> async = async(redis);
         // ASYNC
-        async.aliasAdd(alias, INDEX).get();
+        async.aliasadd(alias, INDEX).get();
         results = async.search(alias, "*").get();
         assertTrue(results.size() > 0);
 
-        async.aliasUpdate(newAlias, INDEX).get();
+        async.aliasupdate(newAlias, INDEX).get();
         assertTrue(async.search(newAlias, "*").get().size() > 0);
 
-        async.aliasDel(newAlias).get();
+        async.aliasdel(newAlias).get();
         try {
             async.search(newAlias, "*").get();
             fail("Alias was not removed");
@@ -542,20 +541,20 @@ public class SearchTests extends AbstractModuleTestBase {
             assertTrue(e.getCause().getMessage().contains("no such index") || e.getCause().getMessage().contains("Unknown Index name"));
         }
 
-        sync.aliasDel(alias);
+        sync.aliasdel(alias);
 
         RedisModulesReactiveCommands<String, String> reactive = reactive(redis);
         // REACTIVE
-        reactive.aliasAdd(alias, INDEX).block();
+        reactive.aliasadd(alias, INDEX).block();
         results = reactive.search(alias, "*").block();
         assertTrue(results.size() > 0);
 
-        reactive.aliasUpdate(newAlias, INDEX).block();
+        reactive.aliasupdate(newAlias, INDEX).block();
         results = reactive.search(newAlias, "*").block();
         Assertions.assertFalse(results.isEmpty());
 
 
-        reactive.aliasDel(newAlias).block();
+        reactive.aliasdel(newAlias).block();
         try {
             reactive.search(newAlias, "*").block();
             fail("Alias was not removed");
@@ -570,7 +569,7 @@ public class SearchTests extends AbstractModuleTestBase {
     void info(RedisServer redis) throws ExecutionException, InterruptedException {
         createBeerIndex(redis);
         List<Object> infoList = async(redis).indexInfo(INDEX).get();
-        IndexInfo info = RediSearchUtils.indexInfo(infoList);
+        IndexInfo info = Utils.indexInfo(infoList);
         Assertions.assertEquals(2348, info.getNumDocs());
         List<Field> fields = info.getFields();
         Field.Text nameField = (Field.Text) fields.get(0);
@@ -589,8 +588,8 @@ public class SearchTests extends AbstractModuleTestBase {
     void tagVals(RedisServer redis) {
         createBeerIndex(redis);
         Set<String> TAG_VALS = new HashSet<>(Arrays.asList("american pale lager", "american pale ale (apa)", "american pale wheat ale", "american porter", "american pilsner", "american ipa", "american india pale lager", "american double / imperial ipa", "american double / imperial stout", "american double / imperial pilsner", "american dark wheat ale", "american barleywine", "american black ale", "american blonde ale", "american brown ale", "american stout", "american strong ale", "american amber / red ale", "american amber / red lager", "american adjunct lager", "american wild ale", "american white ipa", "american malt liquor", "altbier", "abbey single ale", "oatmeal stout", "other", "old ale", "saison / farmhouse ale", "schwarzbier", "scotch ale / wee heavy", "scottish ale", "smoked beer", "shandy", "belgian ipa", "belgian dark ale", "belgian strong dark ale", "belgian strong pale ale", "belgian pale ale", "berliner weissbier", "baltic porter", "bock", "bière de garde", "braggot", "cider", "california common / steam beer", "cream ale", "czech pilsener", "chile beer", "tripel", "winter warmer", "witbier", "wheat ale", "fruit / vegetable beer", "foreign / export stout", "flanders red ale", "flanders oud bruin", "english strong ale", "english stout", "english pale ale", "english pale mild ale", "english barleywine", "english brown ale", "english bitter", "english india pale ale (ipa)", "english dark mild ale", "extra special / strong bitter (esb)", "euro dark lager", "euro pale lager", "kölsch", "kristalweizen", "keller bier / zwickel bier", "milk / sweet stout", "munich helles lager", "munich dunkel lager", "märzen / oktoberfest", "mead", "maibock / helles bock", "german pilsener", "gose", "grisette", "pumpkin ale", "vienna lager", "rye beer", "radler", "rauchbier", "russian imperial stout", "roggenbier", "hefeweizen", "herbed / spiced beer", "dortmunder / export lager", "doppelbock", "dunkelweizen", "dubbel", "irish dry stout", "irish red ale", "quadrupel (quad)", "light lager", "low alcohol beer"));
-        Assertions.assertEquals(TAG_VALS, new HashSet<>(sync(redis).tagVals(INDEX, STYLE)));
-        Assertions.assertEquals(TAG_VALS, new HashSet<>(reactive(redis).tagVals(INDEX, STYLE).collectList().block()));
+        Assertions.assertEquals(TAG_VALS, new HashSet<>(sync(redis).tagvals(INDEX, STYLE)));
+        Assertions.assertEquals(TAG_VALS, new HashSet<>(reactive(redis).tagvals(INDEX, STYLE).collectList().block()));
     }
 
     @ParameterizedTest

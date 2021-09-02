@@ -1,27 +1,21 @@
 package com.redis.lettucemod.api.async;
 
-import com.redis.lettucemod.json.GetOptions;
+import com.redis.lettucemod.api.JsonGetOptions;
 import io.lettuce.core.KeyValue;
 import io.lettuce.core.RedisFuture;
 import io.lettuce.core.output.KeyValueStreamingChannel;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 import java.util.List;
 
 public interface RedisJSONAsyncCommands<K, V> {
 
-    RedisFuture<Long> del(K key);
+    RedisFuture<Long> jsonDel(K key, K path);
 
-    RedisFuture<Long> del(K key, K path);
+    RedisFuture<V> get(K key, JsonGetOptions<K, V> options, K... paths);
 
-    RedisFuture<V> get(K key, K... paths);
+    RedisFuture<List<KeyValue<K, V>>> jsonMget(K path, K... keys);
 
-    RedisFuture<V> get(K key, GetOptions<K, V> options, K... paths);
-
-    RedisFuture<List<KeyValue<K, V>>> mget(K path, K... keys);
-
-    RedisFuture<Long> mget(KeyValueStreamingChannel<K, V> channel, K path, K... keys);
+    RedisFuture<Long> jsonMget(KeyValueStreamingChannel<K, V> channel, K path, K... keys);
 
     RedisFuture<String> set(K key, K path, V json);
 
@@ -29,50 +23,48 @@ public interface RedisJSONAsyncCommands<K, V> {
 
     RedisFuture<String> setXX(K key, K path, V json);
 
-    RedisFuture<String> type(K key);
-
     RedisFuture<String> type(K key, K path);
 
-    RedisFuture<V> numIncrBy(K key, K path, double number);
+    RedisFuture<V> numincrby(K key, K path, double number);
 
-    RedisFuture<V> numMultBy(K key, K path, double number);
+    RedisFuture<V> nummultby(K key, K path, double number);
 
-    RedisFuture<Long> strAppend(K key, V json);
+    RedisFuture<Long> strappend(K key, V json);
 
-    RedisFuture<Long> strAppend(K key, K path, V json);
+    RedisFuture<Long> strappend(K key, K path, V json);
 
-    RedisFuture<Long> strLen(K key);
+    RedisFuture<Long> strlen(K key);
 
-    RedisFuture<Long> strLen(K key, K path);
+    RedisFuture<Long> strlen(K key, K path);
 
-    RedisFuture<Long> arrAppend(K key, K path, V... jsons);
+    RedisFuture<Long> arrappend(K key, K path, V... jsons);
 
-    RedisFuture<Long> arrIndex(K key, K path, V scalar);
+    RedisFuture<Long> arrindex(K key, K path, V scalar);
 
-    RedisFuture<Long> arrIndex(K key, K path, V scalar, long start);
+    RedisFuture<Long> arrindex(K key, K path, V scalar, long start);
 
-    RedisFuture<Long> arrIndex(K key, K path, V scalar, long start, long stop);
+    RedisFuture<Long> arrindex(K key, K path, V scalar, long start, long stop);
 
-    RedisFuture<Long> arrInsert(K key, K path, long index, V... jsons);
+    RedisFuture<Long> arrinsert(K key, K path, long index, V... jsons);
 
-    RedisFuture<Long> arrLen(K key);
+    RedisFuture<Long> arrlen(K key);
 
-    RedisFuture<Long> arrLen(K key, K path);
+    RedisFuture<Long> arrlen(K key, K path);
 
-    RedisFuture<V> arrPop(K key);
+    RedisFuture<V> arrpop(K key);
 
-    RedisFuture<V> arrPop(K key, K path);
+    RedisFuture<V> arrpop(K key, K path);
 
-    RedisFuture<V> arrPop(K key, K path, long index);
+    RedisFuture<V> arrpop(K key, K path, long index);
 
-    RedisFuture<Long> arrTrim(K key, K path, long start, long stop);
+    RedisFuture<Long> arrtrim(K key, K path, long start, long stop);
 
-    RedisFuture<List<K>> objKeys(K key);
+    RedisFuture<List<K>> objkeys(K key);
 
-    RedisFuture<List<K>> objKeys(K key, K path);
+    RedisFuture<List<K>> objkeys(K key, K path);
 
-    RedisFuture<Long> objLen(K key);
+    RedisFuture<Long> objlen(K key);
 
-    RedisFuture<Long> objLen(K key, K path);
+    RedisFuture<Long> objlen(K key, K path);
 
 }

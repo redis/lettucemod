@@ -1,26 +1,56 @@
 package com.redis.lettucemod.api.reactive;
 
-import com.redis.lettucemod.timeseries.Aggregation;
-import com.redis.lettucemod.timeseries.CreateOptions;
-import com.redis.lettucemod.timeseries.Label;
+import com.redis.lettucemod.api.timeseries.Aggregation;
+import com.redis.lettucemod.api.timeseries.CreateOptions;
+import com.redis.lettucemod.api.timeseries.GetResult;
+import com.redis.lettucemod.api.timeseries.KeySample;
+import com.redis.lettucemod.api.timeseries.RangeOptions;
+import com.redis.lettucemod.api.timeseries.RangeResult;
+import com.redis.lettucemod.api.timeseries.Sample;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public interface RedisTimeSeriesReactiveCommands<K, V> {
 
-    @SuppressWarnings("unchecked")
-    Mono<String> create(K key, Label<K, V>... labels);
+    Mono<String> create(K key, CreateOptions<K, V> options);
 
-    @SuppressWarnings("unchecked")
-    Mono<String> create(K key, CreateOptions options, Label<K, V>... labels);
+    Mono<String> alter(K key, CreateOptions<K, V> options);
 
-    @SuppressWarnings("unchecked")
-    Mono<Long> add(K key, long timestamp, double value, Label<K, V>... labels);
+    Mono<Long> add(K key, long timestamp, double value);
 
-    @SuppressWarnings("unchecked")
-    Mono<Long> add(K key, long timestamp, double value, CreateOptions options, Label<K, V>... labels);
+    Mono<Long> add(K key, long timestamp, double value, CreateOptions<K, V> options);
 
-    Mono<String> createRule(K sourceKey, K destKey, Aggregation aggregationType, long timeBucket);
+    Flux<Long> madd(KeySample<K>... samples);
 
-    Mono<String> deleteRule(K sourceKey, K destKey);
+    Mono<Long> incrby(K key, double value, Long timestamp, CreateOptions<K, V> options);
+
+    Mono<Long> decrby(K key, double value, Long timestamp, CreateOptions<K, V> options);
+
+    Mono<String> createrule(K sourceKey, K destKey, Aggregation aggregation);
+
+    Mono<String> deleterule(K sourceKey, K destKey);
+
+    Flux<Sample> range(K key, RangeOptions options);
+
+    Flux<Sample> revrange(K key, RangeOptions options);
+
+    Flux<RangeResult<K, V>> mrange(RangeOptions options, V... filters);
+
+    Flux<RangeResult<K, V>> mrevrange(RangeOptions options, V... filters);
+
+    Flux<RangeResult<K, V>> mrangeWithLabels(RangeOptions options, V... filters);
+
+    Flux<RangeResult<K, V>> mrevrangeWithLabels(RangeOptions options, V... filters);
+
+    Mono<Sample> tsGet(K key);
+
+    Flux<GetResult<K, V>> tsMget(V... filters);
+
+    Flux<GetResult<K, V>> tsMgetWithLabels(V... filters);
+
+    Flux<Object> tsInfo(K key);
+
+    Flux<Object> tsInfoDebug(K key);
+
 
 }

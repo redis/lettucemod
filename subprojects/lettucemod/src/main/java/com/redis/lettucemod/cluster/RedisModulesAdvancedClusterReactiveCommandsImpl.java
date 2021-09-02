@@ -1,28 +1,32 @@
 package com.redis.lettucemod.cluster;
 
+import com.redis.lettucemod.api.JsonGetOptions;
 import com.redis.lettucemod.RedisModulesReactiveCommandsImpl;
 import com.redis.lettucemod.api.reactive.RedisModulesReactiveCommands;
 import com.redis.lettucemod.cluster.api.StatefulRedisModulesClusterConnection;
 import com.redis.lettucemod.cluster.api.reactive.RedisModulesAdvancedClusterReactiveCommands;
-import com.redis.lettucemod.gears.Execution;
-import com.redis.lettucemod.gears.ExecutionDetails;
-import com.redis.lettucemod.gears.ExecutionMode;
-import com.redis.lettucemod.gears.Registration;
-import com.redis.lettucemod.gears.output.ExecutionResults;
-import com.redis.lettucemod.json.GetOptions;
-import com.redis.lettucemod.search.AggregateOptions;
-import com.redis.lettucemod.search.AggregateResults;
-import com.redis.lettucemod.search.AggregateWithCursorResults;
-import com.redis.lettucemod.search.Cursor;
-import com.redis.lettucemod.search.Field;
-import com.redis.lettucemod.search.SearchOptions;
-import com.redis.lettucemod.search.SearchResults;
-import com.redis.lettucemod.search.SugaddOptions;
-import com.redis.lettucemod.search.Suggestion;
-import com.redis.lettucemod.search.SuggetOptions;
-import com.redis.lettucemod.timeseries.Aggregation;
-import com.redis.lettucemod.timeseries.CreateOptions;
-import com.redis.lettucemod.timeseries.Label;
+import com.redis.lettucemod.api.gears.Execution;
+import com.redis.lettucemod.api.gears.ExecutionDetails;
+import com.redis.lettucemod.api.gears.ExecutionMode;
+import com.redis.lettucemod.api.gears.Registration;
+import com.redis.lettucemod.output.ExecutionResults;
+import com.redis.lettucemod.api.search.AggregateOptions;
+import com.redis.lettucemod.api.search.AggregateResults;
+import com.redis.lettucemod.api.search.AggregateWithCursorResults;
+import com.redis.lettucemod.api.search.Cursor;
+import com.redis.lettucemod.api.search.Field;
+import com.redis.lettucemod.api.search.SearchOptions;
+import com.redis.lettucemod.api.search.SearchResults;
+import com.redis.lettucemod.api.search.SugaddOptions;
+import com.redis.lettucemod.api.search.Suggestion;
+import com.redis.lettucemod.api.search.SuggetOptions;
+import com.redis.lettucemod.api.timeseries.Aggregation;
+import com.redis.lettucemod.api.timeseries.CreateOptions;
+import com.redis.lettucemod.api.timeseries.GetResult;
+import com.redis.lettucemod.api.timeseries.KeySample;
+import com.redis.lettucemod.api.timeseries.RangeOptions;
+import com.redis.lettucemod.api.timeseries.RangeResult;
+import com.redis.lettucemod.api.timeseries.Sample;
 import io.lettuce.core.KeyValue;
 import io.lettuce.core.cluster.RedisAdvancedClusterReactiveCommandsImpl;
 import io.lettuce.core.codec.RedisCodec;
@@ -64,63 +68,63 @@ public class RedisModulesAdvancedClusterReactiveCommandsImpl<K, V> extends Redis
     }
 
     @Override
-    public Mono<String> abortExecution(String id) {
-        return delegate.abortExecution(id);
+    public Mono<String> abortexecution(String id) {
+        return delegate.abortexecution(id);
     }
 
     @Override
-    public Flux<V> configGet(K... keys) {
-        return delegate.configGet(keys);
+    public Flux<V> configget(K... keys) {
+        return delegate.configget(keys);
     }
 
     @Override
-    public Flux<V> configSet(Map<K, V> map) {
-        return delegate.configSet(map);
+    public Flux<V> configset(Map<K, V> map) {
+        return delegate.configset(map);
     }
 
     @Override
-    public Mono<String> dropExecution(String id) {
-        return delegate.dropExecution(id);
+    public Mono<String> dropexecution(String id) {
+        return delegate.dropexecution(id);
     }
 
     @Override
-    public Flux<Execution> dumpExecutions() {
-        return delegate.dumpExecutions();
+    public Flux<Execution> dumpexecutions() {
+        return delegate.dumpexecutions();
     }
 
     @Override
-    public Flux<Registration> dumpRegistrations() {
-        return delegate.dumpRegistrations();
+    public Flux<Registration> dumpregistrations() {
+        return delegate.dumpregistrations();
     }
 
     @Override
-    public Mono<ExecutionDetails> getExecution(String id) {
-        return delegate.getExecution(id);
+    public Mono<ExecutionDetails> getexecution(String id) {
+        return delegate.getexecution(id);
     }
 
     @Override
-    public Mono<ExecutionDetails> getExecution(String id, ExecutionMode mode) {
-        return delegate.getExecution(id, mode);
+    public Mono<ExecutionDetails> getexecution(String id, ExecutionMode mode) {
+        return delegate.getexecution(id, mode);
     }
 
     @Override
-    public Mono<ExecutionResults> getResults(String id) {
-        return delegate.getResults(id);
+    public Mono<ExecutionResults> getresults(String id) {
+        return delegate.getresults(id);
     }
 
     @Override
-    public Mono<ExecutionResults> getResultsBlocking(String id) {
-        return delegate.getResultsBlocking(id);
+    public Mono<ExecutionResults> getresultsBlocking(String id) {
+        return delegate.getresultsBlocking(id);
     }
 
     @Override
-    public Mono<ExecutionResults> pyExecute(String function, V... requirements) {
-        return delegate.pyExecute(function, requirements);
+    public Mono<ExecutionResults> pyexecute(String function, V... requirements) {
+        return delegate.pyexecute(function, requirements);
     }
 
     @Override
-    public Mono<String> pyExecuteUnblocking(String function, V... requirements) {
-        return delegate.pyExecuteUnblocking(function, requirements);
+    public Mono<String> pyexecuteUnblocking(String function, V... requirements) {
+        return delegate.pyexecuteUnblocking(function, requirements);
     }
 
     @Override
@@ -139,20 +143,20 @@ public class RedisModulesAdvancedClusterReactiveCommandsImpl<K, V> extends Redis
     }
 
     @Override
-    public Mono<String> create(K index, com.redis.lettucemod.search.CreateOptions<K, V> options, Field... fields) {
+    public Mono<String> create(K index, com.redis.lettucemod.api.search.CreateOptions<K, V> options, Field... fields) {
         Map<String, Publisher<String>> publishers = executeOnUpstream(commands -> ((RedisModulesReactiveCommands<K, V>) commands).create(index, options, fields));
         return Flux.merge(publishers.values()).last();
     }
 
     @Override
-    public Mono<String> dropIndex(K index) {
-        Map<String, Publisher<String>> publishers = executeOnUpstream(commands -> ((RedisModulesReactiveCommands<K, V>) commands).dropIndex(index));
+    public Mono<String> dropindex(K index) {
+        Map<String, Publisher<String>> publishers = executeOnUpstream(commands -> ((RedisModulesReactiveCommands<K, V>) commands).dropindex(index));
         return Flux.merge(publishers.values()).last();
     }
 
     @Override
-    public Mono<String> dropIndexDeleteDocs(K index) {
-        Map<String, Publisher<String>> publishers = executeOnUpstream(commands -> ((RedisModulesReactiveCommands<K, V>) commands).dropIndexDeleteDocs(index));
+    public Mono<String> dropindexDeleteDocs(K index) {
+        Map<String, Publisher<String>> publishers = executeOnUpstream(commands -> ((RedisModulesReactiveCommands<K, V>) commands).dropindexDeleteDocs(index));
         return Flux.merge(publishers.values()).last();
     }
 
@@ -168,20 +172,20 @@ public class RedisModulesAdvancedClusterReactiveCommandsImpl<K, V> extends Redis
     }
 
     @Override
-    public Mono<String> aliasAdd(K name, K index) {
-        Map<String, Publisher<String>> publishers = executeOnUpstream(commands -> ((RedisModulesReactiveCommands<K, V>) commands).aliasAdd(name, index));
+    public Mono<String> aliasadd(K name, K index) {
+        Map<String, Publisher<String>> publishers = executeOnUpstream(commands -> ((RedisModulesReactiveCommands<K, V>) commands).aliasadd(name, index));
         return Flux.merge(publishers.values()).last();
     }
 
     @Override
-    public Mono<String> aliasUpdate(K name, K index) {
-        Map<String, Publisher<String>> publishers = executeOnUpstream(commands -> ((RedisModulesReactiveCommands<K, V>) commands).aliasUpdate(name, index));
+    public Mono<String> aliasupdate(K name, K index) {
+        Map<String, Publisher<String>> publishers = executeOnUpstream(commands -> ((RedisModulesReactiveCommands<K, V>) commands).aliasupdate(name, index));
         return Flux.merge(publishers.values()).last();
     }
 
     @Override
-    public Mono<String> aliasDel(K name) {
-        Map<String, Publisher<String>> publishers = executeOnUpstream(commands -> ((RedisModulesReactiveCommands<K, V>) commands).aliasDel(name));
+    public Mono<String> aliasdel(K name) {
+        Map<String, Publisher<String>> publishers = executeOnUpstream(commands -> ((RedisModulesReactiveCommands<K, V>) commands).aliasdel(name));
         return Flux.merge(publishers.values()).last();
     }
 
@@ -236,8 +240,8 @@ public class RedisModulesAdvancedClusterReactiveCommandsImpl<K, V> extends Redis
     }
 
     @Override
-    public Flux<V> tagVals(K index, K field) {
-        return delegate.tagVals(index, field);
+    public Flux<V> tagvals(K index, K field) {
+        return delegate.tagvals(index, field);
     }
 
     @Override
@@ -288,57 +292,118 @@ public class RedisModulesAdvancedClusterReactiveCommandsImpl<K, V> extends Redis
     }
 
     @Override
-    public Mono<String> create(K key, Label<K, V>... labels) {
-        return delegate.create(key, labels);
+    public Mono<String> create(K key, CreateOptions<K, V> options) {
+        return delegate.create(key, options);
     }
 
     @Override
-    public Mono<String> create(K key, CreateOptions options, Label<K, V>... labels) {
-        return delegate.create(key, options, labels);
+    public Mono<String> alter(K key, CreateOptions<K, V> options) {
+        return delegate.alter(key, options);
     }
 
     @Override
-    public Mono<Long> add(K key, long timestamp, double value, Label<K, V>... labels) {
-        return delegate.add(key, timestamp, value, labels);
+    public Mono<Long> add(K key, long timestamp, double value) {
+        return delegate.add(key, timestamp, value);
     }
 
     @Override
-    public Mono<Long> add(K key, long timestamp, double value, CreateOptions options, Label<K, V>... labels) {
-        return delegate.add(key, timestamp, value, options, labels);
+    public Mono<Long> add(K key, long timestamp, double value, CreateOptions<K, V> options) {
+        return delegate.add(key, timestamp, value, options);
+    }
+
+
+    @Override
+    public Flux<Long> madd(KeySample<K>... samples) {
+        return delegate.madd(samples);
     }
 
     @Override
-    public Mono<String> createRule(K sourceKey, K destKey, Aggregation aggregationType, long timeBucket) {
-        return delegate.createRule(sourceKey, destKey, aggregationType, timeBucket);
+    public Mono<Long> incrby(K key, double value, Long timestamp, CreateOptions<K, V> options) {
+        return delegate.incrby(key, value, timestamp, options);
     }
 
     @Override
-    public Mono<String> deleteRule(K sourceKey, K destKey) {
-        return delegate.deleteRule(sourceKey, destKey);
+    public Mono<Long> decrby(K key, double value, Long timestamp, CreateOptions<K, V> options) {
+        return delegate.decrby(key, value, timestamp, options);
     }
 
     @Override
-    public Mono<Long> del(K key) {
-        return delegate.del(key);
+    public Mono<String> createrule(K sourceKey, K destKey, Aggregation aggregation) {
+        return delegate.createrule(sourceKey, destKey, aggregation);
     }
 
     @Override
-    public Mono<Long> del(K key, K path) {
-        return delegate.del(key, path);
+    public Mono<String> deleterule(K sourceKey, K destKey) {
+        return delegate.deleterule(sourceKey, destKey);
     }
 
     @Override
-    public Mono<V> get(K key, K... paths) {
-        return delegate.get(key, paths);
+    public Flux<Sample> range(K key, RangeOptions options) {
+        return delegate.range(key, options);
     }
 
     @Override
-    public Mono<V> get(K key, GetOptions<K, V> options, K... paths) {
+    public Flux<Sample> revrange(K key, RangeOptions range) {
+        return delegate.revrange(key, range);
+    }
+
+    @Override
+    public Flux<RangeResult<K, V>> mrange(RangeOptions options, V... filters) {
+        return delegate.mrange(options, filters);
+    }
+
+    @Override
+    public Flux<RangeResult<K, V>> mrangeWithLabels(RangeOptions options, V... filters) {
+        return delegate.mrangeWithLabels(options, filters);
+    }
+
+    @Override
+    public Flux<RangeResult<K, V>> mrevrange(RangeOptions options, V... filters) {
+        return delegate.mrevrange(options, filters);
+    }
+
+    @Override
+    public Flux<RangeResult<K, V>> mrevrangeWithLabels(RangeOptions options, V... filters) {
+        return delegate.mrevrangeWithLabels(options, filters);
+    }
+
+    @Override
+    public Mono<Sample> tsGet(K key) {
+        return delegate.tsGet(key);
+    }
+
+    @Override
+    public Flux<GetResult<K, V>> tsMget(V... filters) {
+        return delegate.tsMget(filters);
+    }
+
+    @Override
+    public Flux<GetResult<K, V>> tsMgetWithLabels(V... filters) {
+        return delegate.tsMgetWithLabels(filters);
+    }
+
+    @Override
+    public Flux<Object> tsInfo(K key) {
+        return delegate.tsInfo(key);
+    }
+
+    @Override
+    public Flux<Object> tsInfoDebug(K key) {
+        return delegate.tsInfoDebug(key);
+    }
+
+    @Override
+    public Mono<Long> jsonDel(K key, K path) {
+        return delegate.jsonDel(key, path);
+    }
+
+    @Override
+    public Mono<V> get(K key, JsonGetOptions<K, V> options, K... paths) {
         return delegate.get(key, options, paths);
     }
 
     @Override
-    public Flux<KeyValue<K, V>> mget(K path, K... keys) {
+    public Flux<KeyValue<K, V>> jsonMget(K path, K... keys) {
         return mget(path, Arrays.asList(keys));
     }
 
@@ -411,108 +476,108 @@ public class RedisModulesAdvancedClusterReactiveCommandsImpl<K, V> extends Redis
     }
 
     @Override
-    public Mono<V> numIncrBy(K key, K path, double number) {
-        return delegate.numIncrBy(key, path, number);
+    public Mono<V> numincrby(K key, K path, double number) {
+        return delegate.numincrby(key, path, number);
     }
 
     @Override
-    public Mono<V> numMultBy(K key, K path, double number) {
-        return delegate.numMultBy(key, path, number);
+    public Mono<V> nummultby(K key, K path, double number) {
+        return delegate.nummultby(key, path, number);
     }
 
     @Override
-    public Mono<Long> strAppend(K key, V json) {
-        return delegate.strAppend(key, json);
+    public Mono<Long> strappend(K key, V json) {
+        return delegate.strappend(key, json);
     }
 
     @Override
-    public Mono<Long> strAppend(K key, K path, V json) {
-        return delegate.strAppend(key, path, json);
+    public Mono<Long> strappend(K key, K path, V json) {
+        return delegate.strappend(key, path, json);
     }
 
     @Override
-    public Mono<Long> strLen(K key) {
-        return delegate.strLen(key);
+    public Mono<Long> strlen(K key) {
+        return delegate.strlen(key);
     }
 
     @Override
-    public Mono<Long> strLen(K key, K path) {
-        return delegate.strLen(key, path);
+    public Mono<Long> strlen(K key, K path) {
+        return delegate.strlen(key, path);
     }
 
     @Override
-    public Mono<Long> arrAppend(K key, K path, V... jsons) {
-        return delegate.arrAppend(key, path, jsons);
+    public Mono<Long> arrappend(K key, K path, V... jsons) {
+        return delegate.arrappend(key, path, jsons);
     }
 
     @Override
-    public Mono<Long> arrIndex(K key, K path, V scalar) {
-        return delegate.arrIndex(key, path, scalar);
+    public Mono<Long> arrindex(K key, K path, V scalar) {
+        return delegate.arrindex(key, path, scalar);
     }
 
     @Override
-    public Mono<Long> arrIndex(K key, K path, V scalar, long start) {
-        return delegate.arrIndex(key, path, scalar, start);
+    public Mono<Long> arrindex(K key, K path, V scalar, long start) {
+        return delegate.arrindex(key, path, scalar, start);
     }
 
     @Override
-    public Mono<Long> arrIndex(K key, K path, V scalar, long start, long stop) {
-        return delegate.arrIndex(key, path, scalar, start, stop);
+    public Mono<Long> arrindex(K key, K path, V scalar, long start, long stop) {
+        return delegate.arrindex(key, path, scalar, start, stop);
     }
 
     @Override
-    public Mono<Long> arrInsert(K key, K path, long index, V... jsons) {
-        return delegate.arrInsert(key, path, index, jsons);
+    public Mono<Long> arrinsert(K key, K path, long index, V... jsons) {
+        return delegate.arrinsert(key, path, index, jsons);
     }
 
     @Override
-    public Mono<Long> arrLen(K key) {
-        return delegate.arrLen(key);
+    public Mono<Long> arrlen(K key) {
+        return delegate.arrlen(key);
     }
 
     @Override
-    public Mono<Long> arrLen(K key, K path) {
-        return delegate.arrLen(key, path);
+    public Mono<Long> arrlen(K key, K path) {
+        return delegate.arrlen(key, path);
     }
 
     @Override
-    public Mono<V> arrPop(K key) {
-        return delegate.arrPop(key);
+    public Mono<V> arrpop(K key) {
+        return delegate.arrpop(key);
     }
 
     @Override
-    public Mono<V> arrPop(K key, K path) {
-        return delegate.arrPop(key, path);
+    public Mono<V> arrpop(K key, K path) {
+        return delegate.arrpop(key, path);
     }
 
     @Override
-    public Mono<V> arrPop(K key, K path, long index) {
-        return delegate.arrPop(key, path, index);
+    public Mono<V> arrpop(K key, K path, long index) {
+        return delegate.arrpop(key, path, index);
     }
 
     @Override
-    public Mono<Long> arrTrim(K key, K path, long start, long stop) {
-        return delegate.arrTrim(key, path, start, stop);
+    public Mono<Long> arrtrim(K key, K path, long start, long stop) {
+        return delegate.arrtrim(key, path, start, stop);
     }
 
     @Override
-    public Flux<K> objKeys(K key) {
-        return delegate.objKeys(key);
+    public Flux<K> objkeys(K key) {
+        return delegate.objkeys(key);
     }
 
     @Override
-    public Flux<K> objKeys(K key, K path) {
-        return delegate.objKeys(key, path);
+    public Flux<K> objkeys(K key, K path) {
+        return delegate.objkeys(key, path);
     }
 
     @Override
-    public Mono<Long> objLen(K key) {
-        return delegate.objLen(key);
+    public Mono<Long> objlen(K key) {
+        return delegate.objlen(key);
     }
 
     @Override
-    public Mono<Long> objLen(K key, K path) {
-        return delegate.objLen(key, path);
+    public Mono<Long> objlen(K key, K path) {
+        return delegate.objlen(key, path);
     }
 
 }

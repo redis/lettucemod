@@ -1,6 +1,6 @@
 package com.redis.lettucemod.api.sync;
 
-import com.redis.lettucemod.json.GetOptions;
+import com.redis.lettucemod.api.JsonGetOptions;
 import io.lettuce.core.KeyValue;
 import io.lettuce.core.output.KeyValueStreamingChannel;
 
@@ -8,17 +8,13 @@ import java.util.List;
 
 public interface RedisJSONCommands<K, V> {
 
-    Long del(K key);
+    Long jsonDel(K key, K path);
 
-    Long del(K key, K path);
+    V get(K key, JsonGetOptions<K, V> options, K... paths);
 
-    V get(K key, K... paths);
+    List<KeyValue<K, V>> jsonMget(K path, K... keys);
 
-    V get(K key, GetOptions<K, V> options, K... paths);
-
-    List<KeyValue<K, V>> mget(K path, K... keys);
-
-    Long mget(KeyValueStreamingChannel<K, V> channel, K path, K... keys);
+    Long jsonMget(KeyValueStreamingChannel<K, V> channel, K path, K... keys);
 
     String set(K key, K path, V json);
 
@@ -26,50 +22,48 @@ public interface RedisJSONCommands<K, V> {
 
     String setXX(K key, K path, V json);
 
-    String type(K key);
-
     String type(K key, K path);
 
-    V numIncrBy(K key, K path, double number);
+    V numincrby(K key, K path, double number);
 
-    V numMultBy(K key, K path, double number);
+    V nummultby(K key, K path, double number);
 
-    Long strAppend(K key, V json);
+    Long strappend(K key, V json);
 
-    Long strAppend(K key, K path, V json);
+    Long strappend(K key, K path, V json);
 
-    Long strLen(K key);
+    Long strlen(K key);
 
-    Long strLen(K key, K path);
+    Long strlen(K key, K path);
 
-    Long arrAppend(K key, K path, V... jsons);
+    Long arrappend(K key, K path, V... jsons);
 
-    Long arrIndex(K key, K path, V scalar);
+    Long arrindex(K key, K path, V scalar);
 
-    Long arrIndex(K key, K path, V scalar, long start);
+    Long arrindex(K key, K path, V scalar, long start);
 
-    Long arrIndex(K key, K path, V scalar, long start, long stop);
+    Long arrindex(K key, K path, V scalar, long start, long stop);
 
-    Long arrInsert(K key, K path, long index, V... jsons);
+    Long arrinsert(K key, K path, long index, V... jsons);
 
-    Long arrLen(K key);
+    Long arrlen(K key);
 
-    Long arrLen(K key, K path);
+    Long arrlen(K key, K path);
 
-    V arrPop(K key);
+    V arrpop(K key);
 
-    V arrPop(K key, K path);
+    V arrpop(K key, K path);
 
-    V arrPop(K key, K path, long index);
+    V arrpop(K key, K path, long index);
 
-    Long arrTrim(K key, K path, long start, long stop);
+    Long arrtrim(K key, K path, long start, long stop);
 
-    List<K> objKeys(K key);
+    List<K> objkeys(K key);
 
-    List<K> objKeys(K key, K path);
+    List<K> objkeys(K key, K path);
 
-    Long objLen(K key);
+    Long objlen(K key);
 
-    Long objLen(K key, K path);
+    Long objlen(K key, K path);
 
 }

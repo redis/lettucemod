@@ -1,26 +1,56 @@
 package com.redis.lettucemod.api.async;
 
-import com.redis.lettucemod.timeseries.Aggregation;
-import com.redis.lettucemod.timeseries.CreateOptions;
-import com.redis.lettucemod.timeseries.Label;
+import com.redis.lettucemod.api.timeseries.Aggregation;
+import com.redis.lettucemod.api.timeseries.CreateOptions;
+import com.redis.lettucemod.api.timeseries.GetResult;
+import com.redis.lettucemod.api.timeseries.KeySample;
+import com.redis.lettucemod.api.timeseries.RangeOptions;
+import com.redis.lettucemod.api.timeseries.RangeResult;
+import com.redis.lettucemod.api.timeseries.Sample;
 import io.lettuce.core.RedisFuture;
+
+import java.util.List;
 
 public interface RedisTimeSeriesAsyncCommands<K, V> {
 
-    @SuppressWarnings("unchecked")
-    RedisFuture<String> create(K key, Label<K, V>... labels);
+    RedisFuture<String> create(K key, CreateOptions<K, V> options);
 
-    @SuppressWarnings("unchecked")
-    RedisFuture<String> create(K key, CreateOptions options, Label<K, V>... labels);
+    RedisFuture<String> alter(K key, CreateOptions<K, V> options);
 
-    @SuppressWarnings("unchecked")
-    RedisFuture<Long> add(K key, long timestamp, double value, Label<K, V>... labels);
+    RedisFuture<Long> add(K key, long timestamp, double value);
 
-    @SuppressWarnings("unchecked")
-    RedisFuture<Long> add(K key, long timestamp, double value, CreateOptions options, Label<K, V>... labels);
+    RedisFuture<Long> add(K key, long timestamp, double value, CreateOptions<K, V> options);
 
-    RedisFuture<String> createRule(K sourceKey, K destKey, Aggregation aggregationType, long timeBucket);
+    RedisFuture<List<Long>> madd(KeySample<K>... samples);
 
-    RedisFuture<String> deleteRule(K sourceKey, K destKey);
+    RedisFuture<Long> incrby(K key, double value, Long timestamp, CreateOptions<K, V> options);
+
+    RedisFuture<Long> decrby(K key, double value, Long timestamp, CreateOptions<K, V> options);
+
+    RedisFuture<String> createrule(K sourceKey, K destKey, Aggregation aggregation);
+
+    RedisFuture<String> deleterule(K sourceKey, K destKey);
+
+    RedisFuture<List<Sample>> range(K key, RangeOptions options);
+
+    RedisFuture<List<Sample>> revrange(K key, RangeOptions options);
+
+    RedisFuture<List<RangeResult<K, V>>> mrange(RangeOptions options, V... filters);
+
+    RedisFuture<List<RangeResult<K, V>>> mrevrange(RangeOptions options, V... filters);
+
+    RedisFuture<List<RangeResult<K, V>>> mrangeWithLabels(RangeOptions options, V... filters);
+
+    RedisFuture<List<RangeResult<K, V>>> mrevrangeWithLabels(RangeOptions options, V... filters);
+
+    RedisFuture<Sample> tsGet(K key);
+
+    RedisFuture<List<GetResult<K, V>>> tsMget(V... filters);
+
+    RedisFuture<List<GetResult<K, V>>> tsMgetWithLabels(V... filters);
+
+    RedisFuture<List<Object>> tsInfo(K key);
+
+    RedisFuture<List<Object>> tsInfoDebug(K key);
 
 }

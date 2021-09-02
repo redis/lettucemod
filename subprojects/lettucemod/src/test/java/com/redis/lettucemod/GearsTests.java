@@ -1,12 +1,11 @@
 package com.redis.lettucemod;
 
+import com.redis.lettucemod.api.gears.Execution;
+import com.redis.lettucemod.api.gears.ExecutionDetails;
+import com.redis.lettucemod.api.gears.Registration;
 import com.redis.lettucemod.api.sync.RedisGearsCommands;
 import com.redis.lettucemod.api.sync.RedisModulesCommands;
-import com.redis.lettucemod.gears.Execution;
-import com.redis.lettucemod.gears.ExecutionDetails;
-import com.redis.lettucemod.gears.RedisGearsUtils;
-import com.redis.lettucemod.gears.Registration;
-import com.redis.lettucemod.gears.output.ExecutionResults;
+import com.redis.lettucemod.output.ExecutionResults;
 import com.redis.testcontainers.RedisServer;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -48,16 +47,16 @@ public class GearsTests extends AbstractModuleTestBase {
 //    }
 
     private ExecutionResults pyExecute(RedisGearsCommands<String, String> sync, String resourceName) {
-        return sync.pyExecute(load(resourceName));
+        return sync.pyexecute(load(resourceName));
     }
 
     @SuppressWarnings("SameParameterValue")
     private String pyExecuteUnblocking(RedisGearsCommands<String, String> sync, String resourceName) {
-        return sync.pyExecuteUnblocking(load(resourceName));
+        return sync.pyexecuteUnblocking(load(resourceName));
     }
 
     private String load(String resourceName) {
-        return RedisGearsUtils.toString(getClass().getClassLoader().getResourceAsStream(resourceName));
+        return Utils.toString(getClass().getClassLoader().getResourceAsStream(resourceName));
     }
 
     @ParameterizedTest
@@ -65,11 +64,11 @@ public class GearsTests extends AbstractModuleTestBase {
     void dumpRegistrations(RedisServer redis) {
         RedisModulesCommands<String, String> sync = sync(redis);
         // Single registration
-        List<Registration> registrations = sync.dumpRegistrations();
+        List<Registration> registrations = sync.dumpregistrations();
         Assertions.assertEquals(0, registrations.size());
         ExecutionResults results = pyExecute(sync, "streamreader.py");
         Assertions.assertFalse(results.isError());
-        registrations = sync.dumpRegistrations();
+        registrations = sync.dumpregistrations();
         Assertions.assertEquals(1, registrations.size());
         Registration registration = registrations.get(0);
         Assertions.assertEquals("StreamReader", registration.getReader());
@@ -83,11 +82,11 @@ public class GearsTests extends AbstractModuleTestBase {
         Assertions.assertTrue(registration.getPrivateData().contains("'sessionId'"));
 
         // Multiple registrations
-        sync.dumpRegistrations().forEach(r -> sync.unregister(r.getId()));
+        sync.dumpregistrations().forEach(r -> sync.unregister(r.getId()));
         String function = "GB('KeysReader').register('*', keyTypes=['hash'])";
-        Assertions.assertTrue(sync.pyExecute(function).isOk());
-        Assertions.assertTrue(sync.pyExecute(function).isOk());
-        registrations = sync.dumpRegistrations();
+        Assertions.assertTrue(sync.pyexecute(function).isOk());
+        Assertions.assertTrue(sync.pyexecute(function).isOk());
+        registrations = sync.dumpregistrations();
         Assertions.assertEquals(2, registrations.size());
     }
 
@@ -96,7 +95,7 @@ public class GearsTests extends AbstractModuleTestBase {
     void testGetResults(RedisServer redis) {
         RedisModulesCommands<String, String> sync = sync(redis);
         sync.set("foo", "bar");
-        ExecutionResults results = sync.pyExecute("GB().foreach(lambda x: log('test')).register()");
+        ExecutionResults results = sync.pyexecute("GB().foreach(lambda x: log('test')).register()");
         Assertions.assertTrue(results.isOk());
         Assertions.assertFalse(results.isError());
     }
@@ -105,13 +104,13 @@ public class GearsTests extends AbstractModuleTestBase {
     @MethodSource("redisServers")
     void testDumpExecutions(RedisServer redis) throws InterruptedException {
         RedisModulesCommands<String, String> sync = sync(redis);
-        List<Execution> executions = sync.dumpExecutions();
-        executions.forEach(e -> sync.dropExecution(e.getId()));
+        List<Execution> executions = sync.dumpexecutions();
+        executions.forEach(e -> sync.dropexecution(e.getId()));
         sync.set("foo", "bar");
         pyExecuteUnblocking(sync, "sleep.py");
         pyExecuteUnblocking(sync, "sleep.py");
         Thread.sleep(100);
-        executions = sync.dumpExecutions();
+        executions = sync.dumpexecutions();
         Assertions.assertEquals(2, executions.size());
     }
 
@@ -123,10 +122,10 @@ public class GearsTests extends AbstractModuleTestBase {
         pyExecuteUnblocking(sync, "sleep.py");
         pyExecuteUnblocking(sync, "sleep.py");
         Thread.sleep(100);
-        List<Execution> executions = sync.dumpExecutions();
-        executions.forEach(e -> sync.abortExecution(e.getId()));
-        executions.forEach(e -> sync.dropExecution(e.getId()));
-        Assertions.assertEquals(0, sync.dumpExecutions().size());
+        List<Execution> executions = sync.dumpexecutions();
+        executions.forEach(e -> sync.abortexecution(e.getId()));
+        executions.forEach(e -> sync.dropexecution(e.getId()));
+        Assertions.assertEquals(0, sync.dumpexecutions().size());
     }
 
     @ParameterizedTest
@@ -137,10 +136,10 @@ public class GearsTests extends AbstractModuleTestBase {
         pyExecuteUnblocking(sync, "sleep.py");
         pyExecuteUnblocking(sync, "sleep.py");
         Thread.sleep(100);
-        List<Execution> executions = sync.dumpExecutions();
-        executions.forEach(e -> sync.abortExecution(e.getId()));
+        List<Execution> executions = sync.dumpexecutions();
+        executions.forEach(e -> sync.abortexecution(e.getId()));
         for (Execution execution : executions) {
-            ExecutionDetails details = sync.getExecution(execution.getId());
+            ExecutionDetails details = sync.getexecution(execution.getId());
             Assertions.assertTrue(details.getPlan().getStatus().matches("done|aborted"));
         }
     }

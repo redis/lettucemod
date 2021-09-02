@@ -135,7 +135,7 @@ public class MyComponent {
 ----
 RedisGearsCommands<String, String> gears = connection.sync(); // <1>
 
-gears.pyExecute("GearsBuilder().run('person:*')"); // <2>
+gears.pyexecute("GearsBuilder().run('person:*')"); // <2>
 ----
 <1> Use sync, async, or reactive RedisGears commands
 <2> Execute a RedisGears Python function

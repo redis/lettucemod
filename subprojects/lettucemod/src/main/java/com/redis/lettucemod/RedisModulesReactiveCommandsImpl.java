@@ -1,30 +1,30 @@
 package com.redis.lettucemod;
 
+import com.redis.lettucemod.api.JsonGetOptions;
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
 import com.redis.lettucemod.api.reactive.RedisModulesReactiveCommands;
-import com.redis.lettucemod.gears.Execution;
-import com.redis.lettucemod.gears.ExecutionDetails;
-import com.redis.lettucemod.gears.ExecutionMode;
-import com.redis.lettucemod.gears.RedisGearsCommandBuilder;
-import com.redis.lettucemod.gears.Registration;
-import com.redis.lettucemod.gears.output.ExecutionResults;
-import com.redis.lettucemod.json.GetOptions;
-import com.redis.lettucemod.json.RedisJSONCommandBuilder;
-import com.redis.lettucemod.search.AggregateOptions;
-import com.redis.lettucemod.search.AggregateResults;
-import com.redis.lettucemod.search.AggregateWithCursorResults;
-import com.redis.lettucemod.search.Cursor;
-import com.redis.lettucemod.search.Field;
-import com.redis.lettucemod.search.RediSearchCommandBuilder;
-import com.redis.lettucemod.search.SearchOptions;
-import com.redis.lettucemod.search.SearchResults;
-import com.redis.lettucemod.search.SugaddOptions;
-import com.redis.lettucemod.search.Suggestion;
-import com.redis.lettucemod.search.SuggetOptions;
-import com.redis.lettucemod.timeseries.Aggregation;
-import com.redis.lettucemod.timeseries.CreateOptions;
-import com.redis.lettucemod.timeseries.Label;
-import com.redis.lettucemod.timeseries.RedisTimeSeriesCommandBuilder;
+import com.redis.lettucemod.api.gears.Execution;
+import com.redis.lettucemod.api.gears.ExecutionDetails;
+import com.redis.lettucemod.api.gears.ExecutionMode;
+import com.redis.lettucemod.api.gears.Registration;
+import com.redis.lettucemod.output.ExecutionResults;
+import com.redis.lettucemod.api.search.AggregateOptions;
+import com.redis.lettucemod.api.search.AggregateResults;
+import com.redis.lettucemod.api.search.AggregateWithCursorResults;
+import com.redis.lettucemod.api.search.Cursor;
+import com.redis.lettucemod.api.search.Field;
+import com.redis.lettucemod.api.search.SearchOptions;
+import com.redis.lettucemod.api.search.SearchResults;
+import com.redis.lettucemod.api.search.SugaddOptions;
+import com.redis.lettucemod.api.search.Suggestion;
+import com.redis.lettucemod.api.search.SuggetOptions;
+import com.redis.lettucemod.api.timeseries.Aggregation;
+import com.redis.lettucemod.api.timeseries.CreateOptions;
+import com.redis.lettucemod.api.timeseries.GetResult;
+import com.redis.lettucemod.api.timeseries.KeySample;
+import com.redis.lettucemod.api.timeseries.RangeOptions;
+import com.redis.lettucemod.api.timeseries.RangeResult;
+import com.redis.lettucemod.api.timeseries.Sample;
 import io.lettuce.core.KeyValue;
 import io.lettuce.core.RedisReactiveCommandsImpl;
 import io.lettuce.core.codec.RedisCodec;
@@ -57,12 +57,12 @@ public class RedisModulesReactiveCommandsImpl<K, V> extends RedisReactiveCommand
     }
 
     @Override
-    public Mono<ExecutionResults> pyExecute(String function, V... requirements) {
+    public Mono<ExecutionResults> pyexecute(String function, V... requirements) {
         return createMono(() -> gearsCommandBuilder.pyExecute(function, requirements));
     }
 
     @Override
-    public Mono<String> pyExecuteUnblocking(String function, V... requirements) {
+    public Mono<String> pyexecuteUnblocking(String function, V... requirements) {
         return createMono(() -> gearsCommandBuilder.pyExecuteUnblocking(function, requirements));
     }
 
@@ -77,89 +77,154 @@ public class RedisModulesReactiveCommandsImpl<K, V> extends RedisReactiveCommand
     }
 
     @Override
-    public Mono<String> abortExecution(String id) {
+    public Mono<String> abortexecution(String id) {
         return createMono(() -> gearsCommandBuilder.abortExecution(id));
     }
 
     @Override
-    public Flux<V> configGet(K... keys) {
+    public Flux<V> configget(K... keys) {
         return createDissolvingFlux(() -> gearsCommandBuilder.configGet(keys));
     }
 
     @Override
-    public Flux<V> configSet(Map<K, V> map) {
+    public Flux<V> configset(Map<K, V> map) {
         return createDissolvingFlux(() -> gearsCommandBuilder.configSet(map));
     }
 
     @Override
-    public Mono<String> dropExecution(String id) {
+    public Mono<String> dropexecution(String id) {
         return createMono(() -> gearsCommandBuilder.dropExecution(id));
     }
 
     @Override
-    public Flux<Execution> dumpExecutions() {
+    public Flux<Execution> dumpexecutions() {
         return createDissolvingFlux(gearsCommandBuilder::dumpExecutions);
     }
 
     @Override
-    public Flux<Registration> dumpRegistrations() {
+    public Flux<Registration> dumpregistrations() {
         return createDissolvingFlux(gearsCommandBuilder::dumpRegistrations);
     }
 
     @Override
-    public Mono<ExecutionDetails> getExecution(String id) {
+    public Mono<ExecutionDetails> getexecution(String id) {
         return createMono(() -> gearsCommandBuilder.getExecution(id));
     }
 
     @Override
-    public Mono<ExecutionDetails> getExecution(String id, ExecutionMode mode) {
+    public Mono<ExecutionDetails> getexecution(String id, ExecutionMode mode) {
         return createMono(() -> gearsCommandBuilder.getExecution(id, mode));
     }
 
     @Override
-    public Mono<ExecutionResults> getResults(String id) {
+    public Mono<ExecutionResults> getresults(String id) {
         return createMono(() -> gearsCommandBuilder.getResults(id));
     }
 
     @Override
-    public Mono<ExecutionResults> getResultsBlocking(String id) {
+    public Mono<ExecutionResults> getresultsBlocking(String id) {
         return createMono(() -> gearsCommandBuilder.getResultsBlocking(id));
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    public Mono<String> create(K key, CreateOptions options, Label<K, V>... labels) {
-        return createMono(() -> timeSeriesCommandBuilder.create(key, options, labels));
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public Mono<String> create(K key, Label<K, V>... labels) {
-        return createMono(() -> timeSeriesCommandBuilder.create(key, null, labels));
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public Mono<Long> add(K key, long timestamp, double value, CreateOptions options, Label<K, V>... labels) {
-        return createMono(() -> timeSeriesCommandBuilder.add(key, timestamp, value, options, labels));
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public Mono<Long> add(K key, long timestamp, double value, Label<K, V>... labels) {
-        return createMono(() -> timeSeriesCommandBuilder.add(key, timestamp, value, null, labels));
+    public Mono<String> create(K key, CreateOptions<K, V> options) {
+        return createMono(() -> timeSeriesCommandBuilder.create(key, options));
     }
 
     @Override
-    public Mono<String> createRule(K sourceKey, K destKey, Aggregation aggregationType, long timeBucket) {
-        return createMono(() -> timeSeriesCommandBuilder.createRule(sourceKey, destKey, aggregationType, timeBucket));
+    public Mono<String> alter(K key, CreateOptions<K, V> options) {
+        return createMono(() -> timeSeriesCommandBuilder.alter(key, options));
     }
 
     @Override
-    public Mono<String> deleteRule(K sourceKey, K destKey) {
+    public Mono<Long> add(K key, long timestamp, double value) {
+        return add(key, timestamp, value, null);
+    }
+
+    @Override
+    public Mono<Long> add(K key, long timestamp, double value, CreateOptions<K, V> options) {
+        return createMono(() -> timeSeriesCommandBuilder.add(key, timestamp, value, options));
+    }
+
+    @Override
+    public Flux<Long> madd(KeySample<K>... samples) {
+        return createDissolvingFlux(() -> timeSeriesCommandBuilder.madd(samples));
+    }
+
+    @Override
+    public Mono<Long> incrby(K key, double value, Long timestamp, CreateOptions<K, V> options) {
+        return createMono(() -> timeSeriesCommandBuilder.incrby(key, value, timestamp, options));
+    }
+
+    @Override
+    public Mono<Long> decrby(K key, double value, Long timestamp, CreateOptions<K, V> options) {
+        return createMono(() -> timeSeriesCommandBuilder.decrby(key, value, timestamp, options));
+    }
+
+    @Override
+    public Mono<String> createrule(K sourceKey, K destKey, Aggregation aggregation) {
+        return createMono(() -> timeSeriesCommandBuilder.createRule(sourceKey, destKey, aggregation));
+    }
+
+    @Override
+    public Mono<String> deleterule(K sourceKey, K destKey) {
         return createMono(() -> timeSeriesCommandBuilder.deleteRule(sourceKey, destKey));
     }
 
+    @Override
+    public Flux<Sample> range(K key, RangeOptions options) {
+        return createDissolvingFlux(() -> timeSeriesCommandBuilder.range(key, options));
+    }
+
+    @Override
+    public Flux<Sample> revrange(K key, RangeOptions options) {
+        return createDissolvingFlux(() -> timeSeriesCommandBuilder.revrange(key, options));
+    }
+
+    @Override
+    public Flux<RangeResult<K, V>> mrange(RangeOptions options, V... filters) {
+        return createDissolvingFlux(() -> timeSeriesCommandBuilder.mrange(options, filters));
+    }
+
+    @Override
+    public Flux<RangeResult<K, V>> mrevrange(RangeOptions options, V... filters) {
+        return createDissolvingFlux(() -> timeSeriesCommandBuilder.mrevrange(options, filters));
+    }
+
+    @Override
+    public Flux<RangeResult<K, V>> mrangeWithLabels(RangeOptions options, V... filters) {
+        return createDissolvingFlux(() -> timeSeriesCommandBuilder.mrangeWithLabels(options, filters));
+    }
+
+    @Override
+    public Flux<RangeResult<K, V>> mrevrangeWithLabels(RangeOptions options, V... filters) {
+        return createDissolvingFlux(() -> timeSeriesCommandBuilder.mrevrangeWithLabels(options, filters));
+    }
+
+    @Override
+    public Mono<Sample> tsGet(K key) {
+        return createMono(() -> timeSeriesCommandBuilder.get(key));
+    }
+
+    @Override
+    public Flux<GetResult<K, V>> tsMget(V... filters) {
+        return createDissolvingFlux(() -> timeSeriesCommandBuilder.mget(false, filters));
+    }
+
+    @Override
+    public Flux<GetResult<K, V>> tsMgetWithLabels(V... filters) {
+        return createDissolvingFlux(() -> timeSeriesCommandBuilder.mget(true, filters));
+    }
+
+    @Override
+    public Flux<Object> tsInfo(K key) {
+        return createDissolvingFlux(() -> timeSeriesCommandBuilder.info(key, false));
+    }
+
+    @Override
+    public Flux<Object> tsInfoDebug(K key) {
+        return createDissolvingFlux(() -> timeSeriesCommandBuilder.info(key, true));
+    }
 
     @Override
     public Mono<String> create(K index, Field... fields) {
@@ -167,17 +232,17 @@ public class RedisModulesReactiveCommandsImpl<K, V> extends RedisReactiveCommand
     }
 
     @Override
-    public Mono<String> create(K index, com.redis.lettucemod.search.CreateOptions<K, V> options, Field... fields) {
+    public Mono<String> create(K index, com.redis.lettucemod.api.search.CreateOptions<K, V> options, Field... fields) {
         return createMono(() -> searchCommandBuilder.create(index, options, fields));
     }
 
     @Override
-    public Mono<String> dropIndex(K index) {
+    public Mono<String> dropindex(K index) {
         return createMono(() -> searchCommandBuilder.dropIndex(index, false));
     }
 
     @Override
-    public Mono<String> dropIndexDeleteDocs(K index) {
+    public Mono<String> dropindexDeleteDocs(K index) {
         return createMono(() -> searchCommandBuilder.dropIndex(index, true));
     }
 
@@ -267,17 +332,17 @@ public class RedisModulesReactiveCommandsImpl<K, V> extends RedisReactiveCommand
     }
 
     @Override
-    public Mono<String> aliasAdd(K name, K index) {
+    public Mono<String> aliasadd(K name, K index) {
         return createMono(() -> searchCommandBuilder.aliasAdd(name, index));
     }
 
     @Override
-    public Mono<String> aliasUpdate(K name, K index) {
+    public Mono<String> aliasupdate(K name, K index) {
         return createMono(() -> searchCommandBuilder.aliasUpdate(name, index));
     }
 
     @Override
-    public Mono<String> aliasDel(K name) {
+    public Mono<String> aliasdel(K name) {
         return createMono(() -> searchCommandBuilder.aliasDel(name));
     }
 
@@ -287,7 +352,7 @@ public class RedisModulesReactiveCommandsImpl<K, V> extends RedisReactiveCommand
     }
 
     @Override
-    public Flux<V> tagVals(K index, K field) {
+    public Flux<V> tagvals(K index, K field) {
         return createDissolvingFlux(() -> searchCommandBuilder.tagVals(index, field));
     }
 
@@ -307,27 +372,17 @@ public class RedisModulesReactiveCommandsImpl<K, V> extends RedisReactiveCommand
     }
 
     @Override
-    public Mono<Long> del(K key) {
-        return del(key, null);
-    }
-
-    @Override
-    public Mono<Long> del(K key, K path) {
+    public Mono<Long> jsonDel(K key, K path) {
         return createMono(() -> jsonCommandBuilder.del(key, path));
     }
 
     @Override
-    public Mono<V> get(K key, K... paths) {
-        return createMono(() -> jsonCommandBuilder.get(key, null, paths));
-    }
-
-    @Override
-    public Mono<V> get(K key, GetOptions<K, V> options, K... paths) {
+    public Mono<V> get(K key, JsonGetOptions<K, V> options, K... paths) {
         return createMono(() -> jsonCommandBuilder.get(key, options, paths));
     }
 
     @Override
-    public Flux<KeyValue<K, V>> mget(K path, K... keys) {
+    public Flux<KeyValue<K, V>> jsonMget(K path, K... keys) {
         return createDissolvingFlux(() -> jsonCommandBuilder.mget(path, keys));
     }
 
@@ -361,107 +416,107 @@ public class RedisModulesReactiveCommandsImpl<K, V> extends RedisReactiveCommand
     }
 
     @Override
-    public Mono<V> numIncrBy(K key, K path, double number) {
+    public Mono<V> numincrby(K key, K path, double number) {
         return createMono(() -> jsonCommandBuilder.numIncrBy(key, path, number));
     }
 
     @Override
-    public Mono<V> numMultBy(K key, K path, double number) {
+    public Mono<V> nummultby(K key, K path, double number) {
         return createMono(() -> jsonCommandBuilder.numMultBy(key, path, number));
     }
 
     @Override
-    public Mono<Long> strAppend(K key, V json) {
-        return strAppend(key, null, json);
+    public Mono<Long> strappend(K key, V json) {
+        return strappend(key, null, json);
     }
 
     @Override
-    public Mono<Long> strAppend(K key, K path, V json) {
+    public Mono<Long> strappend(K key, K path, V json) {
         return createMono(() -> jsonCommandBuilder.strAppend(key, path, json));
     }
 
     @Override
-    public Mono<Long> strLen(K key) {
-        return strLen(key, null);
+    public Mono<Long> strlen(K key) {
+        return strlen(key, null);
     }
 
     @Override
-    public Mono<Long> strLen(K key, K path) {
+    public Mono<Long> strlen(K key, K path) {
         return createMono(() -> jsonCommandBuilder.strLen(key, path));
     }
 
     @Override
-    public Mono<Long> arrAppend(K key, K path, V... jsons) {
+    public Mono<Long> arrappend(K key, K path, V... jsons) {
         return createMono(() -> jsonCommandBuilder.arrAppend(key, path, jsons));
     }
 
     @Override
-    public Mono<Long> arrIndex(K key, K path, V scalar) {
+    public Mono<Long> arrindex(K key, K path, V scalar) {
         return createMono(() -> jsonCommandBuilder.arrIndex(key, path, scalar, null, null));
     }
 
     @Override
-    public Mono<Long> arrIndex(K key, K path, V scalar, long start) {
+    public Mono<Long> arrindex(K key, K path, V scalar, long start) {
         return createMono(() -> jsonCommandBuilder.arrIndex(key, path, scalar, start, null));
     }
 
     @Override
-    public Mono<Long> arrIndex(K key, K path, V scalar, long start, long stop) {
+    public Mono<Long> arrindex(K key, K path, V scalar, long start, long stop) {
         return createMono(() -> jsonCommandBuilder.arrIndex(key, path, scalar, start, stop));
     }
 
     @Override
-    public Mono<Long> arrInsert(K key, K path, long index, V... jsons) {
+    public Mono<Long> arrinsert(K key, K path, long index, V... jsons) {
         return createMono(() -> jsonCommandBuilder.arrInsert(key, path, index, jsons));
     }
 
     @Override
-    public Mono<Long> arrLen(K key) {
-        return arrLen(key, null);
+    public Mono<Long> arrlen(K key) {
+        return arrlen(key, null);
     }
 
     @Override
-    public Mono<Long> arrLen(K key, K path) {
+    public Mono<Long> arrlen(K key, K path) {
         return createMono(() -> jsonCommandBuilder.arrLen(key, path));
     }
 
     @Override
-    public Mono<V> arrPop(K key) {
-        return arrPop(key, null);
+    public Mono<V> arrpop(K key) {
+        return arrpop(key, null);
     }
 
     @Override
-    public Mono<V> arrPop(K key, K path) {
+    public Mono<V> arrpop(K key, K path) {
         return createMono(() -> jsonCommandBuilder.arrPop(key, path, null));
     }
 
     @Override
-    public Mono<V> arrPop(K key, K path, long index) {
+    public Mono<V> arrpop(K key, K path, long index) {
         return createMono(() -> jsonCommandBuilder.arrPop(key, path, index));
     }
 
     @Override
-    public Mono<Long> arrTrim(K key, K path, long start, long stop) {
+    public Mono<Long> arrtrim(K key, K path, long start, long stop) {
         return createMono(() -> jsonCommandBuilder.arrTrim(key, path, start, stop));
     }
 
     @Override
-    public Flux<K> objKeys(K key) {
-        return objKeys(key, null);
+    public Flux<K> objkeys(K key) {
+        return objkeys(key, null);
     }
 
     @Override
-    public Flux<K> objKeys(K key, K path) {
+    public Flux<K> objkeys(K key, K path) {
         return createDissolvingFlux(() -> jsonCommandBuilder.objKeys(key, path));
     }
 
     @Override
-    public Mono<Long> objLen(K key) {
-        return objLen(key, null);
+    public Mono<Long> objlen(K key) {
+        return objlen(key, null);
     }
 
     @Override
-    public Mono<Long> objLen(K key, K path) {
+    public Mono<Long> objlen(K key, K path) {
         return createMono(() -> jsonCommandBuilder.objLen(key, path));
     }
 

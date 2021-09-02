@@ -1,6 +1,6 @@
 package com.redis.lettucemod.api.sync;
 
-import com.redis.lettucemod.search.*;
+import com.redis.lettucemod.api.search.*;
 
 import java.util.List;
 
@@ -10,19 +10,19 @@ public interface RediSearchCommands<K, V> {
 
     String create(K index, CreateOptions<K, V> options, Field... fields);
 
-    String dropIndex(K index);
+    String dropindex(K index);
 
-    String dropIndexDeleteDocs(K index);
+    String dropindexDeleteDocs(K index);
 
     String alter(K index, Field field);
 
     List<Object> indexInfo(K index);
 
-    String aliasAdd(K name, K index);
+    String aliasadd(K name, K index);
 
-    String aliasUpdate(K name, K index);
+    String aliasupdate(K name, K index);
 
-    String aliasDel(K name);
+    String aliasdel(K name);
 
     List<K> list();
 
@@ -44,7 +44,7 @@ public interface RediSearchCommands<K, V> {
 
     String cursorDelete(K index, long cursor);
 
-    List<V> tagVals(K index, K field);
+    List<V> tagvals(K index, K field);
 
     Long sugadd(K key, V string, double score);
 

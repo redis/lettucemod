@@ -9,11 +9,11 @@ import com.redis.lettucemod.api.sync.RedisTimeSeriesCommands;
 import com.redis.lettucemod.cluster.RedisModulesClusterClient;
 import com.redis.lettucemod.cluster.api.StatefulRedisModulesClusterConnection;
 import com.redis.lettucemod.cluster.api.sync.RedisModulesAdvancedClusterCommands;
-import com.redis.lettucemod.search.AggregateOptions;
-import com.redis.lettucemod.search.Field;
-import com.redis.lettucemod.search.SearchResults;
-import com.redis.lettucemod.search.aggregate.Filter;
-import com.redis.lettucemod.search.aggregate.GroupBy;
+import com.redis.lettucemod.api.search.AggregateOptions;
+import com.redis.lettucemod.api.search.Field;
+import com.redis.lettucemod.api.search.SearchResults;
+import com.redis.lettucemod.api.search.aggregate.Filter;
+import com.redis.lettucemod.api.search.aggregate.GroupBy;
 import io.lettuce.core.LettuceFutures;
 import io.lettuce.core.RedisFuture;
 import io.lettuce.core.RedisURI;
@@ -34,7 +34,6 @@ import java.util.concurrent.TimeUnit;
 @SuppressWarnings("unused")
 public class Usage {
 
-    @SuppressWarnings("unchecked")
     public void basic() {
 
         RedisModulesClient client = RedisModulesClient.create("redis://localhost:6379"); // <1>
@@ -47,7 +46,7 @@ public class Usage {
 
         // RedisGears
         RedisGearsCommands<String, String> gears = connection.sync(); // <6>
-        gears.pyExecute("GearsBuilder().run('person:*')"); // <7>
+        gears.pyexecute("GearsBuilder().run('person:*')"); // <7>
 
         // RedisTimeSeries
         RedisTimeSeriesCommands<String, String> ts = connection.sync(); // <8>
@@ -64,7 +63,7 @@ public class Usage {
         GenericObjectPoolConfig<StatefulRedisModulesConnection<String, String>> config = new GenericObjectPoolConfig<>();
         config.setMaxTotal(16);
         GenericObjectPool<StatefulRedisModulesConnection<String, String>> pool = ConnectionPoolSupport.createGenericObjectPool(client::connect, config);
-        try (StatefulRedisModulesConnection<String,String> connection = pool.borrowObject()) {
+        try (StatefulRedisModulesConnection<String, String> connection = pool.borrowObject()) {
             RedisModulesAsyncCommands<String, String> commands = connection.async();
             // ...
         } catch (Exception e) {

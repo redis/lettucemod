@@ -1,6 +1,6 @@
 package com.redis.lettucemod.api.async;
 
-import com.redis.lettucemod.search.*;
+import com.redis.lettucemod.api.search.*;
 import io.lettuce.core.RedisFuture;
 
 import java.util.List;
@@ -11,19 +11,19 @@ public interface RediSearchAsyncCommands<K, V> {
 
     RedisFuture<String> create(K index, CreateOptions<K, V> options, Field... fields);
 
-    RedisFuture<String> dropIndex(K index);
+    RedisFuture<String> dropindex(K index);
 
-    RedisFuture<String> dropIndexDeleteDocs(K index);
+    RedisFuture<String> dropindexDeleteDocs(K index);
 
     RedisFuture<String> alter(K index, Field field);
 
     RedisFuture<List<Object>> indexInfo(K index);
 
-    RedisFuture<String> aliasAdd(K name, K index);
+    RedisFuture<String> aliasadd(K name, K index);
 
-    RedisFuture<String> aliasUpdate(K name, K index);
+    RedisFuture<String> aliasupdate(K name, K index);
 
-    RedisFuture<String> aliasDel(K name);
+    RedisFuture<String> aliasdel(K name);
 
     RedisFuture<List<K>> list();
 
@@ -45,7 +45,7 @@ public interface RediSearchAsyncCommands<K, V> {
 
     RedisFuture<String> cursorDelete(K index, long cursor);
 
-    RedisFuture<List<V>> tagVals(K index, K field);
+    RedisFuture<List<V>> tagvals(K index, K field);
 
     RedisFuture<Long> sugadd(K key, V string, double score);
 

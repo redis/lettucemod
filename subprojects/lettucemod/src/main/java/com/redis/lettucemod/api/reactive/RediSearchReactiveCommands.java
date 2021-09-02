@@ -1,6 +1,6 @@
 package com.redis.lettucemod.api.reactive;
 
-import com.redis.lettucemod.search.*;
+import com.redis.lettucemod.api.search.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -10,19 +10,19 @@ public interface RediSearchReactiveCommands<K, V> {
 
     Mono<String> create(K index, CreateOptions<K, V> options, Field... fields);
 
-    Mono<String> dropIndex(K index);
+    Mono<String> dropindex(K index);
 
-    Mono<String> dropIndexDeleteDocs(K index);
+    Mono<String> dropindexDeleteDocs(K index);
 
     Mono<String> alter(K index, Field field);
 
     Flux<Object> indexInfo(K index);
 
-    Mono<String> aliasAdd(K name, K index);
+    Mono<String> aliasadd(K name, K index);
 
-    Mono<String> aliasUpdate(K name, K index);
+    Mono<String> aliasupdate(K name, K index);
 
-    Mono<String> aliasDel(K name);
+    Mono<String> aliasdel(K name);
 
     Flux<K> list();
 
@@ -44,7 +44,7 @@ public interface RediSearchReactiveCommands<K, V> {
 
     Mono<String> cursorDelete(K index, long cursor);
 
-    Flux<V> tagVals(K index, K field);
+    Flux<V> tagvals(K index, K field);
 
     Mono<Long> sugadd(K key, V string, double score);
 

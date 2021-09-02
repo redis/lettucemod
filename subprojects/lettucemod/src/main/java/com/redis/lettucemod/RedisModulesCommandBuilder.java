@@ -13,6 +13,11 @@ public class RedisModulesCommandBuilder<K, V> extends BaseRedisCommandBuilder<K,
     private static final String MUST_NOT_BE_NULL = "must not be null";
     private static final String MUST_NOT_BE_EMPTY = "must not be empty";
 
+    protected CommandArgs<K, V> args(K key) {
+        notNullKey(key);
+        return new CommandArgs<>(codec).addKey(key);
+    }
+
     protected RedisModulesCommandBuilder(RedisCodec<K, V> codec) {
         super(codec);
     }
@@ -31,11 +36,6 @@ public class RedisModulesCommandBuilder<K, V> extends BaseRedisCommandBuilder<K,
 
     protected static void notNull(KeyValueStreamingChannel<?, ?> channel) {
         LettuceAssert.notNull(channel, "KeyValueStreamingChannel " + MUST_NOT_BE_NULL);
-    }
-
-    protected CommandArgs<K, V> args(K key) {
-        notNullKey(key);
-        return new CommandArgs<>(codec).addKey(key);
     }
 
     protected static void notEmptyKeys(Object[] keys) {
