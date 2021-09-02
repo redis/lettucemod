@@ -10,7 +10,7 @@ dependencies {
     testImplementation 'org.slf4j:slf4j-simple'
     testImplementation group: 'org.apache.commons', name: 'commons-collections4', version: commonsCollectionsVersion
     testImplementation 'org.springframework.boot:spring-boot-starter-batch'
-    testImplementation('com.redis:spring-batch-redis-test:2.16.3-SNAPSHOT') {
+    testImplementation(group: 'com.redis', name: 'spring-batch-redis-test', version: batchRedisVersion) {
         exclude group: 'com.redis', module: 'lettucemod'
     }
 }
