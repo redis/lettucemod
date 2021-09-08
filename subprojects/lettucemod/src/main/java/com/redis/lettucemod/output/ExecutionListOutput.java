@@ -28,21 +28,25 @@ public class ExecutionListOutput<K, V> extends CommandOutput<K, V, List<Executio
             field = decodeAscii(bytes);
             return;
         }
-        if (field.equals("executionId")) {
+        if (fieldEquals("executionId")) {
             execution = new Execution();
             execution.setId(decodeAscii(bytes));
             field = null;
             return;
         }
-        if (field.equals("status")) {
+        if (fieldEquals("status")) {
             execution.setStatus(decodeAscii(bytes));
             field = null;
         }
     }
 
+    private boolean fieldEquals(String name) {
+        return name.equals(field);
+    }
+
     @Override
     public void set(long integer) {
-        if (field.equals("registered")) {
+        if (fieldEquals("registered")) {
             execution.setRegistered(integer);
             field = null;
             subscriber.onNext(output, execution);

@@ -15,6 +15,10 @@ public class ExecutionDetailsOutput<K, V> extends CommandOutput<K, V, ExecutionD
     public ExecutionDetailsOutput(RedisCodec<K, V> codec) {
         super(codec, new ExecutionDetails());
     }
+    
+    private boolean fieldEquals(String name) {
+        return name.equals(field);
+    }
 
     @Override
     public void set(ByteBuffer bytes) {
@@ -22,38 +26,38 @@ public class ExecutionDetailsOutput<K, V> extends CommandOutput<K, V, ExecutionD
             field = decodeAscii(bytes);
             return;
         }
-        if (field.equals("shard_id")) {
+        if (fieldEquals("shard_id")) {
             output.setShardId(decodeAscii(bytes));
             field = null;
             return;
         }
-        if (field.equals("execution_plan")) {
+        if (fieldEquals("execution_plan")) {
             output.setPlan(new ExecutionDetails.ExecutionPlan());
             field = decodeAscii(bytes);
             return;
         }
-        if (field.equals("status")) {
+        if (fieldEquals("status")) {
             output.getPlan().setStatus(decodeAscii(bytes));
             field = null;
             return;
         }
-        if (field.equals("steps")) {
+        if (fieldEquals("steps")) {
             output.getPlan().setSteps(new ArrayList<>());
             field = decodeAscii(bytes);
             return;
         }
-        if (field.equals("type")) {
+        if (fieldEquals("type")) {
             step = new ExecutionDetails.ExecutionPlan.Step();
             step.setType(decodeAscii(bytes));
             field = null;
             return;
         }
-        if (field.equals("name")) {
+        if (fieldEquals("name")) {
             step.setName(decodeAscii(bytes));
             field = null;
             return;
         }
-        if (field.equals("arg")) {
+        if (fieldEquals("arg")) {
             step.setArg(decodeAscii(bytes));
             output.getPlan().getSteps().add(step);
             step = null;
@@ -63,37 +67,37 @@ public class ExecutionDetailsOutput<K, V> extends CommandOutput<K, V, ExecutionD
 
     @Override
     public void set(long integer) {
-        if (field.equals("shards_received")) {
+        if (fieldEquals("shards_received")) {
             output.getPlan().setShardsReceived(integer);
             field = null;
             return;
         }
-        if (field.equals("shards_completed")) {
+        if (fieldEquals("shards_completed")) {
             output.getPlan().setShardsCompleted(integer);
             field = null;
             return;
         }
-        if (field.equals("results")) {
+        if (fieldEquals("results")) {
             output.getPlan().setResults(integer);
             field = null;
             return;
         }
-        if (field.equals("errors")) {
+        if (fieldEquals("errors")) {
             output.getPlan().setErrors(integer);
             field = null;
             return;
         }
-        if (field.equals("total_duration")) {
+        if (fieldEquals("total_duration")) {
             output.getPlan().setTotalDuration(integer);
             field = null;
             return;
         }
-        if (field.equals("read_duration")) {
+        if (fieldEquals("read_duration")) {
             output.getPlan().setReadDuration(integer);
             field = null;
             return;
         }
-        if (field.equals("duration")) {
+        if (fieldEquals("duration")) {
             step.setDuration(integer);
             field = null;
         }
