@@ -83,6 +83,7 @@ public class RegistrationListOutput<K, V> extends CommandOutput<K, V, List<Regis
                 field = null;
                 subscriber.onNext(output, registration);
                 registration = null;
+                //noinspection UnnecessaryReturnStatement
                 return;
             }
         }

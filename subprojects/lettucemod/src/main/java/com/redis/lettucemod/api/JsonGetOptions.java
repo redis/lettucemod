@@ -8,27 +8,26 @@ import lombok.Data;
 
 @Data
 @Builder
-public class JsonGetOptions<K, V> implements CompositeArgument {
+public class JsonGetOptions implements CompositeArgument {
 
-    private V indent;
-    private V newline;
-    private V space;
+    private String indent;
+    private String newline;
+    private String space;
     private boolean noEscape;
 
-    @SuppressWarnings("unchecked")
     @Override
     public <K, V> void build(CommandArgs<K, V> args) {
         if (indent != null) {
             args.add(JsonCommandKeyword.INDENT);
-            args.addValue((V) indent);
+            args.add(indent);
         }
         if (newline != null) {
             args.add(JsonCommandKeyword.NEWLINE);
-            args.addValue((V) newline);
+            args.add(newline);
         }
         if (space != null) {
             args.add(JsonCommandKeyword.SPACE);
-            args.addValue((V) space);
+            args.add(space);
         }
         if (noEscape) {
             args.add(JsonCommandKeyword.NOESCAPE);

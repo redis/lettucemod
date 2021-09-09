@@ -9,7 +9,7 @@ public interface RedisJSONReactiveCommands<K, V> {
 
     Mono<Long> jsonDel(K key, K path);
 
-    Mono<V> get(K key, JsonGetOptions<K, V> options, K... paths);
+    Mono<V> get(K key, JsonGetOptions options, K... paths);
 
     Flux<KeyValue<K, V>> jsonMget(K path, K... keys);
 

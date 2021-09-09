@@ -377,7 +377,7 @@ public class RedisModulesReactiveCommandsImpl<K, V> extends RedisReactiveCommand
     }
 
     @Override
-    public Mono<V> get(K key, JsonGetOptions<K, V> options, K... paths) {
+    public Mono<V> get(K key, JsonGetOptions options, K... paths) {
         return createMono(() -> jsonCommandBuilder.get(key, options, paths));
     }
 

@@ -11,7 +11,7 @@ public interface RedisJSONAsyncCommands<K, V> {
 
     RedisFuture<Long> jsonDel(K key, K path);
 
-    RedisFuture<V> get(K key, JsonGetOptions<K, V> options, K... paths);
+    RedisFuture<V> get(K key, JsonGetOptions options, K... paths);
 
     RedisFuture<List<KeyValue<K, V>>> jsonMget(K path, K... keys);
 

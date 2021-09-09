@@ -377,7 +377,7 @@ public class RedisModulesAsyncCommandsImpl<K, V> extends RedisAsyncCommandsImpl<
     }
 
     @Override
-    public RedisFuture<V> get(K key, JsonGetOptions<K, V> options, K... paths) {
+    public RedisFuture<V> get(K key, JsonGetOptions options, K... paths) {
         return dispatch(jsonCommandBuilder.get(key, options, paths));
     }
 

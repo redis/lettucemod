@@ -10,7 +10,7 @@ public interface RedisJSONCommands<K, V> {
 
     Long jsonDel(K key, K path);
 
-    V get(K key, JsonGetOptions<K, V> options, K... paths);
+    V get(K key, JsonGetOptions options, K... paths);
 
     List<KeyValue<K, V>> jsonMget(K path, K... keys);
 

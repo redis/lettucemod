@@ -45,7 +45,7 @@ public class RedisJSONCommandBuilder<K, V> extends RedisModulesCommandBuilder<K,
         return createCommand(JsonCommandType.DEL, new IntegerOutput<>(codec), args);
     }
 
-    public Command<K, V, V> get(K key, JsonGetOptions<K, V> options, K... paths) {
+    public Command<K, V, V> get(K key, JsonGetOptions options, K... paths) {
         CommandArgs<K, V> args = args(key);
         if (options != null) {
             options.build(args);

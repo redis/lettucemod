@@ -389,7 +389,7 @@ public class RedisModulesAdvancedClusterAsyncCommandsImpl<K, V> extends RedisAdv
     }
 
     @Override
-    public RedisFuture<V> get(K key, JsonGetOptions<K, V> options, K... paths) {
+    public RedisFuture<V> get(K key, JsonGetOptions options, K... paths) {
         return delegate.get(key, options, paths);
     }
 

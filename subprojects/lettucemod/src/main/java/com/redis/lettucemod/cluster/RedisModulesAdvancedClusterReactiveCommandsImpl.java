@@ -398,7 +398,7 @@ public class RedisModulesAdvancedClusterReactiveCommandsImpl<K, V> extends Redis
     }
 
     @Override
-    public Mono<V> get(K key, JsonGetOptions<K, V> options, K... paths) {
+    public Mono<V> get(K key, JsonGetOptions options, K... paths) {
         return delegate.get(key, options, paths);
     }
 
