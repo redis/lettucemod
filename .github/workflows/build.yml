@@ -7,7 +7,7 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-18.04
-    if: startsWith(github.event.head_commit.message, 'Releasing version') != true
+    if: startsWith(github.event.head_commit.message, 'Releasing') != true
 
     steps:
       - uses: actions/checkout@v2

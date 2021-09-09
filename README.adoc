@@ -5,6 +5,7 @@
 :project-name:    lettucemod
 :project-group:   com.redis
 :project-version: 1.6.2
+:project-snapshot-version: 1.6.4-SNAPSHOT
 
 image:https://github.com/redis-developer/lettucemod/actions/workflows/early-access.yml/badge.svg["Build Status",link="https://github.com/{project-owner}/{project-name}/actions"]
 image:https://img.shields.io/maven-central/v/{project-group}/{project-name}.svg[Download,link="https://search.maven.org/#search|ga|1|{project-name}"]
@@ -70,7 +71,7 @@ https://s01.oss.sonatype.org/content/repositories/snapshots/
 
 .Maven
 ----
-[source,xml]
+[source,xml,subs="verbatim,attributes"]
 <repositories>
    <repository>
       <id>oss.sonatype.org-snapshot</id>
@@ -83,15 +84,25 @@ https://s01.oss.sonatype.org/content/repositories/snapshots/
          </snapshots>
    </repository>
 </repositories>
+
+<dependency>
+    <groupId>{project-group}</groupId>
+    <artifactId>{project-name}</artifactId>
+    <version>{project-snapshot-version}</version>
+</dependency>
 ----
 
 .Gradle
-[source,groovy]
+[source,groovy,subs="verbatim,attributes"]
 ----
 repositories {
     maven {
         url "https://s01.oss.sonatype.org/content/repositories/snapshots/"
     }
+}
+
+dependencies {
+    implementation '{project-group}:{project-name}:{project-snapshot-version}'
 }
 ----
 
