@@ -5,11 +5,12 @@
 :project-name:    lettucemod
 :project-group:   com.redis
 :project-version: 1.6.2
-:project-snapshot-version: 1.6.4-SNAPSHOT
+:project-snapshot-version: 1.6.3-SNAPSHOT
 
 image:https://github.com/redis-developer/lettucemod/actions/workflows/early-access.yml/badge.svg["Build Status",link="https://github.com/{project-owner}/{project-name}/actions"]
-image:https://img.shields.io/maven-central/v/{project-group}/{project-name}.svg[Download,link="https://search.maven.org/#search|ga|1|{project-name}"]
-image:https://img.shields.io/github/license/{project-owner}/{project-name}.svg["License",link="https://github.com/{project-owner}/{project-name}"]
+image:https://img.shields.io/maven-central/v/{project-group}/{project-name}[Download,link="https://search.maven.org/#search|ga|1|{project-name}"]
+image:https://img.shields.io/nexus/s/{project-group}/{project-name}?server=https%3A%2F%2Fs01.oss.sonatype.org[Snapshot,link="https://s01.oss.sonatype.org/#nexus-search;quick~{project-name}"]
+image:https://img.shields.io/github/license/{project-owner}/{project-name}["License",link="https://github.com/{project-owner}/{project-name}"]
 image:https://codecov.io/gh/{project-owner}/{project-name}/branch/master/graph/badge.svg?token=A5IX98M8JT["Coverage",link="https://codecov.io/gh/{project-owner}/{project-name}"]
 image:https://img.shields.io/badge/Forum-Modules-blue["forum",link=https://forum.redis.com/c/modules/]
 
@@ -84,12 +85,6 @@ https://s01.oss.sonatype.org/content/repositories/snapshots/
          </snapshots>
    </repository>
 </repositories>
-
-<dependency>
-    <groupId>{project-group}</groupId>
-    <artifactId>{project-name}</artifactId>
-    <version>{project-snapshot-version}</version>
-</dependency>
 ----
 
 .Gradle
@@ -99,10 +94,6 @@ repositories {
     maven {
         url "https://s01.oss.sonatype.org/content/repositories/snapshots/"
     }
-}
-
-dependencies {
-    implementation '{project-group}:{project-name}:{project-snapshot-version}'
 }
 ----
 
