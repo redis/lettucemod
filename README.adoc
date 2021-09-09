@@ -6,13 +6,14 @@
 :project-group:   com.redis
 :project-version: 1.6.2
 
-image:https://github.com/redis-developer/lettucemod/actions/workflows/early-access.yml/badge.svg["Build Status", link="https://github.com/{project-owner}/{project-name}/actions"]
-image:https://img.shields.io/maven-central/v/{project-group}/{project-name}.svg[Download, link="https://search.maven.org/#search|ga|1|{project-name}"]
-image:https://img.shields.io/github/license/{project-owner}/{project-name}.svg["License", link="https://github.com/{project-owner}/{project-name}"]
-image:https://codecov.io/gh/{project-owner}/{project-name}/branch/master/graph/badge.svg?token=A5IX98M8JT["Coverage", link="https://codecov.io/gh/{project-owner}/{project-name}"]
-image:https://img.shields.io/badge/Forum-Modules-blue["forum", link=https://forum.redis.com/c/modules/]
+image:https://github.com/redis-developer/lettucemod/actions/workflows/early-access.yml/badge.svg["Build Status",link="https://github.com/{project-owner}/{project-name}/actions"]
+image:https://img.shields.io/maven-central/v/{project-group}/{project-name}.svg[Download,link="https://search.maven.org/#search|ga|1|{project-name}"]
+image:https://img.shields.io/github/license/{project-owner}/{project-name}.svg["License",link="https://github.com/{project-owner}/{project-name}"]
+image:https://codecov.io/gh/{project-owner}/{project-name}/branch/master/graph/badge.svg?token=A5IX98M8JT["Coverage",link="https://codecov.io/gh/{project-owner}/{project-name}"]
+image:https://img.shields.io/badge/Forum-Modules-blue["forum",link=https://forum.redis.com/c/modules/]
 
-LettuceMod is a Java client for https://docs.redis.com/latest/modules/[Redis Modules] based on https://lettuce.io[Lettuce]. It supports the following modules in standalone or cluster configurations:
+LettuceMod is a Java client for https://docs.redis.com/latest/modules/[Redis Modules] based on https://lettuce.io[Lettuce].
+It supports the following modules in standalone or cluster configurations:
 
 * https://oss.redis.com/redisgears/[RedisGears]
 * https://oss.redis.com/redisjson/[RedisJSON]
@@ -22,6 +23,7 @@ LettuceMod is a Java client for https://docs.redis.com/latest/modules/[Redis Mod
 == Getting Started
 
 === Java
+
 .Maven
 [source,xml,subs="verbatim,attributes"]
 ----
@@ -41,6 +43,7 @@ dependencies {
 ----
 
 === Spring
+
 .Maven
 [source,xml,subs="verbatim,attributes"]
 ----
@@ -59,11 +62,45 @@ dependencies {
 }
 ----
 
+=== Snapshot Releases
+
+For early-access releases use the following repository:
+
+https://s01.oss.sonatype.org/content/repositories/snapshots/
+
+.Maven
+----
+[source,xml]
+<repositories>
+   <repository>
+      <id>oss.sonatype.org-snapshot</id>
+         <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+         <releases>
+            <enabled>false</enabled>
+         </releases>
+         <snapshots>
+           <enabled>true</enabled>
+         </snapshots>
+   </repository>
+</repositories>
+----
+
+.Gradle
+[source,groovy]
+----
+repositories {
+    maven {
+        url "https://s01.oss.sonatype.org/content/repositories/snapshots/"
+    }
+}
+----
+
 == Usage
 
 === Java
 
 ==== Standalone Client
+
 [source,java]
 ----
 RedisModulesClient client = RedisModulesClient.create("redis://localhost:6379"); // <1>
@@ -72,10 +109,12 @@ StatefulRedisModulesConnection<String, String> connection = client.connect(); //
 
 RedisModulesCommands<String, String> commands = connection.sync(); // <3>
 ----
+
 <1> Create a modules client
 <2> Connect to Redis server
 
 ==== Cluster Client
+
 [source,java]
 ----
 RedisURI node1 = RedisURI.create("node1", 6379);
@@ -87,11 +126,13 @@ StatefulRedisModulesClusterConnection<String, String> connection = clusterClient
 
 RedisModulesAdvancedClusterCommands<String, String> commands = connection.sync(); // <3>
 ----
+
 <1> Create a cluster modules client
 <2> Connect to Redis servers
 <3> Use the sync, async, or reactive API
 
 ==== Connection Pool
+
 [source,java]
 ----
 GenericObjectPoolConfig<StatefulRedisModulesConnection<String, String>> config = new GenericObjectPoolConfig<>();
@@ -99,12 +140,14 @@ config.setMaxTotal(4); // <1>
 // ...
 GenericObjectPool<StatefulRedisModulesConnection<String, String>> pool = ConnectionPoolSupport.createGenericObjectPool(client::connect, config); // <2>
 ----
+
 <1> Create a pool configuration
 <2> Create the connection pool
 
 === Spring
 
 ==== Client
+
 [source,java]
 ----
 @Component
@@ -118,6 +161,7 @@ public class MyComponent {
 ----
 
 ==== Connection Pool
+
 [source,java]
 ----
 @Component
@@ -131,26 +175,31 @@ public class MyComponent {
 ----
 
 === RedisGears
+
 [source,java]
 ----
 RedisGearsCommands<String, String> gears = connection.sync(); // <1>
 
 gears.pyexecute("GearsBuilder().run('person:*')"); // <2>
 ----
+
 <1> Use sync, async, or reactive RedisGears commands
 <2> Execute a RedisGears Python function
 
 === RedisJSON
+
 [source,java]
 ----
 RedisJSONCommands<String, String> json = connection.sync(); // <1>
 
 json.set("arr", ".", "[1,2,3]"); // <2>
 ----
+
 <1> Use sync, async, or reactive RedisJSON commands
 <2> Set a JSON value
 
 === RediSearch
+
 [source,java]
 ----
 RediSearchCommands<String, String> search = connection.sync(); // <1>
@@ -159,21 +208,25 @@ search.create("beers", Field.text("name").build(), Field.numeric("ibu").build())
 
 SearchResults<String, String> results = search.search("beers", "chou*"); // <3>
 ----
+
 <1> Use sync, async, or reactive RediSearch commands
 <2> Create an index
 <3> Search the index
 
 === RedisTimeSeries
+
 [source,java]
 ----
 RedisTimeSeriesCommands<String, String> ts = connection.sync(); // <1>
 
 ts.add("temp:3:11", 1548149181, 30); // <2>
 ----
+
 <1> Use sync, async, or reactive RedisTimeSeries commands
 <2> Append a new sample to the series
 
 === Pipelining
+
 [source,java]
 ----
 RedisModulesAsyncCommands<String, String> commands = connection.async();
@@ -192,6 +245,7 @@ boolean result = LettuceFutures.awaitAll(5, TimeUnit.SECONDS,
 
 connection.close(); // <5>
 ----
+
 <1> Disable auto-flushing
 <2> Perform a series of independent calls
 <3> Write all commands to the transport layer
@@ -199,6 +253,7 @@ connection.close(); // <5>
 <5> Later
 
 === Connection Pooling
+
 [source,java]
 ----
 try (StatefulRedisModulesConnection<String,String> connection = pool.borrowObject()) {
