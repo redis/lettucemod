@@ -51,37 +51,40 @@ public class RegistrationListOutput<K, V> extends CommandOutput<K, V, List<Regis
             field = decodeAscii(bytes);
             return;
         }
-        if (registration.getData() != null) {
-            if (fieldEquals("mode")) {
-                registration.getData().setMode(decodeAscii(bytes));
+        if (registration != null) {
+            if (registration.getData() != null) {
+                if (fieldEquals("mode")) {
+                    registration.getData().setMode(decodeAscii(bytes));
+                    field = null;
+                    return;
+                }
+                if (fieldEquals("lastError")) {
+                    registration.getData().setLastError(decodeAscii(bytes));
+                    field = null;
+                    return;
+                }
+                if (fieldEquals("args")) {
+                    field = decodeAscii(bytes);
+                    return;
+                }
+                if (registration.getData().getArgs() != null && registration.getData().getArgs().size() < argSize) {
+                    registration.getData().getArgs().put(field, decodeAscii(bytes));
+                    field = null;
+                    return;
+                }
+                if (fieldEquals("status")) {
+                    registration.getData().setStatus(decodeAscii(bytes));
+                    field = null;
+                    return;
+                }
+            }
+            if (fieldEquals("PD")) {
+                registration.setPrivateData(decodeAscii(bytes));
                 field = null;
+                subscriber.onNext(output, registration);
+                registration = null;
                 return;
             }
-            if (fieldEquals("lastError")) {
-                registration.getData().setLastError(decodeAscii(bytes));
-                field = null;
-                return;
-            }
-            if (fieldEquals("args")) {
-                field = decodeAscii(bytes);
-                return;
-            }
-            if (registration.getData().getArgs() != null && registration.getData().getArgs().size() < argSize) {
-                registration.getData().getArgs().put(field, decodeAscii(bytes));
-                field = null;
-                return;
-            }
-            if (fieldEquals("status")) {
-                registration.getData().setStatus(decodeAscii(bytes));
-                field = null;
-                return;
-            }
-        }
-        if (fieldEquals("PD")) {
-            registration.setPrivateData(decodeAscii(bytes));
-            field = null;
-            subscriber.onNext(output, registration);
-            registration = null;
         }
     }
 
@@ -91,7 +94,7 @@ public class RegistrationListOutput<K, V> extends CommandOutput<K, V, List<Regis
 
     @Override
     public void set(long integer) {
-        if (registration.getData() != null) {
+        if (registration != null && registration.getData() != null) {
             if (fieldEquals("numTriggered")) {
                 registration.getData().setNumTriggered(integer);
                 field = null;
@@ -126,7 +129,7 @@ public class RegistrationListOutput<K, V> extends CommandOutput<K, V, List<Regis
             initialized = true;
             return;
         }
-        if (fieldEquals("args") && registration.getData() != null) {
+        if (fieldEquals("args") && registration != null && registration.getData() != null) {
             argSize = count / 2;
             registration.getData().setArgs(new HashMap<>(argSize));
         }
