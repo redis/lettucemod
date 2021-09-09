@@ -32,8 +32,6 @@ public interface RedisJSONCommands<K, V> {
 
     Long strappend(K key, K path, V json);
 
-    Long strlen(K key);
-
     Long strlen(K key, K path);
 
     Long arrappend(K key, K path, V... jsons);

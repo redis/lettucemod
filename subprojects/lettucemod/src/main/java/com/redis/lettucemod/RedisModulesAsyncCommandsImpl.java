@@ -415,11 +415,6 @@ public class RedisModulesAsyncCommandsImpl<K, V> extends RedisAsyncCommandsImpl<
     }
 
     @Override
-    public RedisFuture<String> type(K key) {
-        return type(key, null);
-    }
-
-    @Override
     public RedisFuture<String> type(K key, K path) {
         return dispatch(jsonCommandBuilder.type(key, path));
     }
@@ -442,11 +437,6 @@ public class RedisModulesAsyncCommandsImpl<K, V> extends RedisAsyncCommandsImpl<
     @Override
     public RedisFuture<Long> strappend(K key, K path, V json) {
         return dispatch(jsonCommandBuilder.strAppend(key, path, json));
-    }
-
-    @Override
-    public RedisFuture<Long> strlen(K key) {
-        return strlen(key, null);
     }
 
     @Override

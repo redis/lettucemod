@@ -385,7 +385,7 @@ public class RedisModulesAdvancedClusterAsyncCommandsImpl<K, V> extends RedisAdv
 
     @Override
     public RedisFuture<Long> jsonDel(K key, K path) {
-        return delegate.del(key, path);
+        return delegate.jsonDel(key, path);
     }
 
     @Override
@@ -466,11 +466,6 @@ public class RedisModulesAdvancedClusterAsyncCommandsImpl<K, V> extends RedisAdv
     }
 
     @Override
-    public RedisFuture<String> type(K key) {
-        return delegate.type(key);
-    }
-
-    @Override
     public RedisFuture<String> type(K key, K path) {
         return delegate.type(key, path);
     }
@@ -493,11 +488,6 @@ public class RedisModulesAdvancedClusterAsyncCommandsImpl<K, V> extends RedisAdv
     @Override
     public RedisFuture<Long> strappend(K key, K path, V json) {
         return delegate.strappend(key, path, json);
-    }
-
-    @Override
-    public RedisFuture<Long> strlen(K key) {
-        return delegate.strlen(key);
     }
 
     @Override

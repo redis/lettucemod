@@ -67,7 +67,7 @@ public class JsonTests extends AbstractModuleTestBase {
     void getOptions(RedisServer redis) {
         RedisJSONCommands<String, String> sync = sync(redis);
         sync.set("obj", ".", JSON);
-        String result = sync.get("obj", JsonGetOptions.<String, String>builder().indent("___").newline("#").noEscape(true).space("_").build());
+        String result = sync.get("obj", JsonGetOptions.builder().indent("___").newline("#").noEscape(true).space("_").build());
         Assertions.assertEquals("{#___\"name\":_\"Leonard Cohen\",#___\"lastSeen\":_1478476800,#___\"loggedOut\":_true#}", result);
     }
 
@@ -76,7 +76,7 @@ public class JsonTests extends AbstractModuleTestBase {
     void getOptionsPaths(RedisServer redis) {
         RedisJSONCommands<String, String> sync = sync(redis);
         sync.set("obj", ".", JSON);
-        String result = sync.get("obj", JsonGetOptions.<String, String>builder().indent("___").newline("#").noEscape(true).space("_").build(), ".name", ".loggedOut");
+        String result = sync.get("obj", JsonGetOptions.builder().indent("___").newline("#").noEscape(true).space("_").build(), ".name", ".loggedOut");
         Assertions.assertEquals("{#___\".name\":_\"Leonard Cohen\",#___\".loggedOut\":_true#}", result);
     }
 

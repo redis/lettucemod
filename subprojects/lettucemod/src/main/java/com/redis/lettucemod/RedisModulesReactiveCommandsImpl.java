@@ -406,11 +406,6 @@ public class RedisModulesReactiveCommandsImpl<K, V> extends RedisReactiveCommand
     }
 
     @Override
-    public Mono<String> type(K key) {
-        return type(key, null);
-    }
-
-    @Override
     public Mono<String> type(K key, K path) {
         return createMono(() -> jsonCommandBuilder.type(key, path));
     }
@@ -433,11 +428,6 @@ public class RedisModulesReactiveCommandsImpl<K, V> extends RedisReactiveCommand
     @Override
     public Mono<Long> strappend(K key, K path, V json) {
         return createMono(() -> jsonCommandBuilder.strAppend(key, path, json));
-    }
-
-    @Override
-    public Mono<Long> strlen(K key) {
-        return strlen(key, null);
     }
 
     @Override

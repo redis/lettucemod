@@ -33,8 +33,6 @@ public interface RedisJSONAsyncCommands<K, V> {
 
     RedisFuture<Long> strappend(K key, K path, V json);
 
-    RedisFuture<Long> strlen(K key);
-
     RedisFuture<Long> strlen(K key, K path);
 
     RedisFuture<Long> arrappend(K key, K path, V... jsons);

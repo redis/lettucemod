@@ -466,11 +466,6 @@ public class RedisModulesAdvancedClusterReactiveCommandsImpl<K, V> extends Redis
     }
 
     @Override
-    public Mono<String> type(K key) {
-        return delegate.type(key);
-    }
-
-    @Override
     public Mono<String> type(K key, K path) {
         return delegate.type(key, path);
     }
@@ -493,11 +488,6 @@ public class RedisModulesAdvancedClusterReactiveCommandsImpl<K, V> extends Redis
     @Override
     public Mono<Long> strappend(K key, K path, V json) {
         return delegate.strappend(key, path, json);
-    }
-
-    @Override
-    public Mono<Long> strlen(K key) {
-        return delegate.strlen(key);
     }
 
     @Override

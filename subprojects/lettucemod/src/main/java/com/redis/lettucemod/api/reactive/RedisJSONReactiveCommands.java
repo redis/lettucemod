@@ -29,8 +29,6 @@ public interface RedisJSONReactiveCommands<K, V> {
 
     Mono<Long> strappend(K key, K path, V json);
 
-    Mono<Long> strlen(K key);
-
     Mono<Long> strlen(K key, K path);
 
     Mono<Long> arrappend(K key, K path, V... jsons);
