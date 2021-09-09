@@ -36,7 +36,10 @@ jobs:
             ${{ runner.os }}-gradlew-
 
       - name: Build
-        run: ./gradlew -Prelease=true build aggregateJacocoReport -S
+        run: ./gradlew -Prelease=true build -S
+
+      - name: Jacoco
+        run: ./gradlew -Prelease=true aggregateJacocoReport -S
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1
