@@ -52,16 +52,6 @@ jobs:
         id: vars
         run: echo ::set-output name=version::$(cat VERSION)
 
-      - name: Set snapshot version
-        run: |
-          VERSION=$(cat VERSION)
-          sed -i -e "s/^\:project-snapshot-version\:\ .*/:project-snapshot-version: $VERSION/g" README.adoc
-          git add README.adoc
-          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git config --global user.name "GitHub Action"
-          git commit -a -m "Releasing snapshot version $VERSION"
-          git push origin master
-
       - name: Deploy
         env:
           GPG_KEY_ID: ${{ secrets.GPG_KEY_ID }}
