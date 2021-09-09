@@ -70,8 +70,8 @@ For early-access releases use the following repository:
 https://s01.oss.sonatype.org/content/repositories/snapshots/
 
 .Maven
+[source,xml]
 ----
-[source,xml,subs="verbatim,attributes"]
 <repositories>
    <repository>
       <id>oss.sonatype.org-snapshot</id>
@@ -87,7 +87,7 @@ https://s01.oss.sonatype.org/content/repositories/snapshots/
 ----
 
 .Gradle
-[source,groovy,subs="verbatim,attributes"]
+[source,groovy]
 ----
 repositories {
     maven {
