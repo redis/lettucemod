@@ -5,10 +5,8 @@ import com.redis.lettucemod.api.async.RedisModulesAsyncCommands;
 import com.redis.lettucemod.api.reactive.RedisModulesReactiveCommands;
 import com.redis.lettucemod.api.sync.RedisModulesCommands;
 import com.redis.lettucemod.cluster.RedisModulesClusterClient;
-import com.redis.testcontainers.RedisEnterpriseContainer;
 import com.redis.testcontainers.RedisModulesContainer;
 import com.redis.testcontainers.RedisServer;
-import com.redis.testcontainers.support.enterprise.rest.Database;
 import io.lettuce.core.AbstractRedisClient;
 import io.lettuce.core.api.StatefulConnection;
 import org.junit.jupiter.api.AfterEach;
@@ -26,11 +24,11 @@ public abstract class AbstractModuleTestBase {
 
     @Container
     private static final RedisModulesContainer REDIS = new RedisModulesContainer();
-    @Container
-    private static final RedisEnterpriseContainer REDIS_ENTERPRISE = new RedisEnterpriseContainer().withModules(Database.Module.GEARS, Database.Module.SEARCH, Database.Module.TIMESERIES, Database.Module.JSON).withOSSCluster();
+//    @Container
+//    private static final RedisEnterpriseContainer REDIS_ENTERPRISE = new RedisEnterpriseContainer().withModules(Database.Module.GEARS, Database.Module.SEARCH, Database.Module.TIMESERIES, Database.Module.JSON).withOSSCluster();
 
     static Stream<RedisServer> redisServers() {
-        return Stream.of(REDIS, REDIS_ENTERPRISE);
+        return Stream.of(REDIS);//, REDIS_ENTERPRISE);
     }
 
     protected final Map<RedisServer, AbstractRedisClient> clients = new HashMap<>();
