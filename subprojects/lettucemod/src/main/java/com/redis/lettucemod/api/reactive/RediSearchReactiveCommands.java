@@ -1,6 +1,15 @@
 package com.redis.lettucemod.api.reactive;
 
-import com.redis.lettucemod.api.search.*;
+import com.redis.lettucemod.api.search.AggregateOptions;
+import com.redis.lettucemod.api.search.AggregateResults;
+import com.redis.lettucemod.api.search.AggregateWithCursorResults;
+import com.redis.lettucemod.api.search.CreateOptions;
+import com.redis.lettucemod.api.search.Cursor;
+import com.redis.lettucemod.api.search.Field;
+import com.redis.lettucemod.api.search.SearchOptions;
+import com.redis.lettucemod.api.search.SearchResults;
+import com.redis.lettucemod.api.search.Suggestion;
+import com.redis.lettucemod.api.search.SuggetOptions;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -48,7 +57,15 @@ public interface RediSearchReactiveCommands<K, V> {
 
     Mono<Long> sugadd(K key, V string, double score);
 
-    Mono<Long> sugadd(K key, V string, double score, SugaddOptions<K, V> options);
+    Mono<Long> sugaddIncr(K key, V string, double score);
+
+    Mono<Long> sugadd(K key, V string, double score, V payload);
+
+    Mono<Long> sugaddIncr(K key, V string, double score, V payload);
+
+    Mono<Long> sugadd(K key, Suggestion<V> suggestion);
+
+    Mono<Long> sugaddIncr(K key, Suggestion<V> suggestion);
 
     Flux<Suggestion<V>> sugget(K key, V prefix);
 

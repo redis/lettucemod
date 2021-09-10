@@ -48,7 +48,15 @@ public interface RediSearchCommands<K, V> {
 
     Long sugadd(K key, V string, double score);
 
-    Long sugadd(K key, V string, double score, SugaddOptions<K, V> options);
+    Long sugaddIncr(K key, V string, double score);
+
+    Long sugadd(K key, V string, double score, V payload);
+
+    Long sugaddIncr(K key, V string, double score, V payload);
+
+    Long sugadd(K key, Suggestion<V> suggestion);
+
+    Long sugaddIncr(K key, Suggestion<V> suggestion);
 
     List<Suggestion<V>> sugget(K key, V prefix);
 

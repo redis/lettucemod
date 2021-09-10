@@ -17,7 +17,6 @@ import com.redis.lettucemod.api.search.Language;
 import com.redis.lettucemod.api.search.Order;
 import com.redis.lettucemod.api.search.SearchOptions;
 import com.redis.lettucemod.api.search.SearchResults;
-import com.redis.lettucemod.api.search.SugaddOptions;
 import com.redis.lettucemod.api.search.Suggestion;
 import com.redis.lettucemod.api.search.SuggetOptions;
 import com.redis.lettucemod.api.search.aggregate.GroupBy;
@@ -141,7 +140,7 @@ public class SearchTests extends AbstractModuleTestBase {
         RedisModulesCommands<String, String> sync = sync(redis);
         String key = "testSugadd";
         sync.sugadd(key, "value1", 1);
-        sync.sugadd(key, "value1", 1, SugaddOptions.<String, String>builder().increment(true).build());
+        sync.sugaddIncr(key, "value1", 1);
         List<Suggestion<String>> suggestions = sync.sugget(key, "value", SuggetOptions.builder().withScores(true).build());
         Assertions.assertEquals(1, suggestions.size());
         Assertions.assertEquals(1.4142135381698608, suggestions.get(0).getScore());
@@ -152,7 +151,7 @@ public class SearchTests extends AbstractModuleTestBase {
     void testSugaddPayload(RedisServer redis) {
         RedisModulesCommands<String, String> sync = sync(redis);
         String key = "testSugadd";
-        sync.sugadd(key, "value1", 1, SugaddOptions.<String, String>builder().payload("somepayload").build());
+        sync.sugadd(key, "value1", 1, "somepayload");
         List<Suggestion<String>> suggestions = sync.sugget(key, "value", SuggetOptions.builder().withPayloads(true).build());
         Assertions.assertEquals(1, suggestions.size());
         Assertions.assertEquals("somepayload", suggestions.get(0).getPayload());
@@ -163,7 +162,7 @@ public class SearchTests extends AbstractModuleTestBase {
     void testSugaddScorePayload(RedisServer redis) {
         RedisModulesCommands<String, String> sync = sync(redis);
         String key = "testSugadd";
-        sync.sugadd(key, "value1", 2, SugaddOptions.<String, String>builder().payload("somepayload").build());
+        sync.sugadd(key, "value1", 2, "somepayload");
         List<Suggestion<String>> suggestions = sync.sugget(key, "value", SuggetOptions.builder().withScores(true).withPayloads(true).build());
         Assertions.assertEquals(1, suggestions.size());
         Assertions.assertEquals(1.4142135381698608, suggestions.get(0).getScore());

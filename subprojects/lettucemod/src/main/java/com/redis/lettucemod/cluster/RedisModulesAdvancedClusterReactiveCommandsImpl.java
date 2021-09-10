@@ -17,7 +17,6 @@ import com.redis.lettucemod.api.search.Cursor;
 import com.redis.lettucemod.api.search.Field;
 import com.redis.lettucemod.api.search.SearchOptions;
 import com.redis.lettucemod.api.search.SearchResults;
-import com.redis.lettucemod.api.search.SugaddOptions;
 import com.redis.lettucemod.api.search.Suggestion;
 import com.redis.lettucemod.api.search.SuggetOptions;
 import com.redis.lettucemod.api.timeseries.Aggregation;
@@ -250,8 +249,28 @@ public class RedisModulesAdvancedClusterReactiveCommandsImpl<K, V> extends Redis
     }
 
     @Override
-    public Mono<Long> sugadd(K key, V string, double score, SugaddOptions<K, V> options) {
-        return delegate.sugadd(key, string, score, options);
+    public Mono<Long> sugaddIncr(K key, V string, double score) {
+        return delegate.sugaddIncr(key, string, score);
+    }
+
+    @Override
+    public Mono<Long> sugadd(K key, V string, double score, V payload) {
+        return delegate.sugadd(key, string, score, payload);
+    }
+
+    @Override
+    public Mono<Long> sugaddIncr(K key, V string, double score, V payload) {
+        return delegate.sugaddIncr(key, string, score, payload);
+    }
+
+    @Override
+    public Mono<Long> sugadd(K key, Suggestion<V> suggestion) {
+        return delegate.sugadd(key, suggestion);
+    }
+
+    @Override
+    public Mono<Long> sugaddIncr(K key, Suggestion<V> suggestion) {
+        return delegate.sugaddIncr(key, suggestion);
     }
 
     @Override

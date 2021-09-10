@@ -15,7 +15,6 @@ import com.redis.lettucemod.api.search.Cursor;
 import com.redis.lettucemod.api.search.Field;
 import com.redis.lettucemod.api.search.SearchOptions;
 import com.redis.lettucemod.api.search.SearchResults;
-import com.redis.lettucemod.api.search.SugaddOptions;
 import com.redis.lettucemod.api.search.Suggestion;
 import com.redis.lettucemod.api.search.SuggetOptions;
 import com.redis.lettucemod.api.timeseries.Aggregation;
@@ -302,8 +301,28 @@ public class RedisModulesReactiveCommandsImpl<K, V> extends RedisReactiveCommand
     }
 
     @Override
-    public Mono<Long> sugadd(K key, V string, double score, SugaddOptions<K, V> options) {
-        return createMono(() -> searchCommandBuilder.sugadd(key, string, score, options));
+    public Mono<Long> sugaddIncr(K key, V string, double score) {
+        return createMono(() -> searchCommandBuilder.sugaddIncr(key, string, score));
+    }
+
+    @Override
+    public Mono<Long> sugadd(K key, V string, double score, V payload) {
+        return createMono(() -> searchCommandBuilder.sugadd(key, string, score, payload));
+    }
+
+    @Override
+    public Mono<Long> sugaddIncr(K key, V string, double score, V payload) {
+        return createMono(() -> searchCommandBuilder.sugaddIncr(key, string, score, payload));
+    }
+
+    @Override
+    public Mono<Long> sugadd(K key, Suggestion<V> suggestion) {
+        return createMono(() -> searchCommandBuilder.sugadd(key, suggestion));
+    }
+
+    @Override
+    public Mono<Long> sugaddIncr(K key, Suggestion<V> suggestion) {
+        return createMono(() -> searchCommandBuilder.sugaddIncr(key, suggestion));
     }
 
     @Override

@@ -14,7 +14,6 @@ import com.redis.lettucemod.api.search.Cursor;
 import com.redis.lettucemod.api.search.Field;
 import com.redis.lettucemod.api.search.SearchOptions;
 import com.redis.lettucemod.api.search.SearchResults;
-import com.redis.lettucemod.api.search.SugaddOptions;
 import com.redis.lettucemod.api.search.Suggestion;
 import com.redis.lettucemod.api.search.SuggetOptions;
 import com.redis.lettucemod.api.timeseries.Aggregation;
@@ -302,8 +301,28 @@ public class RedisModulesAsyncCommandsImpl<K, V> extends RedisAsyncCommandsImpl<
     }
 
     @Override
-    public RedisFuture<Long> sugadd(K key, V string, double score, SugaddOptions<K, V> options) {
-        return dispatch(searchCommandBuilder.sugadd(key, string, score, options));
+    public RedisFuture<Long> sugaddIncr(K key, V string, double score) {
+        return dispatch(searchCommandBuilder.sugaddIncr(key, string, score));
+    }
+
+    @Override
+    public RedisFuture<Long> sugadd(K key, V string, double score, V payload) {
+        return dispatch(searchCommandBuilder.sugadd(key, string, score, payload));
+    }
+
+    @Override
+    public RedisFuture<Long> sugaddIncr(K key, V string, double score, V payload) {
+        return dispatch(searchCommandBuilder.sugaddIncr(key, string, score, payload));
+    }
+
+    @Override
+    public RedisFuture<Long> sugadd(K key, Suggestion<V> suggestion) {
+        return dispatch(searchCommandBuilder.sugadd(key, suggestion));
+    }
+
+    @Override
+    public RedisFuture<Long> sugaddIncr(K key, Suggestion<V> suggestion) {
+        return dispatch(searchCommandBuilder.sugaddIncr(key, suggestion));
     }
 
     @Override
