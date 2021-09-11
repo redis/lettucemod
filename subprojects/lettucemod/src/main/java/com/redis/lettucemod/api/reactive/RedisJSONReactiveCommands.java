@@ -1,25 +1,30 @@
 package com.redis.lettucemod.api.reactive;
 
-import com.redis.lettucemod.api.JsonGetOptions;
+import com.redis.lettucemod.api.json.GetOptions;
+import com.redis.lettucemod.api.json.SetMode;
 import io.lettuce.core.KeyValue;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public interface RedisJSONReactiveCommands<K, V> {
 
+    Mono<Long> jsonDel(K key);
+
     Mono<Long> jsonDel(K key, K path);
 
-    Mono<V> get(K key, JsonGetOptions options, K... paths);
+    Mono<V> jsonGet(K key, K... paths);
+
+    Mono<V> jsonGet(K key, GetOptions options, K... paths);
 
     Flux<KeyValue<K, V>> jsonMget(K path, K... keys);
 
-    Mono<String> set(K key, K path, V json);
+    Mono<String> jsonSet(K key, K path, V json);
 
-    Mono<String> setNX(K key, K path, V json);
+    Mono<String> jsonSet(K key, K path, V json, SetMode mode);
 
-    Mono<String> setXX(K key, K path, V json);
+    Mono<String> jsonType(K key);
 
-    Mono<String> type(K key, K path);
+    Mono<String> jsonType(K key, K path);
 
     Mono<V> numincrby(K key, K path, double number);
 

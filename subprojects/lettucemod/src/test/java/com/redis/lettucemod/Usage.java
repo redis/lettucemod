@@ -54,7 +54,7 @@ public class Usage {
 
         // RedisJSON
         RedisJSONCommands<String, String> json = connection.sync(); // <1>
-        json.set("arr", ".", "[1,2,3]"); // <2>
+        json.jsonSet("arr", ".", "[1,2,3]"); // <2>
 
     }
 

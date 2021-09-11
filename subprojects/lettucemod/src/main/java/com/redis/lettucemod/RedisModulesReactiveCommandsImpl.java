@@ -1,7 +1,8 @@
 package com.redis.lettucemod;
 
-import com.redis.lettucemod.api.JsonGetOptions;
+import com.redis.lettucemod.api.json.GetOptions;
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
+import com.redis.lettucemod.api.json.SetMode;
 import com.redis.lettucemod.api.reactive.RedisModulesReactiveCommands;
 import com.redis.lettucemod.api.gears.Execution;
 import com.redis.lettucemod.api.gears.ExecutionDetails;
@@ -421,12 +422,22 @@ public class RedisModulesReactiveCommandsImpl<K, V> extends RedisReactiveCommand
     }
 
     @Override
+    public Mono<Long> jsonDel(K key) {
+        return jsonDel(key, null);
+    }
+
+    @Override
     public Mono<Long> jsonDel(K key, K path) {
         return createMono(() -> jsonCommandBuilder.del(key, path));
     }
 
     @Override
-    public Mono<V> get(K key, JsonGetOptions options, K... paths) {
+    public Mono<V> jsonGet(K key, K... paths) {
+        return jsonGet(key, null, paths);
+    }
+
+    @Override
+    public Mono<V> jsonGet(K key, GetOptions options, K... paths) {
         return createMono(() -> jsonCommandBuilder.get(key, options, paths));
     }
 
@@ -440,22 +451,22 @@ public class RedisModulesReactiveCommandsImpl<K, V> extends RedisReactiveCommand
     }
 
     @Override
-    public Mono<String> set(K key, K path, V json) {
-        return createMono(() -> jsonCommandBuilder.set(key, path, json, null));
+    public Mono<String> jsonSet(K key, K path, V json) {
+        return jsonSet(key, path, json, null);
     }
 
     @Override
-    public Mono<String> setNX(K key, K path, V json) {
-        return createMono(() -> jsonCommandBuilder.set(key, path, json, RedisJSONCommandBuilder.SetMode.NX));
+    public Mono<String> jsonSet(K key, K path, V json, SetMode mode) {
+        return createMono(() -> jsonCommandBuilder.set(key, path, json, mode));
     }
 
     @Override
-    public Mono<String> setXX(K key, K path, V json) {
-        return createMono(() -> jsonCommandBuilder.set(key, path, json, RedisJSONCommandBuilder.SetMode.XX));
+    public Mono<String> jsonType(K key) {
+        return jsonType(key, null);
     }
 
     @Override
-    public Mono<String> type(K key, K path) {
+    public Mono<String> jsonType(K key, K path) {
         return createMono(() -> jsonCommandBuilder.type(key, path));
     }
 

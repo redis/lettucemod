@@ -1,11 +1,12 @@
 package com.redis.lettucemod.cluster;
 
 import com.redis.lettucemod.RedisModulesReactiveCommandsImpl;
-import com.redis.lettucemod.api.JsonGetOptions;
 import com.redis.lettucemod.api.gears.Execution;
 import com.redis.lettucemod.api.gears.ExecutionDetails;
 import com.redis.lettucemod.api.gears.ExecutionMode;
 import com.redis.lettucemod.api.gears.Registration;
+import com.redis.lettucemod.api.json.GetOptions;
+import com.redis.lettucemod.api.json.SetMode;
 import com.redis.lettucemod.api.reactive.RedisModulesReactiveCommands;
 import com.redis.lettucemod.api.search.AggregateOptions;
 import com.redis.lettucemod.api.search.AggregateResults;
@@ -441,13 +442,23 @@ public class RedisModulesAdvancedClusterReactiveCommandsImpl<K, V> extends Redis
     }
 
     @Override
+    public Mono<Long> jsonDel(K key) {
+        return delegate.jsonDel(key);
+    }
+
+    @Override
     public Mono<Long> jsonDel(K key, K path) {
         return delegate.jsonDel(key, path);
     }
 
     @Override
-    public Mono<V> get(K key, JsonGetOptions options, K... paths) {
-        return delegate.get(key, options, paths);
+    public Mono<V> jsonGet(K key, K... paths) {
+        return delegate.jsonGet(key, paths);
+    }
+
+    @Override
+    public Mono<V> jsonGet(K key, GetOptions options, K... paths) {
+        return delegate.jsonGet(key, options, paths);
     }
 
     @Override
@@ -499,23 +510,23 @@ public class RedisModulesAdvancedClusterReactiveCommandsImpl<K, V> extends Redis
     }
 
     @Override
-    public Mono<String> set(K key, K path, V json) {
-        return delegate.set(key, path, json);
+    public Mono<String> jsonSet(K key, K path, V json) {
+        return delegate.jsonSet(key, path, json);
     }
 
     @Override
-    public Mono<String> setNX(K key, K path, V json) {
-        return delegate.setNX(key, path, json);
+    public Mono<String> jsonSet(K key, K path, V json, SetMode mode) {
+        return delegate.jsonSet(key, path, json, mode);
     }
 
     @Override
-    public Mono<String> setXX(K key, K path, V json) {
-        return delegate.setXX(key, path, json);
+    public Mono<String> jsonType(K key) {
+        return delegate.jsonType(key);
     }
 
     @Override
-    public Mono<String> type(K key, K path) {
-        return delegate.type(key, path);
+    public Mono<String> jsonType(K key, K path) {
+        return delegate.jsonType(key, path);
     }
 
     @Override

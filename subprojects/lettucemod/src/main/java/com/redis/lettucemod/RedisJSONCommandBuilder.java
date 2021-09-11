@@ -1,7 +1,7 @@
 package com.redis.lettucemod;
 
-import com.redis.lettucemod.api.JsonGetOptions;
-import com.redis.lettucemod.protocol.JsonCommandKeyword;
+import com.redis.lettucemod.api.json.GetOptions;
+import com.redis.lettucemod.api.json.SetMode;
 import com.redis.lettucemod.protocol.JsonCommandType;
 import io.lettuce.core.KeyValue;
 import io.lettuce.core.codec.RedisCodec;
@@ -45,7 +45,7 @@ public class RedisJSONCommandBuilder<K, V> extends RedisModulesCommandBuilder<K,
         return createCommand(JsonCommandType.DEL, new IntegerOutput<>(codec), args);
     }
 
-    public Command<K, V, V> get(K key, JsonGetOptions options, K... paths) {
+    public Command<K, V, V> get(K key, GetOptions options, K... paths) {
         CommandArgs<K, V> args = args(key);
         if (options != null) {
             options.build(args);
@@ -101,10 +101,6 @@ public class RedisJSONCommandBuilder<K, V> extends RedisModulesCommandBuilder<K,
         return createCommand(JsonCommandType.MGET, new KeyValueListOutput<>(codec, keys), args);
     }
 
-    public enum SetMode {
-        NX, XX
-    }
-
     public Command<K, V, String> set(K key, K path, V json, SetMode mode) {
         CommandArgs<K, V> args = args(key);
         notNullPath(path);
@@ -112,7 +108,7 @@ public class RedisJSONCommandBuilder<K, V> extends RedisModulesCommandBuilder<K,
         notNull(json, "JSON");
         args.addValue(json);
         if (mode != null) {
-            args.add(mode == SetMode.NX ? JsonCommandKeyword.NX : JsonCommandKeyword.XX);
+            mode.build(args);
         }
         return createCommand(JsonCommandType.SET, new StatusOutput<>(codec), args);
     }

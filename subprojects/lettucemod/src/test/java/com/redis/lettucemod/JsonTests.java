@@ -2,7 +2,8 @@ package com.redis.lettucemod;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.redis.lettucemod.api.JsonGetOptions;
+import com.redis.lettucemod.api.json.GetOptions;
+import com.redis.lettucemod.api.json.SetMode;
 import com.redis.lettucemod.api.sync.RedisJSONCommands;
 import com.redis.testcontainers.RedisServer;
 import io.lettuce.core.KeyValue;
@@ -21,7 +22,7 @@ public class JsonTests extends AbstractModuleTestBase {
     @MethodSource("redisServers")
     void set(RedisServer redis) {
         RedisJSONCommands<String, String> sync = sync(redis);
-        String result = sync.set("obj", ".", JSON);
+        String result = sync.jsonSet("obj", ".", JSON);
         Assertions.assertEquals("OK", result);
     }
 
@@ -29,8 +30,8 @@ public class JsonTests extends AbstractModuleTestBase {
     @MethodSource("redisServers")
     void setNX(RedisServer redis) {
         RedisJSONCommands<String, String> sync = sync(redis);
-        sync.set("obj", ".", JSON);
-        String result = sync.setNX("obj", ".", JSON);
+        sync.jsonSet("obj", ".", JSON);
+        String result = sync.jsonSet("obj", ".", JSON, SetMode.NX);
         Assertions.assertNull(result);
     }
 
@@ -38,7 +39,7 @@ public class JsonTests extends AbstractModuleTestBase {
     @MethodSource("redisServers")
     void setXX(RedisServer redis) {
         RedisJSONCommands<String, String> sync = sync(redis);
-        String result = sync.setXX("obj", ".", "true");
+        String result = sync.jsonSet("obj", ".", "true", SetMode.XX);
         Assertions.assertNull(result);
     }
 
@@ -46,8 +47,8 @@ public class JsonTests extends AbstractModuleTestBase {
     @MethodSource("redisServers")
     void get(RedisServer redis) throws JsonProcessingException {
         RedisJSONCommands<String, String> sync = sync(redis);
-        sync.set("obj", ".", JSON);
-        String result = sync.get("obj", null);
+        sync.jsonSet("obj", ".", JSON);
+        String result = sync.jsonGet("obj");
         ObjectMapper mapper = new ObjectMapper();
         Assertions.assertEquals(mapper.readTree(JSON), mapper.readTree(result));
     }
@@ -56,8 +57,8 @@ public class JsonTests extends AbstractModuleTestBase {
     @MethodSource("redisServers")
     void getPaths(RedisServer redis) throws JsonProcessingException {
         RedisJSONCommands<String, String> sync = sync(redis);
-        sync.set("obj", ".", JSON);
-        String result = sync.get("obj", null, ".name", ".loggedOut");
+        sync.jsonSet("obj", ".", JSON);
+        String result = sync.jsonGet("obj", ".name", ".loggedOut");
         ObjectMapper mapper = new ObjectMapper();
         Assertions.assertEquals(mapper.readTree("{\".name\":\"Leonard Cohen\",\".loggedOut\": true}"), mapper.readTree(result));
     }
@@ -66,8 +67,8 @@ public class JsonTests extends AbstractModuleTestBase {
     @MethodSource("redisServers")
     void getOptions(RedisServer redis) {
         RedisJSONCommands<String, String> sync = sync(redis);
-        sync.set("obj", ".", JSON);
-        String result = sync.get("obj", JsonGetOptions.builder().indent("___").newline("#").noEscape(true).space("_").build());
+        sync.jsonSet("obj", ".", JSON);
+        String result = sync.jsonGet("obj", GetOptions.builder().indent("___").newline("#").noEscape(true).space("_").build());
         Assertions.assertEquals("{#___\"name\":_\"Leonard Cohen\",#___\"lastSeen\":_1478476800,#___\"loggedOut\":_true#}", result);
     }
 
@@ -75,8 +76,8 @@ public class JsonTests extends AbstractModuleTestBase {
     @MethodSource("redisServers")
     void getOptionsPaths(RedisServer redis) {
         RedisJSONCommands<String, String> sync = sync(redis);
-        sync.set("obj", ".", JSON);
-        String result = sync.get("obj", JsonGetOptions.builder().indent("___").newline("#").noEscape(true).space("_").build(), ".name", ".loggedOut");
+        sync.jsonSet("obj", ".", JSON);
+        String result = sync.jsonGet("obj", GetOptions.builder().indent("___").newline("#").noEscape(true).space("_").build(), ".name", ".loggedOut");
         Assertions.assertEquals("{#___\".name\":_\"Leonard Cohen\",#___\".loggedOut\":_true#}", result);
     }
 
@@ -84,11 +85,11 @@ public class JsonTests extends AbstractModuleTestBase {
     @MethodSource("redisServers")
     void mget(RedisServer redis) throws JsonProcessingException {
         RedisJSONCommands<String, String> sync = sync(redis);
-        sync.set("obj1", ".", JSON);
+        sync.jsonSet("obj1", ".", JSON);
         String json2 = "{\"name\":\"Herbie Hancock\",\"lastSeen\":1478476810,\"loggedOut\": false}";
-        sync.set("obj2", ".", json2);
+        sync.jsonSet("obj2", ".", json2);
         String json3 = "{\"name\":\"Lalo Schifrin\",\"lastSeen\":1478476820,\"loggedOut\": false}";
-        sync.set("obj3", ".", json3);
+        sync.jsonSet("obj3", ".", json3);
 
         List<KeyValue<String, String>> results = sync.jsonMget(".", "obj1", "obj2", "obj3");
         Assertions.assertEquals(3, results.size());
@@ -105,9 +106,9 @@ public class JsonTests extends AbstractModuleTestBase {
     @MethodSource("redisServers")
     void del(RedisServer redis) {
         RedisJSONCommands<String, String> sync = sync(redis);
-        sync.set("obj", ".", JSON);
-        sync.jsonDel("obj", null);
-        String result = sync.get("obj", null);
+        sync.jsonSet("obj", ".", JSON);
+        sync.jsonDel("obj");
+        String result = sync.jsonGet("obj");
         Assertions.assertNull(result);
     }
 
@@ -115,18 +116,18 @@ public class JsonTests extends AbstractModuleTestBase {
     @MethodSource("redisServers")
     void type(RedisServer redis) {
         RedisJSONCommands<String, String> sync = sync(redis);
-        sync.set("obj", ".", JSON);
-        Assertions.assertEquals("object", sync.type("obj", null));
-        Assertions.assertEquals("string", sync.type("obj", ".name"));
-        Assertions.assertEquals("boolean", sync.type("obj", ".loggedOut"));
-        Assertions.assertEquals("integer", sync.type("obj", ".lastSeen"));
+        sync.jsonSet("obj", ".", JSON);
+        Assertions.assertEquals("object", sync.jsonType("obj"));
+        Assertions.assertEquals("string", sync.jsonType("obj", ".name"));
+        Assertions.assertEquals("boolean", sync.jsonType("obj", ".loggedOut"));
+        Assertions.assertEquals("integer", sync.jsonType("obj", ".lastSeen"));
     }
 
     @ParameterizedTest
     @MethodSource("redisServers")
     void numIncrBy(RedisServer redis) {
         RedisJSONCommands<String, String> sync = sync(redis);
-        sync.set("obj", ".", JSON);
+        sync.jsonSet("obj", ".", JSON);
         long lastSeen = 1478476800;
         double increment = 123.456;
         String result = sync.numincrby("obj", ".lastSeen", increment);
@@ -137,7 +138,7 @@ public class JsonTests extends AbstractModuleTestBase {
     @MethodSource("redisServers")
     void numMultBy(RedisServer redis) {
         RedisJSONCommands<String, String> sync = sync(redis);
-        sync.set("obj", ".", JSON);
+        sync.jsonSet("obj", ".", JSON);
         long lastSeen = 1478476800;
         double factor = 123.456;
         String result = sync.nummultby("obj", ".lastSeen", factor);
@@ -148,7 +149,7 @@ public class JsonTests extends AbstractModuleTestBase {
     @MethodSource("redisServers")
     void strings(RedisServer redis) {
         RedisJSONCommands<String, String> sync = sync(redis);
-        sync.set("foo", ".", "\"bar\"");
+        sync.jsonSet("foo", ".", "\"bar\"");
         Assertions.assertEquals(3, sync.strlen("foo", "."));
         Assertions.assertEquals("barbaz".length(), sync.strappend("foo", ".", "\"baz\""));
     }
@@ -157,13 +158,13 @@ public class JsonTests extends AbstractModuleTestBase {
     @MethodSource("redisServers")
     void arrays(RedisServer redis) {
         RedisJSONCommands<String, String> sync = sync(redis);
-        sync.set("arr", ".", "[]");
+        sync.jsonSet("arr", ".", "[]");
         Assertions.assertEquals(1, sync.arrappend("arr", ".", "0"));
-        Assertions.assertEquals("[0]", sync.get("arr", null));
+        Assertions.assertEquals("[0]", sync.jsonGet("arr"));
         Assertions.assertEquals(3, sync.arrinsert("arr", ".", 0, "-2", "-1"));
-        Assertions.assertEquals("[-2,-1,0]", sync.get("arr", null));
+        Assertions.assertEquals("[-2,-1,0]", sync.jsonGet("arr"));
         Assertions.assertEquals(1, sync.arrtrim("arr", ".", 1, 1));
-        Assertions.assertEquals("[-1]", sync.get("arr", null));
+        Assertions.assertEquals("[-1]", sync.jsonGet("arr"));
         Assertions.assertEquals("-1", sync.arrpop("arr"));
     }
 
@@ -171,7 +172,7 @@ public class JsonTests extends AbstractModuleTestBase {
     @MethodSource("redisServers")
     void obj(RedisServer redis) {
         RedisJSONCommands<String, String> sync = sync(redis);
-        sync.set("obj", ".", JSON);
+        sync.jsonSet("obj", ".", JSON);
         Assertions.assertEquals(3, sync.objlen("obj", "."));
         Assertions.assertEquals(Arrays.asList("name", "lastSeen", "loggedOut"), sync.objkeys("obj", "."));
     }

@@ -1,12 +1,13 @@
 package com.redis.lettucemod;
 
-import com.redis.lettucemod.api.JsonGetOptions;
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
 import com.redis.lettucemod.api.async.RedisModulesAsyncCommands;
 import com.redis.lettucemod.api.gears.Execution;
 import com.redis.lettucemod.api.gears.ExecutionDetails;
 import com.redis.lettucemod.api.gears.ExecutionMode;
 import com.redis.lettucemod.api.gears.Registration;
+import com.redis.lettucemod.api.json.GetOptions;
+import com.redis.lettucemod.api.json.SetMode;
 import com.redis.lettucemod.api.search.AggregateOptions;
 import com.redis.lettucemod.api.search.AggregateResults;
 import com.redis.lettucemod.api.search.AggregateWithCursorResults;
@@ -140,7 +141,7 @@ public class RedisModulesAsyncCommandsImpl<K, V> extends RedisAsyncCommandsImpl<
     }
 
     @Override
-    public RedisFuture<Long> add(K key, long timestamp, double value, CreateOptions<K,V> options) {
+    public RedisFuture<Long> add(K key, long timestamp, double value, CreateOptions<K, V> options) {
         return dispatch(timeSeriesCommandBuilder.add(key, timestamp, value, options));
     }
 
@@ -165,12 +166,12 @@ public class RedisModulesAsyncCommandsImpl<K, V> extends RedisAsyncCommandsImpl<
     }
 
     @Override
-    public RedisFuture<Long> incrby(K key, double value, Long timestamp, CreateOptions<K,V> options) {
+    public RedisFuture<Long> incrby(K key, double value, Long timestamp, CreateOptions<K, V> options) {
         return dispatch(timeSeriesCommandBuilder.incrby(key, value, timestamp, options));
     }
 
     @Override
-    public RedisFuture<Long> decrby(K key, double value, Long timestamp, CreateOptions<K,V> options) {
+    public RedisFuture<Long> decrby(K key, double value, Long timestamp, CreateOptions<K, V> options) {
         return dispatch(timeSeriesCommandBuilder.decrby(key, value, timestamp, options));
     }
 
@@ -422,12 +423,22 @@ public class RedisModulesAsyncCommandsImpl<K, V> extends RedisAsyncCommandsImpl<
     }
 
     @Override
+    public RedisFuture<Long> jsonDel(K key) {
+        return jsonDel(key, null);
+    }
+
+    @Override
     public RedisFuture<Long> jsonDel(K key, K path) {
         return dispatch(jsonCommandBuilder.del(key, path));
     }
 
     @Override
-    public RedisFuture<V> get(K key, JsonGetOptions options, K... paths) {
+    public RedisFuture<V> jsonGet(K key, K... paths) {
+        return jsonGet(key, null, paths);
+    }
+
+    @Override
+    public RedisFuture<V> jsonGet(K key, GetOptions options, K... paths) {
         return dispatch(jsonCommandBuilder.get(key, options, paths));
     }
 
@@ -450,22 +461,22 @@ public class RedisModulesAsyncCommandsImpl<K, V> extends RedisAsyncCommandsImpl<
     }
 
     @Override
-    public RedisFuture<String> set(K key, K path, V json) {
-        return dispatch(jsonCommandBuilder.set(key, path, json, null));
+    public RedisFuture<String> jsonSet(K key, K path, V json) {
+        return jsonSet(key, path, json, null);
     }
 
     @Override
-    public RedisFuture<String> setNX(K key, K path, V json) {
-        return dispatch(jsonCommandBuilder.set(key, path, json, RedisJSONCommandBuilder.SetMode.NX));
+    public RedisFuture<String> jsonSet(K key, K path, V json, SetMode options) {
+        return dispatch(jsonCommandBuilder.set(key, path, json, options));
     }
 
     @Override
-    public RedisFuture<String> setXX(K key, K path, V json) {
-        return dispatch(jsonCommandBuilder.set(key, path, json, RedisJSONCommandBuilder.SetMode.XX));
+    public RedisFuture<String> jsonType(K key) {
+        return jsonType(key, null);
     }
 
     @Override
-    public RedisFuture<String> type(K key, K path) {
+    public RedisFuture<String> jsonType(K key, K path) {
         return dispatch(jsonCommandBuilder.type(key, path));
     }
 

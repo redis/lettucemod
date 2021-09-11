@@ -1,4 +1,4 @@
-package com.redis.lettucemod.api;
+package com.redis.lettucemod.api.json;
 
 import com.redis.lettucemod.protocol.JsonCommandKeyword;
 import io.lettuce.core.CompositeArgument;
@@ -8,7 +8,7 @@ import lombok.Data;
 
 @Data
 @Builder
-public class JsonGetOptions implements CompositeArgument {
+public class GetOptions implements CompositeArgument {
 
     private String indent;
     private String newline;

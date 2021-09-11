@@ -35,7 +35,7 @@ public class JsonSearchTests {
         RedisJSONCommands<String, String> redisjson = connection.sync();
         JsonNode beer;
         while ((beer = reader.read()) != null) {
-            redisjson.set("beer:" + beer.get("id").asText(), "$", beer.toString());
+            redisjson.jsonSet("beer:" + beer.get("id").asText(), "$", beer.toString());
         }
         SearchResults<String, String> results = redisearch.search(index, "@name:California");
         Assertions.assertEquals(1, results.getCount());

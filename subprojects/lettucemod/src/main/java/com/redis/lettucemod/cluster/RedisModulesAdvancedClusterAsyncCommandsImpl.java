@@ -1,15 +1,13 @@
 package com.redis.lettucemod.cluster;
 
-import com.redis.lettucemod.api.JsonGetOptions;
 import com.redis.lettucemod.RedisModulesAsyncCommandsImpl;
 import com.redis.lettucemod.api.async.RedisModulesAsyncCommands;
-import com.redis.lettucemod.cluster.api.StatefulRedisModulesClusterConnection;
-import com.redis.lettucemod.cluster.api.async.RedisModulesAdvancedClusterAsyncCommands;
 import com.redis.lettucemod.api.gears.Execution;
 import com.redis.lettucemod.api.gears.ExecutionDetails;
 import com.redis.lettucemod.api.gears.ExecutionMode;
 import com.redis.lettucemod.api.gears.Registration;
-import com.redis.lettucemod.output.ExecutionResults;
+import com.redis.lettucemod.api.json.GetOptions;
+import com.redis.lettucemod.api.json.SetMode;
 import com.redis.lettucemod.api.search.AggregateOptions;
 import com.redis.lettucemod.api.search.AggregateResults;
 import com.redis.lettucemod.api.search.AggregateWithCursorResults;
@@ -26,6 +24,9 @@ import com.redis.lettucemod.api.timeseries.KeySample;
 import com.redis.lettucemod.api.timeseries.RangeOptions;
 import com.redis.lettucemod.api.timeseries.RangeResult;
 import com.redis.lettucemod.api.timeseries.Sample;
+import com.redis.lettucemod.cluster.api.StatefulRedisModulesClusterConnection;
+import com.redis.lettucemod.cluster.api.async.RedisModulesAdvancedClusterAsyncCommands;
+import com.redis.lettucemod.output.ExecutionResults;
 import io.lettuce.core.KeyValue;
 import io.lettuce.core.RedisFuture;
 import io.lettuce.core.cluster.MultiNodeExecution;
@@ -434,13 +435,23 @@ public class RedisModulesAdvancedClusterAsyncCommandsImpl<K, V> extends RedisAdv
     }
 
     @Override
+    public RedisFuture<Long> jsonDel(K key) {
+        return delegate.jsonDel(key);
+    }
+
+    @Override
     public RedisFuture<Long> jsonDel(K key, K path) {
         return delegate.jsonDel(key, path);
     }
 
     @Override
-    public RedisFuture<V> get(K key, JsonGetOptions options, K... paths) {
-        return delegate.get(key, options, paths);
+    public RedisFuture<V> jsonGet(K key, K... paths) {
+        return delegate.jsonGet(key, paths);
+    }
+
+    @Override
+    public RedisFuture<V> jsonGet(K key, GetOptions options, K... paths) {
+        return delegate.jsonGet(key, options, paths);
     }
 
     @Override
@@ -501,23 +512,23 @@ public class RedisModulesAdvancedClusterAsyncCommandsImpl<K, V> extends RedisAdv
     }
 
     @Override
-    public RedisFuture<String> set(K key, K path, V json) {
-        return delegate.set(key, path, json);
+    public RedisFuture<String> jsonSet(K key, K path, V json) {
+        return delegate.jsonSet(key, path, json);
     }
 
     @Override
-    public RedisFuture<String> setNX(K key, K path, V json) {
-        return delegate.setNX(key, path, json);
+    public RedisFuture<String> jsonSet(K key, K path, V json, SetMode mode) {
+        return delegate.jsonSet(key, path, json, mode);
     }
 
     @Override
-    public RedisFuture<String> setXX(K key, K path, V json) {
-        return delegate.setXX(key, path, json);
+    public RedisFuture<String> jsonType(K key) {
+        return delegate.jsonType(key);
     }
 
     @Override
-    public RedisFuture<String> type(K key, K path) {
-        return delegate.type(key, path);
+    public RedisFuture<String> jsonType(K key, K path) {
+        return delegate.jsonType(key, path);
     }
 
     @Override

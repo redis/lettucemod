@@ -1,6 +1,7 @@
 package com.redis.lettucemod.api.async;
 
-import com.redis.lettucemod.api.JsonGetOptions;
+import com.redis.lettucemod.api.json.GetOptions;
+import com.redis.lettucemod.api.json.SetMode;
 import io.lettuce.core.KeyValue;
 import io.lettuce.core.RedisFuture;
 import io.lettuce.core.output.KeyValueStreamingChannel;
@@ -9,21 +10,25 @@ import java.util.List;
 
 public interface RedisJSONAsyncCommands<K, V> {
 
+    RedisFuture<Long> jsonDel(K key);
+
     RedisFuture<Long> jsonDel(K key, K path);
 
-    RedisFuture<V> get(K key, JsonGetOptions options, K... paths);
+    RedisFuture<V> jsonGet(K key, K... paths);
+
+    RedisFuture<V> jsonGet(K key, GetOptions options, K... paths);
 
     RedisFuture<List<KeyValue<K, V>>> jsonMget(K path, K... keys);
 
     RedisFuture<Long> jsonMget(KeyValueStreamingChannel<K, V> channel, K path, K... keys);
 
-    RedisFuture<String> set(K key, K path, V json);
+    RedisFuture<String> jsonSet(K key, K path, V json);
 
-    RedisFuture<String> setNX(K key, K path, V json);
+    RedisFuture<String> jsonSet(K key, K path, V json, SetMode mode);
 
-    RedisFuture<String> setXX(K key, K path, V json);
+    RedisFuture<String> jsonType(K key);
 
-    RedisFuture<String> type(K key, K path);
+    RedisFuture<String> jsonType(K key, K path);
 
     RedisFuture<V> numincrby(K key, K path, double number);
 

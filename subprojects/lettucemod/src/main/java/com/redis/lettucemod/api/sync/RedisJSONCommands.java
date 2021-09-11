@@ -1,6 +1,7 @@
 package com.redis.lettucemod.api.sync;
 
-import com.redis.lettucemod.api.JsonGetOptions;
+import com.redis.lettucemod.api.json.GetOptions;
+import com.redis.lettucemod.api.json.SetMode;
 import io.lettuce.core.KeyValue;
 import io.lettuce.core.output.KeyValueStreamingChannel;
 
@@ -8,21 +9,25 @@ import java.util.List;
 
 public interface RedisJSONCommands<K, V> {
 
+    Long jsonDel(K key);
+
     Long jsonDel(K key, K path);
 
-    V get(K key, JsonGetOptions options, K... paths);
+    V jsonGet(K key, K... paths);
+
+    V jsonGet(K key, GetOptions options, K... paths);
 
     List<KeyValue<K, V>> jsonMget(K path, K... keys);
 
     Long jsonMget(KeyValueStreamingChannel<K, V> channel, K path, K... keys);
 
-    String set(K key, K path, V json);
+    String jsonSet(K key, K path, V json);
 
-    String setNX(K key, K path, V json);
+    String jsonSet(K key, K path, V json, SetMode mode);
 
-    String setXX(K key, K path, V json);
+    String jsonType(K key);
 
-    String type(K key, K path);
+    String jsonType(K key, K path);
 
     V numincrby(K key, K path, double number);
 
