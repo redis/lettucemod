@@ -42,9 +42,8 @@ public class TimeSeriesTests extends AbstractModuleTestBase {
         RedisTimeSeriesCommands<String, String> ts = sync(redis);
         String key = "temperature:3:11";
         // TS.CREATE temperature:3:11 RETENTION 6000 LABELS sensor_id 2 area_id 32
-        ts.create(key, CreateOptions.<String, String>builder().retentionTime(6000).label("sensor_id", "2").label("area_id", "32").build());
         // TS.ADD temperature:3:11 1548149181 30
-        ts.add(key, 1548149181, 30);
+        ts.add(key, new Sample(1548149181, 30), CreateOptions.<String, String>builder().retentionTime(6000).label("sensor_id", "2").label("area_id", "32").build());
         // TS.ADD temperature:3:11 1548149191 42
         ts.add(key, 1548149191, 42);
         // TS.RANGE temperature:3:11 1548149180 1548149210 AGGREGATION avg 5
