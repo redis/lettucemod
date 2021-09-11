@@ -145,8 +145,23 @@ public class RedisModulesAsyncCommandsImpl<K, V> extends RedisAsyncCommandsImpl<
     }
 
     @Override
-    public RedisFuture<List<Long>> madd(KeySample<K>... samples) {
-        return dispatch(timeSeriesCommandBuilder.madd(samples));
+    public RedisFuture<Long> addAutoTimestamp(K key, double value) {
+        return dispatch(timeSeriesCommandBuilder.addAutoTimestamp(key, value));
+    }
+
+    @Override
+    public RedisFuture<Long> addAutoTimestamp(K key, double value, CreateOptions<K, V> options) {
+        return dispatch(timeSeriesCommandBuilder.addAutoTimestamp(key, value, options));
+    }
+
+    @Override
+    public RedisFuture<Long> add(K key, Sample sample) {
+        return dispatch(timeSeriesCommandBuilder.add(key, sample));
+    }
+
+    @Override
+    public RedisFuture<Long> add(K key, Sample sample, CreateOptions<K, V> options) {
+        return dispatch(timeSeriesCommandBuilder.add(key, sample, options));
     }
 
     @Override
@@ -158,6 +173,22 @@ public class RedisModulesAsyncCommandsImpl<K, V> extends RedisAsyncCommandsImpl<
     public RedisFuture<Long> decrby(K key, double value, Long timestamp, CreateOptions<K,V> options) {
         return dispatch(timeSeriesCommandBuilder.decrby(key, value, timestamp, options));
     }
+
+    @Override
+    public RedisFuture<Long> incrbyAutoTimestamp(K key, double value, CreateOptions<K, V> options) {
+        return dispatch(timeSeriesCommandBuilder.incrbyAutoTimestamp(key, value, options));
+    }
+
+    @Override
+    public RedisFuture<Long> decrbyAutoTimestamp(K key, double value, CreateOptions<K, V> options) {
+        return dispatch(timeSeriesCommandBuilder.decrbyAutoTimestamp(key, value, options));
+    }
+
+    @Override
+    public RedisFuture<List<Long>> madd(KeySample<K>... samples) {
+        return dispatch(timeSeriesCommandBuilder.madd(samples));
+    }
+
 
     @Override
     public RedisFuture<String> createrule(K sourceKey, K destKey, Aggregation aggregation) {

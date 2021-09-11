@@ -19,13 +19,25 @@ public interface RedisTimeSeriesAsyncCommands<K, V> {
 
     RedisFuture<Long> add(K key, long timestamp, double value);
 
+    RedisFuture<Long> addAutoTimestamp(K key, double value);
+
     RedisFuture<Long> add(K key, long timestamp, double value, CreateOptions<K, V> options);
+
+    RedisFuture<Long> addAutoTimestamp(K key, double value, CreateOptions<K, V> options);
+
+    RedisFuture<Long> add(K key, Sample sample);
+
+    RedisFuture<Long> add(K key, Sample sample, CreateOptions<K, V> options);
 
     RedisFuture<List<Long>> madd(KeySample<K>... samples);
 
     RedisFuture<Long> incrby(K key, double value, Long timestamp, CreateOptions<K, V> options);
 
     RedisFuture<Long> decrby(K key, double value, Long timestamp, CreateOptions<K, V> options);
+
+    RedisFuture<Long> incrbyAutoTimestamp(K key, double value, CreateOptions<K, V> options);
+
+    RedisFuture<Long> decrbyAutoTimestamp(K key, double value, CreateOptions<K, V> options);
 
     RedisFuture<String> createrule(K sourceKey, K destKey, Aggregation aggregation);
 

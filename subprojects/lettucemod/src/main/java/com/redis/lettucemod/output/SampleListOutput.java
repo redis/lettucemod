@@ -18,7 +18,7 @@ public class SampleListOutput<K, V> extends CommandOutput<K, V, List<Sample>> im
 
     private Subscriber<Sample> subscriber;
 
-    private Long timestamp;
+    private long timestamp;
 
     public SampleListOutput(RedisCodec<K, V> codec) {
         super(codec, Collections.emptyList());
@@ -38,8 +38,7 @@ public class SampleListOutput<K, V> extends CommandOutput<K, V, List<Sample>> im
 
     @Override
     public void set(double number) {
-        subscriber.onNext(output, Sample.of(timestamp, number));
-        timestamp = null;
+        subscriber.onNext(output, new Sample(timestamp, number));
     }
 
     @Override

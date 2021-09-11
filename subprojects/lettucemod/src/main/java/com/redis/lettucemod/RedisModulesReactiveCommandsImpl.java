@@ -137,7 +137,7 @@ public class RedisModulesReactiveCommandsImpl<K, V> extends RedisReactiveCommand
 
     @Override
     public Mono<Long> add(K key, long timestamp, double value) {
-        return add(key, timestamp, value, null);
+        return createMono(() -> timeSeriesCommandBuilder.add(key, timestamp, value));
     }
 
     @Override
@@ -146,8 +146,23 @@ public class RedisModulesReactiveCommandsImpl<K, V> extends RedisReactiveCommand
     }
 
     @Override
-    public Flux<Long> madd(KeySample<K>... samples) {
-        return createDissolvingFlux(() -> timeSeriesCommandBuilder.madd(samples));
+    public Mono<Long> addAutoTimestamp(K key, double value) {
+        return createMono(() -> timeSeriesCommandBuilder.addAutoTimestamp(key, value));
+    }
+
+    @Override
+    public Mono<Long> addAutoTimestamp(K key, double value, CreateOptions<K, V> options) {
+        return createMono(() -> timeSeriesCommandBuilder.addAutoTimestamp(key, value, options));
+    }
+
+    @Override
+    public Mono<Long> add(K key, Sample sample) {
+        return createMono(() -> timeSeriesCommandBuilder.add(key, sample));
+    }
+
+    @Override
+    public Mono<Long> add(K key, Sample sample, CreateOptions<K, V> options) {
+        return createMono(() -> timeSeriesCommandBuilder.add(key, sample, options));
     }
 
     @Override
@@ -158,6 +173,21 @@ public class RedisModulesReactiveCommandsImpl<K, V> extends RedisReactiveCommand
     @Override
     public Mono<Long> decrby(K key, double value, Long timestamp, CreateOptions<K, V> options) {
         return createMono(() -> timeSeriesCommandBuilder.decrby(key, value, timestamp, options));
+    }
+
+    @Override
+    public Mono<Long> incrbyAutoTimestamp(K key, double value, CreateOptions<K, V> options) {
+        return createMono(() -> timeSeriesCommandBuilder.incrbyAutoTimestamp(key, value, options));
+    }
+
+    @Override
+    public Mono<Long> decrbyAutoTimestamp(K key, double value, CreateOptions<K, V> options) {
+        return createMono(() -> timeSeriesCommandBuilder.decrbyAutoTimestamp(key, value, options));
+    }
+
+    @Override
+    public Flux<Long> madd(KeySample<K>... samples) {
+        return createDissolvingFlux(() -> timeSeriesCommandBuilder.madd(samples));
     }
 
     @Override

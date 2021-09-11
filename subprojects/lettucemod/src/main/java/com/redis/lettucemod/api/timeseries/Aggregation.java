@@ -3,9 +3,11 @@ package com.redis.lettucemod.api.timeseries;
 import com.redis.lettucemod.protocol.TimeSeriesCommandKeyword;
 import io.lettuce.core.CompositeArgument;
 import io.lettuce.core.protocol.CommandArgs;
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 
-@Data
+@Builder
+@AllArgsConstructor
 public class Aggregation implements CompositeArgument {
 
     public enum Type {
@@ -28,13 +30,8 @@ public class Aggregation implements CompositeArgument {
 
     }
 
-    private final Type type;
+    private Type type;
     private long timeBucket;
-
-    public Aggregation(Type type, long timeBucket) {
-        this.type = type;
-        this.timeBucket = timeBucket;
-    }
 
     @Override
     public <K, V> void build(CommandArgs<K, V> args) {
@@ -43,21 +40,4 @@ public class Aggregation implements CompositeArgument {
         args.add(timeBucket);
     }
 
-    public static AggregationBuilder type(Type type) {
-        return new AggregationBuilder(type);
-    }
-
-    public static class AggregationBuilder {
-
-        private final Type type;
-
-        public AggregationBuilder(Type type) {
-            this.type = type;
-        }
-
-        public Aggregation timeBucket(long timeBucket) {
-            return new Aggregation(type, timeBucket);
-        }
-
-    }
 }

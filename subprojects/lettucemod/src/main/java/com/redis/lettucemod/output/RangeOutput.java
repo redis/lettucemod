@@ -30,9 +30,11 @@ public class RangeOutput<K, V> extends CommandOutput<K, V, List<RangeResult<K, V
 
     private Map<K, V> labels;
 
-    private Long timestamp;
+    private long timestamp;
 
     private List<Sample> samples;
+
+    private boolean timestampReceived = false;
 
     private boolean labelsReceived = false;
 
@@ -85,6 +87,7 @@ public class RangeOutput<K, V> extends CommandOutput<K, V, List<RangeResult<K, V
     @Override
     public void set(long integer) {
         timestamp = integer;
+        timestampReceived = true;
     }
 
     @Override
@@ -97,15 +100,16 @@ public class RangeOutput<K, V> extends CommandOutput<K, V, List<RangeResult<K, V
             samples = new ArrayList<>();
         }
         if (value != null) {
-            samples.add(Sample.of(timestamp, value));
+            samples.add(new Sample(timestamp, value));
         }
-        timestamp = null;
+        timestamp = 0;
+        timestampReceived = false;
     }
 
     @Override
     public void multi(int count) {
 
-        if (labelsReceived && timestamp == null && count == -1) {
+        if (labelsReceived && timestampReceived && count == -1) {
             samplesReceived = true;
         }
 
@@ -134,7 +138,7 @@ public class RangeOutput<K, V> extends CommandOutput<K, V, List<RangeResult<K, V
             samplesReceived = false;
             labelKey = null;
             labels = null;
-            timestamp = null;
+            timestampReceived = false;
             samples = null;
         }
 

@@ -323,9 +323,30 @@ public class RedisModulesAdvancedClusterAsyncCommandsImpl<K, V> extends RedisAdv
     }
 
     @Override
+    public RedisFuture<Long> addAutoTimestamp(K key, double value) {
+        return delegate.addAutoTimestamp(key, value);
+    }
+
+    @Override
+    public RedisFuture<Long> addAutoTimestamp(K key, double value, CreateOptions<K, V> options) {
+        return delegate.addAutoTimestamp(key, value, options);
+    }
+
+    @Override
+    public RedisFuture<Long> add(K key, Sample sample) {
+        return delegate.add(key, sample);
+    }
+
+    @Override
+    public RedisFuture<Long> add(K key, Sample sample, CreateOptions<K, V> options) {
+        return delegate.add(key, sample, options);
+    }
+
+    @Override
     public RedisFuture<List<Long>> madd(KeySample<K>... samples) {
         return delegate.madd(samples);
     }
+
 
     @Override
     public RedisFuture<Long> incrby(K key, double value, Long timestamp, CreateOptions<K, V> options) {
@@ -335,6 +356,16 @@ public class RedisModulesAdvancedClusterAsyncCommandsImpl<K, V> extends RedisAdv
     @Override
     public RedisFuture<Long> decrby(K key, double value, Long timestamp, CreateOptions<K, V> options) {
         return delegate.decrby(key, value, timestamp, options);
+    }
+
+    @Override
+    public RedisFuture<Long> incrbyAutoTimestamp(K key, double value, CreateOptions<K, V> options) {
+        return delegate.incrbyAutoTimestamp(key, value, options);
+    }
+
+    @Override
+    public RedisFuture<Long> decrbyAutoTimestamp(K key, double value, CreateOptions<K, V> options) {
+        return delegate.decrbyAutoTimestamp(key, value, options);
     }
 
     @Override

@@ -18,13 +18,25 @@ public interface RedisTimeSeriesReactiveCommands<K, V> {
 
     Mono<Long> add(K key, long timestamp, double value);
 
+    Mono<Long> addAutoTimestamp(K key, double value);
+
     Mono<Long> add(K key, long timestamp, double value, CreateOptions<K, V> options);
+
+    Mono<Long> addAutoTimestamp(K key, double value, CreateOptions<K, V> options);
+
+    Mono<Long> add(K key, Sample sample);
+
+    Mono<Long> add(K key, Sample sample, CreateOptions<K, V> options);
 
     Flux<Long> madd(KeySample<K>... samples);
 
     Mono<Long> incrby(K key, double value, Long timestamp, CreateOptions<K, V> options);
 
     Mono<Long> decrby(K key, double value, Long timestamp, CreateOptions<K, V> options);
+
+    Mono<Long> incrbyAutoTimestamp(K key, double value, CreateOptions<K, V> options);
+
+    Mono<Long> decrbyAutoTimestamp(K key, double value, CreateOptions<K, V> options);
 
     Mono<String> createrule(K sourceKey, K destKey, Aggregation aggregation);
 

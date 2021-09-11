@@ -1,11 +1,5 @@
 package com.redis.lettucemod;
 
-import com.redis.lettucemod.output.GetOutput;
-import com.redis.lettucemod.output.RangeOutput;
-import com.redis.lettucemod.output.SampleListOutput;
-import com.redis.lettucemod.output.SampleOutput;
-import com.redis.lettucemod.protocol.TimeSeriesCommandKeyword;
-import com.redis.lettucemod.protocol.TimeSeriesCommandType;
 import com.redis.lettucemod.api.timeseries.Aggregation;
 import com.redis.lettucemod.api.timeseries.CreateOptions;
 import com.redis.lettucemod.api.timeseries.GetResult;
@@ -13,6 +7,12 @@ import com.redis.lettucemod.api.timeseries.KeySample;
 import com.redis.lettucemod.api.timeseries.RangeOptions;
 import com.redis.lettucemod.api.timeseries.RangeResult;
 import com.redis.lettucemod.api.timeseries.Sample;
+import com.redis.lettucemod.output.GetOutput;
+import com.redis.lettucemod.output.RangeOutput;
+import com.redis.lettucemod.output.SampleListOutput;
+import com.redis.lettucemod.output.SampleOutput;
+import com.redis.lettucemod.protocol.TimeSeriesCommandKeyword;
+import com.redis.lettucemod.protocol.TimeSeriesCommandType;
 import io.lettuce.core.codec.RedisCodec;
 import io.lettuce.core.output.CommandOutput;
 import io.lettuce.core.output.IntegerListOutput;
@@ -55,7 +55,32 @@ public class RedisTimeSeriesCommandBuilder<K, V> extends RedisModulesCommandBuil
         return createCommand(TimeSeriesCommandType.ALTER, new StatusOutput<>(codec), args);
     }
 
+    public Command<K, V, Long> add(K key, Sample sample) {
+        return add(key, sample, null);
+    }
+
+    public Command<K, V, Long> add(K key, Sample sample, CreateOptions<K, V> options) {
+        notNull(sample, "Sample");
+        return doAdd(key, sample.getTimestamp(), sample.getValue(), options);
+    }
+
+    public Command<K, V, Long> add(K key, long timestamp, double value) {
+        return doAdd(key, timestamp, value, null);
+    }
+
     public Command<K, V, Long> add(K key, long timestamp, double value, CreateOptions<K, V> options) {
+        return doAdd(key, timestamp, value, options);
+    }
+
+    public Command<K, V, Long> addAutoTimestamp(K key, double value) {
+        return addAutoTimestamp(key, value, null);
+    }
+
+    public Command<K, V, Long> addAutoTimestamp(K key, double value, CreateOptions<K, V> options) {
+        return doAdd(key, 0, value, options);
+    }
+
+    private Command<K, V, Long> doAdd(K key, long timestamp, double value, CreateOptions<K, V> options) {
         CommandArgs<K, V> args = args(key);
         add(args, timestamp, value);
         if (options != null) {
@@ -65,10 +90,15 @@ public class RedisTimeSeriesCommandBuilder<K, V> extends RedisModulesCommandBuil
     }
 
     private void add(CommandArgs<K, V> args, long timestamp, double value) {
-        addTimestamp(args, timestamp);
+        if (timestamp == 0) {
+            args.add(AUTO_TIMESTAMP);
+        } else {
+            args.add(timestamp);
+        }
         args.add(value);
     }
 
+    @SuppressWarnings("unchecked")
     public Command<K, V, List<Long>> madd(KeySample<K>... samples) {
         notEmpty(samples, "Samples");
         CommandArgs<K, V> args = new CommandArgs<>(codec);
@@ -79,33 +109,39 @@ public class RedisTimeSeriesCommandBuilder<K, V> extends RedisModulesCommandBuil
         return createCommand(TimeSeriesCommandType.MADD, new IntegerListOutput<>(codec), args);
     }
 
+
+    public Command<K, V, Long> incrbyAutoTimestamp(K key, double value, CreateOptions<K, V> options) {
+        return deincrby(TimeSeriesCommandType.INCRBY, key, value, null, true, options);
+    }
+
+    public Command<K, V, Long> decrbyAutoTimestamp(K key, double value, CreateOptions<K, V> options) {
+        return deincrby(TimeSeriesCommandType.DECRBY, key, value, null, true, options);
+    }
+
     public Command<K, V, Long> incrby(K key, double value, Long timestamp, CreateOptions<K, V> options) {
-        return deincrby(TimeSeriesCommandType.INCRBY, key, value, timestamp, options);
+        return deincrby(TimeSeriesCommandType.INCRBY, key, value, timestamp, false, options);
     }
 
     public Command<K, V, Long> decrby(K key, double value, Long timestamp, CreateOptions<K, V> options) {
-        return deincrby(TimeSeriesCommandType.DECRBY, key, value, timestamp, options);
+        return deincrby(TimeSeriesCommandType.DECRBY, key, value, timestamp, false, options);
     }
 
-    private Command<K, V, Long> deincrby(TimeSeriesCommandType commandType, K key, double value, Long timestamp, CreateOptions<K, V> options) {
+    private Command<K, V, Long> deincrby(TimeSeriesCommandType commandType, K key, double value, Long timestamp, boolean autoTimestamp, CreateOptions<K, V> options) {
         CommandArgs<K, V> args = args(key);
         args.add(value);
-        if (timestamp != null) {
+        if (autoTimestamp) {
             args.add(TimeSeriesCommandKeyword.TIMESTAMP);
-            addTimestamp(args, timestamp);
+            args.add(AUTO_TIMESTAMP);
+        } else {
+            if (timestamp != null) {
+                args.add(TimeSeriesCommandKeyword.TIMESTAMP);
+                args.add(timestamp);
+            }
         }
         if (options != null) {
             options.build(args);
         }
         return createCommand(commandType, new IntegerOutput<>(codec), args);
-    }
-
-    private void addTimestamp(CommandArgs<K, V> args, long timestamp) {
-        if (timestamp == Sample.AUTO_TIMESTAMP) {
-            args.add(AUTO_TIMESTAMP);
-        } else {
-            args.add(timestamp);
-        }
     }
 
     public Command<K, V, String> createRule(K sourceKey, K destKey, Aggregation aggregation) {
@@ -114,9 +150,7 @@ public class RedisTimeSeriesCommandBuilder<K, V> extends RedisModulesCommandBuil
         notNull(aggregation, "Aggregation");
         CommandArgs<K, V> args = args(sourceKey);
         args.addKey(destKey);
-        args.add(TimeSeriesCommandKeyword.AGGREGATION);
-        args.add(aggregation.getType().getName());
-        args.add(aggregation.getTimeBucket());
+        aggregation.build(args);
         return createCommand(TimeSeriesCommandType.CREATERULE, new StatusOutput<>(codec), args);
     }
 
@@ -143,22 +177,27 @@ public class RedisTimeSeriesCommandBuilder<K, V> extends RedisModulesCommandBuil
         return createCommand(commandType, new SampleListOutput<>(codec), args);
     }
 
+    @SuppressWarnings("unchecked")
     public Command<K, V, List<RangeResult<K, V>>> mrange(RangeOptions options, V... filters) {
         return mrange(false, false, options, filters);
     }
 
+    @SuppressWarnings("unchecked")
     public Command<K, V, List<RangeResult<K, V>>> mrangeWithLabels(RangeOptions options, V... filters) {
         return mrange(false, true, options, filters);
     }
 
+    @SuppressWarnings("unchecked")
     public Command<K, V, List<RangeResult<K, V>>> mrevrange(RangeOptions options, V... filters) {
         return mrange(true, false, options, filters);
     }
 
+    @SuppressWarnings("unchecked")
     public Command<K, V, List<RangeResult<K, V>>> mrevrangeWithLabels(RangeOptions options, V... filters) {
         return mrange(true, true, options, filters);
     }
 
+    @SuppressWarnings("unchecked")
     private Command<K, V, List<RangeResult<K, V>>> mrange(boolean reverse, boolean withLabels, RangeOptions options, V... filters) {
         notNull(options, "Options");
         CommandArgs<K, V> args = new CommandArgs<>(codec);
@@ -175,6 +214,7 @@ public class RedisTimeSeriesCommandBuilder<K, V> extends RedisModulesCommandBuil
         return createCommand(TimeSeriesCommandType.GET, new SampleOutput<>(codec), args(key));
     }
 
+    @SuppressWarnings("unchecked")
     public Command<K, V, List<GetResult<K, V>>> mget(boolean withLabels, V... filters) {
         CommandArgs<K, V> args = new CommandArgs<>(codec);
         if (withLabels) {

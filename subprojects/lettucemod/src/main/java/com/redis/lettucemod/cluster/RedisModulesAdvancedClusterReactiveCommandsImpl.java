@@ -1,15 +1,12 @@
 package com.redis.lettucemod.cluster;
 
-import com.redis.lettucemod.api.JsonGetOptions;
 import com.redis.lettucemod.RedisModulesReactiveCommandsImpl;
-import com.redis.lettucemod.api.reactive.RedisModulesReactiveCommands;
-import com.redis.lettucemod.cluster.api.StatefulRedisModulesClusterConnection;
-import com.redis.lettucemod.cluster.api.reactive.RedisModulesAdvancedClusterReactiveCommands;
+import com.redis.lettucemod.api.JsonGetOptions;
 import com.redis.lettucemod.api.gears.Execution;
 import com.redis.lettucemod.api.gears.ExecutionDetails;
 import com.redis.lettucemod.api.gears.ExecutionMode;
 import com.redis.lettucemod.api.gears.Registration;
-import com.redis.lettucemod.output.ExecutionResults;
+import com.redis.lettucemod.api.reactive.RedisModulesReactiveCommands;
 import com.redis.lettucemod.api.search.AggregateOptions;
 import com.redis.lettucemod.api.search.AggregateResults;
 import com.redis.lettucemod.api.search.AggregateWithCursorResults;
@@ -26,6 +23,9 @@ import com.redis.lettucemod.api.timeseries.KeySample;
 import com.redis.lettucemod.api.timeseries.RangeOptions;
 import com.redis.lettucemod.api.timeseries.RangeResult;
 import com.redis.lettucemod.api.timeseries.Sample;
+import com.redis.lettucemod.cluster.api.StatefulRedisModulesClusterConnection;
+import com.redis.lettucemod.cluster.api.reactive.RedisModulesAdvancedClusterReactiveCommands;
+import com.redis.lettucemod.output.ExecutionResults;
 import io.lettuce.core.KeyValue;
 import io.lettuce.core.cluster.RedisAdvancedClusterReactiveCommandsImpl;
 import io.lettuce.core.codec.RedisCodec;
@@ -330,6 +330,25 @@ public class RedisModulesAdvancedClusterReactiveCommandsImpl<K, V> extends Redis
         return delegate.add(key, timestamp, value, options);
     }
 
+    @Override
+    public Mono<Long> addAutoTimestamp(K key, double value) {
+        return delegate.addAutoTimestamp(key, value);
+    }
+
+    @Override
+    public Mono<Long> addAutoTimestamp(K key, double value, CreateOptions<K, V> options) {
+        return delegate.addAutoTimestamp(key, value, options);
+    }
+
+    @Override
+    public Mono<Long> add(K key, Sample sample) {
+        return delegate.add(key, sample);
+    }
+
+    @Override
+    public Mono<Long> add(K key, Sample sample, CreateOptions<K, V> options) {
+        return delegate.add(key, sample, options);
+    }
 
     @Override
     public Flux<Long> madd(KeySample<K>... samples) {
@@ -344,6 +363,16 @@ public class RedisModulesAdvancedClusterReactiveCommandsImpl<K, V> extends Redis
     @Override
     public Mono<Long> decrby(K key, double value, Long timestamp, CreateOptions<K, V> options) {
         return delegate.decrby(key, value, timestamp, options);
+    }
+
+    @Override
+    public Mono<Long> incrbyAutoTimestamp(K key, double value, CreateOptions<K, V> options) {
+        return delegate.incrbyAutoTimestamp(key, value, options);
+    }
+
+    @Override
+    public Mono<Long> decrbyAutoTimestamp(K key, double value, CreateOptions<K, V> options) {
+        return delegate.decrbyAutoTimestamp(key, value, options);
     }
 
     @Override
