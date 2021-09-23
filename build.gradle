@@ -13,7 +13,7 @@ config {
         scm {
             url                 = "https://github.com/redis-developer/${project.rootProject.name}"
             connection          = "scm:git:https://github.com/redis-developer/${project.rootProject.name}.git"
-            developerConnection = "scm:git:git@github.com:jreleaser/${project.rootProject.name}.git"
+            developerConnection = "scm:git:git@github.com:redis-developer/${project.rootProject.name}.git"
         }
 
         specification {
