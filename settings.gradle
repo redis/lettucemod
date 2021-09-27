@@ -6,14 +6,14 @@ buildscript {
     }
     dependencies {
         classpath "org.kordamp.gradle:java-project-gradle-plugin:$kordampPluginVersion"
-        classpath "com.redis.gradle:redis-parentbuild:$redisBuildVersion"
+        classpath "org.kordamp.gradle:kordamp-parentbuild:$kordampBuildVersion"
         classpath "io.freefair.gradle:lombok-plugin:$lombokPluginVersion"
         classpath "org.springframework.boot:spring-boot-gradle-plugin:$bootPluginVersion"
         classpath "io.spring.gradle:dependency-management-plugin:$dependencyPluginVersion"
     }
 }
 
-apply plugin: 'com.redis.gradle.redis-parentbuild'
+apply plugin: 'org.kordamp.gradle.kordamp-parentbuild'
 
 rootProject.name = 'lettucemod'
 

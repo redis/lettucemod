@@ -53,6 +53,7 @@ allprojects {
         gradlePluginPortal()
         mavenCentral()
         mavenLocal()
+        maven { url 'https://projectlombok.org/edge-releases' }
     }
 
     tasks.withType(GenerateModuleMetadata) {
@@ -61,17 +62,21 @@ allprojects {
 }
 
 subprojects {
+
     config {
         info {
             description = project.project_description
         }
     }
+
     test {
         useJUnitPlatform()
     }
+
     bootJar {
         enabled = false
     }
+
     jar {
         enabled = true
         archiveClassifier = ''
@@ -80,4 +85,9 @@ subprojects {
     configurations {
         all*.exclude module: 'spring-boot-starter-logging'
     }
+
+    lombok {
+        version = "edge-SNAPSHOT"
+    }
+
 }
