@@ -20,7 +20,7 @@ jobs:
           version: ${{ github.event.inputs.version }}
 
       - name: Release
-        uses: redis-field-engineering/redis-release-action@v1
+        uses: redis-field-engineering/redis-release-action@v2
         with:
           gpg-key-id: ${{ secrets.GPG_KEY_ID }}
           gpg-public-key: ${{ secrets.GPG_PUBLIC_KEY }}
