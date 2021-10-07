@@ -200,12 +200,13 @@ public class RedisTimeSeriesCommandBuilder<K, V> extends RedisModulesCommandBuil
     @SuppressWarnings("unchecked")
     private Command<K, V, List<RangeResult<K, V>>> mrange(boolean reverse, boolean withLabels, RangeOptions options, V... filters) {
         notNull(options, "Options");
+        notEmpty(filters, "Filters");
         CommandArgs<K, V> args = new CommandArgs<>(codec);
         options.build(args);
         if (withLabels) {
             args.add(TimeSeriesCommandKeyword.WITHLABELS);
         }
-        args.add(TimeSeriesCommandKeyword.WITHLABELS);
+        args.add(TimeSeriesCommandKeyword.FILTER);
         args.addValues(filters);
         return createCommand(reverse ? TimeSeriesCommandType.MREVRANGE : TimeSeriesCommandType.MRANGE, new RangeOutput<>(codec), args);
     }

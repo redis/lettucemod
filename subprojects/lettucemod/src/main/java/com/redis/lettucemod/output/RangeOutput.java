@@ -8,6 +8,7 @@ import io.lettuce.core.internal.LettuceStrings;
 import io.lettuce.core.output.CommandOutput;
 import io.lettuce.core.output.ListSubscriber;
 import io.lettuce.core.output.StreamingOutput;
+import lombok.extern.java.Log;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -16,31 +17,19 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+@Log
 public class RangeOutput<K, V> extends CommandOutput<K, V, List<RangeResult<K, V>>> implements StreamingOutput<RangeResult<K, V>> {
 
-    private boolean initialized;
-
     private Subscriber<RangeResult<K, V>> subscriber;
-
-    private boolean skipKeyReset = false;
-
     private K key;
-
     private K labelKey;
-
     private Map<K, V> labels;
-
     private long timestamp;
-
     private List<Sample> samples;
-
-    private boolean timestampReceived = false;
-
-    private boolean labelsReceived = false;
-
-    private boolean labelsComplete = false;
-
-    private boolean samplesReceived = false;
+    private boolean initialized;
+    private boolean skipKeyReset;
+    private boolean keyComplete;
+    private boolean labelsComplete;
 
     public RangeOutput(RedisCodec<K, V> codec) {
         super(codec, Collections.emptyList());
@@ -54,8 +43,8 @@ public class RangeOutput<K, V> extends CommandOutput<K, V, List<RangeResult<K, V
             if (bytes == null) {
                 return;
             }
-
             key = codec.decodeKey(bytes);
+            log.info("Key " + key);
             skipKeyReset = true;
             return;
         }
@@ -66,18 +55,14 @@ public class RangeOutput<K, V> extends CommandOutput<K, V, List<RangeResult<K, V
         }
 
         if (labelKey == null) {
-            labelsReceived = true;
-
+            if (labels == null) {
+                labels = new LinkedHashMap<>();
+            }
             if (bytes == null) {
                 return;
             }
-
             labelKey = codec.decodeKey(bytes);
             return;
-        }
-
-        if (labels == null) {
-            labels = new LinkedHashMap<>();
         }
 
         labels.put(labelKey, bytes == null ? null : codec.decodeValue(bytes));
@@ -87,7 +72,6 @@ public class RangeOutput<K, V> extends CommandOutput<K, V, List<RangeResult<K, V
     @Override
     public void set(long integer) {
         timestamp = integer;
-        timestampReceived = true;
     }
 
     @Override
@@ -101,22 +85,14 @@ public class RangeOutput<K, V> extends CommandOutput<K, V, List<RangeResult<K, V
         }
         if (value != null) {
             samples.add(new Sample(timestamp, value));
+            log.info("Sample " + timestamp + " " + value);
         }
         timestamp = 0;
-        timestampReceived = false;
     }
 
     @Override
     public void multi(int count) {
-
-        if (labelsReceived && timestampReceived && count == -1) {
-            samplesReceived = true;
-        }
-
-        if (key != null && labelKey == null && count == -1) {
-            labelsReceived = true;
-        }
-
+        log.info("Multi " + count);
         if (!initialized) {
             output = OutputFactory.newList(count);
             initialized = true;
@@ -125,33 +101,32 @@ public class RangeOutput<K, V> extends CommandOutput<K, V, List<RangeResult<K, V
 
     @Override
     public void complete(int depth) {
-
-        if (depth == 2 && labelsReceived) {
-            labelsComplete = true;
-            return;
-        }
-
-        if (depth == 2 && samplesReceived) {
-            subscriber.onNext(output, new RangeResult<>(key, labels == null ? Collections.emptyMap() : labels, samples == null ? Collections.emptyList() : samples));
-            labelsReceived = false;
-            labelsComplete = false;
-            samplesReceived = false;
-            labelKey = null;
-            labels = null;
-            timestampReceived = false;
-            samples = null;
-        }
-
-        // RESP2/RESP3 compat
-        if (depth == 2 && skipKeyReset) {
-            skipKeyReset = false;
-        }
-
-        if (depth == 1) {
-            if (skipKeyReset) {
-                skipKeyReset = false;
+        log.info("Complete " + depth);
+        if (depth == 2) {
+            if (keyComplete) {
+                if (labelsComplete) {
+                    subscriber.onNext(output, new RangeResult<>(key, labels == null ? Collections.emptyMap() : labels, samples == null ? Collections.emptyList() : samples));
+                    labelsComplete = false;
+                    labelKey = null;
+                    labels = null;
+                    samples = null;
+                    // RESP2/RESP3 compat
+                    if (skipKeyReset) {
+                        skipKeyReset = false;
+                    }
+                } else {
+                    labelsComplete = true;
+                }
             } else {
-                key = null;
+                keyComplete = true;
+            }
+        } else {
+            if (depth == 1) {
+                if (skipKeyReset) {
+                    skipKeyReset = false;
+                } else {
+                    key = null;
+                }
             }
         }
     }
