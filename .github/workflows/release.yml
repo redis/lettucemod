@@ -30,3 +30,11 @@ jobs:
           sonatype-password: ${{ secrets.SONATYPE_PASSWORD }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
           slack-webhook: ${{ secrets.JRELEASER_SLACK_WEBHOOK }}
+
+      - name: Upload test reports
+        if: failure()
+        uses: actions/upload-artifact@v2
+        with:
+          name: test-reports
+          path: |
+            build/reports/aggregate-tests/
