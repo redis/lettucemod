@@ -1,11 +1,12 @@
 package com.redis.lettucemod.output;
 
-import com.redis.lettucemod.api.gears.ExecutionDetails;
 import io.lettuce.core.codec.RedisCodec;
 import io.lettuce.core.output.CommandOutput;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+
+import com.redis.lettucemod.gears.ExecutionDetails;
 
 public class ExecutionDetailsOutput<K, V> extends CommandOutput<K, V, ExecutionDetails> {
 

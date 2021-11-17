@@ -1,11 +1,12 @@
 package com.redis.lettucemod.api.sync;
 
-import com.redis.lettucemod.api.json.GetOptions;
-import com.redis.lettucemod.api.json.SetMode;
 import io.lettuce.core.KeyValue;
 import io.lettuce.core.output.KeyValueStreamingChannel;
 
 import java.util.List;
+
+import com.redis.lettucemod.json.GetOptions;
+import com.redis.lettucemod.json.SetMode;
 
 public interface RedisJSONCommands<K, V> {
 
@@ -13,13 +14,17 @@ public interface RedisJSONCommands<K, V> {
 
     Long jsonDel(K key, K path);
 
-    V jsonGet(K key, K... paths);
+    @SuppressWarnings("unchecked")
+	V jsonGet(K key, K... paths);
 
-    V jsonGet(K key, GetOptions options, K... paths);
+    @SuppressWarnings("unchecked")
+	V jsonGet(K key, GetOptions options, K... paths);
 
-    List<KeyValue<K, V>> jsonMget(K path, K... keys);
+    @SuppressWarnings("unchecked")
+	List<KeyValue<K, V>> jsonMget(K path, K... keys);
 
-    Long jsonMget(KeyValueStreamingChannel<K, V> channel, K path, K... keys);
+    @SuppressWarnings("unchecked")
+	Long jsonMget(KeyValueStreamingChannel<K, V> channel, K path, K... keys);
 
     String jsonSet(K key, K path, V json);
 
@@ -39,7 +44,8 @@ public interface RedisJSONCommands<K, V> {
 
     Long strlen(K key, K path);
 
-    Long arrappend(K key, K path, V... jsons);
+    @SuppressWarnings("unchecked")
+	Long arrappend(K key, K path, V... jsons);
 
     Long arrindex(K key, K path, V scalar);
 
@@ -47,7 +53,8 @@ public interface RedisJSONCommands<K, V> {
 
     Long arrindex(K key, K path, V scalar, long start, long stop);
 
-    Long arrinsert(K key, K path, long index, V... jsons);
+    @SuppressWarnings("unchecked")
+	Long arrinsert(K key, K path, long index, V... jsons);
 
     Long arrlen(K key);
 

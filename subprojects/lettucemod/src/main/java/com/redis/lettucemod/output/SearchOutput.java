@@ -1,15 +1,16 @@
 package com.redis.lettucemod.output;
 
-import com.redis.lettucemod.api.search.Document;
-import com.redis.lettucemod.api.search.SearchResults;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.redis.lettucemod.search.Document;
+import com.redis.lettucemod.search.SearchResults;
+
 import io.lettuce.core.codec.RedisCodec;
 import io.lettuce.core.internal.LettuceStrings;
 import io.lettuce.core.output.CommandOutput;
 import io.lettuce.core.output.MapOutput;
-
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.List;
 
 public class SearchOutput<K, V> extends CommandOutput<K, V, SearchResults<K, V>> {
 
@@ -47,28 +48,28 @@ public class SearchOutput<K, V> extends CommandOutput<K, V, SearchResults<K, V>>
 				current.setId(codec.decodeKey(bytes));
 			}
 			output.add(current);
-		} else {
-			if (withSortKeys && !sortKeySet) {
-				if (bytes != null) {
-					current.setSortKey(codec.decodeValue(bytes));
-				}
-				sortKeySet = true;
-			} else {
-				if (withScores && !scoreSet) {
-					current.setScore(LettuceStrings.toDouble(decodeAscii(bytes)));
-					scoreSet = true;
-				} else {
-					if (withPayloads && !payloadSet) {
-						if (bytes != null) {
-							current.setPayload(codec.decodeValue(bytes));
-						}
-						payloadSet = true;
-					} else {
-						nested.set(bytes);
-					}
-				}
-			}
+			return;
 		}
+		if (withScores && !scoreSet) {
+			current.setScore(LettuceStrings.toDouble(decodeAscii(bytes)));
+			scoreSet = true;
+			return;
+		}
+		if (withPayloads && !payloadSet) {
+			if (bytes != null) {
+				current.setPayload(codec.decodeValue(bytes));
+			}
+			payloadSet = true;
+			return;
+		}
+		if (withSortKeys && !sortKeySet) {
+			if (bytes != null) {
+				current.setSortKey(codec.decodeValue(bytes));
+			}
+			sortKeySet = true;
+			return;
+		}
+		nested.set(bytes);
 	}
 
 	@Override
@@ -86,16 +87,17 @@ public class SearchOutput<K, V> extends CommandOutput<K, V, SearchResults<K, V>>
 
 	@Override
 	public void complete(int depth) {
-		if (!counts.isEmpty()) {
-			if (nested.get().size() == counts.get(0)) {
-				counts.remove(0);
-				current.putAll(nested.get());
-				nested = new MapOutput<>(codec);
-				current = null;
-				payloadSet = false;
-				scoreSet = false;
-				sortKeySet = false;
-			}
+		if (counts.isEmpty()) {
+			return;
+		}
+		if (nested.get().size() == counts.get(0)) {
+			counts.remove(0);
+			current.putAll(nested.get());
+			nested = new MapOutput<>(codec);
+			current = null;
+			payloadSet = false;
+			scoreSet = false;
+			sortKeySet = false;
 		}
 	}
 

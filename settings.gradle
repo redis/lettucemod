@@ -7,7 +7,6 @@ buildscript {
     dependencies {
         classpath "org.kordamp.gradle:java-project-gradle-plugin:$kordampPluginVersion"
         classpath "org.kordamp.gradle:kordamp-parentbuild:$kordampBuildVersion"
-        classpath "io.freefair.gradle:lombok-plugin:$lombokPluginVersion"
         classpath "org.springframework.boot:spring-boot-gradle-plugin:$bootPluginVersion"
         classpath "io.spring.gradle:dependency-management-plugin:$dependencyPluginVersion"
     }
@@ -22,7 +21,7 @@ projects {
 
     plugins {
         all {
-            id 'idea'
+            id 'eclipse'
         }
         path(':') {
             id 'org.kordamp.gradle.java-project'
@@ -32,7 +31,6 @@ projects {
             id 'java-library-distribution'
             id 'org.springframework.boot'
             id 'io.spring.dependency-management'
-            id 'io.freefair.lombok'
         }
     }
 }

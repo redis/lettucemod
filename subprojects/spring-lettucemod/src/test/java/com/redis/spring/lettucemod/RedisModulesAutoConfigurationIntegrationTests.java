@@ -2,7 +2,7 @@ package com.redis.spring.lettucemod;
 
 import com.redis.lettucemod.RedisModulesClient;
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
-import com.redis.lettucemod.api.search.Suggestion;
+import com.redis.lettucemod.search.Suggestion;
 import com.redis.testcontainers.RedisModulesContainer;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

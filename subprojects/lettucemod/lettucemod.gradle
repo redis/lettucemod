@@ -6,12 +6,16 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter-engine'
     testImplementation 'org.junit.jupiter:junit-jupiter-params'
     testImplementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-csv'
-    testImplementation group: 'com.redis.testcontainers', name: 'testcontainers-redis', version: testcontainersRedisVersion
-    testImplementation group: 'com.redis.testcontainers', name: 'junit-jupiter', version: testcontainersVersion
+    testImplementation(group: 'com.redis.testcontainers', name: 'testcontainers-redis-junit-jupiter', version: testcontainersRedisVersion) {
+        exclude group: 'com.redis', module: 'lettucemod'
+    }
     testImplementation 'org.slf4j:slf4j-simple'
     testImplementation group: 'org.apache.commons', name: 'commons-collections4', version: commonsCollectionsVersion
-    testImplementation 'org.springframework.boot:spring-boot-starter-batch'
-    testImplementation(group: 'com.redis', name: 'spring-batch-redis-test', version: batchRedisVersion) {
-        exclude group: 'com.redis', module: 'lettucemod'
+    testImplementation group: 'org.awaitility', name: 'awaitility', version: awaitilityVersion
+}
+
+eclipse {
+    project {
+        name = 'lettucemod'
     }
 }

@@ -118,19 +118,19 @@ RedisModulesCommands<String, String> commands = connection.sync(); // <3>
 
 [source,java]
 ----
-RedisURI node1 = RedisURI.create("node1", 6379);
-RedisURI node2 = RedisURI.create("node2", 6379);
+List<RedisURI> uris = Arrays.asList(RedisURI.create("node1", 6379), RedisURI.create("node2", 6379)); // <1>
 
-RedisModulesClusterClient clusterClient = RedisModulesClusterClient.create(Arrays.asList(node1, node2)); // <1>
+RedisModulesClusterClient client = RedisModulesClusterClient.create(uris); // <2>
 
-StatefulRedisModulesClusterConnection<String, String> connection = clusterClient.connect(); // <2>
+StatefulRedisModulesClusterConnection<String, String> connection = client.connect(); // <3>
 
-RedisModulesAdvancedClusterCommands<String, String> commands = connection.sync(); // <3>
+RedisModulesAdvancedClusterCommands<String, String> commands = connection.sync(); // <4>
 ----
 
-<1> Create a cluster modules client
-<2> Connect to Redis servers
-<3> Use the sync, async, or reactive API
+<1> Create list of cluster node URIs
+<2> Create a cluster client
+<3> Connect to Redis servers
+<4> Use the sync, async, or reactive API
 
 ==== Connection Pool
 
@@ -193,7 +193,7 @@ gears.pyexecute("GearsBuilder().run('person:*')"); // <2>
 ----
 RedisJSONCommands<String, String> json = connection.sync(); // <1>
 
-json.set("arr", ".", "[1,2,3]"); // <2>
+json.jsonSet("arr", ".", "[1,2,3]"); // <2>
 ----
 
 <1> Use sync, async, or reactive RedisJSON commands
@@ -257,10 +257,28 @@ connection.close(); // <5>
 
 [source,java]
 ----
-try (StatefulRedisModulesConnection<String,String> connection = pool.borrowObject()) {
-    RedisModulesAsyncCommands<String, String> commands = connection.async();
-    // ...
+GenericObjectPoolConfig<StatefulRedisModulesConnection<String, String>> config = new GenericObjectPoolConfig<>(); // <1>
+
+config.setMaxTotal(16);
+
+// ...
+
+GenericObjectPool<StatefulRedisModulesConnection<String, String>> pool = ConnectionPoolSupport.createGenericObjectPool(client::connect, config); // <2>
+
+try (StatefulRedisModulesConnection<String, String> connection = pool.borrowObject()) { // <3>
+	
+	RedisModulesAsyncCommands<String, String> commands = connection.async(); // <4>
+
+	// ...
+
 } catch (Exception e) {
-    log.error("Could not get a connection from the pool", e);
+	
+	log.error("Could not get a connection from the pool", e);
+	
 }
 ----
+
+<1> Create a pool configuration
+<2> Create the connection pool
+<3> Get connection from pool. Try-with automatically closes connection which returns it to pool
+<4> Use sync, async, or reactive commands

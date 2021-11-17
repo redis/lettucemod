@@ -31,7 +31,6 @@ public class SearchCommandArgs<K, V> extends CommandArgs<K, V> {
         return null;
     }
 
-    @SuppressWarnings("UnusedReturnValue")
     public SearchCommandArgs<K, V> addProperty(String property) {
         add(property(property));
         return this;

@@ -1,10 +1,11 @@
 package com.redis.lettucemod.output;
 
-import com.redis.lettucemod.api.search.AggregateResults;
 import io.lettuce.core.codec.RedisCodec;
 import io.lettuce.core.output.CommandOutput;
 
 import java.nio.ByteBuffer;
+
+import com.redis.lettucemod.search.AggregateResults;
 
 public class AggregateOutput<K, V, R extends AggregateResults<K>> extends CommandOutput<K, V, R> {
 

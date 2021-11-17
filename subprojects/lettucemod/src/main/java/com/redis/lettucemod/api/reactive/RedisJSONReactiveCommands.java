@@ -1,7 +1,8 @@
 package com.redis.lettucemod.api.reactive;
 
-import com.redis.lettucemod.api.json.GetOptions;
-import com.redis.lettucemod.api.json.SetMode;
+import com.redis.lettucemod.json.GetOptions;
+import com.redis.lettucemod.json.SetMode;
+
 import io.lettuce.core.KeyValue;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -12,11 +13,14 @@ public interface RedisJSONReactiveCommands<K, V> {
 
     Mono<Long> jsonDel(K key, K path);
 
-    Mono<V> jsonGet(K key, K... paths);
+    @SuppressWarnings("unchecked")
+	Mono<V> jsonGet(K key, K... paths);
 
-    Mono<V> jsonGet(K key, GetOptions options, K... paths);
+    @SuppressWarnings("unchecked")
+	Mono<V> jsonGet(K key, GetOptions options, K... paths);
 
-    Flux<KeyValue<K, V>> jsonMget(K path, K... keys);
+    @SuppressWarnings("unchecked")
+	Flux<KeyValue<K, V>> jsonMget(K path, K... keys);
 
     Mono<String> jsonSet(K key, K path, V json);
 
@@ -36,7 +40,8 @@ public interface RedisJSONReactiveCommands<K, V> {
 
     Mono<Long> strlen(K key, K path);
 
-    Mono<Long> arrappend(K key, K path, V... jsons);
+    @SuppressWarnings("unchecked")
+	Mono<Long> arrappend(K key, K path, V... jsons);
 
     Mono<Long> arrindex(K key, K path, V scalar);
 
@@ -44,7 +49,8 @@ public interface RedisJSONReactiveCommands<K, V> {
 
     Mono<Long> arrindex(K key, K path, V scalar, long start, long stop);
 
-    Mono<Long> arrinsert(K key, K path, long index, V... jsons);
+    @SuppressWarnings("unchecked")
+	Mono<Long> arrinsert(K key, K path, long index, V... jsons);
 
     Mono<Long> arrlen(K key);
 

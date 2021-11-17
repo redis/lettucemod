@@ -1,12 +1,13 @@
 package com.redis.lettucemod.api.async;
 
-import com.redis.lettucemod.api.json.GetOptions;
-import com.redis.lettucemod.api.json.SetMode;
 import io.lettuce.core.KeyValue;
 import io.lettuce.core.RedisFuture;
 import io.lettuce.core.output.KeyValueStreamingChannel;
 
 import java.util.List;
+
+import com.redis.lettucemod.json.GetOptions;
+import com.redis.lettucemod.json.SetMode;
 
 public interface RedisJSONAsyncCommands<K, V> {
 
@@ -14,13 +15,17 @@ public interface RedisJSONAsyncCommands<K, V> {
 
     RedisFuture<Long> jsonDel(K key, K path);
 
-    RedisFuture<V> jsonGet(K key, K... paths);
+    @SuppressWarnings("unchecked")
+	RedisFuture<V> jsonGet(K key, K... paths);
 
-    RedisFuture<V> jsonGet(K key, GetOptions options, K... paths);
+    @SuppressWarnings("unchecked")
+	RedisFuture<V> jsonGet(K key, GetOptions options, K... paths);
 
-    RedisFuture<List<KeyValue<K, V>>> jsonMget(K path, K... keys);
+    @SuppressWarnings("unchecked")
+	RedisFuture<List<KeyValue<K, V>>> jsonMget(K path, K... keys);
 
-    RedisFuture<Long> jsonMget(KeyValueStreamingChannel<K, V> channel, K path, K... keys);
+    @SuppressWarnings("unchecked")
+	RedisFuture<Long> jsonMget(KeyValueStreamingChannel<K, V> channel, K path, K... keys);
 
     RedisFuture<String> jsonSet(K key, K path, V json);
 
@@ -40,7 +45,8 @@ public interface RedisJSONAsyncCommands<K, V> {
 
     RedisFuture<Long> strlen(K key, K path);
 
-    RedisFuture<Long> arrappend(K key, K path, V... jsons);
+    @SuppressWarnings("unchecked")
+	RedisFuture<Long> arrappend(K key, K path, V... jsons);
 
     RedisFuture<Long> arrindex(K key, K path, V scalar);
 
@@ -48,7 +54,8 @@ public interface RedisJSONAsyncCommands<K, V> {
 
     RedisFuture<Long> arrindex(K key, K path, V scalar, long start, long stop);
 
-    RedisFuture<Long> arrinsert(K key, K path, long index, V... jsons);
+    @SuppressWarnings("unchecked")
+	RedisFuture<Long> arrinsert(K key, K path, long index, V... jsons);
 
     RedisFuture<Long> arrlen(K key);
 

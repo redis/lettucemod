@@ -1,8 +1,8 @@
 package com.redis.lettucemod.api.sync;
 
-import com.redis.lettucemod.api.search.*;
-
 import java.util.List;
+
+import com.redis.lettucemod.search.*;
 
 public interface RediSearchCommands<K, V> {
 
@@ -24,6 +24,10 @@ public interface RediSearchCommands<K, V> {
 
     String aliasdel(K name);
 
+    /**
+     * 
+     * @return List of RediSearch indexes 
+     */
     List<K> list();
 
     SearchResults<K, V> search(K index, V query);

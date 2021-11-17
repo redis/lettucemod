@@ -1,15 +1,16 @@
 package com.redis.lettucemod.api.reactive;
 
-import com.redis.lettucemod.api.search.AggregateOptions;
-import com.redis.lettucemod.api.search.AggregateResults;
-import com.redis.lettucemod.api.search.AggregateWithCursorResults;
-import com.redis.lettucemod.api.search.CreateOptions;
-import com.redis.lettucemod.api.search.Cursor;
-import com.redis.lettucemod.api.search.Field;
-import com.redis.lettucemod.api.search.SearchOptions;
-import com.redis.lettucemod.api.search.SearchResults;
-import com.redis.lettucemod.api.search.Suggestion;
-import com.redis.lettucemod.api.search.SuggetOptions;
+import com.redis.lettucemod.search.AggregateOptions;
+import com.redis.lettucemod.search.AggregateResults;
+import com.redis.lettucemod.search.AggregateWithCursorResults;
+import com.redis.lettucemod.search.CreateOptions;
+import com.redis.lettucemod.search.Cursor;
+import com.redis.lettucemod.search.Field;
+import com.redis.lettucemod.search.SearchOptions;
+import com.redis.lettucemod.search.SearchResults;
+import com.redis.lettucemod.search.Suggestion;
+import com.redis.lettucemod.search.SuggetOptions;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 

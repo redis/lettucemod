@@ -1,6 +1,5 @@
 package com.redis.lettucemod.output;
 
-import com.redis.lettucemod.api.timeseries.Sample;
 import io.lettuce.core.codec.RedisCodec;
 import io.lettuce.core.internal.LettuceAssert;
 import io.lettuce.core.internal.LettuceStrings;
@@ -11,6 +10,8 @@ import io.lettuce.core.output.StreamingOutput;
 import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.List;
+
+import com.redis.lettucemod.timeseries.Sample;
 
 public class SampleListOutput<K, V> extends CommandOutput<K, V, List<Sample>> implements StreamingOutput<Sample> {
 

@@ -1,7 +1,5 @@
 package com.redis.lettucemod.output;
 
-import com.redis.lettucemod.api.timeseries.GetResult;
-import com.redis.lettucemod.api.timeseries.Sample;
 import io.lettuce.core.codec.RedisCodec;
 import io.lettuce.core.internal.LettuceAssert;
 import io.lettuce.core.internal.LettuceStrings;
@@ -14,6 +12,9 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import com.redis.lettucemod.timeseries.GetResult;
+import com.redis.lettucemod.timeseries.Sample;
 
 public class GetOutput<K, V> extends CommandOutput<K, V, List<GetResult<K, V>>> implements StreamingOutput<GetResult<K, V>> {
 
@@ -90,7 +91,11 @@ public class GetOutput<K, V> extends CommandOutput<K, V, List<GetResult<K, V>>> 
 
     private void sampleValue(Double value) {
         sample.setValue(value);
-        subscriber.onNext(output, new GetResult<>(key, labels == null ? Collections.emptyMap() : labels, sample));
+        GetResult<K,V> result = new GetResult<>();
+        result.setKey(key);
+        result.setLabels(labels == null ? Collections.emptyMap() : labels);
+        result.setSample(sample);
+        subscriber.onNext(output, result);
         labelsReceived = false;
         labelsComplete = false;
         labelKey = null;

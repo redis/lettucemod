@@ -2,29 +2,25 @@ config {
     info {
         description = 'LettuceMod'
         inceptionYear = '2020'
+        vendor = 'Redis'
         tags = ['redis', 'modules', 'java', 'spring']
-
         links {
             website      = "https://github.com/redis-developer/${project.rootProject.name}"
             issueTracker = "https://github.com/redis-developer/${project.rootProject.name}/issues"
             scm          = "https://github.com/redis-developer/${project.rootProject.name}.git"
         }
-
         scm {
             url                 = "https://github.com/redis-developer/${project.rootProject.name}"
             connection          = "scm:git:https://github.com/redis-developer/${project.rootProject.name}.git"
             developerConnection = "scm:git:git@github.com:redis-developer/${project.rootProject.name}.git"
         }
-
         specification {
             enabled = true
         }
-        
         implementation {
             enabled = true
         }
     }
-
     licensing {
         enabled = false
         licenses {
@@ -33,7 +29,6 @@ config {
             }
         }
     }
-
     docs {
         javadoc {
             options {
@@ -53,7 +48,6 @@ allprojects {
         gradlePluginPortal()
         mavenCentral()
         mavenLocal()
-        maven { url 'https://projectlombok.org/edge-releases' }
     }
 
     tasks.withType(GenerateModuleMetadata) {
@@ -85,9 +79,14 @@ subprojects {
     configurations {
         all*.exclude module: 'spring-boot-starter-logging'
     }
+    
+    sourceCompatibility = 8
+    targetCompatibility = 8
 
-    lombok {
-        version = "edge-SNAPSHOT"
+}
+
+eclipse {
+    project {
+        name = 'lettucemod-root'
     }
-
 }

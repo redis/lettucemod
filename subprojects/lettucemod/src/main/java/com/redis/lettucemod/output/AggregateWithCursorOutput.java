@@ -1,6 +1,7 @@
 package com.redis.lettucemod.output;
 
-import com.redis.lettucemod.api.search.AggregateWithCursorResults;
+import com.redis.lettucemod.search.AggregateWithCursorResults;
+
 import io.lettuce.core.codec.RedisCodec;
 
 public class AggregateWithCursorOutput<K, V> extends AggregateOutput<K, V, AggregateWithCursorResults<K>> {

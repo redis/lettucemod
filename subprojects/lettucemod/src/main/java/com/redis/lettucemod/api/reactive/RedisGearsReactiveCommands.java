@@ -1,9 +1,9 @@
 package com.redis.lettucemod.api.reactive;
 
-import com.redis.lettucemod.api.gears.Execution;
-import com.redis.lettucemod.api.gears.ExecutionDetails;
-import com.redis.lettucemod.api.gears.ExecutionMode;
-import com.redis.lettucemod.api.gears.Registration;
+import com.redis.lettucemod.gears.Execution;
+import com.redis.lettucemod.gears.ExecutionDetails;
+import com.redis.lettucemod.gears.ExecutionMode;
+import com.redis.lettucemod.gears.Registration;
 import com.redis.lettucemod.output.ExecutionResults;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;

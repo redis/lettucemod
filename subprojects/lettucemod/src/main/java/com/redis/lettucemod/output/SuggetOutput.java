@@ -1,6 +1,5 @@
 package com.redis.lettucemod.output;
 
-import com.redis.lettucemod.api.search.Suggestion;
 import io.lettuce.core.codec.RedisCodec;
 import io.lettuce.core.internal.LettuceStrings;
 import io.lettuce.core.output.CommandOutput;
@@ -8,6 +7,8 @@ import io.lettuce.core.output.CommandOutput;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.redis.lettucemod.search.Suggestion;
 
 public class SuggetOutput<K, V> extends CommandOutput<K, V, List<Suggestion<V>>> {
 

@@ -1,6 +1,5 @@
 package com.redis.lettucemod.output;
 
-import com.redis.lettucemod.api.gears.Execution;
 import io.lettuce.core.codec.RedisCodec;
 import io.lettuce.core.output.CommandOutput;
 import io.lettuce.core.output.ListSubscriber;
@@ -9,6 +8,8 @@ import io.lettuce.core.output.StreamingOutput;
 import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.List;
+
+import com.redis.lettucemod.gears.Execution;
 
 public class ExecutionListOutput<K, V> extends CommandOutput<K, V, List<Execution>> implements StreamingOutput<Execution> {
 

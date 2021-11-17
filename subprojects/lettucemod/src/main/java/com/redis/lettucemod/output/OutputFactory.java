@@ -6,12 +6,15 @@ import java.util.List;
 
 public class OutputFactory {
 
-    public static <T> List<T> newList(int capacity) {
+	private OutputFactory() {
+	}
 
-        if (capacity < 1) {
-            return Collections.emptyList();
-        }
+	public static <T> List<T> newList(int capacity) {
 
-        return new ArrayList<>(capacity);
-    }
+		if (capacity < 1) {
+			return Collections.emptyList();
+		}
+
+		return new ArrayList<>(capacity);
+	}
 }

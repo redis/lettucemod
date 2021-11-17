@@ -1,6 +1,5 @@
 package com.redis.lettucemod.output;
 
-import com.redis.lettucemod.api.gears.Registration;
 import io.lettuce.core.codec.RedisCodec;
 import io.lettuce.core.output.CommandOutput;
 import io.lettuce.core.output.ListSubscriber;
@@ -10,6 +9,8 @@ import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+
+import com.redis.lettucemod.gears.Registration;
 
 public class RegistrationListOutput<K, V> extends CommandOutput<K, V, List<Registration>> implements StreamingOutput<Registration> {
 

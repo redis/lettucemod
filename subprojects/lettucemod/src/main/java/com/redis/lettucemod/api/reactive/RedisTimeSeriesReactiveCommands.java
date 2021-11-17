@@ -1,12 +1,13 @@
 package com.redis.lettucemod.api.reactive;
 
-import com.redis.lettucemod.api.timeseries.Aggregation;
-import com.redis.lettucemod.api.timeseries.CreateOptions;
-import com.redis.lettucemod.api.timeseries.GetResult;
-import com.redis.lettucemod.api.timeseries.KeySample;
-import com.redis.lettucemod.api.timeseries.RangeOptions;
-import com.redis.lettucemod.api.timeseries.RangeResult;
-import com.redis.lettucemod.api.timeseries.Sample;
+import com.redis.lettucemod.timeseries.Aggregation;
+import com.redis.lettucemod.timeseries.CreateOptions;
+import com.redis.lettucemod.timeseries.GetResult;
+import com.redis.lettucemod.timeseries.KeySample;
+import com.redis.lettucemod.timeseries.RangeOptions;
+import com.redis.lettucemod.timeseries.RangeResult;
+import com.redis.lettucemod.timeseries.Sample;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -28,7 +29,8 @@ public interface RedisTimeSeriesReactiveCommands<K, V> {
 
     Mono<Long> add(K key, Sample sample, CreateOptions<K, V> options);
 
-    Flux<Long> madd(KeySample<K>... samples);
+    @SuppressWarnings("unchecked")
+	Flux<Long> madd(KeySample<K>... samples);
 
     Mono<Long> incrby(K key, double value, Long timestamp, CreateOptions<K, V> options);
 
@@ -46,19 +48,25 @@ public interface RedisTimeSeriesReactiveCommands<K, V> {
 
     Flux<Sample> revrange(K key, RangeOptions options);
 
-    Flux<RangeResult<K, V>> mrange(RangeOptions options, V... filters);
+    @SuppressWarnings("unchecked")
+	Flux<RangeResult<K, V>> mrange(RangeOptions options, V... filters);
 
-    Flux<RangeResult<K, V>> mrevrange(RangeOptions options, V... filters);
+    @SuppressWarnings("unchecked")
+	Flux<RangeResult<K, V>> mrevrange(RangeOptions options, V... filters);
 
-    Flux<RangeResult<K, V>> mrangeWithLabels(RangeOptions options, V... filters);
+    @SuppressWarnings("unchecked")
+	Flux<RangeResult<K, V>> mrangeWithLabels(RangeOptions options, V... filters);
 
-    Flux<RangeResult<K, V>> mrevrangeWithLabels(RangeOptions options, V... filters);
+    @SuppressWarnings("unchecked")
+	Flux<RangeResult<K, V>> mrevrangeWithLabels(RangeOptions options, V... filters);
 
     Mono<Sample> tsGet(K key);
 
-    Flux<GetResult<K, V>> tsMget(V... filters);
+    @SuppressWarnings("unchecked")
+	Flux<GetResult<K, V>> tsMget(V... filters);
 
-    Flux<GetResult<K, V>> tsMgetWithLabels(V... filters);
+    @SuppressWarnings("unchecked")
+	Flux<GetResult<K, V>> tsMgetWithLabels(V... filters);
 
     Flux<Object> tsInfo(K key);
 

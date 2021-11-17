@@ -1,12 +1,13 @@
 package com.redis.lettucemod.output;
 
-import com.redis.lettucemod.api.search.SearchResults;
-import com.redis.lettucemod.api.search.Document;
 import io.lettuce.core.codec.RedisCodec;
 import io.lettuce.core.internal.LettuceStrings;
 import io.lettuce.core.output.CommandOutput;
 
 import java.nio.ByteBuffer;
+
+import com.redis.lettucemod.search.Document;
+import com.redis.lettucemod.search.SearchResults;
 
 public class SearchNoContentOutput<K, V> extends CommandOutput<K, V, SearchResults<K, V>> {
 

@@ -1,15 +1,16 @@
 package com.redis.lettucemod.api.async;
 
-import com.redis.lettucemod.api.timeseries.Aggregation;
-import com.redis.lettucemod.api.timeseries.CreateOptions;
-import com.redis.lettucemod.api.timeseries.GetResult;
-import com.redis.lettucemod.api.timeseries.KeySample;
-import com.redis.lettucemod.api.timeseries.RangeOptions;
-import com.redis.lettucemod.api.timeseries.RangeResult;
-import com.redis.lettucemod.api.timeseries.Sample;
 import io.lettuce.core.RedisFuture;
 
 import java.util.List;
+
+import com.redis.lettucemod.timeseries.Aggregation;
+import com.redis.lettucemod.timeseries.CreateOptions;
+import com.redis.lettucemod.timeseries.GetResult;
+import com.redis.lettucemod.timeseries.KeySample;
+import com.redis.lettucemod.timeseries.RangeOptions;
+import com.redis.lettucemod.timeseries.RangeResult;
+import com.redis.lettucemod.timeseries.Sample;
 
 public interface RedisTimeSeriesAsyncCommands<K, V> {
 
@@ -29,7 +30,8 @@ public interface RedisTimeSeriesAsyncCommands<K, V> {
 
     RedisFuture<Long> add(K key, Sample sample, CreateOptions<K, V> options);
 
-    RedisFuture<List<Long>> madd(KeySample<K>... samples);
+    @SuppressWarnings("unchecked")
+	RedisFuture<List<Long>> madd(KeySample<K>... samples);
 
     RedisFuture<Long> incrby(K key, double value, Long timestamp, CreateOptions<K, V> options);
 
@@ -47,19 +49,25 @@ public interface RedisTimeSeriesAsyncCommands<K, V> {
 
     RedisFuture<List<Sample>> revrange(K key, RangeOptions options);
 
-    RedisFuture<List<RangeResult<K, V>>> mrange(RangeOptions options, V... filters);
+    @SuppressWarnings("unchecked")
+	RedisFuture<List<RangeResult<K, V>>> mrange(RangeOptions options, V... filters);
 
-    RedisFuture<List<RangeResult<K, V>>> mrevrange(RangeOptions options, V... filters);
+    @SuppressWarnings("unchecked")
+	RedisFuture<List<RangeResult<K, V>>> mrevrange(RangeOptions options, V... filters);
 
-    RedisFuture<List<RangeResult<K, V>>> mrangeWithLabels(RangeOptions options, V... filters);
+    @SuppressWarnings("unchecked")
+	RedisFuture<List<RangeResult<K, V>>> mrangeWithLabels(RangeOptions options, V... filters);
 
-    RedisFuture<List<RangeResult<K, V>>> mrevrangeWithLabels(RangeOptions options, V... filters);
+    @SuppressWarnings("unchecked")
+	RedisFuture<List<RangeResult<K, V>>> mrevrangeWithLabels(RangeOptions options, V... filters);
 
     RedisFuture<Sample> tsGet(K key);
 
-    RedisFuture<List<GetResult<K, V>>> tsMget(V... filters);
+    @SuppressWarnings("unchecked")
+	RedisFuture<List<GetResult<K, V>>> tsMget(V... filters);
 
-    RedisFuture<List<GetResult<K, V>>> tsMgetWithLabels(V... filters);
+    @SuppressWarnings("unchecked")
+	RedisFuture<List<GetResult<K, V>>> tsMgetWithLabels(V... filters);
 
     RedisFuture<List<Object>> tsInfo(K key);
 

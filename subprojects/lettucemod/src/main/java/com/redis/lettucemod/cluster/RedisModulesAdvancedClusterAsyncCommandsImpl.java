@@ -2,31 +2,32 @@ package com.redis.lettucemod.cluster;
 
 import com.redis.lettucemod.RedisModulesAsyncCommandsImpl;
 import com.redis.lettucemod.api.async.RedisModulesAsyncCommands;
-import com.redis.lettucemod.api.gears.Execution;
-import com.redis.lettucemod.api.gears.ExecutionDetails;
-import com.redis.lettucemod.api.gears.ExecutionMode;
-import com.redis.lettucemod.api.gears.Registration;
-import com.redis.lettucemod.api.json.GetOptions;
-import com.redis.lettucemod.api.json.SetMode;
-import com.redis.lettucemod.api.search.AggregateOptions;
-import com.redis.lettucemod.api.search.AggregateResults;
-import com.redis.lettucemod.api.search.AggregateWithCursorResults;
-import com.redis.lettucemod.api.search.Cursor;
-import com.redis.lettucemod.api.search.Field;
-import com.redis.lettucemod.api.search.SearchOptions;
-import com.redis.lettucemod.api.search.SearchResults;
-import com.redis.lettucemod.api.search.Suggestion;
-import com.redis.lettucemod.api.search.SuggetOptions;
-import com.redis.lettucemod.api.timeseries.Aggregation;
-import com.redis.lettucemod.api.timeseries.CreateOptions;
-import com.redis.lettucemod.api.timeseries.GetResult;
-import com.redis.lettucemod.api.timeseries.KeySample;
-import com.redis.lettucemod.api.timeseries.RangeOptions;
-import com.redis.lettucemod.api.timeseries.RangeResult;
-import com.redis.lettucemod.api.timeseries.Sample;
 import com.redis.lettucemod.cluster.api.StatefulRedisModulesClusterConnection;
 import com.redis.lettucemod.cluster.api.async.RedisModulesAdvancedClusterAsyncCommands;
+import com.redis.lettucemod.gears.Execution;
+import com.redis.lettucemod.gears.ExecutionDetails;
+import com.redis.lettucemod.gears.ExecutionMode;
+import com.redis.lettucemod.gears.Registration;
+import com.redis.lettucemod.json.GetOptions;
+import com.redis.lettucemod.json.SetMode;
 import com.redis.lettucemod.output.ExecutionResults;
+import com.redis.lettucemod.search.AggregateOptions;
+import com.redis.lettucemod.search.AggregateResults;
+import com.redis.lettucemod.search.AggregateWithCursorResults;
+import com.redis.lettucemod.search.Cursor;
+import com.redis.lettucemod.search.Field;
+import com.redis.lettucemod.search.SearchOptions;
+import com.redis.lettucemod.search.SearchResults;
+import com.redis.lettucemod.search.Suggestion;
+import com.redis.lettucemod.search.SuggetOptions;
+import com.redis.lettucemod.timeseries.Aggregation;
+import com.redis.lettucemod.timeseries.CreateOptions;
+import com.redis.lettucemod.timeseries.GetResult;
+import com.redis.lettucemod.timeseries.KeySample;
+import com.redis.lettucemod.timeseries.RangeOptions;
+import com.redis.lettucemod.timeseries.RangeResult;
+import com.redis.lettucemod.timeseries.Sample;
+
 import io.lettuce.core.KeyValue;
 import io.lettuce.core.RedisFuture;
 import io.lettuce.core.cluster.MultiNodeExecution;
@@ -144,7 +145,7 @@ public class RedisModulesAdvancedClusterAsyncCommandsImpl<K, V> extends RedisAdv
     }
 
     @Override
-    public RedisFuture<String> create(K index, com.redis.lettucemod.api.search.CreateOptions<K, V> options, Field... fields) {
+    public RedisFuture<String> create(K index, com.redis.lettucemod.search.CreateOptions<K, V> options, Field... fields) {
         return MultiNodeExecution.firstOfAsync(executeOnUpstream(commands -> ((RedisModulesAsyncCommands<K, V>) commands).create(index, options, fields)));
     }
 

@@ -1,9 +1,10 @@
 package com.redis.lettucemod.api.async;
 
-import com.redis.lettucemod.api.search.*;
 import io.lettuce.core.RedisFuture;
 
 import java.util.List;
+
+import com.redis.lettucemod.search.*;
 
 public interface RediSearchAsyncCommands<K, V> {
 
