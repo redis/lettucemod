@@ -41,6 +41,9 @@ config {
             }
         }
     }
+    testing {
+        jar = true
+    }
 }
 
 allprojects {
@@ -83,10 +86,4 @@ subprojects {
     sourceCompatibility = 8
     targetCompatibility = 8
 
-}
-
-eclipse {
-    project {
-        name = 'lettucemod-root'
-    }
 }

@@ -25,6 +25,7 @@ public class Beers {
 	public static final String PREFIX = "beer:";
 	public static final String INDEX = "beers";
 
+	private static final String FIELD_PAYLOAD = "payload";
 	public static final Field FIELD_ID = Field.tag("id").sortable().build();
 	public static final Field FIELD_BREWERY_ID = Field.tag("brewery_id").sortable().build();
 	public static final Field FIELD_NAME = Field.text("name").sortable().build();
@@ -38,7 +39,9 @@ public class Beers {
 	private static final ObjectMapper MAPPER = new ObjectMapper();
 
 	public static void createIndex(RedisModulesCommands<String, String> commands) {
-		commands.create(INDEX, CreateOptions.<String, String>builder().prefix(PREFIX).payloadField(FIELD_DESCRIPTION.getName()).build(), SCHEMA);
+		CreateOptions<String, String> options = CreateOptions.<String, String>builder().prefix(PREFIX)
+				.payloadField(FIELD_PAYLOAD).build();
+		commands.create(INDEX, options, SCHEMA);
 	}
 
 	public static Iterator<JsonNode> jsonNodeIterator() throws IOException {
@@ -63,6 +66,7 @@ public class Beers {
 			MappingIterator<Map<String, Object>> iterator = mapIterator();
 			while (iterator.hasNext()) {
 				Map<String, Object> beer = iterator.next();
+				beer.put(FIELD_PAYLOAD, beer.get(FIELD_DESCRIPTION.getName()));
 				futures.add(async.hset(PREFIX + beer.get(FIELD_ID.getName()), (Map) beer));
 			}
 			async.flushCommands();

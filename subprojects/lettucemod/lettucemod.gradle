@@ -16,6 +16,6 @@ dependencies {
 
 eclipse {
     project {
-        name = 'lettucemod'
+        name = 'lettucemod-core'
     }
 }
