@@ -12,8 +12,12 @@ import java.util.stream.Collectors;
 
 import com.redis.lettucemod.protocol.SearchCommandKeyword;
 import com.redis.lettucemod.search.Field;
+import com.redis.lettucemod.search.Field.GeoField;
+import com.redis.lettucemod.search.Field.NumericField;
+import com.redis.lettucemod.search.Field.TagField;
+import com.redis.lettucemod.search.Field.TextField;
+import com.redis.lettucemod.search.Field.Type;
 import com.redis.lettucemod.search.IndexInfo;
-import com.redis.lettucemod.search.Field.Options;
 
 import io.lettuce.core.internal.LettuceAssert;
 import io.lettuce.core.internal.LettuceStrings;
@@ -24,31 +28,48 @@ public class RedisModulesUtils {
 
 	private static final String GEO_LONLAT_SEPARATOR = ",";
 
+	private static final String FIELD_FIELDS = "fields";
+
+	private static final String FIELD_ATTRIBUTES = "attributes";
+
 	private RedisModulesUtils() {
 	}
 
 	@SuppressWarnings("unchecked")
 	public static IndexInfo indexInfo(List<Object> infoList) {
+		LettuceAssert.isTrue(infoList.size() % 2 == 0,
+				"List must be a multiple of 2 and contain a sequence of field1, value1, field2, value2, ..., fieldN, valueN");
 		Map<String, Object> map = new HashMap<>();
-		for (int i = 0; i < (infoList.size() / 2); i++) {
-			map.put((String) infoList.get(i * 2), infoList.get(i * 2 + 1));
+		for (int i = 0; i < infoList.size(); i += 2) {
+			map.put((String) infoList.get(i), infoList.get(i + 1));
 		}
-		return IndexInfo.builder().indexName(getString(map.get("index_name")))
-				.indexOptions((List<Object>) map.get("index_options")).fields(fields(map.get("fields")))
-				.numDocs(getDouble(map.get("num_docs"))).maxDocId(getString(map.get("max_doc_id")))
-				.numTerms(toLong(map, "num_terms")).numRecords(toLong(map, "num_records"))
-				.invertedSizeMb(getDouble(map.get("inverted_sz_mb")))
-				.totalInvertedIndexBlocks(toLong(map, "total_inverted_index_blocks"))
-				.offsetVectorsSizeMb(getDouble(map.get("offset_vectors_sz_mb")))
-				.docTableSizeMb(getDouble(map.get("doc_table_size_mb")))
-				.sortableValuesSizeMb(getDouble(map.get("sortable_values_size_mb")))
-				.keyTableSizeMb(getDouble(map.get("key_table_size_mb")))
-				.recordsPerDocAvg(getDouble(map.get("records_per_doc_avg")))
-				.bytesPerRecordAvg(getDouble(map.get("bytes_per_record_avg")))
-				.offsetsPerTermAvg(getDouble(map.get("offsets_per_term_avg")))
-				.offsetBitsPerRecordAvg(getDouble(map.get("offset_bits_per_record_avg")))
-				.gcStats((List<Object>) map.get("gc_stats")).cursorStats((List<Object>) map.get("cursor_stats"))
-				.build();
+		IndexInfo indexInfo = new IndexInfo();
+		indexInfo.setIndexName(getString(map.get("index_name")));
+		indexInfo.setIndexOptions((List<Object>) map.get("index_options"));
+		if (map.containsKey(FIELD_FIELDS)) {
+			indexInfo.setFields(fieldsFromFields((List<Object>) map.getOrDefault(FIELD_FIELDS, new ArrayList<>())));
+		}
+		if (map.containsKey(FIELD_ATTRIBUTES)) {
+			indexInfo.setFields(
+					fieldsFromAttributes((List<Object>) map.getOrDefault(FIELD_ATTRIBUTES, new ArrayList<>())));
+		}
+		indexInfo.setNumDocs(getDouble(map.get("num_docs")));
+		indexInfo.setMaxDocId(getString(map.get("max_doc_id")));
+		indexInfo.setNumTerms(toLong(map, "num_terms"));
+		indexInfo.setNumRecords(toLong(map, "num_records"));
+		indexInfo.setInvertedSizeMb(getDouble(map.get("inverted_sz_mb")));
+		indexInfo.setTotalInvertedIndexBlocks(toLong(map, "total_inverted_index_blocks"));
+		indexInfo.setOffsetVectorsSizeMb(getDouble(map.get("offset_vectors_sz_mb")));
+		indexInfo.setDocTableSizeMb(getDouble(map.get("doc_table_size_mb")));
+		indexInfo.setSortableValuesSizeMb(getDouble(map.get("sortable_values_size_mb")));
+		indexInfo.setKeyTableSizeMb(getDouble(map.get("key_table_size_mb")));
+		indexInfo.setRecordsPerDocAvg(getDouble(map.get("records_per_doc_avg")));
+		indexInfo.setBytesPerRecordAvg(getDouble(map.get("bytes_per_record_avg")));
+		indexInfo.setOffsetsPerTermAvg(getDouble(map.get("offsets_per_term_avg")));
+		indexInfo.setOffsetBitsPerRecordAvg(getDouble(map.get("offset_bits_per_record_avg")));
+		indexInfo.setGcStats((List<Object>) map.get("gc_stats"));
+		indexInfo.setCursorStats((List<Object>) map.get("cursor_stats"));
+		return indexInfo;
 	}
 
 	private static Double getDouble(Object object) {
@@ -77,45 +98,65 @@ public class RedisModulesUtils {
 	}
 
 	@SuppressWarnings("unchecked")
-	private static List<Field> fields(Object object) {
+	private static List<Field> fieldsFromAttributes(List<Object> list) {
 		List<Field> fields = new ArrayList<>();
-		for (Object infoObject : (List<Object>) object) {
-			List<Object> info = (List<Object>) infoObject;
-			String name = (String) info.get(0);
-			SearchCommandKeyword type = SearchCommandKeyword.valueOf((String) info.get(2));
-			Field.Options options = fieldOptions(info.subList(3, info.size()));
-			fields.add(field(type, name, options, info));
+		for (Object object : list) {
+			List<Object> attributes = (List<Object>) object;
+			Field field = field((String) attributes.get(5), (String) attributes.get(1));
+			if (attributes.size() > 6) {
+				populateField(field, attributes.subList(6, attributes.size()));
+			}
+			fields.add(field);
 		}
 		return fields;
 	}
 
-	private static Options fieldOptions(List<Object> subList) {
-		Options options = new Options();
-		for (Object attribute : subList) {
-			if (SearchCommandKeyword.CASESENSITIVE.name().equals(attribute)) {
-				options.setCaseSensitive(true);
-			} else if (SearchCommandKeyword.NOINDEX.name().equals(attribute)) {
-				options.setNoIndex(true);
-			} else if (SearchCommandKeyword.SORTABLE.name().equals(attribute)) {
-				options.setSortable(true);
-			} else if (SearchCommandKeyword.UNF.name().equals(attribute)) {
-				options.setUnNormalizedForm(true);
+	private static void populateField(Field field, List<Object> attributes) {
+		if (field.getType() == Type.TAG) {
+			LettuceAssert.isTrue(SearchCommandKeyword.SEPARATOR.name().equals(attributes.remove(0)),
+					"Wrong attribute name");
+			TagField tagField = (TagField) field;
+			tagField.setSeparator((String) attributes.remove(0));
+			tagField.setCaseSensitive(attributes.contains(SearchCommandKeyword.CASESENSITIVE.name()));
+		} else {
+			if (field.getType() == Type.TEXT) {
+				LettuceAssert.isTrue(SearchCommandKeyword.WEIGHT.name().equals(attributes.remove(0)),
+						"Wrong attribute name");
+				TextField textField = (TextField) field;
+				Object weight = attributes.remove(0);
+				textField.setWeight(weight instanceof Double ? (Double) weight : Double.parseDouble((String) weight));
+				textField.setNoStem(attributes.contains(SearchCommandKeyword.NOSTEM.name()));
 			}
 		}
-		return options;
+		field.setNoIndex(attributes.contains(SearchCommandKeyword.NOINDEX.name()));
+		field.setSortable(attributes.contains(SearchCommandKeyword.SORTABLE.name()));
+		field.setUnNormalizedForm(attributes.contains(SearchCommandKeyword.UNF.name()));
 	}
 
-	private static Field field(SearchCommandKeyword type, String name, Field.Options options, List<Object> info) {
+	@SuppressWarnings("unchecked")
+	private static List<Field> fieldsFromFields(List<Object> list) {
+		List<Field> fields = new ArrayList<>();
+		for (Object infoObject : list) {
+			List<Object> info = (List<Object>) infoObject;
+			Field field = field((String) info.get(2), (String) info.get(0));
+			populateField(field, info.subList(3, info.size()));
+			fields.add(field);
+		}
+		return fields;
+	}
+
+	private static Field field(String type, String name) {
 		switch (type) {
-		case GEO:
-			return new Field.Geo(name, options);
-		case NUMERIC:
-			return new Field.Numeric(name, options);
-		case TAG:
-			return new Field.Tag(name, options, (String) info.get(4));
+		case "GEO":
+			return new GeoField(name);
+		case "NUMERIC":
+			return new NumericField(name);
+		case "TAG":
+			return new TagField(name);
+		case "TEXT":
+			return new TextField(name);
 		default:
-			return new Field.Text(name, options, getDouble(info.get(4)),
-					SearchCommandKeyword.NOSTEM.name().equals(info.get(info.size() - 1)));
+			throw new IllegalArgumentException("Unknown field type: " + type);
 		}
 	}
 

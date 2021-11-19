@@ -40,27 +40,27 @@ public class AggregateOptions<K, V> implements RediSearchArgument<K, V> {
 		return new AggregateOptionsBuilder<>();
 	}
 
-	public static <K, V> AggregateOptionsBuilder<K, V> apply(ApplyOperation<K, V> apply) {
+	public static <K, V> AggregateOptionsBuilder<K, V> apply(Apply<K, V> apply) {
 		return operation(apply);
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <K, V> AggregateOptionsBuilder<K, V> filter(FilterOperation<V> filter) {
+	public static <K, V> AggregateOptionsBuilder<K, V> filter(Filter<V> filter) {
 		return operation(filter);
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <K, V> AggregateOptionsBuilder<K, V> group(GroupOperation group) {
+	public static <K, V> AggregateOptionsBuilder<K, V> group(Group group) {
 		return operation(group);
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <K, V> AggregateOptionsBuilder<K, V> limit(LimitOperation limit) {
+	public static <K, V> AggregateOptionsBuilder<K, V> limit(Limit limit) {
 		return operation(limit);
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <K, V> AggregateOptionsBuilder<K, V> sort(SortOperation sort) {
+	public static <K, V> AggregateOptionsBuilder<K, V> sort(Sort sort) {
 		return operation(sort);
 	}
 
@@ -81,34 +81,34 @@ public class AggregateOptions<K, V> implements RediSearchArgument<K, V> {
 			operations.add(operation);
 		}
 
-		public AggregateOptionsBuilder<K, V> apply(ApplyOperation<K, V> apply) {
+		public AggregateOptionsBuilder<K, V> apply(Apply<K, V> apply) {
 			this.operations.add(apply);
 			return this;
 		}
 
 		@SuppressWarnings("unchecked")
-		public AggregateOptionsBuilder<K, V> filter(FilterOperation<V> filter) {
+		public AggregateOptionsBuilder<K, V> filter(Filter<V> filter) {
 			this.operations.add(filter);
 			return this;
 
 		}
 
 		@SuppressWarnings("unchecked")
-		public AggregateOptionsBuilder<K, V> group(GroupOperation group) {
+		public AggregateOptionsBuilder<K, V> group(Group group) {
 			this.operations.add(group);
 			return this;
 
 		}
 
 		@SuppressWarnings("unchecked")
-		public AggregateOptionsBuilder<K, V> limit(LimitOperation limit) {
+		public AggregateOptionsBuilder<K, V> limit(Limit limit) {
 			this.operations.add(limit);
 			return this;
 
 		}
 
 		@SuppressWarnings("unchecked")
-		public AggregateOptionsBuilder<K, V> sort(SortOperation sort) {
+		public AggregateOptionsBuilder<K, V> sort(Sort sort) {
 			this.operations.add(sort);
 			return this;
 

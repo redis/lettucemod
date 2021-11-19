@@ -15,6 +15,7 @@ import com.redis.lettucemod.api.async.RedisModulesAsyncCommands;
 import com.redis.lettucemod.api.sync.RedisModulesCommands;
 import com.redis.lettucemod.search.CreateOptions;
 import com.redis.lettucemod.search.Field;
+import com.redis.lettucemod.search.Field.TextField.PhoneticMatcher;
 
 import io.lettuce.core.LettuceFutures;
 import io.lettuce.core.RedisFuture;
@@ -31,7 +32,7 @@ public class Beers {
 	public static final Field FIELD_NAME = Field.text("name").sortable().build();
 	public static final Field FIELD_ABV = Field.numeric("abv").sortable().build();
 	public static final Field FIELD_IBU = Field.numeric("ibu").sortable().build();
-	public static final Field FIELD_DESCRIPTION = Field.text("descript").build();
+	public static final Field FIELD_DESCRIPTION = Field.text("descript").matcher(PhoneticMatcher.ENGLISH).noStem().build();
 	public static final Field FIELD_STYLE_NAME = Field.tag("style_name").sortable().build();
 	public static final Field FIELD_CATEGORY_NAME = Field.tag("cat_name").sortable().build();
 	public static final Field[] SCHEMA = new Field[] { FIELD_ID, FIELD_NAME, FIELD_STYLE_NAME, FIELD_CATEGORY_NAME,

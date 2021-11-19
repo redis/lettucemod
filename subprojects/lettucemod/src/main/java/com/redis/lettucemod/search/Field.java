@@ -2,6 +2,10 @@ package com.redis.lettucemod.search;
 
 import com.redis.lettucemod.protocol.SearchCommandArgs;
 import com.redis.lettucemod.protocol.SearchCommandKeyword;
+import com.redis.lettucemod.search.Field.GeoField.GeoFieldBuilder;
+import com.redis.lettucemod.search.Field.NumericField.NumericFieldBuilder;
+import com.redis.lettucemod.search.Field.TagField.TagFieldBuilder;
+import com.redis.lettucemod.search.Field.TextField.TextFieldBuilder;
 
 import io.lettuce.core.internal.LettuceAssert;
 
@@ -10,15 +14,16 @@ public abstract class Field implements RediSearchArgument {
 
 	private final Type type;
 	private final String name;
-	private final Options options;
+	private String as;
+	private boolean sortable;
+	private boolean unNormalizedForm;
+	private boolean noIndex;
 
-	protected Field(Type type, String name, Options options) {
+	protected Field(Type type, String name) {
 		LettuceAssert.notNull(type, "A type is required");
 		LettuceAssert.notNull(name, "A name is required");
-		LettuceAssert.notNull(options, "Options are required");
 		this.type = type;
 		this.name = name;
-		this.options = options;
 	}
 
 	public Type getType() {
@@ -29,28 +34,53 @@ public abstract class Field implements RediSearchArgument {
 		return name;
 	}
 
-	public Options getOptions() {
-		return options;
+	public String getAs() {
+		return as;
+	}
+
+	public void setAs(String as) {
+		this.as = as;
+	}
+
+	public boolean isSortable() {
+		return sortable;
+	}
+
+	public void setSortable(boolean sortable) {
+		this.sortable = sortable;
+	}
+
+	public boolean isUnNormalizedForm() {
+		return unNormalizedForm;
+	}
+
+	public void setUnNormalizedForm(boolean unNormalizedForm) {
+		this.unNormalizedForm = unNormalizedForm;
+	}
+
+	public boolean isNoIndex() {
+		return noIndex;
+	}
+
+	public void setNoIndex(boolean noIndex) {
+		this.noIndex = noIndex;
 	}
 
 	@Override
 	public void build(SearchCommandArgs args) {
 		args.add(name);
-		if (options.getAs() != null) {
+		if (as != null) {
 			args.add(SearchCommandKeyword.AS);
-			args.add(options.getAs());
+			args.add(as);
 		}
 		buildField(args);
-		if (options.isCaseSensitive()) {
-			args.add(SearchCommandKeyword.CASESENSITIVE);
-		}
-		if (options.isSortable()) {
+		if (sortable) {
 			args.add(SearchCommandKeyword.SORTABLE);
-			if (options.isUnNormalizedForm()) {
+			if (unNormalizedForm) {
 				args.add(SearchCommandKeyword.UNF);
 			}
 		}
-		if (options.isNoIndex()) {
+		if (noIndex) {
 			args.add(SearchCommandKeyword.NOINDEX);
 		}
 	}
@@ -61,68 +91,69 @@ public abstract class Field implements RediSearchArgument {
 	protected abstract static class FieldBuilder<F extends Field, B extends FieldBuilder<F, B>> {
 
 		protected final String name;
-		protected Options options = Options.builder().build();
+		private String as;
+		private boolean sortable;
+		private boolean unNormalizedForm;
+		private boolean noIndex;
 
 		protected FieldBuilder(String name) {
 			this.name = name;
 		}
 
-		public B options(Options options) {
-			LettuceAssert.notNull(options, "Options must not be null");
-			this.options = options;
+		public B as(String as) {
+			this.as = as;
 			return (B) this;
 		}
 
 		public B sortable() {
-			options.setSortable(true);
+			this.sortable = true;
 			return (B) this;
 		}
 
-		public B sortableUNF() {
-			options.setSortable(true);
-			options.setUnNormalizedForm(true);
+		public B unNormalizedForm() {
+			this.sortable = true;
+			this.unNormalizedForm = true;
 			return (B) this;
 		}
 
 		public B noIndex() {
-			options.setNoIndex(true);
+			this.noIndex = true;
 			return (B) this;
 		}
 
-		public B caseSensitive() {
-			options.setCaseSensitive(true);
-			return (B) this;
+		public abstract F newField();
+
+		public F build() {
+			F field = newField();
+			field.setAs(as);
+			field.setSortable(sortable);
+			field.setUnNormalizedForm(unNormalizedForm);
+			field.setNoIndex(noIndex);
+			return field;
 		}
 
-		public B as(String attribute) {
-			options.setAs(attribute);
-			return (B) this;
-		}
-
-		public abstract F build();
-
 	}
 
-	public static Text.TextFieldBuilder text(String name) {
-		return Text.builder(name);
+	public static TextFieldBuilder text(String name) {
+		return TextField.builder(name);
 	}
 
-	public static Geo.GeoFieldBuilder geo(String name) {
-		return Geo.builder(name);
+	public static GeoFieldBuilder geo(String name) {
+		return GeoField.builder(name);
 	}
 
-	public static Tag.TagFieldBuilder tag(String name) {
-		return Tag.builder(name);
+	public static TagFieldBuilder tag(String name) {
+		return TagField.builder(name);
 	}
 
-	public static Numeric.NumericFieldBuilder numeric(String name) {
-		return Numeric.builder(name);
+	public static NumericFieldBuilder numeric(String name) {
+		return NumericField.builder(name);
 	}
 
-	public static class Geo extends Field {
+	public static class GeoField extends Field {
 
-		public Geo(String name, Options options) {
-			super(Type.GEO, name, options);
+		public GeoField(String name) {
+			super(Type.GEO, name);
 		}
 
 		@Override
@@ -134,23 +165,24 @@ public abstract class Field implements RediSearchArgument {
 			return new GeoFieldBuilder(name);
 		}
 
-		public static class GeoFieldBuilder extends FieldBuilder<Geo, GeoFieldBuilder> {
+		public static class GeoFieldBuilder extends FieldBuilder<GeoField, GeoFieldBuilder> {
 
 			public GeoFieldBuilder(String name) {
 				super(name);
 			}
 
 			@Override
-			public Geo build() {
-				return new Geo(name, options);
+			public GeoField newField() {
+				return new GeoField(name);
 			}
+
 		}
 	}
 
-	public static class Numeric extends Field {
+	public static class NumericField extends Field {
 
-		public Numeric(String name, Options options) {
-			super(Type.NUMERIC, name, options);
+		public NumericField(String name) {
+			super(Type.NUMERIC, name);
 		}
 
 		@Override
@@ -162,31 +194,43 @@ public abstract class Field implements RediSearchArgument {
 			return new NumericFieldBuilder(name);
 		}
 
-		public static class NumericFieldBuilder extends FieldBuilder<Numeric, NumericFieldBuilder> {
+		public static class NumericFieldBuilder extends FieldBuilder<NumericField, NumericFieldBuilder> {
 
 			public NumericFieldBuilder(String name) {
 				super(name);
 			}
 
 			@Override
-			public Numeric build() {
-				return new Numeric(name, options);
+			public NumericField newField() {
+				return new NumericField(name);
 			}
 
 		}
 	}
 
-	public static class Tag extends Field {
+	public static class TagField extends Field {
 
-		private final String separator;
+		private String separator;
+		private boolean caseSensitive;
 
-		public Tag(String name, Options options, String separator) {
-			super(Type.TAG, name, options);
-			this.separator = separator;
+		public TagField(String name) {
+			super(Type.TAG, name);
 		}
 
 		public String getSeparator() {
 			return separator;
+		}
+
+		public void setSeparator(String separator) {
+			this.separator = separator;
+		}
+
+		public boolean isCaseSensitive() {
+			return caseSensitive;
+		}
+
+		public void setCaseSensitive(boolean caseSensitive) {
+			this.caseSensitive = caseSensitive;
 		}
 
 		@Override
@@ -196,60 +240,78 @@ public abstract class Field implements RediSearchArgument {
 				args.add(SearchCommandKeyword.SEPARATOR);
 				args.add(separator);
 			}
+			if (caseSensitive) {
+				args.add(SearchCommandKeyword.CASESENSITIVE);
+			}
+
 		}
 
 		public static TagFieldBuilder builder(String name) {
 			return new TagFieldBuilder(name);
 		}
 
-		public static class TagFieldBuilder extends FieldBuilder<Tag, TagFieldBuilder> {
+		public static class TagFieldBuilder extends FieldBuilder<TagField, TagFieldBuilder> {
 
 			private String separator;
+			private boolean caseSensitive;
 
 			public TagFieldBuilder(String name) {
 				super(name);
 			}
 
-			public Field.Tag.TagFieldBuilder separator(String separator) {
+			public TagFieldBuilder separator(String separator) {
 				this.separator = separator;
 				return this;
 			}
 
+			public TagFieldBuilder caseSensitive() {
+				this.caseSensitive = true;
+				return this;
+			}
+
 			@Override
-			public Tag build() {
-				return new Tag(name, options, separator);
+			public TagField newField() {
+				TagField field = new TagField(name);
+				field.setSeparator(separator);
+				field.setCaseSensitive(caseSensitive);
+				return field;
 			}
 
 		}
 	}
 
-	public static class Text extends Field {
+	public static class TextField extends Field {
 
-		private final Double weight;
-		private final boolean noStem;
-		private final PhoneticMatcher matcher;
+		private Double weight;
+		private boolean noStem;
+		private PhoneticMatcher matcher;
 
-		public Text(String name, Options options, Double weight, boolean noStem) {
-			this(name, options, weight, noStem, null);
-		}
-
-		public Text(String name, Options options, Double weight, boolean noStem, PhoneticMatcher matcher) {
-			super(Type.TEXT, name, options);
-			this.weight = weight;
-			this.noStem = noStem;
-			this.matcher = matcher;
+		public TextField(String name) {
+			super(Type.TEXT, name);
 		}
 
 		public Double getWeight() {
 			return weight;
 		}
 
+		public void setWeight(Double weight) {
+			this.weight = weight;
+		}
+
 		public boolean isNoStem() {
 			return noStem;
 		}
 
+		public void setNoStem(boolean noStem) {
+			this.noStem = noStem;
+		}
+
 		public PhoneticMatcher getMatcher() {
 			return matcher;
+		}
+
+		public void setMatcher(PhoneticMatcher matcher) {
+			this.matcher = matcher;
 		}
 
 		@Override
@@ -272,34 +334,38 @@ public abstract class Field implements RediSearchArgument {
 			return new TextFieldBuilder(name);
 		}
 
-		public static class TextFieldBuilder extends FieldBuilder<Text, TextFieldBuilder> {
+		public static class TextFieldBuilder extends FieldBuilder<TextField, TextFieldBuilder> {
 
-			private Double weight;
 			private boolean noStem;
+			private Double weight;
 			private PhoneticMatcher matcher;
 
 			public TextFieldBuilder(String name) {
 				super(name);
 			}
 
-			public Field.Text.TextFieldBuilder weight(double weight) {
+			public TextFieldBuilder noStem() {
+				this.noStem = true;
+				return this;
+			}
+
+			public TextFieldBuilder weight(double weight) {
 				this.weight = weight;
 				return this;
 			}
 
-			public Field.Text.TextFieldBuilder noStem(boolean noStem) {
-				this.noStem = noStem;
-				return this;
-			}
-
-			public Field.Text.TextFieldBuilder matcher(PhoneticMatcher matcher) {
+			public TextFieldBuilder matcher(PhoneticMatcher matcher) {
 				this.matcher = matcher;
 				return this;
 			}
 
 			@Override
-			public Text build() {
-				return new Text(name, options, weight, noStem, matcher);
+			public TextField newField() {
+				TextField field = new TextField(name);
+				field.setNoStem(noStem);
+				field.setWeight(weight);
+				field.setMatcher(matcher);
+				return field;
 			}
 
 		}
@@ -322,112 +388,6 @@ public abstract class Field implements RediSearchArgument {
 
 	public enum Type {
 		TEXT, NUMERIC, GEO, TAG
-	}
-
-	public static class Options {
-
-		private String as;
-		private boolean caseSensitive;
-		private boolean sortable;
-		private boolean unNormalizedForm;
-		private boolean noIndex;
-		
-		public Options() {
-		}
-
-		private Options(Builder builder) {
-			this.as = builder.as;
-			this.caseSensitive = builder.caseSensitive;
-			this.sortable = builder.sortable;
-			this.unNormalizedForm = builder.unNormalizedForm;
-			this.noIndex = builder.noIndex;
-		}
-
-		public String getAs() {
-			return as;
-		}
-
-		public void setAs(String as) {
-			this.as = as;
-		}
-
-		public boolean isCaseSensitive() {
-			return caseSensitive;
-		}
-
-		public void setCaseSensitive(boolean caseSensitive) {
-			this.caseSensitive = caseSensitive;
-		}
-
-		public boolean isSortable() {
-			return sortable;
-		}
-
-		public void setSortable(boolean sortable) {
-			this.sortable = sortable;
-		}
-
-		public boolean isUnNormalizedForm() {
-			return unNormalizedForm;
-		}
-
-		public void setUnNormalizedForm(boolean unNormalizedForm) {
-			this.unNormalizedForm = unNormalizedForm;
-		}
-
-		public boolean isNoIndex() {
-			return noIndex;
-		}
-
-		public void setNoIndex(boolean noIndex) {
-			this.noIndex = noIndex;
-		}
-
-		public static Builder builder() {
-			return new Builder();
-		}
-
-		public static final class Builder {
-
-			private String as;
-			private boolean caseSensitive;
-			private boolean sortable;
-			private boolean unNormalizedForm;
-			private boolean noIndex;
-
-			private Builder() {
-			}
-
-			public Builder as(String as) {
-				this.as = as;
-				return this;
-			}
-
-			public Builder caseSensitive(boolean caseSensitive) {
-				this.caseSensitive = caseSensitive;
-				return this;
-			}
-
-			public Builder sortable(boolean sortable) {
-				this.sortable = sortable;
-				return this;
-			}
-
-			public Builder unNormalizedForm(boolean unNormalizedForm) {
-				this.unNormalizedForm = unNormalizedForm;
-				return this;
-			}
-
-			public Builder noIndex(boolean noIndex) {
-				this.noIndex = noIndex;
-				return this;
-			}
-
-			public Options build() {
-				return new Options(this);
-			}
-		}
-
 	}
 
 }

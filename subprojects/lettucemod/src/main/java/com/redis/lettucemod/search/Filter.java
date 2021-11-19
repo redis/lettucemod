@@ -4,16 +4,16 @@ import com.redis.lettucemod.protocol.SearchCommandArgs;
 import com.redis.lettucemod.protocol.SearchCommandKeyword;
 
 @SuppressWarnings("rawtypes")
-public class FilterOperation<V> implements AggregateOperation {
+public class Filter<V> implements AggregateOperation {
 
 	private final V expression;
 
-	public FilterOperation(V expression) {
+	public Filter(V expression) {
 		this.expression = expression;
 	}
 
-	public static <V> FilterOperation<V> expression(V expression) {
-		return new FilterOperation<>(expression);
+	public static <V> Filter<V> expression(V expression) {
+		return new Filter<>(expression);
 	}
 
 	@SuppressWarnings("unchecked")

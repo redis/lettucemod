@@ -4,12 +4,12 @@ import com.redis.lettucemod.protocol.SearchCommandArgs;
 import com.redis.lettucemod.protocol.SearchCommandKeyword;
 
 @SuppressWarnings("rawtypes")
-public class LimitOperation implements AggregateOperation {
+public class Limit implements AggregateOperation {
 
 	private final long offset;
 	private final long num;
 
-	public LimitOperation(long offset, long num) {
+	public Limit(long offset, long num) {
 		this.offset = offset;
 		this.num = num;
 	}
@@ -30,7 +30,7 @@ public class LimitOperation implements AggregateOperation {
 	}
 
 	public interface INumStage {
-		public LimitOperation num(long num);
+		public Limit num(long num);
 	}
 
 	public static final class Builder implements IOffsetStage, INumStage {
@@ -46,8 +46,8 @@ public class LimitOperation implements AggregateOperation {
 		}
 
 		@Override
-		public LimitOperation num(long num) {
-			return new LimitOperation(offset, num);
+		public Limit num(long num) {
+			return new Limit(offset, num);
 		}
 
 	}

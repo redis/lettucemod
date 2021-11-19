@@ -25,8 +25,8 @@ import com.redis.lettucemod.cluster.api.StatefulRedisModulesClusterConnection;
 import com.redis.lettucemod.cluster.api.sync.RedisModulesAdvancedClusterCommands;
 import com.redis.lettucemod.search.AggregateOptions;
 import com.redis.lettucemod.search.Field;
-import com.redis.lettucemod.search.FilterOperation;
-import com.redis.lettucemod.search.GroupOperation;
+import com.redis.lettucemod.search.Filter;
+import com.redis.lettucemod.search.Group;
 import com.redis.lettucemod.search.SearchResults;
 
 import io.lettuce.core.LettuceFutures;
@@ -177,7 +177,7 @@ try (StatefulRedisModulesConnection<String, String> connection = pool.borrowObje
 
 	public void warnings() {
 		AggregateOptions.AggregateOptionsBuilder<String, String> optionsBuilder = AggregateOptions
-				.<String, String>filter(new FilterOperation<>("foo")).group(GroupOperation.property("bar").build());
+				.<String, String>filter(new Filter<>("foo")).group(Group.by("bar").build());
 	}
 
 	public void cluster() {

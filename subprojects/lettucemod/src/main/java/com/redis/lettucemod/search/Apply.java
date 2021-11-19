@@ -3,12 +3,12 @@ package com.redis.lettucemod.search;
 import com.redis.lettucemod.protocol.SearchCommandArgs;
 import com.redis.lettucemod.protocol.SearchCommandKeyword;
 
-public class ApplyOperation<K, V> implements AggregateOperation<K, V> {
+public class Apply<K, V> implements AggregateOperation<K, V> {
 
 	private final V expression;
 	private final K as;
 
-	public ApplyOperation(V expression, K as) {
+	public Apply(V expression, K as) {
 		this.expression = expression;
 		this.as = as;
 	}
@@ -33,8 +33,8 @@ public class ApplyOperation<K, V> implements AggregateOperation<K, V> {
 			this.expression = expression;
 		}
 
-		public ApplyOperation<K, V> as(K as) {
-			return new ApplyOperation<>(expression, as);
+		public Apply<K, V> as(K as) {
+			return new Apply<>(expression, as);
 		}
 	}
 

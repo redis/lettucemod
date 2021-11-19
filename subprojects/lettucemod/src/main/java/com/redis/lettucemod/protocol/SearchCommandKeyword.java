@@ -14,7 +14,7 @@ public enum SearchCommandKeyword implements ProtocolKeyword {
     MAXIDLE, READ, DEL, ON, PREFIX, LANGUAGE_FIELD, SCORE, SCORE_FIELD, PAYLOAD_FIELD, NOINITIALSCAN, GEOFILTER,
     EXPANDER, SCORER, FRAGS, LEN, SUMMARIZE, SLOP, INORDER, CASESENSITIVE, UNF;
 
-    public final byte[] bytes;
+    final byte[] bytes;
 
     SearchCommandKeyword() {
         bytes = name().getBytes(StandardCharsets.US_ASCII);

@@ -25,6 +25,9 @@ public class IndexInfo {
 	private List<Object> gcStats;
 	private List<Object> cursorStats;
 
+	public IndexInfo() {
+	}
+
 	private IndexInfo(Builder builder) {
 		this.indexName = builder.indexName;
 		this.numDocs = builder.numDocs;

@@ -10,12 +10,12 @@ import com.redis.lettucemod.protocol.SearchCommandKeyword;
 import io.lettuce.core.internal.LettuceAssert;
 
 @SuppressWarnings("rawtypes")
-public class SortOperation implements AggregateOperation {
+public class Sort implements AggregateOperation {
 
 	private final Property[] properties;
 	private final Long max;
 
-	public SortOperation(Property[] properties, Long max) {
+	public Sort(Property[] properties, Long max) {
 		LettuceAssert.notEmpty(properties, "At least one property is required");
 		LettuceAssert.noNullElements(properties, "Properties must not be null");
 		this.properties = properties;
@@ -35,34 +35,30 @@ public class SortOperation implements AggregateOperation {
 		}
 	}
 
-	public static SortByBuilder property(Property property) {
-		return properties(property);
+	public static SortBuilder by(Property... properties) {
+		return new SortBuilder(properties);
 	}
 
-	public static SortByBuilder properties(Property... properties) {
-		return new SortByBuilder(properties);
-	}
-
-	public static class SortByBuilder {
+	public static class SortBuilder {
 
 		private final List<Property> properties = new ArrayList<>();
 		private Long max;
 
-		public SortByBuilder(Property... properties) {
+		public SortBuilder(Property... properties) {
 			Collections.addAll(this.properties, properties);
 		}
 
-		public SortByBuilder property(Property property) {
-			return properties(property);
+		public SortBuilder by(Property property) {
+			return by(property);
 		}
 
-		public SortByBuilder max(long max) {
+		public SortBuilder max(long max) {
 			this.max = max;
 			return this;
 		}
 
-		public SortOperation build() {
-			return new SortOperation(properties.toArray(new Property[0]), max);
+		public Sort build() {
+			return new Sort(properties.toArray(new Property[0]), max);
 		}
 
 	}
