@@ -1,10 +1,6 @@
 dependencies {
     api group: 'io.lettuce', name: 'lettuce-core', version: lettuceVersion
-    compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
     testImplementation 'org.apache.commons:commons-pool2'
-    testImplementation 'org.junit.jupiter:junit-jupiter-api'
-    testImplementation 'org.junit.jupiter:junit-jupiter-engine'
-    testImplementation 'org.junit.jupiter:junit-jupiter-params'
     testImplementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-csv'
     testImplementation(group: 'com.redis.testcontainers', name: 'testcontainers-redis-junit-jupiter', version: testcontainersRedisVersion) {
         exclude group: 'com.redis', module: 'lettucemod'
