@@ -1,5 +1,7 @@
 package com.redis.lettucemod.timeseries;
 
+import java.util.Objects;
+
 public class Sample {
 
 	private long timestamp;
@@ -32,5 +34,24 @@ public class Sample {
 	public static Sample of(long timestamp, double value) {
 		return new Sample(timestamp, value);
 	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(timestamp, value);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Sample other = (Sample) obj;
+		return timestamp == other.timestamp && Double.doubleToLongBits(value) == Double.doubleToLongBits(other.value);
+	}
+	
+	
 
 }

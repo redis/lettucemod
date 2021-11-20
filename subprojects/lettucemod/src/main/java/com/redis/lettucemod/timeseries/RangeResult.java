@@ -2,6 +2,7 @@ package com.redis.lettucemod.timeseries;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class RangeResult<K, V> {
 
@@ -31,6 +32,25 @@ public class RangeResult<K, V> {
 
 	public void setSamples(List<Sample> samples) {
 		this.samples = samples;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(key, labels, samples);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		RangeResult<K, V> other = (RangeResult<K, V>) obj;
+		return Objects.equals(key, other.key) && Objects.equals(labels, other.labels)
+				&& Objects.equals(samples, other.samples);
 	}
 
 }
