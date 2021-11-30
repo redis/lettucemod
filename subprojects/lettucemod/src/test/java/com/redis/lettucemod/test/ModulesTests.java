@@ -43,6 +43,7 @@ import com.redis.lettucemod.api.sync.RedisGearsCommands;
 import com.redis.lettucemod.api.sync.RedisJSONCommands;
 import com.redis.lettucemod.api.sync.RedisModulesCommands;
 import com.redis.lettucemod.api.sync.RedisTimeSeriesCommands;
+import com.redis.lettucemod.cluster.RedisModulesClusterClient;
 import com.redis.lettucemod.gears.Execution;
 import com.redis.lettucemod.gears.ExecutionDetails;
 import com.redis.lettucemod.gears.Registration;
@@ -76,6 +77,8 @@ import com.redis.lettucemod.timeseries.Aggregation;
 import com.redis.lettucemod.timeseries.RangeOptions;
 import com.redis.lettucemod.timeseries.RangeResult;
 import com.redis.lettucemod.timeseries.Sample;
+import com.redis.testcontainers.RedisEnterpriseContainer;
+import com.redis.testcontainers.RedisEnterpriseContainer.RedisModule;
 import com.redis.testcontainers.RedisModulesContainer;
 import com.redis.testcontainers.RedisServer;
 import com.redis.testcontainers.junit.jupiter.AbstractTestcontainersRedisTestBase;
@@ -98,14 +101,14 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 	@Container
 	protected static final RedisModulesContainer REDISMOD = new RedisModulesContainer();
 
-//	@Container
-//	protected static final RedisEnterpriseContainer REDIS_ENTERPRISE = new RedisEnterpriseContainer()
-//			.withModules(RedisModule.GEARS, RedisModule.SEARCH, RedisModule.TIMESERIES, RedisModule.JSON)
-//			.withOSSCluster();
+	@Container
+	protected static final RedisEnterpriseContainer REDIS_ENTERPRISE = new RedisEnterpriseContainer()
+			.withModules(RedisModule.GEARS, RedisModule.SEARCH, RedisModule.TIMESERIES, RedisModule.JSON)
+			.withOSSCluster();
 
 	@Override
 	protected Collection<RedisServer> servers() {
-		return Arrays.asList(REDISMOD);// , REDIS_ENTERPRISE);
+		return Arrays.asList(REDISMOD, REDIS_ENTERPRISE);
 	}
 
 	protected static Map<String, String> mapOf(String... keyValues) {
@@ -143,13 +146,13 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 		ping(RedisModulesClient.create().connect(StringCodec.UTF8, RedisURI.create(REDISMOD.getRedisURI())));
 	}
 
-//	@Test
-//	void clusterClient() {
-//		ping(RedisModulesClusterClient.create(REDIS_ENTERPRISE.getRedisURI()).connect());
-//		ping(RedisModulesClusterClient
-//				.create(DefaultClientResources.create(), RedisURI.create(REDIS_ENTERPRISE.getRedisURI())).connect());
-//		ping(RedisModulesClusterClient.create(REDIS_ENTERPRISE.getRedisURI()).connect(StringCodec.UTF8));
-//	}
+	@Test
+	void clusterClient() {
+		ping(RedisModulesClusterClient.create(REDIS_ENTERPRISE.getRedisURI()).connect());
+		ping(RedisModulesClusterClient
+				.create(DefaultClientResources.create(), RedisURI.create(REDIS_ENTERPRISE.getRedisURI())).connect());
+		ping(RedisModulesClusterClient.create(REDIS_ENTERPRISE.getRedisURI()).connect(StringCodec.UTF8));
+	}
 
 	private void ping(StatefulRedisModulesConnection<String, String> connection) {
 		assertEquals("PONG", connection.reactive().ping().block());
@@ -841,14 +844,15 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 		assertJSONEquals("{\".name\":\"Leonard Cohen\",\".loggedOut\": true}", result);
 	}
 
-	@ParameterizedTest
-	@RedisTestContextsSource
-	void jsonGetJSONPath(RedisTestContext context) throws JsonProcessingException {
-		String json = "{\"a\":2, \"b\": 3, \"nested\": {\"a\": 4, \"b\": null}}";
-		RedisModulesCommands<String, String> sync = context.sync();
-		sync.jsonSet("doc", "$", json);
-		assertEquals("[3,null]", sync.jsonGet("doc", "$..b"));
-		assertJSONEquals("{\"$..b\":[3,null],\"..a\":[2,4]}", sync.jsonGet("doc", "..a", "$..b"));
+	@Test
+	void jsonGetJSONPath() throws JsonProcessingException {
+		try (RedisTestContext redisMod = new RedisTestContext(REDISMOD)) {
+			String json = "{\"a\":2, \"b\": 3, \"nested\": {\"a\": 4, \"b\": null}}";
+			RedisModulesCommands<String, String> sync = redisMod.sync();
+			sync.jsonSet("doc", "$", json);
+			assertEquals("[3,null]", sync.jsonGet("doc", "$..b"));
+			assertJSONEquals("{\"$..b\":[3,null],\"..a\":[2,4]}", sync.jsonGet("doc", "..a", "$..b"));
+		}
 	}
 
 	@ParameterizedTest
