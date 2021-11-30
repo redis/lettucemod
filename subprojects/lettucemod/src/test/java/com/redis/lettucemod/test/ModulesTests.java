@@ -25,6 +25,8 @@ import org.awaitility.Awaitility;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testcontainers.junit.jupiter.Container;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -41,7 +43,6 @@ import com.redis.lettucemod.api.sync.RedisGearsCommands;
 import com.redis.lettucemod.api.sync.RedisJSONCommands;
 import com.redis.lettucemod.api.sync.RedisModulesCommands;
 import com.redis.lettucemod.api.sync.RedisTimeSeriesCommands;
-import com.redis.lettucemod.cluster.RedisModulesClusterClient;
 import com.redis.lettucemod.gears.Execution;
 import com.redis.lettucemod.gears.ExecutionDetails;
 import com.redis.lettucemod.gears.Registration;
@@ -75,8 +76,6 @@ import com.redis.lettucemod.timeseries.Aggregation;
 import com.redis.lettucemod.timeseries.RangeOptions;
 import com.redis.lettucemod.timeseries.RangeResult;
 import com.redis.lettucemod.timeseries.Sample;
-import com.redis.testcontainers.RedisEnterpriseContainer;
-import com.redis.testcontainers.RedisEnterpriseContainer.RedisModule;
 import com.redis.testcontainers.RedisModulesContainer;
 import com.redis.testcontainers.RedisServer;
 import com.redis.testcontainers.junit.jupiter.AbstractTestcontainersRedisTestBase;
@@ -94,29 +93,19 @@ import reactor.core.publisher.Mono;
 
 class ModulesTests extends AbstractTestcontainersRedisTestBase {
 
+	private static final Logger log = LoggerFactory.getLogger(ModulesTests.class);
+
 	@Container
 	protected static final RedisModulesContainer REDISMOD = new RedisModulesContainer();
 
-	@Container
-	protected static final RedisEnterpriseContainer REDIS_ENTERPRISE = new RedisEnterpriseContainer()
-			.withModules(RedisModule.GEARS, RedisModule.SEARCH, RedisModule.TIMESERIES, RedisModule.JSON)
-			.withOSSCluster();
+//	@Container
+//	protected static final RedisEnterpriseContainer REDIS_ENTERPRISE = new RedisEnterpriseContainer()
+//			.withModules(RedisModule.GEARS, RedisModule.SEARCH, RedisModule.TIMESERIES, RedisModule.JSON)
+//			.withOSSCluster();
 
 	@Override
 	protected Collection<RedisServer> servers() {
-		return Arrays.asList(REDISMOD, REDIS_ENTERPRISE);
-	}
-
-	@Test
-	void client() {
-		assertPing(RedisModulesClusterClient.create(REDIS_ENTERPRISE.getRedisURI()).connect());
-		assertPing(RedisModulesClusterClient
-				.create(DefaultClientResources.create(), RedisURI.create(REDIS_ENTERPRISE.getRedisURI())).connect());
-		assertPing(RedisModulesClusterClient.create(REDIS_ENTERPRISE.getRedisURI()).connect(StringCodec.UTF8));
-	}
-
-	private void assertPing(StatefulRedisModulesConnection<String, String> connection) {
-		Assertions.assertEquals("PONG", connection.reactive().ping().block());
+		return Arrays.asList(REDISMOD);// , REDIS_ENTERPRISE);
 	}
 
 	protected static Map<String, String> mapOf(String... keyValues) {
@@ -144,56 +133,64 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 	}
 
 	@Test
-	void testCreate() {
-		testPing(RedisModulesClient.create().connect(RedisURI.create(REDISMOD.getRedisURI())));
-		testPing(RedisModulesClient.create(DefaultClientResources.create())
+	void client() {
+		ping(RedisModulesClient.create().connect(RedisURI.create(REDISMOD.getRedisURI())));
+		ping(RedisModulesClient.create(DefaultClientResources.create())
 				.connect(RedisURI.create(REDISMOD.getRedisURI())));
-		testPing(RedisModulesClient.create(DefaultClientResources.create(), REDISMOD.getRedisURI()).connect());
-		testPing(RedisModulesClient.create(DefaultClientResources.create(), RedisURI.create(REDISMOD.getRedisURI()))
+		ping(RedisModulesClient.create(DefaultClientResources.create(), REDISMOD.getRedisURI()).connect());
+		ping(RedisModulesClient.create(DefaultClientResources.create(), RedisURI.create(REDISMOD.getRedisURI()))
 				.connect());
-		testPing(RedisModulesClient.create().connect(StringCodec.UTF8, RedisURI.create(REDISMOD.getRedisURI())));
+		ping(RedisModulesClient.create().connect(StringCodec.UTF8, RedisURI.create(REDISMOD.getRedisURI())));
 	}
 
-	private void testPing(StatefulRedisModulesConnection<String, String> connection) {
-		Assertions.assertEquals("PONG", connection.reactive().ping().block());
+//	@Test
+//	void clusterClient() {
+//		ping(RedisModulesClusterClient.create(REDIS_ENTERPRISE.getRedisURI()).connect());
+//		ping(RedisModulesClusterClient
+//				.create(DefaultClientResources.create(), RedisURI.create(REDIS_ENTERPRISE.getRedisURI())).connect());
+//		ping(RedisModulesClusterClient.create(REDIS_ENTERPRISE.getRedisURI()).connect(StringCodec.UTF8));
+//	}
+
+	private void ping(StatefulRedisModulesConnection<String, String> connection) {
+		assertEquals("PONG", connection.reactive().ping().block());
 	}
 
 	@ParameterizedTest
 	@RedisTestContextsSource
-	void sugaddIncr(RedisTestContext context) {
+	void ftSugaddIncr(RedisTestContext context) {
 		RedisModulesCommands<String, String> sync = context.sync();
 		String key = "testSugadd";
 		sync.sugadd(key, "value1", 1);
 		sync.sugaddIncr(key, "value1", 1);
 		List<Suggestion<String>> suggestions = sync.sugget(key, "value",
 				SuggetOptions.builder().withScores(true).build());
-		Assertions.assertEquals(1, suggestions.size());
-		Assertions.assertEquals(1.4142135381698608, suggestions.get(0).getScore());
+		assertEquals(1, suggestions.size());
+		assertEquals(1.4142135381698608, suggestions.get(0).getScore());
 	}
 
 	@ParameterizedTest
 	@RedisTestContextsSource
-	void sugaddPayload(RedisTestContext context) {
+	void ftSugaddPayload(RedisTestContext context) {
 		RedisModulesCommands<String, String> sync = context.sync();
 		String key = "testSugadd";
 		sync.sugadd(key, "value1", 1, "somepayload");
 		List<Suggestion<String>> suggestions = sync.sugget(key, "value",
 				SuggetOptions.builder().withPayloads(true).build());
-		Assertions.assertEquals(1, suggestions.size());
-		Assertions.assertEquals("somepayload", suggestions.get(0).getPayload());
+		assertEquals(1, suggestions.size());
+		assertEquals("somepayload", suggestions.get(0).getPayload());
 	}
 
 	@ParameterizedTest
 	@RedisTestContextsSource
-	void sugaddScorePayload(RedisTestContext context) {
+	void ftSugaddScorePayload(RedisTestContext context) {
 		RedisModulesCommands<String, String> sync = context.sync();
 		String key = "testSugadd";
 		sync.sugadd(key, "value1", 2, "somepayload");
 		List<Suggestion<String>> suggestions = sync.sugget(key, "value",
 				SuggetOptions.builder().withScores(true).withPayloads(true).build());
-		Assertions.assertEquals(1, suggestions.size());
-		Assertions.assertEquals(1.4142135381698608, suggestions.get(0).getScore());
-		Assertions.assertEquals("somepayload", suggestions.get(0).getPayload());
+		assertEquals(1, suggestions.size());
+		assertEquals(1.4142135381698608, suggestions.get(0).getScore());
+		assertEquals("somepayload", suggestions.get(0).getPayload());
 	}
 
 	@ParameterizedTest
@@ -207,13 +204,12 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 		Field[] fields = new Field[] { Field.text("artist").sortable().build(), Field.tag("id").sortable().build(),
 				Field.text("title").sortable().build() };
 		sync.create("releases", options, fields);
-		Assertions.assertEquals(fields.length,
-				RedisModulesUtils.indexInfo(sync.indexInfo("releases")).getFields().size());
+		assertEquals(fields.length, RedisModulesUtils.indexInfo(sync.indexInfo("releases")).getFields().size());
 	}
 
 	@ParameterizedTest
 	@RedisTestContextsSource
-	void createTemporaryIndex(RedisTestContext context) throws Exception {
+	void ftCreateTemporaryIndex(RedisTestContext context) throws Exception {
 		Beers.populateIndex(context.getConnection());
 		RedisModulesCommands<String, String> sync = context.sync();
 		String tempIndex = "temporaryIndex";
@@ -227,7 +223,7 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 
 	@ParameterizedTest
 	@RedisTestContextsSource
-	void alterIndex(RedisTestContext context) throws Exception {
+	void ftAlterIndex(RedisTestContext context) throws Exception {
 		Beers.populateIndex(context.getConnection());
 		RedisModulesCommands<String, String> sync = context.sync();
 		Map<String, Object> indexInfo = toMap(sync.indexInfo(Beers.INDEX));
@@ -242,7 +238,7 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 
 	@ParameterizedTest
 	@RedisTestContextsSource
-	void dropindexDeleteDocs(RedisTestContext context) throws Exception {
+	void ftDropindexDeleteDocs(RedisTestContext context) throws Exception {
 		Beers.populateIndex(context.getConnection());
 		RedisModulesCommands<String, String> sync = context.sync();
 		sync.dropindexDeleteDocs(Beers.INDEX);
@@ -276,7 +272,7 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 
 	@ParameterizedTest
 	@RedisTestContextsSource
-	void searchOptions(RedisTestContext context) throws IOException {
+	void ftSearchOptions(RedisTestContext context) throws IOException {
 		Beers.populateIndex(context.getConnection());
 		RedisModulesCommands<String, String> sync = context.sync();
 		SearchOptions<String, String> options = SearchOptions.<String, String>builder().withPayloads(true)
@@ -310,7 +306,7 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 
 	@ParameterizedTest
 	@RedisTestContextsSource
-	void search(RedisTestContext context) throws Exception {
+	void ftSearch(RedisTestContext context) throws Exception {
 		int count = Beers.populateIndex(context.getConnection());
 		RedisModulesCommands<String, String> sync = context.sync();
 		SearchResults<String, String> results = sync.search(Beers.INDEX, "German");
@@ -395,7 +391,7 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 		doc1.put(idField, "chris@blah.org,User1#test.org,usersdfl@example.com");
 		context.async().hmset("doc1", doc1).get();
 		results = context.async().search(index, "@id:{" + RedisModulesUtils.escapeTag("User1#test.org") + "}").get();
-		Assertions.assertEquals(1, results.size());
+		assertEquals(1, results.size());
 		double minABV = .18;
 		double maxABV = 3;
 		SearchResults<String, String> filterResults = sync
@@ -404,7 +400,7 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 								.<String, String>builder().filter(SearchOptions.NumericFilter
 										.<String, String>field(Beers.FIELD_ABV.getName()).min(minABV).max(maxABV))
 								.build());
-		Assertions.assertEquals(4, filterResults.size());
+		assertEquals(4, filterResults.size());
 		for (Document<String, String> document : filterResults) {
 			double abv = Double.parseDouble(document.get(Beers.FIELD_ABV.getName()));
 			Assertions.assertTrue(abv >= minABV);
@@ -420,7 +416,7 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 
 	@ParameterizedTest
 	@RedisTestContextsSource
-	void sugget(RedisTestContext context) throws IOException {
+	void ftSugget(RedisTestContext context) throws IOException {
 		createBeerSuggestions(context);
 		RedisModulesCommands<String, String> sync = context.sync();
 		RedisModulesReactiveCommands<String, String> reactive = context.reactive();
@@ -445,7 +441,7 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 	@SuppressWarnings("unchecked")
 	@ParameterizedTest
 	@RedisTestContextsSource
-	void aggregate(RedisTestContext context) throws Exception {
+	void ftAggregate(RedisTestContext context) throws Exception {
 		int count = Beers.populateIndex(context.getConnection());
 		MappingIterator<Map<String, Object>> beers = Beers.mapIterator();
 		Map<String, Map<String, Object>> beerMap = new HashMap<>();
@@ -545,7 +541,7 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 
 	@ParameterizedTest
 	@RedisTestContextsSource
-	void alias(RedisTestContext context) throws Exception {
+	void ftAlias(RedisTestContext context) throws Exception {
 
 		Beers.populateIndex(context.getConnection());
 		// SYNC
@@ -601,22 +597,22 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 		int count = Beers.populateIndex(context.getConnection());
 		List<Object> infoList = context.async().indexInfo(Beers.INDEX).get();
 		IndexInfo info = RedisModulesUtils.indexInfo(infoList);
-		Assertions.assertEquals(count, info.getNumDocs());
+		assertEquals(count, info.getNumDocs());
 		List<Field> fields = info.getFields();
 		Field.TextField descriptionField = (Field.TextField) fields.get(5);
-		Assertions.assertEquals(Beers.FIELD_DESCRIPTION.getName(), descriptionField.getName());
+		assertEquals(Beers.FIELD_DESCRIPTION.getName(), descriptionField.getName());
 		Assertions.assertFalse(descriptionField.isNoIndex());
 		Assertions.assertTrue(descriptionField.isNoStem());
 		Assertions.assertFalse(descriptionField.isSortable());
 		Field.TagField styleField = (Field.TagField) fields.get(2);
-		Assertions.assertEquals(Beers.FIELD_STYLE_NAME.getName(), styleField.getName());
+		assertEquals(Beers.FIELD_STYLE_NAME.getName(), styleField.getName());
 		Assertions.assertTrue(styleField.isSortable());
-		Assertions.assertEquals(",", styleField.getSeparator());
+		assertEquals(",", styleField.getSeparator());
 	}
 
 	@ParameterizedTest
 	@RedisTestContextsSource
-	void tagVals(RedisTestContext context) throws Exception {
+	void ftTagVals(RedisTestContext context) throws Exception {
 		Beers.populateIndex(context.getConnection());
 		Set<String> TAG_VALS = new HashSet<>(Arrays.asList("ordinary bitter", "german-style heller bock/maibock",
 				"traditional german-style bock", "smoke beer", "baltic-style porter", "specialty honey lager or ale",
@@ -640,14 +636,14 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 				"scotch ale", "german-style doppelbock", "bamberg-style bock rauchbier", "extra special bitter",
 				"south german-style weizenbock", "belgian-style white", "belgian-style pale ale", "kellerbier - ale"));
 		HashSet<String> actual = new HashSet<>(context.sync().tagvals(Beers.INDEX, Beers.FIELD_STYLE_NAME.getName()));
-		Assertions.assertEquals(TAG_VALS, actual);
-		Assertions.assertEquals(TAG_VALS, new HashSet<>(
+		assertEquals(TAG_VALS, actual);
+		assertEquals(TAG_VALS, new HashSet<>(
 				context.reactive().tagvals(Beers.INDEX, Beers.FIELD_STYLE_NAME.getName()).collectList().block()));
 	}
 
 	@ParameterizedTest
 	@RedisTestContextsSource
-	void emptyToListReducer(RedisTestContext context) {
+	void ftEmptyToListReducer(RedisTestContext context) {
 		RedisModulesCommands<String, String> sync = context.sync();
 		// FT.CREATE idx ON HASH PREFIX 1 my_prefix: SCHEMA category TAG SORTABLE color
 		// TAG SORTABLE size TAG SORTABLE
@@ -660,42 +656,41 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 				.reducers(ToList.property("color").as("color").build(), ToList.property("size").as("size").build())
 				.build()).build();
 		AggregateResults<String> results = sync.aggregate("idx", "@color:{red|blue}", aggregateOptions);
-		Assertions.assertEquals(1, results.size());
+		assertEquals(1, results.size());
 		Map<String, Object> expectedResult = new HashMap<>();
 		expectedResult.put("category", "31");
 		expectedResult.put("color", Collections.singletonList("red"));
 		expectedResult.put("size", Collections.emptyList());
-		Assertions.assertEquals(expectedResult, results.get(0));
+		assertEquals(expectedResult, results.get(0));
 	}
 
 	final static String[] DICT_TERMS = new String[] { "beer", "ale", "brew", "brewski" };
 
 	@ParameterizedTest
 	@RedisTestContextsSource
-	void dictadd(RedisTestContext context) {
+	void ftDictadd(RedisTestContext context) {
 		RedisModulesCommands<String, String> sync = context.sync();
-		Assertions.assertEquals(DICT_TERMS.length, sync.dictadd("beers", DICT_TERMS));
-		Assertions.assertEquals(new HashSet<>(Arrays.asList(DICT_TERMS)), new HashSet<>(sync.dictdump("beers")));
-		Assertions.assertEquals(1, sync.dictdel("beers", "brew"));
+		assertEquals(DICT_TERMS.length, sync.dictadd("beers", DICT_TERMS));
+		assertEquals(new HashSet<>(Arrays.asList(DICT_TERMS)), new HashSet<>(sync.dictdump("beers")));
+		assertEquals(1, sync.dictdel("beers", "brew"));
 		List<String> beerDict = new ArrayList<>();
 		Collections.addAll(beerDict, DICT_TERMS);
 		beerDict.remove("brew");
-		Assertions.assertEquals(new HashSet<>(beerDict), new HashSet<>(sync.dictdump("beers")));
+		assertEquals(new HashSet<>(beerDict), new HashSet<>(sync.dictdump("beers")));
 	}
 
 	@ParameterizedTest
 	@RedisTestContextsSource
-	void dictaddReactive(RedisTestContext context) {
+	void ftDictaddReactive(RedisTestContext context) {
 		RedisModulesReactiveCommands<String, String> reactive = context.reactive();
-		Assertions.assertEquals(DICT_TERMS.length, reactive.dictadd("beers", DICT_TERMS).block());
-		Assertions.assertEquals(new HashSet<>(Arrays.asList(DICT_TERMS)),
+		assertEquals(DICT_TERMS.length, reactive.dictadd("beers", DICT_TERMS).block());
+		assertEquals(new HashSet<>(Arrays.asList(DICT_TERMS)),
 				new HashSet<>(reactive.dictdump("beers").collectList().block()));
-		Assertions.assertEquals(1, reactive.dictdel("beers", "brew").block());
+		assertEquals(1, reactive.dictdel("beers", "brew").block());
 		List<String> beerDict = new ArrayList<>();
 		Collections.addAll(beerDict, DICT_TERMS);
 		beerDict.remove("brew");
-		Assertions.assertEquals(new HashSet<>(beerDict),
-				new HashSet<>(reactive.dictdump("beers").collectList().block()));
+		assertEquals(new HashSet<>(beerDict), new HashSet<>(reactive.dictdump("beers").collectList().block()));
 	}
 
 	private static final String LABEL_SENSOR_ID = "sensor_id";
@@ -714,7 +709,7 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 		// temperature:3:11 RETENTION 6000 LABELS sensor_id 2 area_id 32
 		String status = context.sync().create(KEY,
 				com.redis.lettucemod.timeseries.CreateOptions.<String, String>builder().retentionTime(6000).build());
-		Assertions.assertEquals("OK", status);
+		assertEquals("OK", status);
 	}
 
 	@ParameterizedTest
@@ -725,10 +720,10 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 		ts.create(KEY, tsCreateOptions());
 		// TS.ADD temperature:3:11 1548149181 30
 		Long add1 = ts.add(KEY, TIMESTAMP_1, VALUE_1);
-		Assertions.assertEquals(TIMESTAMP_1, add1);
+		assertEquals(TIMESTAMP_1, add1);
 		// TS.ADD temperature:3:11 1548149191 42
 		Long add2 = ts.add(KEY, TIMESTAMP_2, VALUE_2);
-		Assertions.assertEquals(TIMESTAMP_2, add2);
+		assertEquals(TIMESTAMP_2, add2);
 	}
 
 	private com.redis.lettucemod.timeseries.CreateOptions<String, String> tsCreateOptions() {
@@ -743,11 +738,11 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 		String key = populateTimeSeries(ts);
 		List<Sample> range = ts.range(key, RangeOptions.from(1548149180).to(1548149210)
 				.aggregation(Aggregation.of(Aggregation.Type.AVG, 5)).build());
-		Assertions.assertEquals(2, range.size());
-		Assertions.assertEquals(1548149180, range.get(0).getTimestamp());
-		Assertions.assertEquals(VALUE_1, range.get(0).getValue());
-		Assertions.assertEquals(1548149190, range.get(1).getTimestamp());
-		Assertions.assertEquals(VALUE_2, range.get(1).getValue());
+		assertEquals(2, range.size());
+		assertEquals(1548149180, range.get(0).getTimestamp());
+		assertEquals(VALUE_1, range.get(0).getValue());
+		assertEquals(1548149190, range.get(1).getTimestamp());
+		assertEquals(VALUE_2, range.get(1).getValue());
 	}
 
 	private String populateTimeSeries(RedisTimeSeriesCommands<String, String> ts) {
@@ -763,39 +758,40 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 
 	@ParameterizedTest
 	@RedisTestContextsSource
-	void mrange(RedisTestContext context) {
+	void tsMrange(RedisTestContext context) {
 		RedisTimeSeriesCommands<String, String> ts = context.sync();
 		String key = populateTimeSeries(ts);
 		List<RangeResult<String, String>> results = ts.mrange(RangeOptions.from(0).to(-1).build(),
 				LABEL_SENSOR_ID + "=" + SENSOR_ID);
-		Assertions.assertEquals(1, results.size());
-		Assertions.assertEquals(key, results.get(0).getKey());
-		Assertions.assertEquals(2, results.get(0).getSamples().size());
-		Assertions.assertEquals(TIMESTAMP_1, results.get(0).getSamples().get(0).getTimestamp());
-		Assertions.assertEquals(VALUE_1, results.get(0).getSamples().get(0).getValue());
-		Assertions.assertEquals(TIMESTAMP_2, results.get(0).getSamples().get(1).getTimestamp());
-		Assertions.assertEquals(VALUE_2, results.get(0).getSamples().get(1).getValue());
+		assertEquals(1, results.size());
+		assertEquals(key, results.get(0).getKey());
+		assertEquals(2, results.get(0).getSamples().size());
+		assertEquals(TIMESTAMP_1, results.get(0).getSamples().get(0).getTimestamp());
+		assertEquals(VALUE_1, results.get(0).getSamples().get(0).getValue());
+		assertEquals(TIMESTAMP_2, results.get(0).getSamples().get(1).getTimestamp());
+		assertEquals(VALUE_2, results.get(0).getSamples().get(1).getValue());
 	}
 
 	@ParameterizedTest
 	@RedisTestContextsSource
-	void mrangeWithLabels(RedisTestContext context) {
+	void tsMrangeWithLabels(RedisTestContext context) {
 		RedisTimeSeriesCommands<String, String> ts = context.sync();
 		String key = populateTimeSeries(ts);
 		List<RangeResult<String, String>> results = ts.mrangeWithLabels(RangeOptions.from(0).to(-1).build(),
 				LABEL_SENSOR_ID + "=" + SENSOR_ID);
-		Assertions.assertEquals(1, results.size());
-		Assertions.assertEquals(key, results.get(0).getKey());
-		Assertions.assertEquals(2, results.get(0).getSamples().size());
-		Assertions.assertEquals(TIMESTAMP_1, results.get(0).getSamples().get(0).getTimestamp());
-		Assertions.assertEquals(VALUE_1, results.get(0).getSamples().get(0).getValue());
-		Assertions.assertEquals(TIMESTAMP_2, results.get(0).getSamples().get(1).getTimestamp());
-		Assertions.assertEquals(VALUE_2, results.get(0).getSamples().get(1).getValue());
-		Assertions.assertEquals(2, results.get(0).getLabels().size());
-		Assertions.assertEquals(SENSOR_ID, results.get(0).getLabels().get(LABEL_SENSOR_ID));
-		Assertions.assertEquals(AREA_ID, results.get(0).getLabels().get(LABEL_AREA_ID));
+		assertEquals(1, results.size());
+		assertEquals(key, results.get(0).getKey());
+		assertEquals(2, results.get(0).getSamples().size());
+		assertEquals(TIMESTAMP_1, results.get(0).getSamples().get(0).getTimestamp());
+		assertEquals(VALUE_1, results.get(0).getSamples().get(0).getValue());
+		assertEquals(TIMESTAMP_2, results.get(0).getSamples().get(1).getTimestamp());
+		assertEquals(VALUE_2, results.get(0).getSamples().get(1).getValue());
+		assertEquals(2, results.get(0).getLabels().size());
+		assertEquals(SENSOR_ID, results.get(0).getLabels().get(LABEL_SENSOR_ID));
+		assertEquals(AREA_ID, results.get(0).getLabels().get(LABEL_AREA_ID));
 	}
 
+	private static final ObjectMapper MAPPER = new ObjectMapper();
 	private static final String JSON = "{\"name\":\"Leonard Cohen\",\"lastSeen\":1478476800,\"loggedOut\": true}";
 
 	@ParameterizedTest
@@ -803,7 +799,7 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 	void jsonSet(RedisTestContext context) {
 		RedisJSONCommands<String, String> sync = context.sync();
 		String result = sync.jsonSet("obj", ".", JSON);
-		Assertions.assertEquals("OK", result);
+		assertEquals("OK", result);
 	}
 
 	@ParameterizedTest
@@ -829,8 +825,11 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 		RedisJSONCommands<String, String> sync = context.sync();
 		sync.jsonSet("obj", ".", JSON);
 		String result = sync.jsonGet("obj");
-		ObjectMapper mapper = new ObjectMapper();
-		Assertions.assertEquals(mapper.readTree(JSON), mapper.readTree(result));
+		assertJSONEquals(JSON, result);
+	}
+
+	private void assertJSONEquals(String expected, String actual) throws JsonMappingException, JsonProcessingException {
+		assertEquals(MAPPER.readTree(expected), MAPPER.readTree(actual));
 	}
 
 	@ParameterizedTest
@@ -839,9 +838,17 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 		RedisJSONCommands<String, String> sync = context.sync();
 		sync.jsonSet("obj", ".", JSON);
 		String result = sync.jsonGet("obj", ".name", ".loggedOut");
-		ObjectMapper mapper = new ObjectMapper();
-		Assertions.assertEquals(mapper.readTree("{\".name\":\"Leonard Cohen\",\".loggedOut\": true}"),
-				mapper.readTree(result));
+		assertJSONEquals("{\".name\":\"Leonard Cohen\",\".loggedOut\": true}", result);
+	}
+
+	@ParameterizedTest
+	@RedisTestContextsSource
+	void jsonGetJSONPath(RedisTestContext context) throws JsonProcessingException {
+		String json = "{\"a\":2, \"b\": 3, \"nested\": {\"a\": 4, \"b\": null}}";
+		RedisModulesCommands<String, String> sync = context.sync();
+		sync.jsonSet("doc", "$", json);
+		assertEquals("[3,null]", sync.jsonGet("doc", "$..b"));
+		assertJSONEquals("{\"$..b\":[3,null],\"..a\":[2,4]}", sync.jsonGet("doc", "..a", "$..b"));
 	}
 
 	@ParameterizedTest
@@ -851,8 +858,7 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 		sync.jsonSet("obj", ".", JSON);
 		String result = sync.jsonGet("obj",
 				GetOptions.builder().indent("___").newline("#").noEscape(true).space("_").build());
-		Assertions.assertEquals(
-				"{#___\"name\":_\"Leonard Cohen\",#___\"lastSeen\":_1478476800,#___\"loggedOut\":_true#}", result);
+		assertEquals("{#___\"name\":_\"Leonard Cohen\",#___\"lastSeen\":_1478476800,#___\"loggedOut\":_true#}", result);
 	}
 
 	@ParameterizedTest
@@ -863,9 +869,8 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 		String result = sync.jsonGet("obj",
 				GetOptions.builder().indent("  ").newline("\n").noEscape(true).space("   ").build(), ".name",
 				".loggedOut");
-		ObjectMapper mapper = new ObjectMapper();
-		JsonNode resultNode = mapper.readTree(result);
-		Assertions.assertEquals("Leonard Cohen", resultNode.get(".name").asText());
+		JsonNode resultNode = MAPPER.readTree(result);
+		assertEquals("Leonard Cohen", resultNode.get(".name").asText());
 	}
 
 	@ParameterizedTest
@@ -879,14 +884,13 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 		sync.jsonSet("obj3", ".", json3);
 
 		List<KeyValue<String, String>> results = sync.jsonMget(".", "obj1", "obj2", "obj3");
-		Assertions.assertEquals(3, results.size());
-		ObjectMapper mapper = new ObjectMapper();
-		Assertions.assertEquals("obj1", results.get(0).getKey());
-		Assertions.assertEquals("obj2", results.get(1).getKey());
-		Assertions.assertEquals("obj3", results.get(2).getKey());
-		Assertions.assertEquals(mapper.readTree(JSON), mapper.readTree(results.get(0).getValue()));
-		Assertions.assertEquals(mapper.readTree(json2), mapper.readTree(results.get(1).getValue()));
-		Assertions.assertEquals(mapper.readTree(json3), mapper.readTree(results.get(2).getValue()));
+		assertEquals(3, results.size());
+		assertEquals("obj1", results.get(0).getKey());
+		assertEquals("obj2", results.get(1).getKey());
+		assertEquals("obj3", results.get(2).getKey());
+		assertJSONEquals(JSON, results.get(0).getValue());
+		assertJSONEquals(json2, results.get(1).getValue());
+		assertJSONEquals(json3, results.get(2).getValue());
 	}
 
 	@ParameterizedTest
@@ -904,84 +908,84 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 	void jsonType(RedisTestContext context) {
 		RedisJSONCommands<String, String> sync = context.sync();
 		sync.jsonSet("obj", ".", JSON);
-		Assertions.assertEquals("object", sync.jsonType("obj"));
-		Assertions.assertEquals("string", sync.jsonType("obj", ".name"));
-		Assertions.assertEquals("boolean", sync.jsonType("obj", ".loggedOut"));
-		Assertions.assertEquals("integer", sync.jsonType("obj", ".lastSeen"));
+		assertEquals("object", sync.jsonType("obj"));
+		assertEquals("string", sync.jsonType("obj", ".name"));
+		assertEquals("boolean", sync.jsonType("obj", ".loggedOut"));
+		assertEquals("integer", sync.jsonType("obj", ".lastSeen"));
 	}
 
 	@ParameterizedTest
 	@RedisTestContextsSource
-	void numIncrBy(RedisTestContext context) {
+	void jsonNumIncrBy(RedisTestContext context) {
 		RedisJSONCommands<String, String> sync = context.sync();
 		sync.jsonSet("obj", ".", JSON);
 		long lastSeen = 1478476800;
 		double increment = 123.456;
 		String result = sync.numincrby("obj", ".lastSeen", increment);
-		Assertions.assertEquals(lastSeen + increment, Double.parseDouble(result));
+		assertEquals(lastSeen + increment, Double.parseDouble(result));
 	}
 
 	@ParameterizedTest
 	@RedisTestContextsSource
-	void numMultBy(RedisTestContext context) {
+	void jsonNumMultBy(RedisTestContext context) {
 		RedisJSONCommands<String, String> sync = context.sync();
 		sync.jsonSet("obj", ".", JSON);
 		long lastSeen = 1478476800;
 		double factor = 123.456;
 		String result = sync.nummultby("obj", ".lastSeen", factor);
-		Assertions.assertEquals(lastSeen * factor, Double.parseDouble(result));
+		assertEquals(lastSeen * factor, Double.parseDouble(result));
 	}
 
 	@ParameterizedTest
 	@RedisTestContextsSource
-	void strings(RedisTestContext context) {
+	void jsonStrings(RedisTestContext context) {
 		RedisJSONCommands<String, String> sync = context.sync();
 		sync.jsonSet("foo", ".", "\"bar\"");
-		Assertions.assertEquals(3, sync.strlen("foo", "."));
-		Assertions.assertEquals("barbaz".length(), sync.strappend("foo", ".", "\"baz\""));
+		assertEquals(3, sync.strlen("foo", "."));
+		assertEquals("barbaz".length(), sync.strappend("foo", ".", "\"baz\""));
 	}
 
 	@ParameterizedTest
 	@RedisTestContextsSource
-	void arrays(RedisTestContext context) {
+	void jsonArrays(RedisTestContext context) {
 		RedisJSONCommands<String, String> sync = context.sync();
 		sync.jsonSet("arr", ".", "[]");
-		Assertions.assertEquals(1, sync.arrappend("arr", ".", "0"));
-		Assertions.assertEquals("[0]", sync.jsonGet("arr"));
-		Assertions.assertEquals(3, sync.arrinsert("arr", ".", 0, "-2", "-1"));
-		Assertions.assertEquals("[-2,-1,0]", sync.jsonGet("arr"));
-		Assertions.assertEquals(1, sync.arrtrim("arr", ".", 1, 1));
-		Assertions.assertEquals("[-1]", sync.jsonGet("arr"));
-		Assertions.assertEquals("-1", sync.arrpop("arr"));
+		assertEquals(1, sync.arrappend("arr", ".", "0"));
+		assertEquals("[0]", sync.jsonGet("arr"));
+		assertEquals(3, sync.arrinsert("arr", ".", 0, "-2", "-1"));
+		assertEquals("[-2,-1,0]", sync.jsonGet("arr"));
+		assertEquals(1, sync.arrtrim("arr", ".", 1, 1));
+		assertEquals("[-1]", sync.jsonGet("arr"));
+		assertEquals("-1", sync.arrpop("arr"));
 	}
 
 	@ParameterizedTest
 	@RedisTestContextsSource
-	void obj(RedisTestContext context) {
+	void jsonObjects(RedisTestContext context) {
 		RedisJSONCommands<String, String> sync = context.sync();
 		sync.jsonSet("obj", ".", JSON);
-		Assertions.assertEquals(3, sync.objlen("obj", "."));
-		Assertions.assertEquals(Arrays.asList("name", "lastSeen", "loggedOut"), sync.objkeys("obj", "."));
+		assertEquals(3, sync.objlen("obj", "."));
+		assertEquals(Arrays.asList("name", "lastSeen", "loggedOut"), sync.objkeys("obj", "."));
 	}
 
 	@ParameterizedTest
 	@RedisTestContextsSource
-	void pyExecute(RedisTestContext context) {
+	void rgPyExecute(RedisTestContext context) {
 		RedisModulesCommands<String, String> sync = context.sync();
 		sync.set("foo", "bar");
 		ExecutionResults results = pyExecute(sync, "sleep.py");
-		Assertions.assertEquals("1", results.getResults().get(0));
+		assertEquals("1", results.getResults().get(0));
 	}
 
 	@ParameterizedTest
 	@RedisTestContextsSource
-	void pyExecuteUnblocking(RedisTestContext context) {
+	void rgPyExecuteUnblocking(RedisTestContext context) {
 		RedisModulesCommands<String, String> sync = context.sync();
 		sync.set("foo", "bar");
 		String executionId = pyExecuteUnblocking(sync, "sleep.py");
 		String[] array = executionId.split("-");
-		Assertions.assertEquals(2, array.length);
-		Assertions.assertEquals(40, array[0].length());
+		assertEquals(2, array.length);
+		assertEquals(40, array[0].length());
 		Assertions.assertTrue(Integer.parseInt(array[1]) >= 0);
 	}
 
@@ -1006,42 +1010,51 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 		return RedisModulesUtils.toString(getClass().getClassLoader().getResourceAsStream(resourceName));
 	}
 
-	private void rgClear(RedisTestContext context) {
+	private void clearGears(RedisTestContext context) throws InterruptedException {
+		Thread.sleep(100);
 		RedisModulesCommands<String, String> sync = context.sync();
 		// Unregister all registrations
 		for (Registration registration : sync.dumpregistrations()) {
+			log.info("Unregistering {}", registration.getId());
 			sync.unregister(registration.getId());
 		}
 		// Drop all executions
 		for (Execution execution : sync.dumpexecutions()) {
-			if ("running".equals(execution.getStatus())) {
+			if (execution.getStatus().matches("running|created")) {
+				log.info("Aborting execution {} with status {}", execution.getId(), execution.getStatus());
 				sync.abortexecution(execution.getId());
 			}
-			sync.dropexecution(execution.getId());
+			try {
+				log.info("Dropping execution {}", execution.getId());
+				sync.dropexecution(execution.getId());
+			} catch (RedisCommandExecutionException e) {
+				log.info("Execution status: {}", execution.getStatus());
+				throw e;
+			}
 		}
 	}
 
 	@ParameterizedTest
 	@RedisTestContextsSource
-	void dumpRegistrations(RedisTestContext context) {
-		rgClear(context);
+	void rgDumpRegistrations(RedisTestContext context) throws InterruptedException {
+		clearGears(context);
 		RedisModulesCommands<String, String> sync = context.sync();
 		// Single registration
 		List<Registration> registrations = sync.dumpregistrations();
-		Assertions.assertEquals(0, registrations.size());
+		assertEquals(0, registrations.size());
 		ExecutionResults results = pyExecute(sync, "streamreader.py");
 		Assertions.assertFalse(results.isError());
 		registrations = sync.dumpregistrations();
-		Assertions.assertEquals(1, registrations.size());
+		assertEquals(1, registrations.size());
 		Registration registration = registrations.get(0);
-		Assertions.assertEquals("StreamReader", registration.getReader());
-		Assertions.assertEquals("MyStreamReader", registration.getDescription());
-		Assertions.assertEquals("async", registration.getData().getMode());
+		assertEquals("StreamReader", registration.getReader());
+		assertEquals("MyStreamReader", registration.getDescription());
+		assertEquals("async", registration.getData().getMode());
 		Map<String, Object> args = registration.getData().getArgs();
-		Assertions.assertEquals(3, args.size());
-		Assertions.assertEquals(1L, args.get("batchSize"));
-		Assertions.assertEquals("mystream", args.get("stream"));
-		Assertions.assertEquals("OK", registration.getData().getStatus());
+		assertEquals(3, args.size());
+		assertEquals(1L, args.get("batchSize"));
+		assertEquals("mystream", args.get("stream"));
+		assertEquals("OK", registration.getData().getStatus());
 		Assertions.assertTrue(registration.getPrivateData().contains("'sessionId'"));
 
 		// Multiple registrations
@@ -1050,12 +1063,12 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 		Assertions.assertTrue(sync.pyexecute(function).isOk());
 		Assertions.assertTrue(sync.pyexecute(function).isOk());
 		registrations = sync.dumpregistrations();
-		Assertions.assertEquals(2, registrations.size());
+		assertEquals(2, registrations.size());
 	}
 
 	@ParameterizedTest
 	@RedisTestContextsSource
-	void pyExecuteResults(RedisTestContext context) {
+	void rgPyExecuteResults(RedisTestContext context) {
 		RedisModulesCommands<String, String> sync = context.sync();
 		sync.set("foo", "bar");
 		ExecutionResults results = sync.pyexecute("GB().foreach(lambda x: log('test')).register()");
@@ -1073,28 +1086,28 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 
 	@ParameterizedTest
 	@RedisTestContextsSource
-	void dumpExecutions(RedisTestContext context) throws InterruptedException {
-		rgClear(context);
+	void rgDumpExecutions(RedisTestContext context) throws InterruptedException {
+		clearGears(context);
 		rgExecutions(context);
-		Assertions.assertEquals(2, context.sync().dumpexecutions().size());
+		assertEquals(2, context.sync().dumpexecutions().size());
 	}
 
 	@ParameterizedTest
 	@RedisTestContextsSource
-	void dropExecution(RedisTestContext context) throws InterruptedException {
-		rgClear(context);
+	void rgDropExecution(RedisTestContext context) throws InterruptedException {
+		clearGears(context);
 		rgExecutions(context);
 		RedisModulesCommands<String, String> sync = context.sync();
 		List<Execution> executions = sync.dumpexecutions();
 		executions.forEach(e -> sync.abortexecution(e.getId()));
 		executions.forEach(e -> sync.dropexecution(e.getId()));
-		Assertions.assertEquals(0, sync.dumpexecutions().size());
+		assertEquals(0, sync.dumpexecutions().size());
 	}
 
 	@ParameterizedTest
 	@RedisTestContextsSource
-	void abortExecution(RedisTestContext context) throws InterruptedException {
-		rgClear(context);
+	void rgAbortExecution(RedisTestContext context) throws InterruptedException {
+		clearGears(context);
 		rgExecutions(context);
 		RedisModulesCommands<String, String> sync = context.sync();
 		for (Execution execution : sync.dumpexecutions()) {

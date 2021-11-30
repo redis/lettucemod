@@ -25,7 +25,7 @@ class JsonSearchTests {
 	protected static final RedisModulesContainer REDISMOD_PREVIEW = new RedisModulesContainer("preview");
 
 	@Test
-	void testJsonSearch() throws Exception {
+	void jsonSearch() throws Exception {
 		Iterator<JsonNode> iterator = Beers.jsonNodeIterator();
 		RedisModulesClient client = RedisModulesClient.create(REDISMOD_PREVIEW.getRedisURI());
 		StatefulRedisModulesConnection<String, String> connection = client.connect();
