@@ -121,7 +121,7 @@ public abstract class Field implements RediSearchArgument {
 			return (B) this;
 		}
 
-		public abstract F newField();
+		protected abstract F newField();
 
 		public F build() {
 			F field = newField();

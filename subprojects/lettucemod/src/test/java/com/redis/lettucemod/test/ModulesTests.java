@@ -283,7 +283,7 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 				.highlight(Highlight.<String, String>builder().field(Beers.FIELD_NAME.getName()).tags("<TAG>", "</TAG>")
 						.build())
 				.language(Language.ENGLISH).noContent(false)
-				.sortBy(SearchOptions.SortBy.<String, String>field(Beers.FIELD_NAME.getName()).order(Order.ASC))
+				.sortBy(SearchOptions.SortBy.asc(Beers.FIELD_NAME.getName()))
 				.verbatim(false).withSortKeys(true).returnField(Beers.FIELD_NAME.getName())
 				.returnField(Beers.FIELD_STYLE_NAME.getName()).build();
 		SearchResults<String, String> results = sync.search(Beers.INDEX, "pale", options);
@@ -310,7 +310,6 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 	@ParameterizedTest
 	@RedisTestContextsSource
 	void ftSearch(RedisTestContext context) throws Exception {
-		int count = Beers.populateIndex(context.getConnection());
 		RedisModulesCommands<String, String> sync = context.sync();
 		SearchResults<String, String> results = sync.search(Beers.INDEX, "German");
 		assertEquals(193, results.getCount());
@@ -344,11 +343,17 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 				"9", "5.5");
 		assertSearch(context, "sculpin",
 				SearchOptions.<String, String>builder().inField(Beers.FIELD_NAME.getName()).build(), 1, "7");
-
+	}
+	
+	@ParameterizedTest
+	@RedisTestContextsSource
+	void testSearchTags(RedisTestContext context) throws InterruptedException, ExecutionException, IOException {
+		int count = Beers.populateIndex(context.getConnection());
+		RedisModulesCommands<String, String> sync = context.sync();
 		String term = "pale";
 		String query = "@style:" + term;
 		Tags<String> tags = new Tags<>("<b>", "</b>");
-		results = sync.search(Beers.INDEX, query, SearchOptions.<String, String>builder()
+		SearchResults<String, String> results = sync.search(Beers.INDEX, query, SearchOptions.<String, String>builder()
 				.highlight(SearchOptions.Highlight.<String, String>builder().build()).build());
 		for (Document<String, String> result : results) {
 			assertTrue(highlighted(result, Beers.FIELD_STYLE_NAME.getName(), tags, term));
@@ -375,7 +380,7 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 						SearchOptions.<String, String>builder().limit(new SearchOptions.Limit(200, 100)).build())
 				.block();
 		assertEquals(710, results.getCount());
-		result1 = results.get(0);
+		Document<String, String> result1 = results.get(0);
 		assertNotNull(result1.get(Beers.FIELD_NAME.getName()));
 		assertNotNull(result1.get(Beers.FIELD_STYLE_NAME.getName()));
 		assertNotNull(result1.get(Beers.FIELD_ABV.getName()));
@@ -409,7 +414,6 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 			Assertions.assertTrue(abv >= minABV);
 			Assertions.assertTrue(abv <= maxABV);
 		}
-
 	}
 
 	private boolean highlighted(Document<String, String> result, String fieldName, Tags<String> tags, String string) {

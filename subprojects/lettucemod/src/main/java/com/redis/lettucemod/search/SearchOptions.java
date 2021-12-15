@@ -28,7 +28,7 @@ public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
 	private String expander;
 	private String scorer;
 	private V payload;
-	private SortBy<K, V> sortBy;
+	private SortBy<K> sortBy;
 	private Limit limit;
 
 	private SearchOptions(Builder<K, V> builder) {
@@ -207,11 +207,11 @@ public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
 		this.payload = payload;
 	}
 
-	public SortBy<K, V> getSortBy() {
+	public SortBy<K> getSortBy() {
 		return sortBy;
 	}
 
-	public void setSortBy(SortBy<K, V> sortBy) {
+	public void setSortBy(SortBy<K> sortBy) {
 		this.sortBy = sortBy;
 	}
 
@@ -299,7 +299,8 @@ public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
 		}
 		if (sortBy != null) {
 			args.add(SearchCommandKeyword.SORTBY);
-			sortBy.build(args);
+			args.addKey(sortBy.getField());
+			args.add(sortBy.getDirection() == Order.ASC ? SearchCommandKeyword.ASC : SearchCommandKeyword.DESC);
 		}
 		if (limit != null) {
 			limit.build(args);
@@ -651,7 +652,7 @@ public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
 
 	}
 
-	public static class SortBy<K, V> implements RediSearchArgument<K, V> {
+	public static class SortBy<K> {
 
 		private final K field;
 		private final Order direction;
@@ -661,29 +662,21 @@ public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
 			this.direction = direction;
 		}
 
-		@Override
-		public void build(SearchCommandArgs<K, V> args) {
-			args.addKey(field);
-			args.add(direction == Order.ASC ? SearchCommandKeyword.ASC : SearchCommandKeyword.DESC);
+		public K getField() {
+			return field;
 		}
 
-		public static <K, V> SortByBuilder<K, V> field(K field) {
-			return new SortByBuilder<>(field);
+		public Order getDirection() {
+			return direction;
 		}
 
-		public static class SortByBuilder<K, V> {
-
-			private final K field;
-
-			public SortByBuilder(K field) {
-				this.field = field;
-			}
-
-			public SortBy<K, V> order(Order order) {
-				return new SortBy<>(field, order);
-			}
+		public static <K> SortBy<K> asc(K field) {
+			return new SortBy<>(field, Order.ASC);
 		}
 
+		public static <K> SortBy<K> desc(K field) {
+			return new SortBy<>(field, Order.DESC);
+		}
 	}
 
 	public static <K, V> Builder<K, V> builder() {
@@ -710,7 +703,7 @@ public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
 		private String expander;
 		private String scorer;
 		private V payload;
-		private SortBy<K, V> sortBy;
+		private SortBy<K> sortBy;
 		private Limit limit;
 
 		private Builder() {
@@ -835,7 +828,7 @@ public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
 			return this;
 		}
 
-		public Builder<K, V> sortBy(SortBy<K, V> sortBy) {
+		public Builder<K, V> sortBy(SortBy<K> sortBy) {
 			this.sortBy = sortBy;
 			return this;
 		}
