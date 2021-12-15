@@ -310,6 +310,7 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 	@ParameterizedTest
 	@RedisTestContextsSource
 	void ftSearch(RedisTestContext context) throws Exception {
+		Beers.populateIndex(context.getConnection());
 		RedisModulesCommands<String, String> sync = context.sync();
 		SearchResults<String, String> results = sync.search(Beers.INDEX, "German");
 		assertEquals(193, results.getCount());
