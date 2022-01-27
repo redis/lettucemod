@@ -855,7 +855,7 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 	void jsonGetJSONPath(RedisTestContext context) throws JsonProcessingException {
 		String json = "{\"a\":2, \"b\": 3, \"nested\": {\"a\": 4, \"b\": null}}";
 		RedisModulesCommands<String, String> sync = context.sync();
-		sync.jsonSet("doc", "$", json);
+		sync.jsonSet("doc", ".", json);
 		assertEquals("[3,null]", sync.jsonGet("doc", "$..b"));
 		assertJSONEquals("{\"$..b\":[3,null],\"..a\":[2,4]}", sync.jsonGet("doc", "..a", "$..b"));
 	}
