@@ -13,16 +13,17 @@ import com.redis.lettucemod.api.StatefulRedisModulesConnection;
 import com.redis.lettucemod.api.sync.RediSearchCommands;
 import com.redis.lettucemod.api.sync.RedisJSONCommands;
 import com.redis.lettucemod.search.CreateOptions;
+import com.redis.lettucemod.search.CreateOptions.DataType;
 import com.redis.lettucemod.search.Field;
 import com.redis.lettucemod.search.SearchResults;
-import com.redis.lettucemod.search.CreateOptions.DataType;
 import com.redis.testcontainers.RedisModulesContainer;
 
 @Testcontainers
 class JsonSearchTests {
 
 	@Container
-	protected static final RedisModulesContainer REDISMOD_PREVIEW = new RedisModulesContainer("preview");
+	protected static final RedisModulesContainer REDISMOD_PREVIEW = new RedisModulesContainer(
+			RedisModulesContainer.DEFAULT_IMAGE_NAME.withTag(RedisModulesContainer.DEFAULT_TAG));
 
 	@Test
 	void jsonSearch() throws Exception {

@@ -2,7 +2,7 @@ dependencies {
     api group: 'io.lettuce', name: 'lettuce-core', version: lettuceVersion
     testImplementation 'org.apache.commons:commons-pool2'
     testImplementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-csv'
-    testImplementation(group: 'com.redis.testcontainers', name: 'testcontainers-redis-junit-jupiter', version: testcontainersRedisVersion) {
+    testImplementation(group: 'com.redis.testcontainers', name: 'testcontainers-redis-junit', version: testcontainersRedisVersion) {
         exclude group: 'com.redis', module: 'lettucemod'
     }
     testImplementation 'org.slf4j:slf4j-simple'

@@ -575,4 +575,8 @@ public class RedisModulesReactiveCommandsImpl<K, V> extends RedisReactiveCommand
         return createMono(() -> jsonCommandBuilder.objLen(key, path));
     }
 
+    @Override
+    public Mono<Long> pfaddNoValue(K key) {
+		return createMono(() -> searchCommandBuilder.pfaddNoValue(key));
+    }
 }

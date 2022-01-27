@@ -632,5 +632,9 @@ public class RedisModulesAdvancedClusterAsyncCommandsImpl<K, V> extends RedisAdv
         return delegate.objlen(key, path);
     }
 
+    @Override
+    public RedisFuture<Long> pfaddNoValue(K key) {
+    	return delegate.pfaddNoValue(key);
+    }
 
 }

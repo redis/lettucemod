@@ -642,4 +642,9 @@ public class RedisModulesAdvancedClusterReactiveCommandsImpl<K, V> extends
 		return delegate.objlen(key, path);
 	}
 
+	@Override
+	public Mono<Long> pfaddNoValue(K key) {
+		return delegate.pfaddNoValue(key);
+	}
+
 }

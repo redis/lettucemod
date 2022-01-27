@@ -43,63 +43,49 @@ public class RangeOptions implements CompositeArgument {
 		}
 	}
 
-	public static IToStage from(long from) {
-		return new Builder().from(from);
+	public static Builder from(long fromTimestamp) {
+		return new Builder().from(fromTimestamp);
 	}
 
-	public interface IFromStage {
-		public IToStage from(long from);
+	public static Builder to(long toTimestamp) {
+		return new Builder().to(toTimestamp);
 	}
 
-	public interface IToStage {
-		public IBuildStage to(long to);
+	public static Builder builder() {
+		return new Builder();
 	}
 
-	public interface IBuildStage {
-		public IBuildStage count(Long count);
+	public static class Builder {
 
-		public IBuildStage aggregation(Aggregation aggregation);
-
-		public RangeOptions build();
-	}
-
-	public static final class Builder implements IFromStage, IToStage, IBuildStage {
 		private long from;
 		private long to;
 		private Long count;
 		private Aggregation aggregation;
 
-		private Builder() {
-		}
-
-		@Override
-		public IToStage from(long from) {
-			this.from = from;
+		public Builder from(long fromTimestamp) {
+			this.from = fromTimestamp;
 			return this;
 		}
 
-		@Override
-		public IBuildStage to(long to) {
-			this.to = to;
+		public Builder to(long toTimestamp) {
+			this.to = toTimestamp;
 			return this;
 		}
 
-		@Override
-		public IBuildStage count(Long count) {
+		public Builder count(long count) {
 			this.count = count;
 			return this;
 		}
 
-		@Override
-		public IBuildStage aggregation(Aggregation aggregation) {
+		public Builder aggregation(Aggregation aggregation) {
 			this.aggregation = aggregation;
 			return this;
 		}
 
-		@Override
 		public RangeOptions build() {
 			return new RangeOptions(this);
 		}
+
 	}
 
 }
