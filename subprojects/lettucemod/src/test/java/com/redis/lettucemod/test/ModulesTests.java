@@ -105,12 +105,11 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 		return Arrays.asList(
 				new RedisModulesContainer(
 						RedisModulesContainer.DEFAULT_IMAGE_NAME.withTag(RedisModulesContainer.DEFAULT_TAG)),
-				new RedisEnterpriseContainer(
-						RedisEnterpriseContainer.DEFAULT_IMAGE_NAME.withTag(RedisEnterpriseContainer.DEFAULT_TAG))
-								.withDatabase(Database.name("ModulesTests").memory(DataSize.ofMegabytes(300))
-										.ossCluster(true).modules(RedisModule.SEARCH, RedisModule.JSON,
-												RedisModule.GEARS, RedisModule.TIMESERIES)
-										.build()));
+				new RedisEnterpriseContainer(RedisEnterpriseContainer.DEFAULT_IMAGE_NAME.withTag("latest"))
+						.withDatabase(Database.name("ModulesTests").memory(DataSize.ofMegabytes(300)).ossCluster(true)
+								.modules(RedisModule.SEARCH, RedisModule.JSON, RedisModule.GEARS,
+										RedisModule.TIMESERIES)
+								.build()));
 	}
 
 	protected static Map<String, String> mapOf(String... keyValues) {
@@ -855,7 +854,7 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 	void jsonGetJSONPath(RedisTestContext context) throws JsonProcessingException {
 		String json = "{\"a\":2, \"b\": 3, \"nested\": {\"a\": 4, \"b\": null}}";
 		RedisModulesCommands<String, String> sync = context.sync();
-		sync.jsonSet("doc", ".", json);
+		sync.jsonSet("doc", "$", json);
 		assertEquals("[3,null]", sync.jsonGet("doc", "$..b"));
 		assertJSONEquals("{\"$..b\":[3,null],\"..a\":[2,4]}", sync.jsonGet("doc", "..a", "$..b"));
 	}
