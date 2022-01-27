@@ -27,6 +27,7 @@ import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.unit.DataSize;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -106,8 +107,10 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 						RedisModulesContainer.DEFAULT_IMAGE_NAME.withTag(RedisModulesContainer.DEFAULT_TAG)),
 				new RedisEnterpriseContainer(
 						RedisEnterpriseContainer.DEFAULT_IMAGE_NAME.withTag(RedisEnterpriseContainer.DEFAULT_TAG))
-								.withDatabase(Database.name("ModulesTests").ossCluster(true).modules(RedisModule.SEARCH,
-										RedisModule.JSON, RedisModule.GEARS, RedisModule.TIMESERIES).build()));
+								.withDatabase(Database.name("ModulesTests").memory(DataSize.ofMegabytes(300))
+										.ossCluster(true).modules(RedisModule.SEARCH, RedisModule.JSON,
+												RedisModule.GEARS, RedisModule.TIMESERIES)
+										.build()));
 	}
 
 	protected static Map<String, String> mapOf(String... keyValues) {
