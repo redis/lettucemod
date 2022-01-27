@@ -515,7 +515,7 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 			assertEquals(70, results.getCount());
 			Map<String, Object> doc = results.get(1);
 			Assumptions.assumeTrue(doc != null);
-			Assumptions.assumeTrue(doc.containsKey(Beers.FIELD_STYLE_NAME.getName()));
+			Assumptions.assumeTrue(doc.get(Beers.FIELD_STYLE_NAME.getName()) != null);
 			String style = ((String) doc.get(Beers.FIELD_STYLE_NAME.getName())).toLowerCase();
 			assertTrue(style.equals("bamberg-style bock rauchbier") || style.equals("south german-style hefeweizen"));
 			int nameCount = ((List<String>) results.get(1).get("names")).size();
