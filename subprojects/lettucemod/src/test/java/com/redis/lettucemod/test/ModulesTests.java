@@ -106,9 +106,8 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 						RedisModulesContainer.DEFAULT_IMAGE_NAME.withTag(RedisModulesContainer.DEFAULT_TAG)),
 				new RedisEnterpriseContainer(
 						RedisEnterpriseContainer.DEFAULT_IMAGE_NAME.withTag(RedisEnterpriseContainer.DEFAULT_TAG))
-								.withDatabase(Database.name("ModulesTests").ossCluster(true)
-										.modules(RedisModule.SEARCH, RedisModule.GEARS, RedisModule.TIMESERIES)
-										.build()));
+								.withDatabase(Database.name("ModulesTests").ossCluster(true).modules(RedisModule.SEARCH,
+										RedisModule.JSON, RedisModule.GEARS, RedisModule.TIMESERIES).build()));
 	}
 
 	protected static Map<String, String> mapOf(String... keyValues) {
