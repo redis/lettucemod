@@ -2,7 +2,6 @@ package com.redis.lettucemod.api.async;
 
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
 
-import io.lettuce.core.RedisFuture;
 import io.lettuce.core.api.async.RedisAsyncCommands;
 
 public interface RedisModulesAsyncCommands<K, V> extends RedisAsyncCommands<K, V>, RedisGearsAsyncCommands<K, V>,
@@ -10,7 +9,5 @@ public interface RedisModulesAsyncCommands<K, V> extends RedisAsyncCommands<K, V
 
 	@Override
 	StatefulRedisModulesConnection<K, V> getStatefulConnection();
-
-	RedisFuture<Long> pfaddNoValue(K key);
 
 }

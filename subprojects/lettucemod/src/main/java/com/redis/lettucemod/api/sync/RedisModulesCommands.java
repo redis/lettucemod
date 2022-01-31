@@ -10,6 +10,4 @@ public interface RedisModulesCommands<K, V> extends RedisCommands<K, V>, RedisGe
 	@Override
 	StatefulRedisModulesConnection<K, V> getStatefulConnection();
 
-	Long pfaddNoValue(K key);
-
 }

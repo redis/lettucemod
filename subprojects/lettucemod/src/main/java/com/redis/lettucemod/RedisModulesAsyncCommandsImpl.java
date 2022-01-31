@@ -1,5 +1,8 @@
 package com.redis.lettucemod;
 
+import java.util.List;
+import java.util.Map;
+
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
 import com.redis.lettucemod.api.async.RedisModulesAsyncCommands;
 import com.redis.lettucemod.gears.Execution;
@@ -35,9 +38,6 @@ import io.lettuce.core.RedisAsyncCommandsImpl;
 import io.lettuce.core.RedisFuture;
 import io.lettuce.core.codec.RedisCodec;
 import io.lettuce.core.output.KeyValueStreamingChannel;
-
-import java.util.List;
-import java.util.Map;
 
 @SuppressWarnings("unchecked")
 public class RedisModulesAsyncCommandsImpl<K, V> extends RedisAsyncCommandsImpl<K, V>
@@ -584,11 +584,6 @@ public class RedisModulesAsyncCommandsImpl<K, V> extends RedisAsyncCommandsImpl<
 	@Override
 	public RedisFuture<Long> objlen(K key, K path) {
 		return dispatch(jsonCommandBuilder.objLen(key, path));
-	}
-
-	@Override
-	public RedisFuture<Long> pfaddNoValue(K key) {
-		return dispatch(searchCommandBuilder.pfaddNoValue(key));
 	}
 
 }

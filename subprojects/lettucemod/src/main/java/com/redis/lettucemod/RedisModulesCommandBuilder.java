@@ -1,15 +1,11 @@
 package com.redis.lettucemod;
 
-import static io.lettuce.core.protocol.CommandType.PFADD;
-
 import io.lettuce.core.codec.RedisCodec;
 import io.lettuce.core.internal.LettuceAssert;
-import io.lettuce.core.output.IntegerOutput;
 import io.lettuce.core.output.KeyStreamingChannel;
 import io.lettuce.core.output.KeyValueStreamingChannel;
 import io.lettuce.core.output.ValueStreamingChannel;
 import io.lettuce.core.protocol.BaseRedisCommandBuilder;
-import io.lettuce.core.protocol.Command;
 import io.lettuce.core.protocol.CommandArgs;
 
 public class RedisModulesCommandBuilder<K, V> extends BaseRedisCommandBuilder<K, V> {
@@ -61,9 +57,4 @@ public class RedisModulesCommandBuilder<K, V> extends BaseRedisCommandBuilder<K,
 		notNull(key, "Key");
 	}
 
-	public Command<K, V, Long> pfaddNoValue(K key) {
-		notNullKey(key);
-		CommandArgs<K, V> args = new CommandArgs<>(codec).addKey(key);
-		return createCommand(PFADD, new IntegerOutput<>(codec), args);
-	}
 }
