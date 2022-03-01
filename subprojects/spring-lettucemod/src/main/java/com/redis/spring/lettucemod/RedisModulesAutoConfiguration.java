@@ -28,6 +28,9 @@ public class RedisModulesAutoConfiguration {
 		if (properties.getPassword() != null) {
 			redisURI.setPassword(properties.getPassword().toCharArray());
 		}
+		if (properties.getUsername() != null) {
+			redisURI.setUsername(properties.getUsername());
+		}
 		Duration timeout = properties.getTimeout();
 		if (timeout != null) {
 			redisURI.setTimeout(timeout);
