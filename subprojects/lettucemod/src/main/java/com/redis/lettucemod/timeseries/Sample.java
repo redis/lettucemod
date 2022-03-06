@@ -4,6 +4,8 @@ import java.util.Objects;
 
 public class Sample {
 
+	public static final long AUTO_TIMESTAMP = 0;
+
 	private long timestamp;
 	private double value;
 
@@ -31,6 +33,10 @@ public class Sample {
 		this.value = value;
 	}
 
+	public static Sample of(double value) {
+		return new Sample(AUTO_TIMESTAMP, value);
+	}
+
 	public static Sample of(long timestamp, double value) {
 		return new Sample(timestamp, value);
 	}
@@ -51,7 +57,5 @@ public class Sample {
 		Sample other = (Sample) obj;
 		return timestamp == other.timestamp && Double.doubleToLongBits(value) == Double.doubleToLongBits(other.value);
 	}
-	
-	
 
 }
