@@ -14,13 +14,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Set version
-        uses: redis-field-engineering/redis-version-action@v1
-        with:
-          version: ${{ github.event.inputs.version }}
+      - name: Version
+        run: |
+          echo ${{ github.event.inputs.version }} > VERSION
 
       - name: Release
-        uses: redis-field-engineering/redis-release-action@v1
+        uses: redis-field-engineering/redis-release-action@v2
         with:
           gpg-key-id: ${{ secrets.GPG_KEY_ID }}
           gpg-public-key: ${{ secrets.GPG_PUBLIC_KEY }}
@@ -31,6 +30,15 @@ jobs:
           github-token: ${{ secrets.GIT_ACCESS_TOKEN }}
           slack-webhook: ${{ secrets.JRELEASER_SLACK_WEBHOOK }}
 
+      - name: JReleaser output
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: artifact
+          path: |
+            out/jreleaser/trace.log
+            out/jreleaser/output.properties
+
       - name: Upload test reports
         if: failure()
         uses: actions/upload-artifact@v2
@@ -38,3 +46,8 @@ jobs:
           name: test-reports
           path: |
             build/reports/aggregate-tests/
+
+      - name: Set Version
+        uses: redis-field-engineering/redis-version-action@v2
+        with:
+          version: ${{ github.event.inputs.version }}
