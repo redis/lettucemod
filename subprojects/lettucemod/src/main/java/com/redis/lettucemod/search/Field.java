@@ -1,11 +1,11 @@
 package com.redis.lettucemod.search;
 
+import java.util.Optional;
+import java.util.OptionalDouble;
+
 import com.redis.lettucemod.protocol.SearchCommandArgs;
 import com.redis.lettucemod.protocol.SearchCommandKeyword;
-import com.redis.lettucemod.search.Field.GeoField.GeoFieldBuilder;
-import com.redis.lettucemod.search.Field.NumericField.NumericFieldBuilder;
-import com.redis.lettucemod.search.Field.TagField.TagFieldBuilder;
-import com.redis.lettucemod.search.Field.TextField.TextFieldBuilder;
+import com.redis.lettucemod.search.Field.GeoField.Builder;
 
 import io.lettuce.core.internal.LettuceAssert;
 
@@ -14,10 +14,10 @@ public abstract class Field implements RediSearchArgument {
 
 	private final Type type;
 	private final String name;
-	private String as;
-	private boolean sortable;
-	private boolean unNormalizedForm;
-	private boolean noIndex;
+	protected Optional<As> as = Optional.empty();
+	protected boolean sortable;
+	protected boolean unNormalizedForm;
+	protected boolean noIndex;
 
 	protected Field(Type type, String name) {
 		LettuceAssert.notNull(type, "A type is required");
@@ -34,12 +34,8 @@ public abstract class Field implements RediSearchArgument {
 		return name;
 	}
 
-	public String getAs() {
-		return as;
-	}
-
-	public void setAs(String as) {
-		this.as = as;
+	public Optional<String> getAs() {
+		return as.map(As::getField);
 	}
 
 	public boolean isSortable() {
@@ -69,10 +65,7 @@ public abstract class Field implements RediSearchArgument {
 	@Override
 	public void build(SearchCommandArgs args) {
 		args.add(name);
-		if (as != null) {
-			args.add(SearchCommandKeyword.AS);
-			args.add(as);
-		}
+		as.ifPresent(a -> a.build(args));
 		buildField(args);
 		if (sortable) {
 			args.add(SearchCommandKeyword.SORTABLE);
@@ -88,20 +81,20 @@ public abstract class Field implements RediSearchArgument {
 	protected abstract void buildField(SearchCommandArgs args);
 
 	@SuppressWarnings("unchecked")
-	protected abstract static class FieldBuilder<F extends Field, B extends FieldBuilder<F, B>> {
+	protected abstract static class AbstractBuilder<F extends Field, B extends AbstractBuilder<F, B>> {
 
 		protected final String name;
-		private String as;
+		private Optional<As> as = Optional.empty();
 		private boolean sortable;
 		private boolean unNormalizedForm;
 		private boolean noIndex;
 
-		protected FieldBuilder(String name) {
+		protected AbstractBuilder(String name) {
 			this.name = name;
 		}
 
 		public B as(String as) {
-			this.as = as;
+			this.as = Optional.of(new As(as));
 			return (B) this;
 		}
 
@@ -125,28 +118,28 @@ public abstract class Field implements RediSearchArgument {
 
 		public F build() {
 			F field = newField();
-			field.setAs(as);
-			field.setSortable(sortable);
-			field.setUnNormalizedForm(unNormalizedForm);
-			field.setNoIndex(noIndex);
+			field.as = as;
+			field.sortable = sortable;
+			field.unNormalizedForm = unNormalizedForm;
+			field.noIndex = noIndex;
 			return field;
 		}
 
 	}
 
-	public static TextFieldBuilder text(String name) {
+	public static TextField.Builder text(String name) {
 		return TextField.builder(name);
 	}
 
-	public static GeoFieldBuilder geo(String name) {
+	public static Builder geo(String name) {
 		return GeoField.builder(name);
 	}
 
-	public static TagFieldBuilder tag(String name) {
+	public static TagField.Builder tag(String name) {
 		return TagField.builder(name);
 	}
 
-	public static NumericFieldBuilder numeric(String name) {
+	public static NumericField.Builder numeric(String name) {
 		return NumericField.builder(name);
 	}
 
@@ -161,13 +154,13 @@ public abstract class Field implements RediSearchArgument {
 			args.add(SearchCommandKeyword.GEO);
 		}
 
-		public static GeoFieldBuilder builder(String name) {
-			return new GeoFieldBuilder(name);
+		public static Builder builder(String name) {
+			return new Builder(name);
 		}
 
-		public static class GeoFieldBuilder extends FieldBuilder<GeoField, GeoFieldBuilder> {
+		public static class Builder extends AbstractBuilder<GeoField, Builder> {
 
-			public GeoFieldBuilder(String name) {
+			public Builder(String name) {
 				super(name);
 			}
 
@@ -190,13 +183,13 @@ public abstract class Field implements RediSearchArgument {
 			args.add(SearchCommandKeyword.NUMERIC);
 		}
 
-		public static NumericFieldBuilder builder(String name) {
-			return new NumericFieldBuilder(name);
+		public static Builder builder(String name) {
+			return new Builder(name);
 		}
 
-		public static class NumericFieldBuilder extends FieldBuilder<NumericField, NumericFieldBuilder> {
+		public static class Builder extends AbstractBuilder<NumericField, Builder> {
 
-			public NumericFieldBuilder(String name) {
+			public Builder(String name) {
 				super(name);
 			}
 
@@ -210,19 +203,19 @@ public abstract class Field implements RediSearchArgument {
 
 	public static class TagField extends Field {
 
-		private String separator;
+		private Optional<String> separator = Optional.empty();
 		private boolean caseSensitive;
 
 		public TagField(String name) {
 			super(Type.TAG, name);
 		}
 
-		public String getSeparator() {
+		public Optional<String> getSeparator() {
 			return separator;
 		}
 
 		public void setSeparator(String separator) {
-			this.separator = separator;
+			this.separator = Optional.of(separator);
 		}
 
 		public boolean isCaseSensitive() {
@@ -236,35 +229,32 @@ public abstract class Field implements RediSearchArgument {
 		@Override
 		protected void buildField(SearchCommandArgs args) {
 			args.add(SearchCommandKeyword.TAG);
-			if (separator != null) {
-				args.add(SearchCommandKeyword.SEPARATOR);
-				args.add(separator);
-			}
+			separator.ifPresent(s -> args.add(SearchCommandKeyword.SEPARATOR).add(s));
 			if (caseSensitive) {
 				args.add(SearchCommandKeyword.CASESENSITIVE);
 			}
 
 		}
 
-		public static TagFieldBuilder builder(String name) {
-			return new TagFieldBuilder(name);
+		public static Builder builder(String name) {
+			return new Builder(name);
 		}
 
-		public static class TagFieldBuilder extends FieldBuilder<TagField, TagFieldBuilder> {
+		public static class Builder extends AbstractBuilder<TagField, Builder> {
 
-			private String separator;
+			private Optional<String> separator = Optional.empty();
 			private boolean caseSensitive;
 
-			public TagFieldBuilder(String name) {
+			public Builder(String name) {
 				super(name);
 			}
 
-			public TagFieldBuilder separator(String separator) {
-				this.separator = separator;
+			public Builder separator(String separator) {
+				this.separator = Optional.of(separator);
 				return this;
 			}
 
-			public TagFieldBuilder caseSensitive() {
+			public Builder caseSensitive() {
 				this.caseSensitive = true;
 				return this;
 			}
@@ -272,7 +262,7 @@ public abstract class Field implements RediSearchArgument {
 			@Override
 			public TagField newField() {
 				TagField field = new TagField(name);
-				field.setSeparator(separator);
+				separator.ifPresent(field::setSeparator);
 				field.setCaseSensitive(caseSensitive);
 				return field;
 			}
@@ -282,20 +272,20 @@ public abstract class Field implements RediSearchArgument {
 
 	public static class TextField extends Field {
 
-		private Double weight;
+		private OptionalDouble weight = OptionalDouble.empty();
 		private boolean noStem;
-		private PhoneticMatcher matcher;
+		private Optional<PhoneticMatcher> matcher = Optional.empty();
 
 		public TextField(String name) {
 			super(Type.TEXT, name);
 		}
 
-		public Double getWeight() {
+		public OptionalDouble getWeight() {
 			return weight;
 		}
 
 		public void setWeight(Double weight) {
-			this.weight = weight;
+			this.weight = OptionalDouble.of(weight);
 		}
 
 		public boolean isNoStem() {
@@ -306,12 +296,12 @@ public abstract class Field implements RediSearchArgument {
 			this.noStem = noStem;
 		}
 
-		public PhoneticMatcher getMatcher() {
+		public Optional<PhoneticMatcher> getMatcher() {
 			return matcher;
 		}
 
 		public void setMatcher(PhoneticMatcher matcher) {
-			this.matcher = matcher;
+			this.matcher = Optional.of(matcher);
 		}
 
 		@Override
@@ -320,42 +310,36 @@ public abstract class Field implements RediSearchArgument {
 			if (noStem) {
 				args.add(SearchCommandKeyword.NOSTEM);
 			}
-			if (weight != null) {
-				args.add(SearchCommandKeyword.WEIGHT);
-				args.add(weight);
-			}
-			if (matcher != null) {
-				args.add(SearchCommandKeyword.PHONETIC);
-				args.add(matcher.getCode());
-			}
+			weight.ifPresent(w -> args.add(SearchCommandKeyword.WEIGHT).add(w));
+			matcher.ifPresent(m -> args.add(SearchCommandKeyword.PHONETIC).add(m.getCode()));
 		}
 
-		public static TextFieldBuilder builder(String name) {
-			return new TextFieldBuilder(name);
+		public static Builder builder(String name) {
+			return new Builder(name);
 		}
 
-		public static class TextFieldBuilder extends FieldBuilder<TextField, TextFieldBuilder> {
+		public static class Builder extends AbstractBuilder<TextField, Builder> {
 
 			private boolean noStem;
-			private Double weight;
-			private PhoneticMatcher matcher;
+			private OptionalDouble weight = OptionalDouble.empty();
+			private Optional<PhoneticMatcher> matcher = Optional.empty();
 
-			public TextFieldBuilder(String name) {
+			public Builder(String name) {
 				super(name);
 			}
 
-			public TextFieldBuilder noStem() {
+			public Builder noStem() {
 				this.noStem = true;
 				return this;
 			}
 
-			public TextFieldBuilder weight(double weight) {
-				this.weight = weight;
+			public Builder weight(double weight) {
+				this.weight = OptionalDouble.of(weight);
 				return this;
 			}
 
-			public TextFieldBuilder matcher(PhoneticMatcher matcher) {
-				this.matcher = matcher;
+			public Builder matcher(PhoneticMatcher matcher) {
+				this.matcher = Optional.of(matcher);
 				return this;
 			}
 
@@ -363,8 +347,8 @@ public abstract class Field implements RediSearchArgument {
 			public TextField newField() {
 				TextField field = new TextField(name);
 				field.setNoStem(noStem);
-				field.setWeight(weight);
-				field.setMatcher(matcher);
+				weight.ifPresent(field::setWeight);
+				matcher.ifPresent(field::setMatcher);
 				return field;
 			}
 

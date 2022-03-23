@@ -121,7 +121,7 @@ public class RediSearchCommandBuilder<K, V> extends RedisModulesCommandBuilder<K
         return createCommand(SearchCommandType.AGGREGATE, new AggregateOutput<>(codec, new AggregateResults<>()), args);
     }
 
-    public Command<K, V, AggregateWithCursorResults<K>> aggregate(K index, V query, Cursor cursor, AggregateOptions<K, V> options) {
+    public Command<K, V, AggregateWithCursorResults<K>> aggregate(K index, V query, CursorOptions cursor, AggregateOptions<K, V> options) {
         notNullIndex(index);
         notNullQuery(query);
         SearchCommandArgs<K, V> args = args(index);

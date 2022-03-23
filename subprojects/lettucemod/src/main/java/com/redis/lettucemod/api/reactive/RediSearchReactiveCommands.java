@@ -4,7 +4,7 @@ import com.redis.lettucemod.search.AggregateOptions;
 import com.redis.lettucemod.search.AggregateResults;
 import com.redis.lettucemod.search.AggregateWithCursorResults;
 import com.redis.lettucemod.search.CreateOptions;
-import com.redis.lettucemod.search.Cursor;
+import com.redis.lettucemod.search.CursorOptions;
 import com.redis.lettucemod.search.Field;
 import com.redis.lettucemod.search.SearchOptions;
 import com.redis.lettucemod.search.SearchResults;
@@ -44,9 +44,9 @@ public interface RediSearchReactiveCommands<K, V> {
 
     Mono<AggregateResults<K>> aggregate(K index, V query, AggregateOptions<K, V> options);
 
-    Mono<AggregateWithCursorResults<K>> aggregate(K index, V query, Cursor cursor);
+    Mono<AggregateWithCursorResults<K>> aggregate(K index, V query, CursorOptions cursor);
 
-    Mono<AggregateWithCursorResults<K>> aggregate(K index, V query, Cursor cursor, AggregateOptions<K, V> options);
+    Mono<AggregateWithCursorResults<K>> aggregate(K index, V query, CursorOptions cursor, AggregateOptions<K, V> options);
 
     Mono<AggregateWithCursorResults<K>> cursorRead(K index, long cursor);
 

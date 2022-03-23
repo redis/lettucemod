@@ -20,17 +20,58 @@ import com.redis.lettucemod.search.Field.Type;
 import com.redis.lettucemod.search.IndexInfo;
 
 import io.lettuce.core.internal.LettuceAssert;
+import io.lettuce.core.internal.LettuceClassUtils;
 import io.lettuce.core.internal.LettuceStrings;
 
 public class RedisModulesUtils {
 
 	private static final Long ZERO = 0L;
-
 	private static final String GEO_LONLAT_SEPARATOR = ",";
-
 	private static final String FIELD_FIELDS = "fields";
-
 	private static final String FIELD_ATTRIBUTES = "attributes";
+	private static final char PACKAGE_SEPARATOR = '.';
+	private static final char NESTED_CLASS_SEPARATOR = '$';
+
+	/**
+	 * Get the class name without the qualified package name.
+	 * 
+	 * @param className the className to get the short name for
+	 * @return the class name of the class without the package name
+	 * @throws IllegalArgumentException if the className is empty
+	 */
+	public static String getShortName(String className) {
+		LettuceAssert.notEmpty(className, "Class name must not be empty");
+		int lastDotIndex = className.lastIndexOf(PACKAGE_SEPARATOR);
+		int nameEndIndex = className.indexOf(LettuceClassUtils.CGLIB_CLASS_SEPARATOR);
+		if (nameEndIndex == -1) {
+			nameEndIndex = className.length();
+		}
+		String shortName = className.substring(lastDotIndex + 1, nameEndIndex);
+		shortName = shortName.replace(NESTED_CLASS_SEPARATOR, PACKAGE_SEPARATOR);
+		return shortName;
+	}
+
+	/**
+	 * Get the class name without the qualified package name.
+	 * 
+	 * @param clazz the class to get the short name for
+	 * @return the class name of the class without the package name
+	 */
+	public static String getShortName(Class<?> clazz) {
+		return getShortName(getQualifiedName(clazz));
+	}
+
+	/**
+	 * Return the qualified name of the given class: usually simply the class name,
+	 * but component type class name + "[]" for arrays.
+	 * 
+	 * @param clazz the class
+	 * @return the qualified name of the class
+	 */
+	public static String getQualifiedName(Class<?> clazz) {
+		LettuceAssert.notNull(clazz, "Class must not be null");
+		return clazz.getTypeName();
+	}
 
 	private RedisModulesUtils() {
 	}

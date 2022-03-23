@@ -1,5 +1,8 @@
 package com.redis.lettucemod.timeseries;
 
+import java.util.Optional;
+import java.util.OptionalLong;
+
 import com.redis.lettucemod.protocol.TimeSeriesCommandKeyword;
 
 import io.lettuce.core.CompositeArgument;
@@ -12,8 +15,8 @@ public class RangeOptions implements CompositeArgument {
 
 	private final long from;
 	private final long to;
-	private Long count;
-	private Aggregation aggregation;
+	private OptionalLong count = OptionalLong.empty();
+	private Optional<Aggregation> aggregation = Optional.empty();
 
 	private RangeOptions(Builder builder) {
 		this.from = builder.from;
@@ -34,13 +37,8 @@ public class RangeOptions implements CompositeArgument {
 		} else {
 			args.add(to);
 		}
-		if (count != null) {
-			args.add(TimeSeriesCommandKeyword.COUNT);
-			args.add(count);
-		}
-		if (aggregation != null) {
-			aggregation.build(args);
-		}
+		count.ifPresent(c -> args.add(TimeSeriesCommandKeyword.COUNT).add(c));
+		aggregation.ifPresent(a -> a.build(args));
 	}
 
 	public static Builder from(long fromTimestamp) {
@@ -59,8 +57,8 @@ public class RangeOptions implements CompositeArgument {
 
 		private long from;
 		private long to;
-		private Long count;
-		private Aggregation aggregation;
+		private OptionalLong count = OptionalLong.empty();
+		private Optional<Aggregation> aggregation = Optional.empty();
 
 		public Builder from(long fromTimestamp) {
 			this.from = fromTimestamp;
@@ -73,12 +71,12 @@ public class RangeOptions implements CompositeArgument {
 		}
 
 		public Builder count(long count) {
-			this.count = count;
+			this.count = OptionalLong.of(count);
 			return this;
 		}
 
 		public Builder aggregation(Aggregation aggregation) {
-			this.aggregation = aggregation;
+			this.aggregation = Optional.of(aggregation);
 			return this;
 		}
 

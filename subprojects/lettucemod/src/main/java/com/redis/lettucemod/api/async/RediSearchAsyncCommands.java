@@ -36,9 +36,9 @@ public interface RediSearchAsyncCommands<K, V> {
 
     RedisFuture<AggregateResults<K>> aggregate(K index, V query, AggregateOptions<K, V> options);
 
-    RedisFuture<AggregateWithCursorResults<K>> aggregate(K index, V query, Cursor cursor);
+    RedisFuture<AggregateWithCursorResults<K>> aggregate(K index, V query, CursorOptions cursor);
 
-    RedisFuture<AggregateWithCursorResults<K>> aggregate(K index, V query, Cursor cursor, AggregateOptions<K, V> options);
+    RedisFuture<AggregateWithCursorResults<K>> aggregate(K index, V query, CursorOptions cursor, AggregateOptions<K, V> options);
 
     RedisFuture<AggregateWithCursorResults<K>> cursorRead(K index, long cursor);
 

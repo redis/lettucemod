@@ -70,33 +70,33 @@ public class Document<K, V> extends LinkedHashMap<K, V> {
 				&& Objects.equals(score, other.score) && Objects.equals(sortKey, other.sortKey);
 	}
 
-	public static <K, V> DocumentBuilder<K, V> id(K id) {
-		return new DocumentBuilder<>(id);
+	public static <K, V> Builder<K, V> id(K id) {
+		return new Builder<>(id);
 	}
 
-	public static class DocumentBuilder<K, V> {
+	public static class Builder<K, V> {
 
 		private final K id;
 		private double score = 1;
 		private V payload;
 		private Map<K, V> fields = new HashMap<>();
 
-		public DocumentBuilder(K id) {
+		public Builder(K id) {
 			super();
 			this.id = id;
 		}
 
-		public DocumentBuilder<K, V> score(double score) {
+		public Builder<K, V> score(double score) {
 			this.score = score;
 			return this;
 		}
 
-		public DocumentBuilder<K, V> payload(V payload) {
+		public Builder<K, V> payload(V payload) {
 			this.payload = payload;
 			return this;
 		}
 
-		public DocumentBuilder<K, V> field(K name, V value) {
+		public Builder<K, V> field(K name, V value) {
 			fields.put(name, value);
 			return this;
 		}

@@ -3,6 +3,9 @@ package com.redis.lettucemod.search;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+import java.util.OptionalDouble;
+import java.util.OptionalLong;
 
 import com.redis.lettucemod.protocol.SearchCommandArgs;
 import com.redis.lettucemod.protocol.SearchCommandKeyword;
@@ -13,16 +16,16 @@ public class CreateOptions<K, V> implements RediSearchArgument<K, V> {
 		HASH, JSON
 	}
 
-	private DataType on;
-	private List<K> prefixes = new ArrayList<>();
-	private V filter;
-	private Language defaultLanguage;
-	private K languageField;
-	private Double defaultScore;
-	private K scoreField;
-	private K payloadField;
+	private Optional<DataType> on = Optional.empty();
+	private final List<K> prefixes;
+	private Optional<V> filter = Optional.empty();
+	private Optional<Language> defaultLanguage = Optional.empty();
+	private Optional<K> languageField = Optional.empty();
+	private OptionalDouble defaultScore = OptionalDouble.empty();
+	private Optional<K> scoreField = Optional.empty();
+	private Optional<K> payloadField = Optional.empty();
 	private boolean maxTextFields;
-	private Long temporary;
+	private OptionalLong temporary = OptionalLong.empty();
 	private boolean noOffsets;
 	private boolean noHL;
 	private boolean noFields;
@@ -31,7 +34,7 @@ public class CreateOptions<K, V> implements RediSearchArgument<K, V> {
 	/**
 	 * Set this to empty list for STOPWORDS 0
 	 */
-	private List<V> stopWords;
+	private Optional<List<V>> stopWords = Optional.empty();
 
 	private CreateOptions(Builder<K, V> builder) {
 		this.on = builder.on;
@@ -54,46 +57,22 @@ public class CreateOptions<K, V> implements RediSearchArgument<K, V> {
 
 	@Override
 	public void build(SearchCommandArgs<K, V> args) {
-		if (on != null) {
-			args.add(SearchCommandKeyword.ON);
-			args.add(on.name());
-		}
-		if (prefixes != null && !prefixes.isEmpty()) {
+		on.ifPresent(o -> args.add(SearchCommandKeyword.ON).add(o.name()));
+		if (!prefixes.isEmpty()) {
 			args.add(SearchCommandKeyword.PREFIX);
 			args.add(prefixes.size());
 			prefixes.forEach(args::addKey);
 		}
-		if (filter != null) {
-			args.add(SearchCommandKeyword.FILTER);
-			args.addValue(filter);
-		}
-		if (defaultLanguage != null) {
-			args.add(SearchCommandKeyword.LANGUAGE);
-			args.add(defaultLanguage.getId());
-		}
-		if (languageField != null) {
-			args.add(SearchCommandKeyword.LANGUAGE_FIELD);
-			args.addKey(languageField);
-		}
-		if (defaultScore != null) {
-			args.add(SearchCommandKeyword.SCORE);
-			args.add(defaultScore);
-		}
-		if (scoreField != null) {
-			args.add(SearchCommandKeyword.SCORE_FIELD);
-			args.addKey(scoreField);
-		}
-		if (payloadField != null) {
-			args.add(SearchCommandKeyword.PAYLOAD_FIELD);
-			args.addKey(payloadField);
-		}
+		filter.ifPresent(f -> args.add(SearchCommandKeyword.FILTER).addValue(f));
+		defaultLanguage.ifPresent(l -> args.add(SearchCommandKeyword.LANGUAGE).add(l.getId()));
+		languageField.ifPresent(f -> args.add(SearchCommandKeyword.LANGUAGE_FIELD).addKey(f));
+		defaultScore.ifPresent(s -> args.add(SearchCommandKeyword.SCORE).add(s));
+		scoreField.ifPresent(f -> args.add(SearchCommandKeyword.SCORE_FIELD).addKey(f));
+		payloadField.ifPresent(f -> args.add(SearchCommandKeyword.PAYLOAD_FIELD).addKey(f));
 		if (maxTextFields) {
 			args.add(SearchCommandKeyword.MAXTEXTFIELDS);
 		}
-		if (temporary != null) {
-			args.add(SearchCommandKeyword.TEMPORARY);
-			args.add(temporary);
-		}
+		temporary.ifPresent(t -> args.add(SearchCommandKeyword.TEMPORARY).add(t));
 		if (noOffsets) {
 			args.add(SearchCommandKeyword.NOOFFSETS);
 		}
@@ -109,11 +88,10 @@ public class CreateOptions<K, V> implements RediSearchArgument<K, V> {
 		if (noItitialScan) {
 			args.add(SearchCommandKeyword.NOINITIALSCAN);
 		}
-		if (stopWords != null) {
-			args.add(SearchCommandKeyword.STOPWORDS);
-			args.add(stopWords.size());
-			stopWords.forEach(args::addValue);
-		}
+		stopWords.ifPresent(w -> {
+			args.add(SearchCommandKeyword.STOPWORDS).add(w.size());
+			w.forEach(args::addValue);
+		});
 	}
 
 	public static <K, V> Builder<K, V> builder() {
@@ -122,25 +100,25 @@ public class CreateOptions<K, V> implements RediSearchArgument<K, V> {
 
 	public static final class Builder<K, V> {
 
-		private DataType on = DataType.HASH;
-		private List<K> prefixes = new ArrayList<>();
-		private V filter;
-		private Language defaultLanguage;
-		private K languageField;
-		private Double defaultScore;
-		private K scoreField;
-		private K payloadField;
+		private Optional<DataType> on = Optional.of(DataType.HASH);
+		private final List<K> prefixes = new ArrayList<>();
+		private Optional<V> filter = Optional.empty();
+		private Optional<Language> defaultLanguage = Optional.empty();
+		private Optional<K> languageField = Optional.empty();
+		private OptionalDouble defaultScore = OptionalDouble.empty();
+		private Optional<K> scoreField = Optional.empty();
+		private Optional<K> payloadField = Optional.empty();
 		private boolean maxTextFields;
-		private Long temporary;
+		private OptionalLong temporary = OptionalLong.empty();
 		private boolean noOffsets;
 		private boolean noHL;
 		private boolean noFields;
 		private boolean noFreqs;
 		private boolean noItitialScan;
-		private List<V> stopWords = new ArrayList<>();
+		private Optional<List<V>> stopWords = Optional.empty();
 
 		public Builder<K, V> on(DataType on) {
-			this.on = on;
+			this.on = Optional.of(on);
 			return this;
 		}
 
@@ -156,32 +134,32 @@ public class CreateOptions<K, V> implements RediSearchArgument<K, V> {
 		}
 
 		public Builder<K, V> filter(V filter) {
-			this.filter = filter;
+			this.filter = Optional.of(filter);
 			return this;
 		}
 
 		public Builder<K, V> defaultLanguage(Language defaultLanguage) {
-			this.defaultLanguage = defaultLanguage;
+			this.defaultLanguage = Optional.of(defaultLanguage);
 			return this;
 		}
 
 		public Builder<K, V> languageField(K languageField) {
-			this.languageField = languageField;
+			this.languageField = Optional.of(languageField);
 			return this;
 		}
 
-		public Builder<K, V> defaultScore(Double defaultScore) {
-			this.defaultScore = defaultScore;
+		public Builder<K, V> defaultScore(double defaultScore) {
+			this.defaultScore = OptionalDouble.of(defaultScore);
 			return this;
 		}
 
 		public Builder<K, V> scoreField(K scoreField) {
-			this.scoreField = scoreField;
+			this.scoreField = Optional.of(scoreField);
 			return this;
 		}
 
 		public Builder<K, V> payloadField(K payloadField) {
-			this.payloadField = payloadField;
+			this.payloadField = Optional.of(payloadField);
 			return this;
 		}
 
@@ -190,8 +168,8 @@ public class CreateOptions<K, V> implements RediSearchArgument<K, V> {
 			return this;
 		}
 
-		public Builder<K, V> temporary(Long temporary) {
-			this.temporary = temporary;
+		public Builder<K, V> temporary(long temporary) {
+			this.temporary = OptionalLong.of(temporary);
 			return this;
 		}
 
@@ -221,7 +199,7 @@ public class CreateOptions<K, V> implements RediSearchArgument<K, V> {
 		}
 
 		public Builder<K, V> stopWords(List<V> stopWords) {
-			this.stopWords = stopWords;
+			this.stopWords = Optional.of(stopWords);
 			return this;
 		}
 

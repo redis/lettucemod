@@ -6,9 +6,9 @@ import com.redis.lettucemod.protocol.SearchCommandKeyword;
 public class Apply<K, V> implements AggregateOperation<K, V> {
 
 	private final V expression;
-	private final K as;
+	private final As as;
 
-	public Apply(V expression, K as) {
+	public Apply(V expression, As as) {
 		this.expression = expression;
 		this.as = as;
 	}
@@ -17,24 +17,23 @@ public class Apply<K, V> implements AggregateOperation<K, V> {
 	public void build(SearchCommandArgs<K, V> args) {
 		args.add(SearchCommandKeyword.APPLY);
 		args.addValue(expression);
-		args.add(SearchCommandKeyword.AS);
-		args.addKey(as);
+		as.build(args);
 	}
 
-	public static <K, V> ApplyBuilder<K, V> expression(V expression) {
-		return new ApplyBuilder<>(expression);
+	public static <K, V> Builder<K, V> expression(V expression) {
+		return new Builder<>(expression);
 	}
 
-	public static class ApplyBuilder<K, V> {
+	public static class Builder<K, V> {
 
 		private final V expression;
 
-		public ApplyBuilder(V expression) {
+		public Builder(V expression) {
 			this.expression = expression;
 		}
 
-		public Apply<K, V> as(K as) {
-			return new Apply<>(expression, as);
+		public Apply<K, V> as(String as) {
+			return new Apply<>(expression, As.of(as));
 		}
 	}
 

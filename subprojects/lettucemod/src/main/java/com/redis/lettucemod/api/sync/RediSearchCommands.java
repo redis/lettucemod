@@ -38,9 +38,9 @@ public interface RediSearchCommands<K, V> {
 
     AggregateResults<K> aggregate(K index, V query, AggregateOptions<K, V> options);
 
-    AggregateWithCursorResults<K> aggregate(K index, V query, Cursor cursor);
+    AggregateWithCursorResults<K> aggregate(K index, V query, CursorOptions cursor);
 
-    AggregateWithCursorResults<K> aggregate(K index, V query, Cursor cursor, AggregateOptions<K, V> options);
+    AggregateWithCursorResults<K> aggregate(K index, V query, CursorOptions cursor, AggregateOptions<K, V> options);
 
     AggregateWithCursorResults<K> cursorRead(K index, long cursor);
 

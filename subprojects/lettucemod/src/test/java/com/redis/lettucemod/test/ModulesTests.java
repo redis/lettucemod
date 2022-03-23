@@ -56,14 +56,13 @@ import com.redis.lettucemod.search.AggregateOptions;
 import com.redis.lettucemod.search.AggregateResults;
 import com.redis.lettucemod.search.AggregateWithCursorResults;
 import com.redis.lettucemod.search.CreateOptions;
-import com.redis.lettucemod.search.Cursor;
+import com.redis.lettucemod.search.CursorOptions;
 import com.redis.lettucemod.search.Document;
 import com.redis.lettucemod.search.Field;
 import com.redis.lettucemod.search.Group;
 import com.redis.lettucemod.search.IndexInfo;
 import com.redis.lettucemod.search.Language;
 import com.redis.lettucemod.search.Limit;
-import com.redis.lettucemod.search.Order;
 import com.redis.lettucemod.search.Reducers.Avg;
 import com.redis.lettucemod.search.Reducers.Count;
 import com.redis.lettucemod.search.Reducers.Max;
@@ -323,7 +322,7 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 		assertEquals(10, results.size());
 		assertTrue(results.get(0).getScore() > 0);
 		results = sync.search(Beers.INDEX, "Hefeweizen", SearchOptions.<String, String>builder().withScores(true)
-				.noContent(true).limit(new SearchOptions.Limit(0, 100)).build());
+				.noContent(true).limit(new Limit(0, 100)).build());
 		assertEquals(81, results.getCount());
 		assertEquals(81, results.size());
 		assertTrue(results.get(0).getId().startsWith(Beers.PREFIX));
@@ -377,8 +376,7 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 		}
 
 		results = context.reactive()
-				.search(Beers.INDEX, "pale",
-						SearchOptions.<String, String>builder().limit(new SearchOptions.Limit(200, 100)).build())
+				.search(Beers.INDEX, "pale", SearchOptions.<String, String>builder().limit(new Limit(200, 100)).build())
 				.block();
 		assertEquals(710, results.getCount());
 		Document<String, String> result1 = results.get(0);
@@ -389,8 +387,7 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 		results = sync.search(Beers.INDEX, "pail");
 		assertEquals(417, results.getCount());
 
-		results = sync.search(Beers.INDEX, "*",
-				SearchOptions.<String, String>builder().limit(new SearchOptions.Limit(0, 0)).build());
+		results = sync.search(Beers.INDEX, "*", SearchOptions.<String, String>builder().limit(new Limit(0, 0)).build());
 		assertEquals(count, results.getCount());
 
 		String index = "escapeTagTestIdx";
@@ -492,8 +489,8 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 		AggregateOptions<String, String> groupByOptions = AggregateOptions
 				.<String, String>group(Group.by(Beers.FIELD_STYLE_NAME.getName())
 						.avg(Avg.property(Beers.FIELD_ABV.getName()).as(Beers.FIELD_ABV.getName()).build()).build())
-				.sort(Sort.by(Sort.Property.name(Beers.FIELD_ABV.getName()).order(Order.DESC)).build())
-				.limit(Limit.offset(0).num(20)).build();
+				.sort(Sort.by(Sort.Property.desc(Beers.FIELD_ABV.getName())).build()).limit(Limit.offset(0).num(20))
+				.build();
 		groupByAsserts.accept(sync.aggregate(Beers.INDEX, "*", groupByOptions));
 		groupByAsserts.accept(reactive.aggregate(Beers.INDEX, "*", groupByOptions).block());
 
@@ -538,10 +535,10 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 		AggregateOptions<String, String> cursorOptions = AggregateOptions.<String, String>builder()
 				.load(Beers.FIELD_ID.getName()).load(Beers.FIELD_NAME.getName()).load(Beers.FIELD_ABV.getName())
 				.build();
-		AggregateWithCursorResults<String> cursorResults = sync.aggregate(Beers.INDEX, "*", new Cursor(),
+		AggregateWithCursorResults<String> cursorResults = sync.aggregate(Beers.INDEX, "*", new CursorOptions(),
 				cursorOptions);
 		cursorTests.accept(cursorResults);
-		cursorTests.accept(reactive.aggregate(Beers.INDEX, "*", new Cursor(), cursorOptions).block());
+		cursorTests.accept(reactive.aggregate(Beers.INDEX, "*", new CursorOptions(), cursorOptions).block());
 		cursorResults = sync.cursorRead(Beers.INDEX, cursorResults.getCursor(), 500);
 		assertEquals(500, cursorResults.size());
 		cursorResults = reactive.cursorRead(Beers.INDEX, cursorResults.getCursor()).block();
@@ -618,7 +615,7 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 		Field.TagField styleField = (Field.TagField) fields.get(2);
 		assertEquals(Beers.FIELD_STYLE_NAME.getName(), styleField.getName());
 		Assertions.assertTrue(styleField.isSortable());
-		assertEquals(",", styleField.getSeparator());
+		assertEquals(",", styleField.getSeparator().get());
 	}
 
 	@ParameterizedTest
@@ -1138,5 +1135,9 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 
 	private void assumeGears() {
 		Assumptions.assumeTrue(RedisServer.isEnabled("REDISGEARS"));
+	}
+
+	public static void main(String[] args) {
+		System.out.println(System.getProperty("TESTCONTAINERS_REDIS_CLUSTER"));
 	}
 }

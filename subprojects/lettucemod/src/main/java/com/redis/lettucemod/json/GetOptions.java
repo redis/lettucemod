@@ -1,5 +1,7 @@
 package com.redis.lettucemod.json;
 
+import java.util.Optional;
+
 import com.redis.lettucemod.protocol.JsonCommandKeyword;
 
 import io.lettuce.core.CompositeArgument;
@@ -7,33 +9,33 @@ import io.lettuce.core.protocol.CommandArgs;
 
 public class GetOptions implements CompositeArgument {
 
-	private String indent;
-	private String newline;
-	private String space;
+	private Optional<String> indent = Optional.empty();
+	private Optional<String> newline = Optional.empty();
+	private Optional<String> space = Optional.empty();
 	private boolean noEscape;
 
-	public String getIndent() {
+	public Optional<String> getIndent() {
 		return indent;
 	}
 
 	public void setIndent(String indent) {
-		this.indent = indent;
+		this.indent = Optional.of(indent);
 	}
 
-	public String getNewline() {
+	public Optional<String> getNewline() {
 		return newline;
 	}
 
 	public void setNewline(String newline) {
-		this.newline = newline;
+		this.newline = Optional.of(newline);
 	}
 
-	public String getSpace() {
+	public Optional<String> getSpace() {
 		return space;
 	}
 
 	public void setSpace(String space) {
-		this.space = space;
+		this.space = Optional.of(space);
 	}
 
 	public boolean isNoEscape() {
@@ -86,18 +88,9 @@ public class GetOptions implements CompositeArgument {
 
 	@Override
 	public <K, V> void build(CommandArgs<K, V> args) {
-		if (indent != null) {
-			args.add(JsonCommandKeyword.INDENT);
-			args.add(indent);
-		}
-		if (newline != null) {
-			args.add(JsonCommandKeyword.NEWLINE);
-			args.add(newline);
-		}
-		if (space != null) {
-			args.add(JsonCommandKeyword.SPACE);
-			args.add(space);
-		}
+		indent.ifPresent(i -> args.add(JsonCommandKeyword.INDENT).add(i));
+		newline.ifPresent(l -> args.add(JsonCommandKeyword.NEWLINE).add(l));
+		space.ifPresent(s -> args.add(JsonCommandKeyword.SPACE).add(s));
 		if (noEscape) {
 			args.add(JsonCommandKeyword.NOESCAPE);
 		}

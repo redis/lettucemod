@@ -3,6 +3,8 @@ package com.redis.lettucemod.search;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+import java.util.OptionalLong;
 
 import com.redis.lettucemod.protocol.SearchCommandArgs;
 import com.redis.lettucemod.protocol.SearchCommandKeyword;
@@ -16,20 +18,20 @@ public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
 	private boolean withPayloads;
 	private boolean withSortKeys;
 	private List<NumericFilter<K, V>> filters = new ArrayList<>();
-	private GeoFilter<K, V> geoFilter;
+	private Optional<GeoFilter<K, V>> geoFilter = Optional.empty();
 	private List<K> inKeys = new ArrayList<>();
 	private List<K> inFields = new ArrayList<>();
 	private List<K> returnFields = new ArrayList<>();
-	private Summarize<K, V> summarize;
-	private Highlight<K, V> highlight;
-	private Long slop;
+	private Optional<Summarize<K, V>> summarize = Optional.empty();
+	private Optional<Highlight<K, V>> highlight = Optional.empty();
+	private Optional<Long> slop = Optional.empty();
 	private boolean inOrder;
-	private Language language;
-	private String expander;
-	private String scorer;
-	private V payload;
-	private SortBy<K> sortBy;
-	private Limit limit;
+	private Optional<Language> language = Optional.empty();
+	private Optional<String> expander = Optional.empty();
+	private Optional<String> scorer = Optional.empty();
+	private Optional<V> payload = Optional.empty();
+	private Optional<SortBy<K, V>> sortBy = Optional.empty();
+	private Optional<Limit> limit = Optional.empty();
 
 	private SearchOptions(Builder<K, V> builder) {
 		this.noContent = builder.noContent;
@@ -111,12 +113,12 @@ public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
 		this.filters = filters;
 	}
 
-	public GeoFilter<K, V> getGeoFilter() {
+	public Optional<GeoFilter<K, V>> getGeoFilter() {
 		return geoFilter;
 	}
 
 	public void setGeoFilter(GeoFilter<K, V> geoFilter) {
-		this.geoFilter = geoFilter;
+		this.geoFilter = Optional.of(geoFilter);
 	}
 
 	public List<K> getInKeys() {
@@ -143,28 +145,28 @@ public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
 		this.returnFields = returnFields;
 	}
 
-	public Summarize<K, V> getSummarize() {
+	public Optional<Summarize<K, V>> getSummarize() {
 		return summarize;
 	}
 
 	public void setSummarize(Summarize<K, V> summarize) {
-		this.summarize = summarize;
+		this.summarize = Optional.of(summarize);
 	}
 
-	public Highlight<K, V> getHighlight() {
+	public Optional<Highlight<K, V>> getHighlight() {
 		return highlight;
 	}
 
 	public void setHighlight(Highlight<K, V> highlight) {
-		this.highlight = highlight;
+		this.highlight = Optional.of(highlight);
 	}
 
-	public Long getSlop() {
+	public Optional<Long> getSlop() {
 		return slop;
 	}
 
-	public void setSlop(Long slop) {
-		this.slop = slop;
+	public void setSlop(long slop) {
+		this.slop = Optional.of(slop);
 	}
 
 	public boolean isInOrder() {
@@ -175,52 +177,52 @@ public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
 		this.inOrder = inOrder;
 	}
 
-	public Language getLanguage() {
+	public Optional<Language> getLanguage() {
 		return language;
 	}
 
 	public void setLanguage(Language language) {
-		this.language = language;
+		this.language = Optional.of(language);
 	}
 
-	public String getExpander() {
+	public Optional<String> getExpander() {
 		return expander;
 	}
 
 	public void setExpander(String expander) {
-		this.expander = expander;
+		this.expander = Optional.of(expander);
 	}
 
-	public String getScorer() {
+	public Optional<String> getScorer() {
 		return scorer;
 	}
 
 	public void setScorer(String scorer) {
-		this.scorer = scorer;
+		this.scorer = Optional.of(scorer);
 	}
 
-	public V getPayload() {
+	public Optional<V> getPayload() {
 		return payload;
 	}
 
 	public void setPayload(V payload) {
-		this.payload = payload;
+		this.payload = Optional.of(payload);
 	}
 
-	public SortBy<K> getSortBy() {
+	public Optional<SortBy<K, V>> getSortBy() {
 		return sortBy;
 	}
 
-	public void setSortBy(SortBy<K> sortBy) {
-		this.sortBy = sortBy;
+	public void setSortBy(SortBy<K, V> sortBy) {
+		this.sortBy = Optional.of(sortBy);
 	}
 
-	public Limit getLimit() {
+	public Optional<Limit> getLimit() {
 		return limit;
 	}
 
 	public void setLimit(Limit limit) {
-		this.limit = limit;
+		this.limit = Optional.of(limit);
 	}
 
 	@Override
@@ -247,10 +249,10 @@ public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
 			args.add(SearchCommandKeyword.FILTER);
 			filter.build(args);
 		}
-		if (geoFilter != null) {
+		geoFilter.ifPresent(f -> {
 			args.add(SearchCommandKeyword.GEOFILTER);
-			geoFilter.build(args);
-		}
+			f.build(args);
+		});
 		if (!inKeys.isEmpty()) {
 			args.add(SearchCommandKeyword.INKEYS);
 			args.add(inKeys.size());
@@ -266,73 +268,28 @@ public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
 			args.add(returnFields.size());
 			returnFields.forEach(args::addKey);
 		}
-		if (summarize != null) {
+		summarize.ifPresent(s -> {
 			args.add(SearchCommandKeyword.SUMMARIZE);
-			summarize.build(args);
-		}
-		if (highlight != null) {
+			s.build(args);
+		});
+		highlight.ifPresent(h -> {
 			args.add(SearchCommandKeyword.HIGHLIGHT);
-			highlight.build(args);
-		}
-		if (slop != null) {
-			args.add(SearchCommandKeyword.SLOP);
-			args.add(slop);
-		}
+			h.build(args);
+		});
+		slop.ifPresent(s -> args.add(SearchCommandKeyword.SLOP).add(s));
 		if (inOrder) {
 			args.add(SearchCommandKeyword.INORDER);
 		}
-		if (language != null) {
-			args.add(SearchCommandKeyword.LANGUAGE);
-			args.add(language.getId());
-		}
-		if (expander != null) {
-			args.add(SearchCommandKeyword.EXPANDER);
-			args.add(expander);
-		}
-		if (scorer != null) {
-			args.add(SearchCommandKeyword.SCORER);
-			args.add(scorer);
-		}
-		if (payload != null) {
-			args.add(SearchCommandKeyword.PAYLOAD);
-			args.addValue(payload);
-		}
-		if (sortBy != null) {
-			args.add(SearchCommandKeyword.SORTBY);
-			args.addKey(sortBy.getField());
-			args.add(sortBy.getDirection() == Order.ASC ? SearchCommandKeyword.ASC : SearchCommandKeyword.DESC);
-		}
-		if (limit != null) {
-			limit.build(args);
-		}
+		language.ifPresent(l -> args.add(SearchCommandKeyword.LANGUAGE).add(l.getId()));
+		expander.ifPresent(e -> args.add(SearchCommandKeyword.EXPANDER).add(e));
+		scorer.ifPresent(s -> args.add(SearchCommandKeyword.SCORER).add(s));
+		payload.ifPresent(p -> args.add(SearchCommandKeyword.PAYLOAD).addValue(p));
+		sortBy.ifPresent(s -> s.build(args));
+		limit.ifPresent(l -> l.build(args));
 	}
 
 	public static Limit limit(long offset, long num) {
 		return new Limit(offset, num);
-	}
-
-	@SuppressWarnings("rawtypes")
-	public static class Limit implements RediSearchArgument {
-
-		private final long offset;
-		private final long num;
-
-		public Limit(long offset, long num) {
-			this.offset = offset;
-			this.num = num;
-		}
-
-		public static Limit of(long offset, long num) {
-			return new Limit(offset, num);
-		}
-
-		@Override
-		public void build(SearchCommandArgs args) {
-			args.add(SearchCommandKeyword.LIMIT);
-			args.add(offset);
-			args.add(num);
-		}
-
 	}
 
 	public static class NumericFilter<K, V> implements RediSearchArgument<K, V> {
@@ -354,30 +311,30 @@ public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
 			args.add(max);
 		}
 
-		public static <K, V> NumericFilterBuilder<K, V> field(K field) {
-			return new NumericFilterBuilder<>(field);
+		public static <K, V> Builder<K, V> field(K field) {
+			return new Builder<>(field);
 		}
 
-		public static class NumericFilterBuilder<K, V> {
+		public static class Builder<K, V> {
 
 			private final K field;
 
-			public NumericFilterBuilder(K field) {
+			public Builder(K field) {
 				this.field = field;
 			}
 
-			public MinNumericFilterBuilder<K, V> min(double min) {
-				return new MinNumericFilterBuilder<>(field, min);
+			public MaxNumericFilterBuilder<K, V> min(double min) {
+				return new MaxNumericFilterBuilder<>(field, min);
 			}
 
 		}
 
-		public static class MinNumericFilterBuilder<K, V> {
+		public static class MaxNumericFilterBuilder<K, V> {
 
 			private final K field;
 			private final double min;
 
-			public MinNumericFilterBuilder(K field, double min) {
+			public MaxNumericFilterBuilder(K field, double min) {
 				this.field = field;
 				this.min = min;
 			}
@@ -456,11 +413,11 @@ public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
 			args.add(unit);
 		}
 
-		public static <K, V> GeoFilterBuilder<K, V> field(K field) {
-			return new GeoFilterBuilder<>(field);
+		public static <K, V> Builder<K, V> field(K field) {
+			return new Builder<>(field);
 		}
 
-		public static class GeoFilterBuilder<K, V> {
+		public static class Builder<K, V> {
 
 			private final K field;
 			private double longitude;
@@ -468,26 +425,26 @@ public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
 			private double radius;
 			private String unit;
 
-			public GeoFilterBuilder(K field) {
+			public Builder(K field) {
 				this.field = field;
 			}
 
-			public GeoFilterBuilder<K, V> longitude(double longitude) {
+			public Builder<K, V> longitude(double longitude) {
 				this.longitude = longitude;
 				return this;
 			}
 
-			public GeoFilterBuilder<K, V> latitude(double latitude) {
+			public Builder<K, V> latitude(double latitude) {
 				this.latitude = latitude;
 				return this;
 			}
 
-			public GeoFilterBuilder<K, V> radius(double radius) {
+			public Builder<K, V> radius(double radius) {
 				this.radius = radius;
 				return this;
 			}
 
-			public GeoFilterBuilder<K, V> unit(String unit) {
+			public Builder<K, V> unit(String unit) {
 				this.unit = unit;
 				return this;
 			}
@@ -501,8 +458,8 @@ public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
 
 	public static class Highlight<K, V> implements RediSearchArgument<K, V> {
 
-		private List<K> fields = new ArrayList<>();
-		private Tags<V> tags;
+		private final List<K> fields;
+		private final Optional<Tags<V>> tags;
 
 		private Highlight(Builder<K, V> builder) {
 			this.fields = builder.fields;
@@ -516,7 +473,7 @@ public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
 		public static class Builder<K, V> {
 
 			private List<K> fields = new ArrayList<>();
-			private Tags<V> tags;
+			private Optional<Tags<V>> tags = Optional.empty();
 
 			public Builder<K, V> field(K field) {
 				this.fields.add(field);
@@ -530,13 +487,12 @@ public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
 			}
 
 			public Builder<K, V> tags(Tags<V> tags) {
-				this.tags = tags;
+				this.tags = Optional.of(tags);
 				return this;
 			}
 
 			public Builder<K, V> tags(V open, V close) {
-				this.tags = new Tags<>(open, close);
-				return this;
+				return tags(new Tags<>(open, close));
 			}
 
 			public Highlight<K, V> build() {
@@ -552,11 +508,7 @@ public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
 				args.add(fields.size());
 				fields.forEach(args::addKey);
 			}
-			if (tags != null) {
-				args.add(SearchCommandKeyword.TAGS);
-				args.addValue(tags.getOpen());
-				args.addValue(tags.getClose());
-			}
+			tags.ifPresent(t -> args.add(SearchCommandKeyword.TAGS).addValue(t.getOpen()).addValue(t.getClose()));
 		}
 
 		public static class Tags<V> {
@@ -593,9 +545,9 @@ public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
 	public static class Summarize<K, V> implements RediSearchArgument<K, V> {
 
 		private List<K> fields = new ArrayList<>();
-		private Long frags;
-		private Long length;
-		private V separator;
+		private OptionalLong frags = OptionalLong.empty();
+		private OptionalLong length = OptionalLong.empty();
+		private Optional<V> separator = Optional.empty();
 
 		public List<K> getFields() {
 			return fields;
@@ -605,28 +557,28 @@ public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
 			this.fields = fields;
 		}
 
-		public Long getFrags() {
+		public OptionalLong getFrags() {
 			return frags;
 		}
 
-		public void setFrags(Long frags) {
-			this.frags = frags;
+		public void setFrags(long frags) {
+			this.frags = OptionalLong.of(frags);
 		}
 
-		public Long getLength() {
+		public OptionalLong getLength() {
 			return length;
 		}
 
-		public void setLength(Long length) {
-			this.length = length;
+		public void setLength(long length) {
+			this.length = OptionalLong.of(length);
 		}
 
-		public V getSeparator() {
+		public Optional<V> getSeparator() {
 			return separator;
 		}
 
 		public void setSeparator(V separator) {
-			this.separator = separator;
+			this.separator = Optional.of(separator);
 		}
 
 		@Override
@@ -636,23 +588,13 @@ public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
 				args.add(fields.size());
 				fields.forEach(args::addKey);
 			}
-			if (frags != null) {
-				args.add(SearchCommandKeyword.FRAGS);
-				args.add(frags);
-			}
-			if (length != null) {
-				args.add(SearchCommandKeyword.LEN);
-				args.add(length);
-			}
-			if (separator != null) {
-				args.add(SearchCommandKeyword.SEPARATOR);
-				args.addValue(separator);
-			}
+			frags.ifPresent(f -> args.add(SearchCommandKeyword.FRAGS).add(f));
+			length.ifPresent(l -> args.add(SearchCommandKeyword.LEN).add(l));
+			separator.ifPresent(s -> args.add(SearchCommandKeyword.SEPARATOR).addValue(s));
 		}
-
 	}
 
-	public static class SortBy<K> {
+	public static class SortBy<K, V> implements RediSearchArgument<K, V> {
 
 		private final K field;
 		private final Order direction;
@@ -670,13 +612,20 @@ public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
 			return direction;
 		}
 
-		public static <K> SortBy<K> asc(K field) {
+		@Override
+		public void build(SearchCommandArgs<K, V> args) {
+			args.add(SearchCommandKeyword.SORTBY).addKey(field);
+			direction.build(args);
+		}
+
+		public static <K, V> SortBy<K, V> asc(K field) {
 			return new SortBy<>(field, Order.ASC);
 		}
 
-		public static <K> SortBy<K> desc(K field) {
+		public static <K, V> SortBy<K, V> desc(K field) {
 			return new SortBy<>(field, Order.DESC);
 		}
+
 	}
 
 	public static <K, V> Builder<K, V> builder() {
@@ -691,20 +640,20 @@ public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
 		private boolean withPayloads;
 		private boolean withSortKeys;
 		private List<NumericFilter<K, V>> filters = new ArrayList<>();
-		private GeoFilter<K, V> geoFilter;
+		private Optional<GeoFilter<K, V>> geoFilter = Optional.empty();
 		private List<K> inKeys = new ArrayList<>();
 		private List<K> inFields = new ArrayList<>();
 		private List<K> returnFields = new ArrayList<>();
-		private Summarize<K, V> summarize;
-		private Highlight<K, V> highlight;
-		private Long slop;
+		private Optional<Summarize<K, V>> summarize = Optional.empty();
+		private Optional<Highlight<K, V>> highlight = Optional.empty();
+		private Optional<Long> slop = Optional.empty();
 		private boolean inOrder;
-		private Language language;
-		private String expander;
-		private String scorer;
-		private V payload;
-		private SortBy<K> sortBy;
-		private Limit limit;
+		private Optional<Language> language = Optional.empty();
+		private Optional<String> expander = Optional.empty();
+		private Optional<String> scorer = Optional.empty();
+		private Optional<V> payload = Optional.empty();
+		private Optional<SortBy<K, V>> sortBy = Optional.empty();
+		private Optional<Limit> limit = Optional.empty();
 
 		private Builder() {
 		}
@@ -751,7 +700,7 @@ public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
 		}
 
 		public Builder<K, V> geoFilter(GeoFilter<K, V> geoFilter) {
-			this.geoFilter = geoFilter;
+			this.geoFilter = Optional.of(geoFilter);
 			return this;
 		}
 
@@ -789,17 +738,17 @@ public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
 		}
 
 		public Builder<K, V> summarize(Summarize<K, V> summarize) {
-			this.summarize = summarize;
+			this.summarize = Optional.of(summarize);
 			return this;
 		}
 
 		public Builder<K, V> highlight(Highlight<K, V> highlight) {
-			this.highlight = highlight;
+			this.highlight = Optional.of(highlight);
 			return this;
 		}
 
-		public Builder<K, V> slop(Long slop) {
-			this.slop = slop;
+		public Builder<K, V> slop(long slop) {
+			this.slop = Optional.of(slop);
 			return this;
 		}
 
@@ -809,32 +758,32 @@ public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
 		}
 
 		public Builder<K, V> language(Language language) {
-			this.language = language;
+			this.language = Optional.of(language);
 			return this;
 		}
 
 		public Builder<K, V> expander(String expander) {
-			this.expander = expander;
+			this.expander = Optional.of(expander);
 			return this;
 		}
 
 		public Builder<K, V> scorer(String scorer) {
-			this.scorer = scorer;
+			this.scorer = Optional.of(scorer);
 			return this;
 		}
 
 		public Builder<K, V> payload(V payload) {
-			this.payload = payload;
+			this.payload = Optional.of(payload);
 			return this;
 		}
 
-		public Builder<K, V> sortBy(SortBy<K> sortBy) {
-			this.sortBy = sortBy;
+		public Builder<K, V> sortBy(SortBy<K, V> sortBy) {
+			this.sortBy = Optional.of(sortBy);
 			return this;
 		}
 
 		public Builder<K, V> limit(Limit limit) {
-			this.limit = limit;
+			this.limit = Optional.of(limit);
 			return this;
 		}
 

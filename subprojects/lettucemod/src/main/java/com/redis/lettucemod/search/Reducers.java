@@ -1,5 +1,7 @@
 package com.redis.lettucemod.search;
 
+import java.util.Optional;
+
 import com.redis.lettucemod.protocol.SearchCommandArgs;
 import com.redis.lettucemod.protocol.SearchCommandKeyword;
 
@@ -11,8 +13,8 @@ public class Reducers {
 
 	public static class Max extends PropertyReducer {
 
-		public Max(String as, String property) {
-			super(as, property);
+		private Max(Builder builder) {
+			super(builder);
 		}
 
 		@Override
@@ -22,18 +24,18 @@ public class Reducers {
 			args.addProperty(property);
 		}
 
-		public static MaxBuilder property(String property) {
-			return new MaxBuilder(property);
+		public static Builder property(String property) {
+			return new Builder(property);
 		}
 
-		public static class MaxBuilder extends PropertyReducerBuilder<MaxBuilder> {
+		public static class Builder extends PropertyReducer.Builder<Builder> {
 
-			public MaxBuilder(String property) {
+			public Builder(String property) {
 				super(property);
 			}
 
 			public Max build() {
-				return new Max(as, property);
+				return new Max(this);
 			}
 		}
 
@@ -41,11 +43,11 @@ public class Reducers {
 
 	public static class FirstValue extends PropertyReducer {
 
-		private final By by;
+		private final Optional<By> by;
 
-		public FirstValue(String as, String property, By by) {
-			super(as, property);
-			this.by = by;
+		public FirstValue(Builder builder) {
+			super(builder);
+			this.by = builder.by;
 		}
 
 		@Override
@@ -53,93 +55,91 @@ public class Reducers {
 			args.add(SearchCommandKeyword.FIRST_VALUE);
 			args.add(getNumberOfArgs());
 			args.addProperty(property);
-			if (by != null) {
-				args.add(SearchCommandKeyword.BY);
-				args.addProperty(property);
-				if (by.getOrder() != null) {
-					args.add(by.getOrder() == Order.ASC ? SearchCommandKeyword.ASC : SearchCommandKeyword.DESC);
-				}
+			by.ifPresent(b -> b.build(args));
+		}
+
+		@Override
+		public String toString() {
+			String string = super.toString();
+			if (by.isPresent()) {
+				string += " by=" + by.get();
 			}
+			return string;
 		}
 
 		private int getNumberOfArgs() {
-			int nargs = 1;
-			if (by != null) {
-				nargs += by.getOrder() == null ? 2 : 3;
+			if (by.isPresent()) {
+				if (by.get().getOrder().isPresent()) {
+					return 3;
+				}
+				return 2;
 			}
-			return nargs;
+			return 1;
 		}
 
-		public static FirstValueBuilder property(String property) {
-			return new FirstValueBuilder(property);
+		public static Builder property(String property) {
+			return new Builder(property);
 		}
 
-		public static class FirstValueBuilder extends PropertyReducerBuilder<FirstValueBuilder> {
+		public static class Builder extends PropertyReducer.Builder<Builder> {
 
-			private By by;
+			private Optional<By> by = Optional.empty();
 
-			protected FirstValueBuilder(String property) {
+			protected Builder(String property) {
 				super(property);
 			}
 
-			public FirstValueBuilder by(By by) {
-				this.by = by;
+			public Builder by(By by) {
+				this.by = Optional.of(by);
 				return this;
 			}
 
 			public FirstValue build() {
-				return new FirstValue(as, property, by);
+				return new FirstValue(this);
 			}
 		}
 
-		public static class By {
+		public static class By implements RediSearchArgument {
 
-			private String property;
-			private Order order;
+			private final String property;
+			private final Optional<Order> order;
+
+			public By(String property) {
+				this.property = property;
+				this.order = Optional.empty();
+			}
 
 			public By(String property, Order order) {
 				this.property = property;
-				this.order = order;
+				this.order = Optional.of(order);
 			}
 
-			public String getProperty() {
-				return property;
-			}
-
-			public void setProperty(String property) {
-				this.property = property;
-			}
-
-			public Order getOrder() {
+			public Optional<Order> getOrder() {
 				return order;
 			}
 
-			public void setOrder(Order order) {
-				this.order = order;
+			@Override
+			public String toString() {
+				String string = "By [property=" + property;
+				if (order.isPresent()) {
+					string += " " + order.get();
+				}
+				string += "]";
+				return string;
 			}
 
-			public static ByBuilder property(String property) {
-				return new ByBuilder(property);
+			@Override
+			public void build(SearchCommandArgs args) {
+				args.add(SearchCommandKeyword.BY).addProperty(property);
+				order.ifPresent(o -> o.build(args));
 			}
 
-			public static class ByBuilder {
+			public static By asc(String property) {
+				return new By(property, Order.ASC);
+			}
 
-				private final String property;
-				private Order order;
-
-				public ByBuilder(String property) {
-					this.property = property;
-				}
-
-				public ByBuilder order(Order order) {
-					this.order = order;
-					return this;
-				}
-
-				public By build() {
-					return new By(property, order);
-				}
-
+			public static By desc(String property) {
+				return new By(property, Order.DESC);
 			}
 
 		}
@@ -147,7 +147,7 @@ public class Reducers {
 
 	public static class Count extends Reducer {
 
-		public Count(String as) {
+		private Count(Optional<As> as) {
 			super(as);
 		}
 
@@ -157,20 +157,25 @@ public class Reducers {
 			args.add(0);
 		}
 
+		@Override
+		public String toString() {
+			return toString("count");
+		}
+
 		public static Count create() {
-			return new Count(null);
+			return new Count(Optional.empty());
 		}
 
 		public static Count as(String as) {
-			return new Count(as);
+			return new Count(Optional.of(new As(as)));
 		}
 
 	}
 
 	public static class Min extends PropertyReducer {
 
-		public Min(String as, String property) {
-			super(as, property);
+		private Min(Builder builder) {
+			super(builder);
 		}
 
 		@Override
@@ -180,18 +185,18 @@ public class Reducers {
 			args.addProperty(property);
 		}
 
-		public static MinBuilder property(String property) {
-			return new MinBuilder(property);
+		public static Builder property(String property) {
+			return new Builder(property);
 		}
 
-		public static class MinBuilder extends PropertyReducerBuilder<MinBuilder> {
+		public static class Builder extends PropertyReducer.Builder<Builder> {
 
-			public MinBuilder(String property) {
+			public Builder(String property) {
 				super(property);
 			}
 
 			public Min build() {
-				return new Min(as, property);
+				return new Min(this);
 			}
 		}
 
@@ -201,9 +206,14 @@ public class Reducers {
 
 		private final int size;
 
-		public RandomSample(String as, String property, int size) {
-			super(as, property);
-			this.size = size;
+		private RandomSample(Builder builder) {
+			super(builder);
+			this.size = builder.size;
+		}
+
+		@Override
+		public String toString() {
+			return super.toString() + " size=" + size;
 		}
 
 		@Override
@@ -232,7 +242,7 @@ public class Reducers {
 
 		}
 
-		public static class Builder extends PropertyReducerBuilder<Builder> {
+		public static class Builder extends PropertyReducer.Builder<Builder> {
 
 			private final int size;
 
@@ -242,7 +252,7 @@ public class Reducers {
 			}
 
 			public RandomSample build() {
-				return new RandomSample(as, property, size);
+				return new RandomSample(this);
 			}
 
 		}
@@ -251,8 +261,8 @@ public class Reducers {
 
 	public static class Avg extends PropertyReducer {
 
-		public Avg(String as, String property) {
-			super(as, property);
+		private Avg(Builder builder) {
+			super(builder);
 		}
 
 		@Override
@@ -262,18 +272,18 @@ public class Reducers {
 			args.addProperty(property);
 		}
 
-		public static AvgBuilder property(String property) {
-			return new AvgBuilder(property);
+		public static Builder property(String property) {
+			return new Builder(property);
 		}
 
-		public static class AvgBuilder extends PropertyReducer.PropertyReducerBuilder<AvgBuilder> {
+		public static class Builder extends PropertyReducer.Builder<Builder> {
 
-			public AvgBuilder(String property) {
+			public Builder(String property) {
 				super(property);
 			}
 
 			public Avg build() {
-				return new Avg(as, property);
+				return new Avg(this);
 			}
 		}
 
@@ -281,8 +291,8 @@ public class Reducers {
 
 	public static class ToList extends PropertyReducer {
 
-		public ToList(String as, String property) {
-			super(as, property);
+		private ToList(Builder builder) {
+			super(builder);
 		}
 
 		@Override
@@ -292,26 +302,26 @@ public class Reducers {
 			args.addProperty(property);
 		}
 
-		public static ToListBuilder property(String property) {
-			return new ToListBuilder(property);
+		public static Builder property(String property) {
+			return new Builder(property);
 		}
 
-		public static class ToListBuilder extends PropertyReducerBuilder<ToListBuilder> {
+		public static class Builder extends PropertyReducer.Builder<Builder> {
 
-			public ToListBuilder(String property) {
+			public Builder(String property) {
 				super(property);
 			}
 
 			public ToList build() {
-				return new ToList(as, property);
+				return new ToList(this);
 			}
 		}
 	}
 
 	public static class Sum extends PropertyReducer {
 
-		public Sum(String as, String property) {
-			super(as, property);
+		public Sum(Builder builder) {
+			super(builder);
 		}
 
 		@Override
@@ -321,26 +331,26 @@ public class Reducers {
 			args.addProperty(property);
 		}
 
-		public static SumBuilder property(String property) {
-			return new SumBuilder(property);
+		public static Builder property(String property) {
+			return new Builder(property);
 		}
 
-		public static class SumBuilder extends PropertyReducerBuilder<SumBuilder> {
+		public static class Builder extends PropertyReducer.Builder<Builder> {
 
-			public SumBuilder(String property) {
+			public Builder(String property) {
 				super(property);
 			}
 
 			public Sum build() {
-				return new Sum(as, property);
+				return new Sum(this);
 			}
 		}
 	}
 
 	public static class StdDev extends PropertyReducer {
 
-		public StdDev(String as, String property) {
-			super(as, property);
+		public StdDev(Builder builder) {
+			super(builder);
 		}
 
 		@Override
@@ -350,18 +360,18 @@ public class Reducers {
 			args.addProperty(property);
 		}
 
-		public static StdDevBuilder property(String property) {
-			return new StdDevBuilder(property);
+		public static Builder property(String property) {
+			return new Builder(property);
 		}
 
-		public static class StdDevBuilder extends PropertyReducerBuilder<StdDevBuilder> {
+		public static class Builder extends PropertyReducer.Builder<Builder> {
 
-			public StdDevBuilder(String property) {
+			public Builder(String property) {
 				super(property);
 			}
 
 			public StdDev build() {
-				return new StdDev(as, property);
+				return new StdDev(this);
 			}
 		}
 
@@ -369,8 +379,8 @@ public class Reducers {
 
 	public static class CountDistinctish extends PropertyReducer {
 
-		private CountDistinctish(String as, String property) {
-			super(as, property);
+		private CountDistinctish(Builder builder) {
+			super(builder);
 		}
 
 		@Override
@@ -380,18 +390,18 @@ public class Reducers {
 			args.addProperty(property);
 		}
 
-		public static CountDistinctishBuilder property(String property) {
-			return new CountDistinctishBuilder(property);
+		public static Builder property(String property) {
+			return new Builder(property);
 		}
 
-		public static class CountDistinctishBuilder extends PropertyReducerBuilder<CountDistinctishBuilder> {
+		public static class Builder extends PropertyReducer.Builder<Builder> {
 
-			public CountDistinctishBuilder(String property) {
+			public Builder(String property) {
 				super(property);
 			}
 
 			public CountDistinctish build() {
-				return new CountDistinctish(as, property);
+				return new CountDistinctish(this);
 			}
 		}
 
@@ -399,8 +409,8 @@ public class Reducers {
 
 	public static class CountDistinct extends PropertyReducer {
 
-		public CountDistinct(String as, String property) {
-			super(as, property);
+		public CountDistinct(Builder builder) {
+			super(builder);
 		}
 
 		@Override
@@ -410,18 +420,18 @@ public class Reducers {
 			args.addProperty(property);
 		}
 
-		public static CountDistinctBuilder property(String property) {
-			return new CountDistinctBuilder(property);
+		public static Builder property(String property) {
+			return new Builder(property);
 		}
 
-		public static class CountDistinctBuilder extends PropertyReducerBuilder<CountDistinctBuilder> {
+		public static class Builder extends PropertyReducer.Builder<Builder> {
 
-			public CountDistinctBuilder(String property) {
+			public Builder(String property) {
 				super(property);
 			}
 
 			public CountDistinct build() {
-				return new CountDistinct(as, property);
+				return new CountDistinct(this);
 			}
 
 		}
@@ -432,9 +442,14 @@ public class Reducers {
 
 		private final double quantileValue;
 
-		public Quantile(String as, String property, double quantile) {
-			super(as, property);
-			this.quantileValue = quantile;
+		public Quantile(Builder builder) {
+			super(builder);
+			this.quantileValue = builder.quantile;
+		}
+
+		@Override
+		public String toString() {
+			return super.toString() + " quantile=" + quantileValue;
 		}
 
 		@Override
@@ -463,7 +478,7 @@ public class Reducers {
 
 		}
 
-		public static class Builder extends PropertyReducerBuilder<Builder> {
+		public static class Builder extends PropertyReducer.Builder<Builder> {
 
 			private final double quantile;
 
@@ -473,7 +488,7 @@ public class Reducers {
 			}
 
 			public Quantile build() {
-				return new Quantile(as, property, quantile);
+				return new Quantile(this);
 			}
 
 		}

@@ -176,7 +176,7 @@ try (StatefulRedisModulesConnection<String, String> connection = pool.borrowObje
 	}
 
 	public void warnings() {
-		AggregateOptions.AggregateOptionsBuilder<String, String> optionsBuilder = AggregateOptions
+		AggregateOptions.Builder<String, String> optionsBuilder = AggregateOptions
 				.<String, String>filter(new Filter<>("foo")).group(Group.by("bar").build());
 	}
 

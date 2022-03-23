@@ -2,10 +2,13 @@ package com.redis.lettucemod.timeseries;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
+import java.util.OptionalLong;
 
 import com.redis.lettucemod.protocol.TimeSeriesCommandKeyword;
 
 import io.lettuce.core.CompositeArgument;
+import io.lettuce.core.internal.LettuceAssert;
 import io.lettuce.core.protocol.CommandArgs;
 
 public class CreateOptions<K, V> implements CompositeArgument {
@@ -14,11 +17,11 @@ public class CreateOptions<K, V> implements CompositeArgument {
 		BLOCK, FIRST, LAST, MIN, MAX, SUM
 	}
 
-	private Long retentionTime;
+	private OptionalLong retentionTime = OptionalLong.empty();
 	private boolean uncompressed;
-	private Long chunkSize;
-	private DuplicatePolicy policy;
-	private Map<K, V> labels = new LinkedHashMap<>();
+	private OptionalLong chunkSize = OptionalLong.empty();
+	private Optional<DuplicatePolicy> policy = Optional.empty();
+	private final Map<K, V> labels;
 
 	private CreateOptions(Builder<K, V> builder) {
 		this.retentionTime = builder.retentionTime;
@@ -31,22 +34,13 @@ public class CreateOptions<K, V> implements CompositeArgument {
 	@SuppressWarnings("unchecked")
 	@Override
 	public <L, W> void build(CommandArgs<L, W> args) {
-		if (retentionTime != null) {
-			args.add(TimeSeriesCommandKeyword.RETENTION);
-			args.add(retentionTime);
-		}
+		retentionTime.ifPresent(t -> args.add(TimeSeriesCommandKeyword.RETENTION).add(t));
 		if (uncompressed) {
 			args.add(TimeSeriesCommandKeyword.UNCOMPRESSED);
 		}
-		if (chunkSize != null) {
-			args.add(TimeSeriesCommandKeyword.CHUNK_SIZE);
-			args.add(chunkSize);
-		}
-		if (policy != null) {
-			args.add(TimeSeriesCommandKeyword.ON_DUPLICATE);
-			args.add(policy.name());
-		}
-		if (labels != null) {
+		chunkSize.ifPresent(s -> args.add(TimeSeriesCommandKeyword.CHUNK_SIZE).add(s));
+		policy.ifPresent(p -> args.add(TimeSeriesCommandKeyword.ON_DUPLICATE).add(p.name()));
+		if (!labels.isEmpty()) {
 			args.add(TimeSeriesCommandKeyword.LABELS);
 			labels.forEach((k, v) -> args.addKey((L) k).addValue((W) v));
 		}
@@ -57,17 +51,17 @@ public class CreateOptions<K, V> implements CompositeArgument {
 	}
 
 	public static final class Builder<K, V> {
-		private Long retentionTime;
+		private OptionalLong retentionTime = OptionalLong.empty();
 		private boolean uncompressed;
-		private Long chunkSize;
-		private DuplicatePolicy policy;
+		private OptionalLong chunkSize = OptionalLong.empty();
+		private Optional<DuplicatePolicy> policy = Optional.empty();
 		private Map<K, V> labels = new LinkedHashMap<>();
 
 		private Builder() {
 		}
 
 		public Builder<K, V> retentionTime(long retentionTime) {
-			this.retentionTime = retentionTime;
+			this.retentionTime = OptionalLong.of(retentionTime);
 			return this;
 		}
 
@@ -77,12 +71,12 @@ public class CreateOptions<K, V> implements CompositeArgument {
 		}
 
 		public Builder<K, V> chunkSize(long chunkSize) {
-			this.chunkSize = chunkSize;
+			this.chunkSize = OptionalLong.of(chunkSize);
 			return this;
 		}
 
 		public Builder<K, V> policy(DuplicatePolicy policy) {
-			this.policy = policy;
+			this.policy = Optional.of(policy);
 			return this;
 		}
 
@@ -92,6 +86,7 @@ public class CreateOptions<K, V> implements CompositeArgument {
 		}
 
 		public Builder<K, V> labels(Map<K, V> labels) {
+			LettuceAssert.notNull(labels, "Labels must not be null");
 			this.labels = labels;
 			return this;
 		}

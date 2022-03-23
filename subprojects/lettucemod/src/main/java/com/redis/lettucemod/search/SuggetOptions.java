@@ -1,5 +1,7 @@
 package com.redis.lettucemod.search;
 
+import java.util.Optional;
+
 import com.redis.lettucemod.protocol.SearchCommandArgs;
 import com.redis.lettucemod.protocol.SearchCommandKeyword;
 
@@ -9,7 +11,7 @@ public class SuggetOptions implements RediSearchArgument {
 	private boolean fuzzy;
 	private boolean withScores;
 	private boolean withPayloads;
-	private Long max;
+	private Optional<Max> max = Optional.empty();
 
 	private SuggetOptions(Builder builder) {
 		this.fuzzy = builder.fuzzy;
@@ -42,12 +44,12 @@ public class SuggetOptions implements RediSearchArgument {
 		this.withPayloads = withPayloads;
 	}
 
-	public Long getMax() {
+	public Optional<Max> getMax() {
 		return max;
 	}
 
-	public void setMax(Long max) {
-		this.max = max;
+	public void setMax(long max) {
+		this.max = Optional.of(new Max(max));
 	}
 
 	@Override
@@ -61,10 +63,7 @@ public class SuggetOptions implements RediSearchArgument {
 		if (withPayloads) {
 			args.add(SearchCommandKeyword.WITHPAYLOADS);
 		}
-		if (max != null) {
-			args.add(SearchCommandKeyword.MAX);
-			args.add(max);
-		}
+		max.ifPresent(m -> m.build(args));
 	}
 
 	public static Builder builder() {
@@ -75,7 +74,7 @@ public class SuggetOptions implements RediSearchArgument {
 		private boolean fuzzy;
 		private boolean withScores;
 		private boolean withPayloads;
-		private Long max;
+		private Optional<Max> max = Optional.empty();
 
 		private Builder() {
 		}
@@ -95,8 +94,8 @@ public class SuggetOptions implements RediSearchArgument {
 			return this;
 		}
 
-		public Builder max(Long max) {
-			this.max = max;
+		public Builder max(long max) {
+			this.max = Optional.of(new Max(max));
 			return this;
 		}
 

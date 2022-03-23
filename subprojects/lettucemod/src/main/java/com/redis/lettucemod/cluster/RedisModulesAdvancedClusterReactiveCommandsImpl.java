@@ -21,7 +21,7 @@ import com.redis.lettucemod.output.ExecutionResults;
 import com.redis.lettucemod.search.AggregateOptions;
 import com.redis.lettucemod.search.AggregateResults;
 import com.redis.lettucemod.search.AggregateWithCursorResults;
-import com.redis.lettucemod.search.Cursor;
+import com.redis.lettucemod.search.CursorOptions;
 import com.redis.lettucemod.search.Field;
 import com.redis.lettucemod.search.SearchOptions;
 import com.redis.lettucemod.search.SearchResults;
@@ -226,12 +226,12 @@ public class RedisModulesAdvancedClusterReactiveCommandsImpl<K, V> extends
 	}
 
 	@Override
-	public Mono<AggregateWithCursorResults<K>> aggregate(K index, V query, Cursor cursor) {
+	public Mono<AggregateWithCursorResults<K>> aggregate(K index, V query, CursorOptions cursor) {
 		return delegate.aggregate(index, query, cursor);
 	}
 
 	@Override
-	public Mono<AggregateWithCursorResults<K>> aggregate(K index, V query, Cursor cursor,
+	public Mono<AggregateWithCursorResults<K>> aggregate(K index, V query, CursorOptions cursor,
 			AggregateOptions<K, V> options) {
 		return delegate.aggregate(index, query, cursor, options);
 	}

@@ -1,6 +1,7 @@
 package com.redis.lettucemod.search;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -48,76 +49,81 @@ public class Group implements AggregateOperation {
 		}
 	}
 
-	public static GroupByBuilder by(String... properties) {
-		return new GroupByBuilder(properties);
+	@Override
+	public String toString() {
+		return "Group [properties=" + Arrays.toString(properties) + ", reducers=" + Arrays.toString(reducers) + "]";
 	}
 
-	public static class GroupByBuilder {
+	public static Builder by(String... properties) {
+		return new Builder(properties);
+	}
+
+	public static class Builder {
 
 		private final List<String> properties = new ArrayList<>();
 		private final List<Reducer> reducers = new ArrayList<>();
 
-		public GroupByBuilder(String... properties) {
+		public Builder(String... properties) {
 			Collections.addAll(this.properties, properties);
 		}
 
-		public GroupByBuilder property(String property) {
-			return new GroupByBuilder(property);
+		public Builder property(String property) {
+			return new Builder(property);
 		}
 
-		public GroupByBuilder avg(Avg avg) {
+		public Builder avg(Avg avg) {
 			return reducer(avg);
 		}
 
-		public GroupByBuilder count(Count count) {
+		public Builder count(Count count) {
 			return reducer(count);
 		}
 
-		public GroupByBuilder countDistinct(CountDistinct countDistinct) {
+		public Builder countDistinct(CountDistinct countDistinct) {
 			return reducer(countDistinct);
 		}
 
-		public GroupByBuilder countDistinctish(CountDistinctish countDistinctish) {
+		public Builder countDistinctish(CountDistinctish countDistinctish) {
 			return reducer(countDistinctish);
 		}
 
-		public GroupByBuilder firstValue(FirstValue firstValue) {
+		public Builder firstValue(FirstValue firstValue) {
 			return reducer(firstValue);
 		}
 
-		public GroupByBuilder min(Min min) {
+		public Builder min(Min min) {
 			return reducer(min);
 		}
 
-		public GroupByBuilder max(Max max) {
+		public Builder max(Max max) {
 			return reducer(max);
 		}
 
-		public GroupByBuilder quantile(Quantile quantile) {
+		public Builder quantile(Quantile quantile) {
 			return reducer(quantile);
 		}
 
-		public GroupByBuilder randomSample(RandomSample randomSample) {
+		public Builder randomSample(RandomSample randomSample) {
 			return reducer(randomSample);
 		}
 
-		public GroupByBuilder stdDev(StdDev stdDev) {
+		public Builder stdDev(StdDev stdDev) {
 			return reducer(stdDev);
 		}
 
-		public GroupByBuilder sum(Sum sum) {
+		public Builder sum(Sum sum) {
 			return reducer(sum);
 		}
 
-		public GroupByBuilder toList(ToList toList) {
+		public Builder toList(ToList toList) {
 			return reducer(toList);
 		}
 
-		public GroupByBuilder reducer(Reducer reducer) {
+		public Builder reducer(Reducer reducer) {
 			return reducers(reducer);
 		}
 
-		public GroupByBuilder reducers(Reducer... reducers) {
+		public Builder reducers(Reducer... reducers) {
 			Collections.addAll(this.reducers, reducers);
 			return this;
 		}

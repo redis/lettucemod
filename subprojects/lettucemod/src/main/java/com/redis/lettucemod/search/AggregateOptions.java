@@ -36,95 +36,95 @@ public class AggregateOptions<K, V> implements RediSearchArgument<K, V> {
 		}
 	}
 
-	public static <K, V> AggregateOptionsBuilder<K, V> builder() {
-		return new AggregateOptionsBuilder<>();
+	public static <K, V> Builder<K, V> builder() {
+		return new Builder<>();
 	}
 
-	public static <K, V> AggregateOptionsBuilder<K, V> apply(Apply<K, V> apply) {
+	public static <K, V> Builder<K, V> apply(Apply<K, V> apply) {
 		return operation(apply);
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <K, V> AggregateOptionsBuilder<K, V> filter(Filter<V> filter) {
+	public static <K, V> Builder<K, V> filter(Filter<V> filter) {
 		return operation(filter);
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <K, V> AggregateOptionsBuilder<K, V> group(Group group) {
+	public static <K, V> Builder<K, V> group(Group group) {
 		return operation(group);
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <K, V> AggregateOptionsBuilder<K, V> limit(Limit limit) {
+	public static <K, V> Builder<K, V> limit(Limit limit) {
 		return operation(limit);
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <K, V> AggregateOptionsBuilder<K, V> sort(Sort sort) {
+	public static <K, V> Builder<K, V> sort(Sort sort) {
 		return operation(sort);
 	}
 
-	public static <K, V> AggregateOptionsBuilder<K, V> operation(AggregateOperation<K, V> operation) {
-		return new AggregateOptionsBuilder<>(operation);
+	public static <K, V> Builder<K, V> operation(AggregateOperation<K, V> operation) {
+		return new Builder<>(operation);
 	}
 
-	public static class AggregateOptionsBuilder<K, V> {
+	public static class Builder<K, V> {
 
 		private final List<AggregateOperation<K, V>> operations = new ArrayList<>();
 		private final List<String> loads = new ArrayList<>();
 		private boolean verbatim;
 
-		public AggregateOptionsBuilder() {
+		public Builder() {
 		}
 
-		public AggregateOptionsBuilder(AggregateOperation<K, V> operation) {
+		public Builder(AggregateOperation<K, V> operation) {
 			operations.add(operation);
 		}
 
-		public AggregateOptionsBuilder<K, V> apply(Apply<K, V> apply) {
+		public Builder<K, V> apply(Apply<K, V> apply) {
 			this.operations.add(apply);
 			return this;
 		}
 
 		@SuppressWarnings("unchecked")
-		public AggregateOptionsBuilder<K, V> filter(Filter<V> filter) {
+		public Builder<K, V> filter(Filter<V> filter) {
 			this.operations.add(filter);
 			return this;
 
 		}
 
 		@SuppressWarnings("unchecked")
-		public AggregateOptionsBuilder<K, V> group(Group group) {
+		public Builder<K, V> group(Group group) {
 			this.operations.add(group);
 			return this;
 
 		}
 
 		@SuppressWarnings("unchecked")
-		public AggregateOptionsBuilder<K, V> limit(Limit limit) {
+		public Builder<K, V> limit(Limit limit) {
 			this.operations.add(limit);
 			return this;
 
 		}
 
 		@SuppressWarnings("unchecked")
-		public AggregateOptionsBuilder<K, V> sort(Sort sort) {
+		public Builder<K, V> sort(Sort sort) {
 			this.operations.add(sort);
 			return this;
 
 		}
 
-		public AggregateOptionsBuilder<K, V> load(String load) {
+		public Builder<K, V> load(String load) {
 			this.loads.add(load);
 			return this;
 		}
 
-		public AggregateOptionsBuilder<K, V> loads(String... loads) {
+		public Builder<K, V> loads(String... loads) {
 			this.loads.addAll(Arrays.asList(loads));
 			return this;
 		}
 
-		public AggregateOptionsBuilder<K, V> verbatim(boolean verbatim) {
+		public Builder<K, V> verbatim(boolean verbatim) {
 			this.verbatim = verbatim;
 			return this;
 		}
