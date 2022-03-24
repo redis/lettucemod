@@ -51,7 +51,7 @@ public class Group implements AggregateOperation {
 
 	@Override
 	public String toString() {
-		return "Group [properties=" + Arrays.toString(properties) + ", reducers=" + Arrays.toString(reducers) + "]";
+		return "GROUP [properties=" + Arrays.toString(properties) + ", reducers=" + Arrays.toString(reducers) + "]";
 	}
 
 	public static Builder by(String... properties) {

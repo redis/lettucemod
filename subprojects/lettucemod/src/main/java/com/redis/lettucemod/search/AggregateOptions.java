@@ -1,22 +1,29 @@
 package com.redis.lettucemod.search;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.OptionalLong;
+import java.util.stream.Stream;
 
 import com.redis.lettucemod.protocol.SearchCommandArgs;
 import com.redis.lettucemod.protocol.SearchCommandKeyword;
 
 public class AggregateOptions<K, V> implements RediSearchArgument<K, V> {
 
-	private final List<AggregateOperation<K, V>> operations;
-	private final List<String> loads;
-	private final boolean verbatim;
+	private static final Load LOAD_ALL = Load.identifier("*").build();
 
-	public AggregateOptions(List<AggregateOperation<K, V>> operations, List<String> loads, boolean verbatim) {
-		this.operations = operations;
-		this.loads = loads;
-		this.verbatim = verbatim;
+	private final List<AggregateOperation<K, V>> operations;
+	private final List<Load> loads;
+	private final boolean verbatim;
+	private final OptionalLong timeout;
+
+	private AggregateOptions(Builder<K, V> builder) {
+		this.operations = builder.operations;
+		this.loads = builder.loads;
+		this.verbatim = builder.verbatim;
+		this.timeout = builder.timeout;
 	}
 
 	@Override
@@ -26,14 +33,75 @@ public class AggregateOptions<K, V> implements RediSearchArgument<K, V> {
 		}
 		if (!loads.isEmpty()) {
 			args.add(SearchCommandKeyword.LOAD);
-			args.add(loads.size());
-			for (String load : loads) {
-				args.addProperty(load);
+			if (loads.size() == 1 && loads.get(0) == LOAD_ALL) {
+				args.add(LOAD_ALL.identifier);
+			} else {
+				args.add(loads.stream().mapToInt(Load::getNargs).sum());
+				loads.forEach(l -> l.build(args));
 			}
 		}
-		for (AggregateOperation<K, V> operation : operations) {
-			operation.build(args);
+		operations.forEach(op -> op.build(args));
+		timeout.ifPresent(t -> args.add(SearchCommandKeyword.TIMEOUT).add(t));
+	}
+
+	@Override
+	public String toString() {
+		final StringBuilder string = new StringBuilder("AggregateOptions [");
+		string.append("operations=").append(operations);
+		string.append(", loads=").append(loads);
+		string.append(", verbatim=").append(verbatim);
+		timeout.ifPresent(t -> string.append(", timeout=").append(t));
+		string.append("]");
+		return string.toString();
+	}
+
+	@SuppressWarnings("rawtypes")
+	public static class Load implements RediSearchArgument {
+
+		private final String identifier;
+		private final Optional<As> as;
+
+		private Load(Builder builder) {
+			this.identifier = builder.identifier;
+			this.as = builder.as;
 		}
+
+		public int getNargs() {
+			if (as.isEmpty()) {
+				return 1;
+			}
+			return 3;
+		}
+
+		public static Builder identifier(String identifier) {
+			return new Builder(identifier);
+		}
+
+		public static class Builder {
+
+			private final String identifier;
+			private Optional<As> as = Optional.empty();
+
+			public Builder(String identifier) {
+				this.identifier = identifier;
+			}
+
+			public Builder as(String field) {
+				as = Optional.of(new As(field));
+				return this;
+			}
+
+			public Load build() {
+				return new Load(this);
+			}
+		}
+
+		@Override
+		public void build(SearchCommandArgs args) {
+			args.add(identifier);
+			as.ifPresent(a -> a.build(args));
+		}
+
 	}
 
 	public static <K, V> Builder<K, V> builder() {
@@ -71,13 +139,14 @@ public class AggregateOptions<K, V> implements RediSearchArgument<K, V> {
 	public static class Builder<K, V> {
 
 		private final List<AggregateOperation<K, V>> operations = new ArrayList<>();
-		private final List<String> loads = new ArrayList<>();
+		private List<Load> loads = new ArrayList<>();
 		private boolean verbatim;
+		private OptionalLong timeout = OptionalLong.empty();
 
-		public Builder() {
+		private Builder() {
 		}
 
-		public Builder(AggregateOperation<K, V> operation) {
+		private Builder(AggregateOperation<K, V> operation) {
 			operations.add(operation);
 		}
 
@@ -111,16 +180,31 @@ public class AggregateOptions<K, V> implements RediSearchArgument<K, V> {
 		public Builder<K, V> sort(Sort sort) {
 			this.operations.add(sort);
 			return this;
-
 		}
 
-		public Builder<K, V> load(String load) {
+		public Builder<K, V> loadAll() {
+			this.loads = Collections.singletonList(LOAD_ALL);
+			return this;
+		}
+
+		public Builder<K, V> load(String identifier) {
+			this.loads.add(Load.identifier(identifier).build());
+			return this;
+		}
+
+		public Builder<K, V> loads(String... identifiers) {
+			Collections.addAll(this.loads,
+					Stream.of(identifiers).map(i -> Load.identifier(i).build()).toArray(Load[]::new));
+			return this;
+		}
+
+		public Builder<K, V> load(Load load) {
 			this.loads.add(load);
 			return this;
 		}
 
-		public Builder<K, V> loads(String... loads) {
-			this.loads.addAll(Arrays.asList(loads));
+		public Builder<K, V> loads(Load... loads) {
+			Collections.addAll(this.loads, loads);
 			return this;
 		}
 
@@ -129,8 +213,13 @@ public class AggregateOptions<K, V> implements RediSearchArgument<K, V> {
 			return this;
 		}
 
+		public Builder<K, V> timeout(long timeout) {
+			this.timeout = OptionalLong.of(timeout);
+			return this;
+		}
+
 		public AggregateOptions<K, V> build() {
-			return new AggregateOptions<>(operations, loads, verbatim);
+			return new AggregateOptions<>(this);
 		}
 
 	}

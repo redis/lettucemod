@@ -20,6 +20,11 @@ public class Apply<K, V> implements AggregateOperation<K, V> {
 		as.build(args);
 	}
 
+	@Override
+	public String toString() {
+		return "APPLY " + expression + " " + as;
+	}
+
 	public static <K, V> Builder<K, V> expression(V expression) {
 		return new Builder<>(expression);
 	}

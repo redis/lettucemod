@@ -27,7 +27,7 @@ public class As implements RediSearchArgument {
 
 	@Override
 	public String toString() {
-		return "As [" + field + "]";
+		return "AS " + field;
 	}
 
 }

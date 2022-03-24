@@ -14,7 +14,7 @@ public class Reducers {
 	public static class Max extends PropertyReducer {
 
 		private Max(Builder builder) {
-			super(builder);
+			super("Max", builder);
 		}
 
 		@Override
@@ -45,8 +45,8 @@ public class Reducers {
 
 		private final Optional<By> by;
 
-		public FirstValue(Builder builder) {
-			super(builder);
+		private FirstValue(Builder builder) {
+			super("FirstValue", builder);
 			this.by = builder.by;
 		}
 
@@ -175,7 +175,7 @@ public class Reducers {
 	public static class Min extends PropertyReducer {
 
 		private Min(Builder builder) {
-			super(builder);
+			super("Min", builder);
 		}
 
 		@Override
@@ -207,7 +207,7 @@ public class Reducers {
 		private final int size;
 
 		private RandomSample(Builder builder) {
-			super(builder);
+			super("RandomSample", builder);
 			this.size = builder.size;
 		}
 
@@ -262,7 +262,7 @@ public class Reducers {
 	public static class Avg extends PropertyReducer {
 
 		private Avg(Builder builder) {
-			super(builder);
+			super("Avg", builder);
 		}
 
 		@Override
@@ -292,7 +292,7 @@ public class Reducers {
 	public static class ToList extends PropertyReducer {
 
 		private ToList(Builder builder) {
-			super(builder);
+			super("ToList", builder);
 		}
 
 		@Override
@@ -320,8 +320,8 @@ public class Reducers {
 
 	public static class Sum extends PropertyReducer {
 
-		public Sum(Builder builder) {
-			super(builder);
+		private Sum(Builder builder) {
+			super("Sum", builder);
 		}
 
 		@Override
@@ -349,8 +349,8 @@ public class Reducers {
 
 	public static class StdDev extends PropertyReducer {
 
-		public StdDev(Builder builder) {
-			super(builder);
+		private StdDev(Builder builder) {
+			super("StdDev", builder);
 		}
 
 		@Override
@@ -380,7 +380,7 @@ public class Reducers {
 	public static class CountDistinctish extends PropertyReducer {
 
 		private CountDistinctish(Builder builder) {
-			super(builder);
+			super("CountDistinctish", builder);
 		}
 
 		@Override
@@ -410,7 +410,7 @@ public class Reducers {
 	public static class CountDistinct extends PropertyReducer {
 
 		public CountDistinct(Builder builder) {
-			super(builder);
+			super("CountDistinct", builder);
 		}
 
 		@Override
@@ -442,8 +442,8 @@ public class Reducers {
 
 		private final double quantileValue;
 
-		public Quantile(Builder builder) {
-			super(builder);
+		private Quantile(Builder builder) {
+			super("Quantile", builder);
 			this.quantileValue = builder.quantile;
 		}
 

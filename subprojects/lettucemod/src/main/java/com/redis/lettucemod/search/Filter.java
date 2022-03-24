@@ -12,6 +12,11 @@ public class Filter<V> implements AggregateOperation {
 		this.expression = expression;
 	}
 
+	@Override
+	public String toString() {
+		return "FILTER " + expression;
+	}
+
 	public static <V> Filter<V> expression(V expression) {
 		return new Filter<>(expression);
 	}

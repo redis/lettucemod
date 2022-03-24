@@ -1,15 +1,15 @@
 package com.redis.lettucemod.search;
 
-import com.redis.lettucemod.RedisModulesUtils;
-
 import io.lettuce.core.internal.LettuceAssert;
 
 public abstract class PropertyReducer extends Reducer {
 
+	private final String name;
 	protected final String property;
 
-	protected PropertyReducer(Builder<?> builder) {
+	protected PropertyReducer(String name, Builder<?> builder) {
 		super(builder.as);
+		this.name = name;
 		this.property = builder.property;
 	}
 
@@ -25,7 +25,7 @@ public abstract class PropertyReducer extends Reducer {
 
 	@Override
 	public String toString() {
-		return toString(RedisModulesUtils.getShortName(getClass()) + "(" + property + ")");
+		return toString(name + "(" + property + ")");
 	}
 
 }

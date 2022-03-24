@@ -21,6 +21,11 @@ public class Limit implements AggregateOperation {
 		args.add(num);
 	}
 
+	@Override
+	public String toString() {
+		return "LIMIT [offset=" + offset + ", num=" + num + "]";
+	}
+
 	public static INumStage offset(long offset) {
 		return new Builder().offset(offset);
 	}

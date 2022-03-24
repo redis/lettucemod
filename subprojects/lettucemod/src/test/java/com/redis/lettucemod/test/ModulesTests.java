@@ -53,6 +53,7 @@ import com.redis.lettucemod.json.GetOptions;
 import com.redis.lettucemod.json.SetMode;
 import com.redis.lettucemod.output.ExecutionResults;
 import com.redis.lettucemod.search.AggregateOptions;
+import com.redis.lettucemod.search.AggregateOptions.Load;
 import com.redis.lettucemod.search.AggregateResults;
 import com.redis.lettucemod.search.AggregateWithCursorResults;
 import com.redis.lettucemod.search.CreateOptions;
@@ -462,10 +463,9 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 				Map<String, Object> beer = beerMap.get(id);
 				assertEquals(((String) beer.get(Beers.FIELD_NAME.getName())).toLowerCase(),
 						((String) result.get(Beers.FIELD_NAME.getName())).toLowerCase());
-				String style = (String) beer.get(Beers.FIELD_STYLE_NAME.getName());
+				String style = (String) beer.get("style");
 				if (style != null) {
-					assertEquals(style.toLowerCase(),
-							((String) result.get(Beers.FIELD_STYLE_NAME.getName())).toLowerCase());
+					assertEquals(style.toLowerCase(), ((String) result.get("style")).toLowerCase());
 				}
 			}
 
@@ -473,8 +473,8 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 		RedisModulesCommands<String, String> sync = context.sync();
 		RedisModulesReactiveCommands<String, String> reactive = context.reactive();
 		AggregateOptions<String, String> loadOptions = AggregateOptions.<String, String>builder()
-				.load(Beers.FIELD_ID.getName()).load(Beers.FIELD_NAME.getName()).load(Beers.FIELD_STYLE_NAME.getName())
-				.build();
+				.load(Beers.FIELD_ID.getName()).load(Load.identifier(Beers.FIELD_NAME.getName()).build())
+				.load(Load.identifier(Beers.FIELD_STYLE_NAME.getName()).as("style").build()).build();
 		loadAsserts.accept(sync.aggregate(Beers.INDEX, "*", loadOptions));
 		loadAsserts.accept(reactive.aggregate(Beers.INDEX, "*", loadOptions).block());
 

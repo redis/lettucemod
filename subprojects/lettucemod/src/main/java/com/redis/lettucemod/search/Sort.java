@@ -31,6 +31,14 @@ public class Sort implements AggregateOperation {
 		max.ifPresent(m -> m.build(args));
 	}
 
+	@Override
+	public String toString() {
+		final StringBuilder string = new StringBuilder("SORT [properties=").append(properties);
+		max.ifPresent(m -> string.append(", max=").append(m));
+		string.append("]");
+		return string.toString();
+	}
+
 	public static Builder by(Property... properties) {
 		return new Builder(properties);
 	}
@@ -69,6 +77,11 @@ public class Sort implements AggregateOperation {
 			LettuceAssert.notNull(order, "Order is required");
 			this.name = name;
 			this.order = order;
+		}
+
+		@Override
+		public String toString() {
+			return "Property [name=" + name + ", order=" + order + "]";
 		}
 
 		public static Property of(String name, Order order) {
