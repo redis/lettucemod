@@ -35,8 +35,7 @@ public interface Node {
 	String toString(ParenMode mode);
 
 	/**
-	 * Returns the string form of this node. This may be passed to
-	 * {@link io.redisearch.client.Client#search(Query)}
+	 * Returns the string form of this node.
 	 * 
 	 * @return The query string.
 	 */
