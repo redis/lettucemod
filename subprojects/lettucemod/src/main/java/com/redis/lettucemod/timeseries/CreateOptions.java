@@ -1,17 +1,14 @@
 package com.redis.lettucemod.timeseries;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalLong;
 
 import com.redis.lettucemod.protocol.TimeSeriesCommandKeyword;
 
 import io.lettuce.core.CompositeArgument;
-import io.lettuce.core.internal.LettuceAssert;
 import io.lettuce.core.protocol.CommandArgs;
 
-public class CreateOptions<K, V> implements CompositeArgument {
+public class CreateOptions implements CompositeArgument {
 
 	public enum DuplicatePolicy {
 		BLOCK, FIRST, LAST, MIN, MAX, SUM
@@ -21,17 +18,14 @@ public class CreateOptions<K, V> implements CompositeArgument {
 	private boolean uncompressed;
 	private OptionalLong chunkSize = OptionalLong.empty();
 	private Optional<DuplicatePolicy> policy = Optional.empty();
-	private final Map<K, V> labels;
 
-	private CreateOptions(Builder<K, V> builder) {
+	private CreateOptions(Builder builder) {
 		this.retentionTime = builder.retentionTime;
 		this.uncompressed = builder.uncompressed;
 		this.chunkSize = builder.chunkSize;
 		this.policy = builder.policy;
-		this.labels = builder.labels;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public <L, W> void build(CommandArgs<L, W> args) {
 		retentionTime.ifPresent(t -> args.add(TimeSeriesCommandKeyword.RETENTION).add(t));
@@ -40,59 +34,43 @@ public class CreateOptions<K, V> implements CompositeArgument {
 		}
 		chunkSize.ifPresent(s -> args.add(TimeSeriesCommandKeyword.CHUNK_SIZE).add(s));
 		policy.ifPresent(p -> args.add(TimeSeriesCommandKeyword.ON_DUPLICATE).add(p.name()));
-		if (!labels.isEmpty()) {
-			args.add(TimeSeriesCommandKeyword.LABELS);
-			labels.forEach((k, v) -> args.addKey((L) k).addValue((W) v));
-		}
 	}
 
-	public static <K, V> Builder<K, V> builder() {
-		return new Builder<>();
+	public static <K, V> Builder builder() {
+		return new Builder();
 	}
 
-	public static final class Builder<K, V> {
+	public static final class Builder {
 		private OptionalLong retentionTime = OptionalLong.empty();
 		private boolean uncompressed;
 		private OptionalLong chunkSize = OptionalLong.empty();
 		private Optional<DuplicatePolicy> policy = Optional.empty();
-		private Map<K, V> labels = new LinkedHashMap<>();
 
 		private Builder() {
 		}
 
-		public Builder<K, V> retentionTime(long retentionTime) {
+		public Builder retentionTime(long retentionTime) {
 			this.retentionTime = OptionalLong.of(retentionTime);
 			return this;
 		}
 
-		public Builder<K, V> uncompressed(boolean uncompressed) {
+		public Builder uncompressed(boolean uncompressed) {
 			this.uncompressed = uncompressed;
 			return this;
 		}
 
-		public Builder<K, V> chunkSize(long chunkSize) {
+		public Builder chunkSize(long chunkSize) {
 			this.chunkSize = OptionalLong.of(chunkSize);
 			return this;
 		}
 
-		public Builder<K, V> policy(DuplicatePolicy policy) {
+		public Builder policy(DuplicatePolicy policy) {
 			this.policy = Optional.of(policy);
 			return this;
 		}
 
-		public Builder<K, V> label(K key, V value) {
-			this.labels.put(key, value);
-			return this;
-		}
-
-		public Builder<K, V> labels(Map<K, V> labels) {
-			LettuceAssert.notNull(labels, "Labels must not be null");
-			this.labels = labels;
-			return this;
-		}
-
-		public CreateOptions<K, V> build() {
-			return new CreateOptions<>(this);
+		public CreateOptions build() {
+			return new CreateOptions(this);
 		}
 	}
 

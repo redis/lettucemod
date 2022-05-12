@@ -30,6 +30,7 @@ import com.redis.lettucemod.timeseries.Aggregation;
 import com.redis.lettucemod.timeseries.CreateOptions;
 import com.redis.lettucemod.timeseries.GetResult;
 import com.redis.lettucemod.timeseries.KeySample;
+import com.redis.lettucemod.timeseries.Label;
 import com.redis.lettucemod.timeseries.RangeOptions;
 import com.redis.lettucemod.timeseries.RangeResult;
 import com.redis.lettucemod.timeseries.Sample;
@@ -318,12 +319,12 @@ public class RedisModulesAdvancedClusterAsyncCommandsImpl<K, V> extends RedisAdv
 	}
 
 	@Override
-	public RedisFuture<String> create(K key, CreateOptions<K, V> options) {
+	public RedisFuture<String> create(K key, CreateOptions options, Label<K, V>... labels) {
 		return delegate.create(key, options);
 	}
 
 	@Override
-	public RedisFuture<String> alter(K key, CreateOptions<K, V> options) {
+	public RedisFuture<String> alter(K key, CreateOptions options, Label<K, V>... labels) {
 		return delegate.alter(key, options);
 	}
 
@@ -333,7 +334,7 @@ public class RedisModulesAdvancedClusterAsyncCommandsImpl<K, V> extends RedisAdv
 	}
 
 	@Override
-	public RedisFuture<Long> add(K key, long timestamp, double value, CreateOptions<K, V> options) {
+	public RedisFuture<Long> add(K key, long timestamp, double value, CreateOptions options, Label<K, V>... labels) {
 		return delegate.add(key, timestamp, value, options);
 	}
 
@@ -343,7 +344,7 @@ public class RedisModulesAdvancedClusterAsyncCommandsImpl<K, V> extends RedisAdv
 	}
 
 	@Override
-	public RedisFuture<Long> addAutoTimestamp(K key, double value, CreateOptions<K, V> options) {
+	public RedisFuture<Long> addAutoTimestamp(K key, double value, CreateOptions options, Label<K, V>... labels) {
 		return delegate.addAutoTimestamp(key, value, options);
 	}
 
@@ -353,7 +354,7 @@ public class RedisModulesAdvancedClusterAsyncCommandsImpl<K, V> extends RedisAdv
 	}
 
 	@Override
-	public RedisFuture<Long> add(K key, Sample sample, CreateOptions<K, V> options) {
+	public RedisFuture<Long> add(K key, Sample sample, CreateOptions options, Label<K, V>... labels) {
 		return delegate.add(key, sample, options);
 	}
 
@@ -363,22 +364,22 @@ public class RedisModulesAdvancedClusterAsyncCommandsImpl<K, V> extends RedisAdv
 	}
 
 	@Override
-	public RedisFuture<Long> incrby(K key, double value, Long timestamp, CreateOptions<K, V> options) {
+	public RedisFuture<Long> incrby(K key, double value, Long timestamp, CreateOptions options, Label<K, V>... labels) {
 		return delegate.incrby(key, value, timestamp, options);
 	}
 
 	@Override
-	public RedisFuture<Long> decrby(K key, double value, Long timestamp, CreateOptions<K, V> options) {
+	public RedisFuture<Long> decrby(K key, double value, Long timestamp, CreateOptions options, Label<K, V>... labels) {
 		return delegate.decrby(key, value, timestamp, options);
 	}
 
 	@Override
-	public RedisFuture<Long> incrbyAutoTimestamp(K key, double value, CreateOptions<K, V> options) {
+	public RedisFuture<Long> incrbyAutoTimestamp(K key, double value, CreateOptions options, Label<K, V>... labels) {
 		return delegate.incrbyAutoTimestamp(key, value, options);
 	}
 
 	@Override
-	public RedisFuture<Long> decrbyAutoTimestamp(K key, double value, CreateOptions<K, V> options) {
+	public RedisFuture<Long> decrbyAutoTimestamp(K key, double value, CreateOptions options, Label<K, V>... labels) {
 		return delegate.decrbyAutoTimestamp(key, value, options);
 	}
 

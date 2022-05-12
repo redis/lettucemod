@@ -76,6 +76,7 @@ import com.redis.lettucemod.search.Sort;
 import com.redis.lettucemod.search.Suggestion;
 import com.redis.lettucemod.search.SuggetOptions;
 import com.redis.lettucemod.timeseries.Aggregation;
+import com.redis.lettucemod.timeseries.Label;
 import com.redis.lettucemod.timeseries.RangeOptions;
 import com.redis.lettucemod.timeseries.RangeResult;
 import com.redis.lettucemod.timeseries.Sample;
@@ -711,21 +712,23 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 	private static final String SENSOR_ID = "2";
 	private static final String AREA_ID = "32";
 
+	@SuppressWarnings("unchecked")
 	@ParameterizedTest
 	@RedisTestContextsSource
 	void tsCreate(RedisTestContext context) {
 		// temperature:3:11 RETENTION 6000 LABELS sensor_id 2 area_id 32
 		String status = context.sync().create(KEY,
-				com.redis.lettucemod.timeseries.CreateOptions.<String, String>builder().retentionTime(6000).build());
+				com.redis.lettucemod.timeseries.CreateOptions.builder().retentionTime(6000).build());
 		assertEquals("OK", status);
 	}
 
+	@SuppressWarnings("unchecked")
 	@ParameterizedTest
 	@RedisTestContextsSource
 	void tsAdd(RedisTestContext context) {
 		RedisTimeSeriesCommands<String, String> ts = context.sync();
 		// TS.CREATE temperature:3:11 RETENTION 6000 LABELS sensor_id 2 area_id 32
-		ts.create(KEY, tsCreateOptions());
+		ts.create(KEY, tsCreateOptions(), Label.of(LABEL_SENSOR_ID, SENSOR_ID), Label.of(LABEL_AREA_ID, AREA_ID));
 		// TS.ADD temperature:3:11 1548149181 30
 		Long add1 = ts.add(KEY, TIMESTAMP_1, VALUE_1);
 		assertEquals(TIMESTAMP_1, add1);
@@ -734,9 +737,8 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 		assertEquals(TIMESTAMP_2, add2);
 	}
 
-	private com.redis.lettucemod.timeseries.CreateOptions<String, String> tsCreateOptions() {
-		return com.redis.lettucemod.timeseries.CreateOptions.<String, String>builder().retentionTime(6000)
-				.label(LABEL_SENSOR_ID, SENSOR_ID).label(LABEL_AREA_ID, AREA_ID).build();
+	private com.redis.lettucemod.timeseries.CreateOptions tsCreateOptions() {
+		return com.redis.lettucemod.timeseries.CreateOptions.<String, String>builder().retentionTime(6000).build();
 	}
 
 	@ParameterizedTest
@@ -753,11 +755,12 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 		assertEquals(VALUE_2, range.get(1).getValue());
 	}
 
+	@SuppressWarnings("unchecked")
 	private String populateTimeSeries(RedisTimeSeriesCommands<String, String> ts) {
 		String key = "temperature:3:11";
 		// TS.CREATE temperature:3:11 RETENTION 6000 LABELS sensor_id 2 area_id 32
 		// TS.ADD temperature:3:11 1548149181 30
-		ts.add(key, new Sample(TIMESTAMP_1, VALUE_1), tsCreateOptions());
+		ts.add(key, new Sample(TIMESTAMP_1, VALUE_1), tsCreateOptions(), Label.of(LABEL_SENSOR_ID, SENSOR_ID), Label.of(LABEL_AREA_ID, AREA_ID));
 		// TS.ADD temperature:3:11 1548149191 42
 		ts.add(key, TIMESTAMP_2, VALUE_2);
 		// TS.RANGE temperature:3:11 1548149180 1548149210 AGGREGATION avg 5

@@ -27,6 +27,7 @@ import com.redis.lettucemod.timeseries.Aggregation;
 import com.redis.lettucemod.timeseries.CreateOptions;
 import com.redis.lettucemod.timeseries.GetResult;
 import com.redis.lettucemod.timeseries.KeySample;
+import com.redis.lettucemod.timeseries.Label;
 import com.redis.lettucemod.timeseries.RangeOptions;
 import com.redis.lettucemod.timeseries.RangeResult;
 import com.redis.lettucemod.timeseries.RedisTimeSeriesCommandBuilder;
@@ -133,13 +134,13 @@ public class RedisModulesReactiveCommandsImpl<K, V> extends RedisReactiveCommand
 	}
 
 	@Override
-	public Mono<String> create(K key, CreateOptions<K, V> options) {
-		return createMono(() -> timeSeriesCommandBuilder.create(key, options));
+	public Mono<String> create(K key, CreateOptions options, Label<K, V>... labels) {
+		return createMono(() -> timeSeriesCommandBuilder.create(key, options, labels));
 	}
 
 	@Override
-	public Mono<String> alter(K key, CreateOptions<K, V> options) {
-		return createMono(() -> timeSeriesCommandBuilder.alter(key, options));
+	public Mono<String> alter(K key, CreateOptions options, Label<K,V>... labels) {
+		return createMono(() -> timeSeriesCommandBuilder.alter(key, options, labels));
 	}
 
 	@Override
@@ -148,8 +149,8 @@ public class RedisModulesReactiveCommandsImpl<K, V> extends RedisReactiveCommand
 	}
 
 	@Override
-	public Mono<Long> add(K key, long timestamp, double value, CreateOptions<K, V> options) {
-		return createMono(() -> timeSeriesCommandBuilder.add(key, timestamp, value, options));
+	public Mono<Long> add(K key, long timestamp, double value, CreateOptions options, Label<K,V>... labels) {
+		return createMono(() -> timeSeriesCommandBuilder.add(key, timestamp, value, options, labels));
 	}
 
 	@Override
@@ -158,8 +159,8 @@ public class RedisModulesReactiveCommandsImpl<K, V> extends RedisReactiveCommand
 	}
 
 	@Override
-	public Mono<Long> addAutoTimestamp(K key, double value, CreateOptions<K, V> options) {
-		return createMono(() -> timeSeriesCommandBuilder.addAutoTimestamp(key, value, options));
+	public Mono<Long> addAutoTimestamp(K key, double value, CreateOptions options, Label<K,V>... labels) {
+		return createMono(() -> timeSeriesCommandBuilder.addAutoTimestamp(key, value, options, labels));
 	}
 
 	@Override
@@ -168,28 +169,28 @@ public class RedisModulesReactiveCommandsImpl<K, V> extends RedisReactiveCommand
 	}
 
 	@Override
-	public Mono<Long> add(K key, Sample sample, CreateOptions<K, V> options) {
-		return createMono(() -> timeSeriesCommandBuilder.add(key, sample, options));
+	public Mono<Long> add(K key, Sample sample, CreateOptions options, Label<K,V>... labels) {
+		return createMono(() -> timeSeriesCommandBuilder.add(key, sample, options, labels));
 	}
 
 	@Override
-	public Mono<Long> incrby(K key, double value, Long timestamp, CreateOptions<K, V> options) {
-		return createMono(() -> timeSeriesCommandBuilder.incrby(key, value, timestamp, options));
+	public Mono<Long> incrby(K key, double value, Long timestamp, CreateOptions options, Label<K,V>... labels) {
+		return createMono(() -> timeSeriesCommandBuilder.incrby(key, value, timestamp, options, labels));
 	}
 
 	@Override
-	public Mono<Long> decrby(K key, double value, Long timestamp, CreateOptions<K, V> options) {
-		return createMono(() -> timeSeriesCommandBuilder.decrby(key, value, timestamp, options));
+	public Mono<Long> decrby(K key, double value, Long timestamp, CreateOptions options, Label<K,V>... labels) {
+		return createMono(() -> timeSeriesCommandBuilder.decrby(key, value, timestamp, options, labels));
 	}
 
 	@Override
-	public Mono<Long> incrbyAutoTimestamp(K key, double value, CreateOptions<K, V> options) {
-		return createMono(() -> timeSeriesCommandBuilder.incrbyAutoTimestamp(key, value, options));
+	public Mono<Long> incrbyAutoTimestamp(K key, double value, CreateOptions options, Label<K,V>... labels) {
+		return createMono(() -> timeSeriesCommandBuilder.incrbyAutoTimestamp(key, value, options, labels));
 	}
 
 	@Override
-	public Mono<Long> decrbyAutoTimestamp(K key, double value, CreateOptions<K, V> options) {
-		return createMono(() -> timeSeriesCommandBuilder.decrbyAutoTimestamp(key, value, options));
+	public Mono<Long> decrbyAutoTimestamp(K key, double value, CreateOptions options, Label<K,V>... labels) {
+		return createMono(() -> timeSeriesCommandBuilder.decrbyAutoTimestamp(key, value, options, labels));
 	}
 
 	@Override
@@ -268,7 +269,7 @@ public class RedisModulesReactiveCommandsImpl<K, V> extends RedisReactiveCommand
 	}
 
 	@Override
-	public Mono<String> create(K index, com.redis.lettucemod.search.CreateOptions<K, V> options, Field... fields) {
+	public Mono<String> create(K index, com.redis.lettucemod.search.CreateOptions<K,V> options, Field... fields) {
 		return createMono(() -> searchCommandBuilder.create(index, options, fields));
 	}
 
