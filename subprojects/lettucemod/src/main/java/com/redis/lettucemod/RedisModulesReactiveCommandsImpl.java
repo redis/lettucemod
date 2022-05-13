@@ -27,6 +27,7 @@ import com.redis.lettucemod.timeseries.Aggregation;
 import com.redis.lettucemod.timeseries.CreateOptions;
 import com.redis.lettucemod.timeseries.GetResult;
 import com.redis.lettucemod.timeseries.KeySample;
+import com.redis.lettucemod.timeseries.MRangeOptions;
 import com.redis.lettucemod.timeseries.RangeOptions;
 import com.redis.lettucemod.timeseries.RangeResult;
 import com.redis.lettucemod.timeseries.RedisTimeSeriesCommandBuilder;
@@ -218,23 +219,13 @@ public class RedisModulesReactiveCommandsImpl<K, V> extends RedisReactiveCommand
 	}
 
 	@Override
-	public Flux<RangeResult<K, V>> mrange(RangeOptions options, V... filters) {
-		return createDissolvingFlux(() -> timeSeriesCommandBuilder.mrange(options, filters));
+	public Flux<RangeResult<K, V>> mrange(MRangeOptions<K, V> options) {
+		return createDissolvingFlux(() -> timeSeriesCommandBuilder.mrange(options));
 	}
 
 	@Override
-	public Flux<RangeResult<K, V>> mrevrange(RangeOptions options, V... filters) {
-		return createDissolvingFlux(() -> timeSeriesCommandBuilder.mrevrange(options, filters));
-	}
-
-	@Override
-	public Flux<RangeResult<K, V>> mrangeWithLabels(RangeOptions options, V... filters) {
-		return createDissolvingFlux(() -> timeSeriesCommandBuilder.mrangeWithLabels(options, filters));
-	}
-
-	@Override
-	public Flux<RangeResult<K, V>> mrevrangeWithLabels(RangeOptions options, V... filters) {
-		return createDissolvingFlux(() -> timeSeriesCommandBuilder.mrevrangeWithLabels(options, filters));
+	public Flux<RangeResult<K, V>> mrevrange(MRangeOptions<K, V> options) {
+		return createDissolvingFlux(() -> timeSeriesCommandBuilder.mrevrange(options));
 	}
 
 	@Override

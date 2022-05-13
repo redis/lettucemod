@@ -69,10 +69,10 @@ public class Aggregation implements CompositeArgument {
 		public <K, V> void build(CommandArgs<K, V> args) {
 			args.add(TimeSeriesCommandKeyword.ALIGN);
 			if (value == Long.MIN_VALUE) {
-				args.add(RangeOptions.MIN_TIMESTAMP);
+				args.add(TimeSeriesCommandKeyword.START);
 			} else {
 				if (value == Long.MAX_VALUE) {
-					args.add(RangeOptions.MAX_TIMESTAMP);
+					args.add(TimeSeriesCommandKeyword.END);
 				} else {
 					args.add(value);
 				}

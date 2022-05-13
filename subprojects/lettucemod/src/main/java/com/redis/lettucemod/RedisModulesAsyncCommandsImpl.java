@@ -28,6 +28,7 @@ import com.redis.lettucemod.timeseries.Aggregation;
 import com.redis.lettucemod.timeseries.CreateOptions;
 import com.redis.lettucemod.timeseries.GetResult;
 import com.redis.lettucemod.timeseries.KeySample;
+import com.redis.lettucemod.timeseries.MRangeOptions;
 import com.redis.lettucemod.timeseries.RangeOptions;
 import com.redis.lettucemod.timeseries.RangeResult;
 import com.redis.lettucemod.timeseries.RedisTimeSeriesCommandBuilder;
@@ -217,23 +218,13 @@ public class RedisModulesAsyncCommandsImpl<K, V> extends RedisAsyncCommandsImpl<
 	}
 
 	@Override
-	public RedisFuture<List<RangeResult<K, V>>> mrange(RangeOptions options, V... filters) {
-		return dispatch(timeSeriesCommandBuilder.mrange(options, filters));
+	public RedisFuture<List<RangeResult<K, V>>> mrange(MRangeOptions<K, V> options) {
+		return dispatch(timeSeriesCommandBuilder.mrange(options));
 	}
 
 	@Override
-	public RedisFuture<List<RangeResult<K, V>>> mrangeWithLabels(RangeOptions options, V... filters) {
-		return dispatch(timeSeriesCommandBuilder.mrangeWithLabels(options, filters));
-	}
-
-	@Override
-	public RedisFuture<List<RangeResult<K, V>>> mrevrange(RangeOptions options, V... filters) {
-		return dispatch(timeSeriesCommandBuilder.mrevrange(options, filters));
-	}
-
-	@Override
-	public RedisFuture<List<RangeResult<K, V>>> mrevrangeWithLabels(RangeOptions options, V... filters) {
-		return dispatch(timeSeriesCommandBuilder.mrevrangeWithLabels(options, filters));
+	public RedisFuture<List<RangeResult<K, V>>> mrevrange(MRangeOptions<K, V> options) {
+		return dispatch(timeSeriesCommandBuilder.mrevrange(options));
 	}
 
 	@Override

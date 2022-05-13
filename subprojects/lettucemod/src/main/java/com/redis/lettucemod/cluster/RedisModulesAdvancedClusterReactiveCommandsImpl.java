@@ -31,6 +31,7 @@ import com.redis.lettucemod.timeseries.Aggregation;
 import com.redis.lettucemod.timeseries.CreateOptions;
 import com.redis.lettucemod.timeseries.GetResult;
 import com.redis.lettucemod.timeseries.KeySample;
+import com.redis.lettucemod.timeseries.MRangeOptions;
 import com.redis.lettucemod.timeseries.RangeOptions;
 import com.redis.lettucemod.timeseries.RangeResult;
 import com.redis.lettucemod.timeseries.Sample;
@@ -411,23 +412,13 @@ public class RedisModulesAdvancedClusterReactiveCommandsImpl<K, V> extends
 	}
 
 	@Override
-	public Flux<RangeResult<K, V>> mrange(RangeOptions options, V... filters) {
-		return delegate.mrange(options, filters);
+	public Flux<RangeResult<K, V>> mrange(MRangeOptions<K, V> options) {
+		return delegate.mrange(options);
 	}
 
 	@Override
-	public Flux<RangeResult<K, V>> mrangeWithLabels(RangeOptions options, V... filters) {
-		return delegate.mrangeWithLabels(options, filters);
-	}
-
-	@Override
-	public Flux<RangeResult<K, V>> mrevrange(RangeOptions options, V... filters) {
-		return delegate.mrevrange(options, filters);
-	}
-
-	@Override
-	public Flux<RangeResult<K, V>> mrevrangeWithLabels(RangeOptions options, V... filters) {
-		return delegate.mrevrangeWithLabels(options, filters);
+	public Flux<RangeResult<K, V>> mrevrange(MRangeOptions<K, V> options) {
+		return delegate.mrevrange(options);
 	}
 
 	@Override

@@ -173,34 +173,24 @@ public class RedisTimeSeriesCommandBuilder<K, V> extends RedisModulesCommandBuil
 		return createCommand(commandType, new SampleListOutput<>(codec), args);
 	}
 
-	public Command<K, V, List<RangeResult<K, V>>> mrange(RangeOptions options, V... filters) {
-		return mrange(false, false, options, filters);
+	public Command<K, V, List<RangeResult<K, V>>> mrange(MRangeOptions<K, V> options) {
+		return mrange(RangeDirection.FORWARD, options);
 	}
 
-	public Command<K, V, List<RangeResult<K, V>>> mrangeWithLabels(RangeOptions options, V... filters) {
-		return mrange(false, true, options, filters);
+	public Command<K, V, List<RangeResult<K, V>>> mrevrange(MRangeOptions<K, V> options) {
+		return mrange(RangeDirection.REVERSE, options);
 	}
 
-	public Command<K, V, List<RangeResult<K, V>>> mrevrange(RangeOptions options, V... filters) {
-		return mrange(true, false, options, filters);
+	private enum RangeDirection {
+		FORWARD, REVERSE
 	}
 
-	public Command<K, V, List<RangeResult<K, V>>> mrevrangeWithLabels(RangeOptions options, V... filters) {
-		return mrange(true, true, options, filters);
-	}
-
-	private Command<K, V, List<RangeResult<K, V>>> mrange(boolean reverse, boolean withLabels, RangeOptions options,
-			V... filters) {
+	private Command<K, V, List<RangeResult<K, V>>> mrange(RangeDirection direction, MRangeOptions<K, V> options) {
 		notNull(options, "Options");
-		notEmpty(filters, "Filters");
 		CommandArgs<K, V> args = new CommandArgs<>(codec);
 		options.build(args);
-		if (withLabels) {
-			args.add(TimeSeriesCommandKeyword.WITHLABELS);
-		}
-		args.add(TimeSeriesCommandKeyword.FILTER);
-		args.addValues(filters);
-		return createCommand(reverse ? TimeSeriesCommandType.MREVRANGE : TimeSeriesCommandType.MRANGE,
+		return createCommand(
+				direction == RangeDirection.REVERSE ? TimeSeriesCommandType.MREVRANGE : TimeSeriesCommandType.MRANGE,
 				new RangeOutput<>(codec), args);
 	}
 
