@@ -28,7 +28,6 @@ import com.redis.lettucemod.timeseries.Aggregation;
 import com.redis.lettucemod.timeseries.CreateOptions;
 import com.redis.lettucemod.timeseries.GetResult;
 import com.redis.lettucemod.timeseries.KeySample;
-import com.redis.lettucemod.timeseries.Label;
 import com.redis.lettucemod.timeseries.RangeOptions;
 import com.redis.lettucemod.timeseries.RangeResult;
 import com.redis.lettucemod.timeseries.RedisTimeSeriesCommandBuilder;
@@ -133,13 +132,13 @@ public class RedisModulesAsyncCommandsImpl<K, V> extends RedisAsyncCommandsImpl<
 	}
 
 	@Override
-	public RedisFuture<String> create(K key, CreateOptions options, Label<K, V>... labels) {
-		return dispatch(timeSeriesCommandBuilder.create(key, options, labels));
+	public RedisFuture<String> create(K key, CreateOptions<K, V> options) {
+		return dispatch(timeSeriesCommandBuilder.create(key, options));
 	}
 
 	@Override
-	public RedisFuture<String> alter(K key, CreateOptions options, Label<K, V>... labels) {
-		return dispatch(timeSeriesCommandBuilder.alter(key, options, labels));
+	public RedisFuture<String> alter(K key, CreateOptions<K, V> options) {
+		return dispatch(timeSeriesCommandBuilder.alter(key, options));
 	}
 
 	@Override
@@ -148,8 +147,8 @@ public class RedisModulesAsyncCommandsImpl<K, V> extends RedisAsyncCommandsImpl<
 	}
 
 	@Override
-	public RedisFuture<Long> add(K key, long timestamp, double value, CreateOptions options, Label<K, V>... labels) {
-		return dispatch(timeSeriesCommandBuilder.add(key, timestamp, value, options, labels));
+	public RedisFuture<Long> add(K key, long timestamp, double value, CreateOptions<K, V> options) {
+		return dispatch(timeSeriesCommandBuilder.add(key, timestamp, value, options));
 	}
 
 	@Override
@@ -158,8 +157,8 @@ public class RedisModulesAsyncCommandsImpl<K, V> extends RedisAsyncCommandsImpl<
 	}
 
 	@Override
-	public RedisFuture<Long> addAutoTimestamp(K key, double value, CreateOptions options, Label<K, V>... labels) {
-		return dispatch(timeSeriesCommandBuilder.addAutoTimestamp(key, value, options, labels));
+	public RedisFuture<Long> addAutoTimestamp(K key, double value, CreateOptions<K, V> options) {
+		return dispatch(timeSeriesCommandBuilder.addAutoTimestamp(key, value, options));
 	}
 
 	@Override
@@ -168,28 +167,28 @@ public class RedisModulesAsyncCommandsImpl<K, V> extends RedisAsyncCommandsImpl<
 	}
 
 	@Override
-	public RedisFuture<Long> add(K key, Sample sample, CreateOptions options, Label<K, V>... labels) {
-		return dispatch(timeSeriesCommandBuilder.add(key, sample, options, labels));
+	public RedisFuture<Long> add(K key, Sample sample, CreateOptions<K, V> options) {
+		return dispatch(timeSeriesCommandBuilder.add(key, sample, options));
 	}
 
 	@Override
-	public RedisFuture<Long> incrby(K key, double value, Long timestamp, CreateOptions options, Label<K, V>... labels) {
-		return dispatch(timeSeriesCommandBuilder.incrby(key, value, timestamp, options, labels));
+	public RedisFuture<Long> incrby(K key, double value, Long timestamp, CreateOptions<K, V> options) {
+		return dispatch(timeSeriesCommandBuilder.incrby(key, value, timestamp, options));
 	}
 
 	@Override
-	public RedisFuture<Long> decrby(K key, double value, Long timestamp, CreateOptions options, Label<K, V>... labels) {
-		return dispatch(timeSeriesCommandBuilder.decrby(key, value, timestamp, options, labels));
+	public RedisFuture<Long> decrby(K key, double value, Long timestamp, CreateOptions<K, V> options) {
+		return dispatch(timeSeriesCommandBuilder.decrby(key, value, timestamp, options));
 	}
 
 	@Override
-	public RedisFuture<Long> incrbyAutoTimestamp(K key, double value, CreateOptions options, Label<K, V>... labels) {
-		return dispatch(timeSeriesCommandBuilder.incrbyAutoTimestamp(key, value, options, labels));
+	public RedisFuture<Long> incrbyAutoTimestamp(K key, double value, CreateOptions<K, V> options) {
+		return dispatch(timeSeriesCommandBuilder.incrbyAutoTimestamp(key, value, options));
 	}
 
 	@Override
-	public RedisFuture<Long> decrbyAutoTimestamp(K key, double value, CreateOptions options, Label<K, V>... labels) {
-		return dispatch(timeSeriesCommandBuilder.decrbyAutoTimestamp(key, value, options, labels));
+	public RedisFuture<Long> decrbyAutoTimestamp(K key, double value, CreateOptions<K, V> options) {
+		return dispatch(timeSeriesCommandBuilder.decrbyAutoTimestamp(key, value, options));
 	}
 
 	@Override

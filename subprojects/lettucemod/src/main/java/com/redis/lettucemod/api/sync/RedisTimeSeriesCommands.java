@@ -6,7 +6,6 @@ import com.redis.lettucemod.timeseries.Aggregation;
 import com.redis.lettucemod.timeseries.CreateOptions;
 import com.redis.lettucemod.timeseries.GetResult;
 import com.redis.lettucemod.timeseries.KeySample;
-import com.redis.lettucemod.timeseries.Label;
 import com.redis.lettucemod.timeseries.RangeOptions;
 import com.redis.lettucemod.timeseries.RangeResult;
 import com.redis.lettucemod.timeseries.Sample;
@@ -14,31 +13,31 @@ import com.redis.lettucemod.timeseries.Sample;
 @SuppressWarnings("unchecked")
 public interface RedisTimeSeriesCommands<K, V> {
 
-	String create(K key, CreateOptions options, Label<K, V>... labels);
+	String create(K key, CreateOptions<K, V> options);
 
-	String alter(K key, CreateOptions options, Label<K, V>... labels);
+	String alter(K key, CreateOptions<K, V> options);
 
 	Long add(K key, long timestamp, double value);
 
 	Long addAutoTimestamp(K key, double value);
 
-	Long add(K key, long timestamp, double value, CreateOptions options, Label<K, V>... labels);
+	Long add(K key, long timestamp, double value, CreateOptions<K, V> options);
 
-	Long addAutoTimestamp(K key, double value, CreateOptions options, Label<K, V>... labels);
+	Long addAutoTimestamp(K key, double value, CreateOptions<K, V> options);
 
 	Long add(K key, Sample sample);
 
-	Long add(K key, Sample sample, CreateOptions options, Label<K, V>... labels);
+	Long add(K key, Sample sample, CreateOptions<K, V> options);
 
 	List<Long> madd(KeySample<K>... samples);
 
-	Long incrby(K key, double value, Long timestamp, CreateOptions options, Label<K, V>... labels);
+	Long incrby(K key, double value, Long timestamp, CreateOptions<K, V> options);
 
-	Long decrby(K key, double value, Long timestamp, CreateOptions options, Label<K, V>... labels);
+	Long decrby(K key, double value, Long timestamp, CreateOptions<K, V> options);
 
-	Long incrbyAutoTimestamp(K key, double value, CreateOptions options, Label<K, V>... labels);
+	Long incrbyAutoTimestamp(K key, double value, CreateOptions<K, V> options);
 
-	Long decrbyAutoTimestamp(K key, double value, CreateOptions options, Label<K, V>... labels);
+	Long decrbyAutoTimestamp(K key, double value, CreateOptions<K, V> options);
 
 	String createrule(K sourceKey, K destKey, Aggregation aggregation);
 

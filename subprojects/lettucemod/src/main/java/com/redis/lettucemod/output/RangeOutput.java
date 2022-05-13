@@ -83,7 +83,7 @@ public class RangeOutput<K, V> extends CommandOutput<K, V, List<RangeResult<K, V
 			samples = new ArrayList<>();
 		}
 		if (value != null) {
-			samples.add(new Sample(timestamp, value));
+			samples.add(Sample.of(timestamp, value));
 		}
 		timestamp = 0;
 	}

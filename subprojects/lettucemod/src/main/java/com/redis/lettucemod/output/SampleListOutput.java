@@ -39,7 +39,7 @@ public class SampleListOutput<K, V> extends CommandOutput<K, V, List<Sample>> im
 
     @Override
     public void set(double number) {
-        subscriber.onNext(output, new Sample(timestamp, number));
+        subscriber.onNext(output, Sample.of(timestamp, number));
     }
 
     @Override

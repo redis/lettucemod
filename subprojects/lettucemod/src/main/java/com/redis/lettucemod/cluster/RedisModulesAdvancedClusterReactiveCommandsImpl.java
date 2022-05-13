@@ -31,7 +31,6 @@ import com.redis.lettucemod.timeseries.Aggregation;
 import com.redis.lettucemod.timeseries.CreateOptions;
 import com.redis.lettucemod.timeseries.GetResult;
 import com.redis.lettucemod.timeseries.KeySample;
-import com.redis.lettucemod.timeseries.Label;
 import com.redis.lettucemod.timeseries.RangeOptions;
 import com.redis.lettucemod.timeseries.RangeResult;
 import com.redis.lettucemod.timeseries.Sample;
@@ -327,12 +326,12 @@ public class RedisModulesAdvancedClusterReactiveCommandsImpl<K, V> extends
 	}
 
 	@Override
-	public Mono<String> create(K key, CreateOptions options, Label<K, V>... labels) {
+	public Mono<String> create(K key, CreateOptions<K, V> options) {
 		return delegate.create(key, options);
 	}
 
 	@Override
-	public Mono<String> alter(K key, CreateOptions options, Label<K, V>... labels) {
+	public Mono<String> alter(K key, CreateOptions<K, V> options) {
 		return delegate.alter(key, options);
 	}
 
@@ -342,7 +341,7 @@ public class RedisModulesAdvancedClusterReactiveCommandsImpl<K, V> extends
 	}
 
 	@Override
-	public Mono<Long> add(K key, long timestamp, double value, CreateOptions options, Label<K, V>... labels) {
+	public Mono<Long> add(K key, long timestamp, double value, CreateOptions<K, V> options) {
 		return delegate.add(key, timestamp, value, options);
 	}
 
@@ -352,7 +351,7 @@ public class RedisModulesAdvancedClusterReactiveCommandsImpl<K, V> extends
 	}
 
 	@Override
-	public Mono<Long> addAutoTimestamp(K key, double value, CreateOptions options, Label<K, V>... labels) {
+	public Mono<Long> addAutoTimestamp(K key, double value, CreateOptions<K, V> options) {
 		return delegate.addAutoTimestamp(key, value, options);
 	}
 
@@ -362,7 +361,7 @@ public class RedisModulesAdvancedClusterReactiveCommandsImpl<K, V> extends
 	}
 
 	@Override
-	public Mono<Long> add(K key, Sample sample, CreateOptions options, Label<K, V>... labels) {
+	public Mono<Long> add(K key, Sample sample, CreateOptions<K, V> options) {
 		return delegate.add(key, sample, options);
 	}
 
@@ -372,22 +371,22 @@ public class RedisModulesAdvancedClusterReactiveCommandsImpl<K, V> extends
 	}
 
 	@Override
-	public Mono<Long> incrby(K key, double value, Long timestamp, CreateOptions options, Label<K, V>... labels) {
+	public Mono<Long> incrby(K key, double value, Long timestamp, CreateOptions<K, V> options) {
 		return delegate.incrby(key, value, timestamp, options);
 	}
 
 	@Override
-	public Mono<Long> decrby(K key, double value, Long timestamp, CreateOptions options, Label<K, V>... labels) {
+	public Mono<Long> decrby(K key, double value, Long timestamp, CreateOptions<K, V> options) {
 		return delegate.decrby(key, value, timestamp, options);
 	}
 
 	@Override
-	public Mono<Long> incrbyAutoTimestamp(K key, double value, CreateOptions options, Label<K, V>... labels) {
+	public Mono<Long> incrbyAutoTimestamp(K key, double value, CreateOptions<K, V> options) {
 		return delegate.incrbyAutoTimestamp(key, value, options);
 	}
 
 	@Override
-	public Mono<Long> decrbyAutoTimestamp(K key, double value, CreateOptions options, Label<K, V>... labels) {
+	public Mono<Long> decrbyAutoTimestamp(K key, double value, CreateOptions<K, V> options) {
 		return delegate.decrbyAutoTimestamp(key, value, options);
 	}
 

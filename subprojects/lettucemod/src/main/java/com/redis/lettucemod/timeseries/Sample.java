@@ -9,14 +9,6 @@ public class Sample {
 	private long timestamp;
 	private double value;
 
-	public Sample() {
-	}
-
-	public Sample(long timestamp, double value) {
-		this.timestamp = timestamp;
-		this.value = value;
-	}
-
 	public long getTimestamp() {
 		return timestamp;
 	}
@@ -34,11 +26,14 @@ public class Sample {
 	}
 
 	public static Sample of(double value) {
-		return new Sample(AUTO_TIMESTAMP, value);
+		return of(AUTO_TIMESTAMP, value);
 	}
 
 	public static Sample of(long timestamp, double value) {
-		return new Sample(timestamp, value);
+		Sample sample = new Sample();
+		sample.setTimestamp(timestamp);
+		sample.setValue(value);
+		return sample;
 	}
 
 	@Override
