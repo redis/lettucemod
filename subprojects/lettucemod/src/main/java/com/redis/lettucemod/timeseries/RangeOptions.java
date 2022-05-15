@@ -7,15 +7,15 @@ public class RangeOptions extends BaseRangeOptions {
 	}
 
 	public static Builder all() {
-		return new Builder(Long.MIN_VALUE, Long.MAX_VALUE);
+		return new Builder(START, END);
 	}
 
 	public static Builder from(long from) {
-		return new Builder(from, Long.MAX_VALUE);
+		return new Builder(from, END);
 	}
 
 	public static Builder to(long to) {
-		return new Builder(Long.MIN_VALUE, to);
+		return new Builder(START, to);
 	}
 
 	public static Builder range(long from, long to) {

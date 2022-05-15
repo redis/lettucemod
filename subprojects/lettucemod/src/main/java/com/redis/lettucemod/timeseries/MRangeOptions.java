@@ -73,15 +73,15 @@ public class MRangeOptions<K, V> extends BaseRangeOptions {
 	}
 
 	public static <K, V> Builder<K, V> all() {
-		return new Builder<>(Long.MIN_VALUE, Long.MAX_VALUE);
+		return new Builder<>(START, END);
 	}
 
 	public static <K, V> Builder<K, V> from(long from) {
-		return new Builder<>(from, Long.MAX_VALUE);
+		return new Builder<>(from, END);
 	}
 
 	public static <K, V> Builder<K, V> to(long to) {
-		return new Builder<>(Long.MIN_VALUE, to);
+		return new Builder<>(START, to);
 	}
 
 	public static <K, V> Builder<K, V> range(long from, long to) {

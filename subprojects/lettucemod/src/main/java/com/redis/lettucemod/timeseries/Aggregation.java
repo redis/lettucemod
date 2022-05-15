@@ -68,10 +68,10 @@ public class Aggregation implements CompositeArgument {
 		@Override
 		public <K, V> void build(CommandArgs<K, V> args) {
 			args.add(TimeSeriesCommandKeyword.ALIGN);
-			if (value == Long.MIN_VALUE) {
+			if (value == BaseRangeOptions.START) {
 				args.add(TimeSeriesCommandKeyword.START);
 			} else {
-				if (value == Long.MAX_VALUE) {
+				if (value == BaseRangeOptions.END) {
 					args.add(TimeSeriesCommandKeyword.END);
 				} else {
 					args.add(value);
@@ -80,11 +80,11 @@ public class Aggregation implements CompositeArgument {
 		}
 
 		public static Align start() {
-			return new Align(Long.MIN_VALUE);
+			return new Align(BaseRangeOptions.START);
 		}
 
 		public static Align end() {
-			return new Align(Long.MAX_VALUE);
+			return new Align(BaseRangeOptions.END);
 		}
 
 		public static Align of(long value) {

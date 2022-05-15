@@ -14,6 +14,9 @@ import io.lettuce.core.protocol.CommandArgs;
 
 class BaseRangeOptions implements CompositeArgument {
 
+	public static final long START = Long.MIN_VALUE;
+	public static final long END = Long.MAX_VALUE;
+
 	private final long from;
 	private final long to;
 	private final List<Long> filterByTimestamp;
@@ -42,12 +45,12 @@ class BaseRangeOptions implements CompositeArgument {
 	}
 
 	protected <K, V> void buildFromToFilterBys(CommandArgs<K, V> args) {
-		if (from == 0) {
+		if (from == START) {
 			args.add(TimeSeriesCommandKeyword.START);
 		} else {
 			args.add(from);
 		}
-		if (to == 0) {
+		if (to == END) {
 			args.add(TimeSeriesCommandKeyword.END);
 		} else {
 			args.add(to);
