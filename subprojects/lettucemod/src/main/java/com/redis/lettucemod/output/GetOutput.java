@@ -16,137 +16,130 @@ import java.util.Map;
 import com.redis.lettucemod.timeseries.GetResult;
 import com.redis.lettucemod.timeseries.Sample;
 
-public class GetOutput<K, V> extends CommandOutput<K, V, List<GetResult<K, V>>> implements StreamingOutput<GetResult<K, V>> {
+public class GetOutput<K, V> extends CommandOutput<K, V, List<GetResult<K, V>>>
+		implements StreamingOutput<GetResult<K, V>> {
 
-    private boolean initialized;
+	private boolean initialized;
 
-    private Subscriber<GetResult<K, V>> subscriber;
+	private Subscriber<GetResult<K, V>> subscriber;
 
-    private boolean skipKeyReset = false;
+	private boolean skipKeyReset = false;
 
-    private K key;
+	private K key;
 
-    private K labelKey;
+	private K labelKey;
 
-    private Map<K, V> labels;
+	private Map<K, V> labels;
 
-    private Sample sample;
+	private Sample sample;
 
-    private boolean labelsReceived = false;
+	private boolean labelsComplete = false;
 
-    private boolean labelsComplete = false;
+	public GetOutput(RedisCodec<K, V> codec) {
+		super(codec, Collections.emptyList());
+		setSubscriber(ListSubscriber.instance());
+	}
 
-    public GetOutput(RedisCodec<K, V> codec) {
-        super(codec, Collections.emptyList());
-        setSubscriber(ListSubscriber.instance());
-    }
+	@Override
+	public void set(ByteBuffer bytes) {
 
-    @Override
-    public void set(ByteBuffer bytes) {
+		if (key == null) {
+			if (bytes == null) {
+				return;
+			}
 
-        if (key == null) {
-            if (bytes == null) {
-                return;
-            }
+			key = codec.decodeKey(bytes);
+			skipKeyReset = true;
+			return;
+		}
 
-            key = codec.decodeKey(bytes);
-            skipKeyReset = true;
-            return;
-        }
+		if (labelsComplete) {
+			sampleValue(bytes == null ? null : LettuceStrings.toDouble(decodeAscii(bytes)));
+			return;
+		}
 
-        if (labelsComplete) {
-            sampleValue(bytes == null ? null : LettuceStrings.toDouble(decodeAscii(bytes)));
-            return;
-        }
+		if (labelKey == null) {
 
-        if (labelKey == null) {
-            labelsReceived = true;
+			if (bytes == null) {
+				return;
+			}
 
-            if (bytes == null) {
-                return;
-            }
+			labelKey = codec.decodeKey(bytes);
+			return;
+		}
 
-            labelKey = codec.decodeKey(bytes);
-            return;
-        }
+		labels.put(labelKey, bytes == null ? null : codec.decodeValue(bytes));
+		labelKey = null;
+	}
 
-        if (labels == null) {
-            labels = new LinkedHashMap<>();
-        }
+	@Override
+	public void set(long integer) {
+		sample = new Sample();
+		sample.setTimestamp(integer);
+	}
 
-        labels.put(labelKey, bytes == null ? null : codec.decodeValue(bytes));
-        labelKey = null;
-    }
+	@Override
+	public void set(double number) {
+		sampleValue(number);
+	}
 
-    @Override
-    public void set(long integer) {
-        sample = new Sample();
-        sample.setTimestamp(integer);
-    }
+	private void sampleValue(Double value) {
+		sample.setValue(value);
+		GetResult<K, V> result = new GetResult<>();
+		result.setKey(key);
+		result.setLabels(labels);
+		result.setSample(sample);
+		subscriber.onNext(output, result);
+		labelsComplete = false;
+		labelKey = null;
+		labels = null;
+		sample = null;
+	}
 
-    @Override
-    public void set(double number) {
-        sampleValue(number);
-    }
+	@Override
+	public void multi(int count) {
 
-    private void sampleValue(Double value) {
-        sample.setValue(value);
-        GetResult<K,V> result = new GetResult<>();
-        result.setKey(key);
-        result.setLabels(labels == null ? Collections.emptyMap() : labels);
-        result.setSample(sample);
-        subscriber.onNext(output, result);
-        labelsReceived = false;
-        labelsComplete = false;
-        labelKey = null;
-        labels = null;
-        sample = null;
-    }
+		if (key != null && labels == null) {
+			labels = new LinkedHashMap<>();
+		}
 
-    @Override
-    public void multi(int count) {
+		if (!initialized) {
+			output = OutputFactory.newList(count);
+			initialized = true;
+		}
+	}
 
-        if (key != null && labelKey == null && count == -1) {
-            labelsReceived = true;
-        }
+	@Override
+	public void complete(int depth) {
 
-        if (!initialized) {
-            output = OutputFactory.newList(count);
-            initialized = true;
-        }
-    }
+		if (depth == 2 && labels != null) {
+			labelsComplete = true;
+			return;
+		}
 
-    @Override
-    public void complete(int depth) {
+		// RESP2/RESP3 compat
+		if (depth == 2 && skipKeyReset) {
+			skipKeyReset = false;
+		}
 
-        if (depth == 2 && labelsReceived) {
-            labelsComplete = true;
-            return;
-        }
+		if (depth == 1) {
+			if (skipKeyReset) {
+				skipKeyReset = false;
+			} else {
+				key = null;
+			}
+		}
+	}
 
-        // RESP2/RESP3 compat
-        if (depth == 2 && skipKeyReset) {
-            skipKeyReset = false;
-        }
+	@Override
+	public void setSubscriber(Subscriber<GetResult<K, V>> subscriber) {
+		LettuceAssert.notNull(subscriber, "Subscriber must not be null");
+		this.subscriber = subscriber;
+	}
 
-        if (depth == 1) {
-            if (skipKeyReset) {
-                skipKeyReset = false;
-            } else {
-                key = null;
-            }
-        }
-    }
-
-    @Override
-    public void setSubscriber(Subscriber<GetResult<K, V>> subscriber) {
-        LettuceAssert.notNull(subscriber, "Subscriber must not be null");
-        this.subscriber = subscriber;
-    }
-
-    @Override
-    public Subscriber<GetResult<K, V>> getSubscriber() {
-        return subscriber;
-    }
+	@Override
+	public Subscriber<GetResult<K, V>> getSubscriber() {
+		return subscriber;
+	}
 
 }
