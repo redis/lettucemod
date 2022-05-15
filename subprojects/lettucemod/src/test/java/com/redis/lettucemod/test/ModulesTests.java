@@ -717,6 +717,7 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 	private static final com.redis.lettucemod.timeseries.CreateOptions<String, String> CREATE_OPTIONS = com.redis.lettucemod.timeseries.CreateOptions
 			.<String, String>builder().retentionPeriod(6000)
 			.labels(Label.of(LABEL_SENSOR_ID, SENSOR_ID), Label.of(LABEL_AREA_ID, AREA_ID)).build();
+	private static final String FILTER = LABEL_SENSOR_ID + "=" + SENSOR_ID;
 
 	@ParameterizedTest
 	@RedisTestContextsSource
@@ -745,13 +746,22 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 	void tsRange(RedisTestContext context) {
 		RedisTimeSeriesCommands<String, String> ts = context.sync();
 		String key = populateTimeSeries(ts);
-		List<Sample> range = ts.range(key, RangeOptions.range(1548149180, 1548149210)
-				.aggregation(Aggregation.builder(Aggregation.Aggregator.AVG, 5).build()).build());
-		assertEquals(2, range.size());
-		assertEquals(1548149180, range.get(0).getTimestamp());
-		assertEquals(VALUE_1, range.get(0).getValue());
-		assertEquals(1548149190, range.get(1).getTimestamp());
-		assertEquals(VALUE_2, range.get(1).getValue());
+		assertTSRange(ts.range(key, RangeOptions.range(TIMESTAMP_1 - 10, TIMESTAMP_2 + 10)
+				.aggregation(Aggregation.builder(Aggregation.Aggregator.AVG, 5).build()).build()));
+		assertTSRange(ts.range(key,
+				RangeOptions.all().aggregation(Aggregation.builder(Aggregation.Aggregator.AVG, 5).build()).build()));
+		assertTSRange(ts.range(key, RangeOptions.from(TIMESTAMP_1 - 10)
+				.aggregation(Aggregation.builder(Aggregation.Aggregator.AVG, 5).build()).build()));
+		assertTSRange(ts.range(key, RangeOptions.to(TIMESTAMP_2 + 10)
+				.aggregation(Aggregation.builder(Aggregation.Aggregator.AVG, 5).build()).build()));
+	}
+
+	private void assertTSRange(List<Sample> results) {
+		assertEquals(2, results.size());
+		assertEquals(1548149180, results.get(0).getTimestamp());
+		assertEquals(VALUE_1, results.get(0).getValue());
+		assertEquals(1548149190, results.get(1).getTimestamp());
+		assertEquals(VALUE_2, results.get(1).getValue());
 	}
 
 	private String populateTimeSeries(RedisTimeSeriesCommands<String, String> ts) {
@@ -770,8 +780,12 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 	void tsMrange(RedisTestContext context) {
 		RedisTimeSeriesCommands<String, String> ts = context.sync();
 		String key = populateTimeSeries(ts);
-		List<RangeResult<String, String>> results = ts
-				.mrange(MRangeOptions.<String, String>from(0).filters(LABEL_SENSOR_ID + "=" + SENSOR_ID).build());
+		assertTSMRange(key, ts.mrange(MRangeOptions.<String, String>all().filters(FILTER).build()));
+		assertTSMRange(key, ts.mrange(MRangeOptions.<String, String>from(TIMESTAMP_1 - 10).filters(FILTER).build()));
+		assertTSMRange(key, ts.mrange(MRangeOptions.<String, String>to(TIMESTAMP_2 + 10).filters(FILTER).build()));
+	}
+
+	private void assertTSMRange(String key, List<RangeResult<String, String>> results) {
 		assertEquals(1, results.size());
 		assertEquals(key, results.get(0).getKey());
 		assertEquals(2, results.get(0).getSamples().size());
@@ -787,7 +801,7 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 		RedisTimeSeriesCommands<String, String> ts = context.sync();
 		String key = populateTimeSeries(ts);
 		List<RangeResult<String, String>> results = ts
-				.mrange(MRangeOptions.<String, String>from(0).withLabels().filters(LABEL_SENSOR_ID + "=" + SENSOR_ID).build());
+				.mrange(MRangeOptions.<String, String>from(0).withLabels().filters(FILTER).build());
 		assertEquals(1, results.size());
 		assertEquals(key, results.get(0).getKey());
 		assertEquals(2, results.get(0).getSamples().size());
