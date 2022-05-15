@@ -72,6 +72,10 @@ public class MRangeOptions<K, V> extends BaseRangeOptions {
 		SUM, MIN, MAX
 	}
 
+	public static <K, V> Builder<K, V> all() {
+		return new Builder<>(Long.MIN_VALUE, Long.MAX_VALUE);
+	}
+
 	public static <K, V> Builder<K, V> from(long from) {
 		return new Builder<>(from, Long.MAX_VALUE);
 	}
