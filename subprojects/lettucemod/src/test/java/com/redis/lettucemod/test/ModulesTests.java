@@ -803,7 +803,8 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 		assertTSMRange(KEY, ts.mrange(MRangeOptions.<String, String>all().filters(FILTER).build()));
 		assertTSMRange(KEY, ts.mrange(MRangeOptions.<String, String>from(TIMESTAMP_1 - 10).filters(FILTER).build()));
 		assertTSMRange(KEY, ts.mrange(MRangeOptions.<String, String>to(TIMESTAMP_2 + 10).filters(FILTER).build()));
-		List<RangeResult<String, String>> results = ts.mrange(MRangeOptions.<String, String>from(0).withLabels().filters(FILTER).build());
+		List<RangeResult<String, String>> results = ts
+				.mrange(MRangeOptions.<String, String>from(0).withLabels().filters(FILTER).build());
 		assertEquals(1, results.size());
 		assertEquals(KEY, results.get(0).getKey());
 		assertEquals(2, results.get(0).getSamples().size());
@@ -1089,7 +1090,7 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 		assertEquals("MyStreamReader", registration.getDescription());
 		assertEquals("async", registration.getData().getMode());
 		Map<String, Object> args = registration.getData().getArgs();
-		assertEquals(3, args.size());
+		assertTrue(args.size() >= 3);
 		assertEquals(1L, args.get("batchSize"));
 		assertEquals("mystream", args.get("stream"));
 		assertEquals("OK", registration.getData().getStatus());
