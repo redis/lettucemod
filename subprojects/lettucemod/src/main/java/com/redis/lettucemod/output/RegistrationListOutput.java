@@ -27,12 +27,6 @@ public class RegistrationListOutput<K, V> extends CommandOutput<K, V, List<Regis
 	}
 
 	@Override
-	public void set(double number) {
-		throw new UnsupportedOperationException(
-				getClass().getName() + " does not support set(double). Field: " + field);
-	}
-
-	@Override
 	public void set(ByteBuffer bytes) {
 		if (field == null) {
 			field = decodeAscii(bytes);
@@ -124,9 +118,65 @@ public class RegistrationListOutput<K, V> extends CommandOutput<K, V, List<Regis
 				field = null;
 				return;
 			}
+			if (fieldEquals("lastRunDurationMS")) {
+				registration.getData().setLastRunDurationMS(integer);
+				field = null;
+				return;
+			}
+			if (fieldEquals("totalRunDurationMS")) {
+				registration.getData().setLastRunDurationMS(integer);
+				field = null;
+				return;
+			}
+			if (fieldEquals("avgRunDurationMS")) {
+				registration.getData().setAvgRunDurationMS(integer);
+				field = null;
+				return;
+			}
+			if (fieldEquals("lastEstimatedLagMS")) {
+				registration.getData().setLastEstimatedLagMS(integer);
+				field = null;
+				return;
+			}
+			if (fieldEquals("avgEstimatedLagMS")) {
+				registration.getData().setAvgEstimatedLagMS(integer);
+				field = null;
+				return;
+			}
 			if (registration.getData().getArgs() != null && registration.getData().getArgs().size() < argSize) {
 				registration.getData().getArgs().put(field, integer);
 				field = null;
+			}
+		}
+	}
+
+	@Override
+	public void set(double number) {
+		if (registration != null && registration.getData() != null) {
+			if (fieldEquals("lastRunDurationMS")) {
+				registration.getData().setLastRunDurationMS(Math.round(number));
+				field = null;
+				return;
+			}
+			if (fieldEquals("totalRunDurationMS")) {
+				registration.getData().setLastRunDurationMS(Math.round(number));
+				field = null;
+				return;
+			}
+			if (fieldEquals("avgRunDurationMS")) {
+				registration.getData().setAvgRunDurationMS(Math.round(number));
+				field = null;
+				return;
+			}
+			if (fieldEquals("lastEstimatedLagMS")) {
+				registration.getData().setLastEstimatedLagMS(Math.round(number));
+				field = null;
+				return;
+			}
+			if (fieldEquals("avgEstimatedLagMS")) {
+				registration.getData().setAvgEstimatedLagMS(Math.round(number));
+				field = null;
+				return;
 			}
 		}
 	}

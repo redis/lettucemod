@@ -56,6 +56,11 @@ public class Registration {
 		private long numSuccess;
 		private long numFailures;
 		private long numAborted;
+		private long lastRunDurationMS;
+		private long totalRunDurationMS;
+		private long avgRunDurationMS;
+		private long lastEstimatedLagMS;
+		private long avgEstimatedLagMS;
 		private String lastError;
 		private Map<String, Object> args;
 		private String status;
@@ -122,6 +127,46 @@ public class Registration {
 
 		public void setStatus(String status) {
 			this.status = status;
+		}
+
+		public long getLastRunDurationMS() {
+			return lastRunDurationMS;
+		}
+
+		public void setLastRunDurationMS(long lastRunDurationMS) {
+			this.lastRunDurationMS = lastRunDurationMS;
+		}
+
+		public long getTotalRunDurationMS() {
+			return totalRunDurationMS;
+		}
+
+		public void setTotalRunDurationMS(long totalRunDurationMS) {
+			this.totalRunDurationMS = totalRunDurationMS;
+		}
+
+		public long getAvgRunDurationMS() {
+			return avgRunDurationMS;
+		}
+
+		public void setAvgRunDurationMS(long avgRunDurationMS) {
+			this.avgRunDurationMS = avgRunDurationMS;
+		}
+
+		public long getLastEstimatedLagMS() {
+			return lastEstimatedLagMS;
+		}
+
+		public void setLastEstimatedLagMS(long lastEstimatedLagMS) {
+			this.lastEstimatedLagMS = lastEstimatedLagMS;
+		}
+
+		public long getAvgEstimatedLagMS() {
+			return avgEstimatedLagMS;
+		}
+
+		public void setAvgEstimatedLagMS(long avgEstimatedLagMS) {
+			this.avgEstimatedLagMS = avgEstimatedLagMS;
 		}
 
 	}
