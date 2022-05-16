@@ -178,6 +178,10 @@ public class RegistrationListOutput<K, V> extends CommandOutput<K, V, List<Regis
 				field = null;
 				return;
 			}
+			if (registration.getData().getArgs() != null && registration.getData().getArgs().size() < argSize) {
+				registration.getData().getArgs().put(field, number);
+				field = null;
+			}
 		}
 	}
 

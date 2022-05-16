@@ -1101,8 +1101,7 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 		String function = "GB('KeysReader').register('*', keyTypes=['hash'])";
 		Assertions.assertTrue(sync.pyexecute(function).isOk());
 		Assertions.assertTrue(sync.pyexecute(function).isOk());
-		registrations = sync.dumpregistrations();
-		assertEquals(2, registrations.size());
+		Awaitility.await().until(() -> sync.dumpregistrations().size() == 2);
 	}
 
 	@ParameterizedTest
