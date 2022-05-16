@@ -1063,7 +1063,6 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 				sync.abortexecution(execution.getId());
 			}
 			try {
-				log.info("Dropping execution {}", execution.getId());
 				sync.dropexecution(execution.getId());
 			} catch (RedisCommandExecutionException e) {
 				log.info("Execution status: {}", execution.getStatus());
