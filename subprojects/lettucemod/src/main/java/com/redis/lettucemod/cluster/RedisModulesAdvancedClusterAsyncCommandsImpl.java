@@ -26,6 +26,7 @@ import com.redis.lettucemod.search.SearchOptions;
 import com.redis.lettucemod.search.SearchResults;
 import com.redis.lettucemod.search.Suggestion;
 import com.redis.lettucemod.search.SuggetOptions;
+import com.redis.lettucemod.timeseries.AddOptions;
 import com.redis.lettucemod.timeseries.Aggregation;
 import com.redis.lettucemod.timeseries.CreateOptions;
 import com.redis.lettucemod.timeseries.GetResult;
@@ -334,7 +335,7 @@ public class RedisModulesAdvancedClusterAsyncCommandsImpl<K, V> extends RedisAdv
 	}
 
 	@Override
-	public RedisFuture<Long> add(K key, long timestamp, double value, CreateOptions<K, V> options) {
+	public RedisFuture<Long> add(K key, long timestamp, double value, AddOptions<K, V> options) {
 		return delegate.add(key, timestamp, value, options);
 	}
 
@@ -344,7 +345,7 @@ public class RedisModulesAdvancedClusterAsyncCommandsImpl<K, V> extends RedisAdv
 	}
 
 	@Override
-	public RedisFuture<Long> addAutoTimestamp(K key, double value, CreateOptions<K, V> options) {
+	public RedisFuture<Long> addAutoTimestamp(K key, double value, AddOptions<K, V> options) {
 		return delegate.addAutoTimestamp(key, value, options);
 	}
 
@@ -354,7 +355,7 @@ public class RedisModulesAdvancedClusterAsyncCommandsImpl<K, V> extends RedisAdv
 	}
 
 	@Override
-	public RedisFuture<Long> add(K key, Sample sample, CreateOptions<K, V> options) {
+	public RedisFuture<Long> add(K key, Sample sample, AddOptions<K, V> options) {
 		return delegate.add(key, sample, options);
 	}
 

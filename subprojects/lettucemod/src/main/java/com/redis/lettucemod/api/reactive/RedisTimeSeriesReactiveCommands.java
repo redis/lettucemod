@@ -1,5 +1,6 @@
 package com.redis.lettucemod.api.reactive;
 
+import com.redis.lettucemod.timeseries.AddOptions;
 import com.redis.lettucemod.timeseries.Aggregation;
 import com.redis.lettucemod.timeseries.CreateOptions;
 import com.redis.lettucemod.timeseries.GetResult;
@@ -23,13 +24,13 @@ public interface RedisTimeSeriesReactiveCommands<K, V> {
 
 	Mono<Long> addAutoTimestamp(K key, double value);
 
-	Mono<Long> add(K key, long timestamp, double value, CreateOptions<K, V> options);
+	Mono<Long> add(K key, long timestamp, double value, AddOptions<K, V> options);
 
-	Mono<Long> addAutoTimestamp(K key, double value, CreateOptions<K, V> options);
+	Mono<Long> addAutoTimestamp(K key, double value, AddOptions<K, V> options);
 
 	Mono<Long> add(K key, Sample sample);
 
-	Mono<Long> add(K key, Sample sample, CreateOptions<K, V> options);
+	Mono<Long> add(K key, Sample sample, AddOptions<K, V> options);
 
 	Flux<Long> madd(KeySample<K>... samples);
 

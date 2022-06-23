@@ -28,6 +28,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.unit.DataSize;
+import org.testcontainers.utility.DockerImageName;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -75,7 +76,9 @@ import com.redis.lettucemod.search.SearchResults;
 import com.redis.lettucemod.search.Sort;
 import com.redis.lettucemod.search.Suggestion;
 import com.redis.lettucemod.search.SuggetOptions;
+import com.redis.lettucemod.timeseries.AddOptions;
 import com.redis.lettucemod.timeseries.Aggregation;
+import com.redis.lettucemod.timeseries.DuplicatePolicy;
 import com.redis.lettucemod.timeseries.GetResult;
 import com.redis.lettucemod.timeseries.Label;
 import com.redis.lettucemod.timeseries.MRangeOptions;
@@ -105,9 +108,7 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 	@SuppressWarnings("resource")
 	@Override
 	protected Collection<RedisServer> redisServers() {
-		return Arrays.asList(
-				new RedisModulesContainer(
-						RedisModulesContainer.DEFAULT_IMAGE_NAME.withTag(RedisModulesContainer.DEFAULT_TAG)),
+		return Arrays.asList(new RedisModulesContainer(DockerImageName.parse("redis/redis-stack").withTag("6.2.2-v3")),
 				new RedisEnterpriseContainer(
 						RedisEnterpriseContainer.DEFAULT_IMAGE_NAME.withTag(RedisEnterpriseContainer.DEFAULT_TAG))
 						.withDatabase(Database.name("ModulesTests").memory(DataSize.ofMegabytes(300)).ossCluster(true)
@@ -714,29 +715,34 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 	private static final String KEY = "temperature:3:11";
 	private static final String SENSOR_ID = "2";
 	private static final String AREA_ID = "32";
-	@SuppressWarnings("unchecked")
-	private static final com.redis.lettucemod.timeseries.CreateOptions<String, String> CREATE_OPTIONS = com.redis.lettucemod.timeseries.CreateOptions
-			.<String, String>builder().retentionPeriod(6000)
-			.labels(Label.of(LABEL_SENSOR_ID, SENSOR_ID), Label.of(LABEL_AREA_ID, AREA_ID)).build();
 	private static final String FILTER = LABEL_SENSOR_ID + "=" + SENSOR_ID;
 
+	@SuppressWarnings("unchecked")
 	@ParameterizedTest
 	@RedisTestContextsSource
 	void tsCreate(RedisTestContext context) {
 		String status = context.sync().create(KEY,
 				com.redis.lettucemod.timeseries.CreateOptions.<String, String>builder().retentionPeriod(6000).build());
 		assertEquals("OK", status);
+		assertEquals("OK",
+				context.sync().create("virag",
+						com.redis.lettucemod.timeseries.CreateOptions.<String, String>builder().retentionPeriod(100000L)
+								.labels(Label.of("name", "value")).policy(DuplicatePolicy.LAST).build()));
 	}
 
+	@SuppressWarnings("unchecked")
 	@ParameterizedTest
 	@RedisTestContextsSource
 	void tsAdd(RedisTestContext context) {
 		RedisTimeSeriesCommands<String, String> ts = context.sync();
 		// TS.CREATE temperature:3:11 RETENTION 6000 LABELS sensor_id 2 area_id 32
-		ts.create(KEY, CREATE_OPTIONS);
 		// TS.ADD temperature:3:11 1548149181 30
-		Long add1 = ts.add(KEY, TIMESTAMP_1, VALUE_1);
+		Long add1 = ts.add(KEY, TIMESTAMP_1, VALUE_1, AddOptions.<String, String>builder().retentionPeriod(6000)
+				.labels(Label.of(LABEL_SENSOR_ID, SENSOR_ID), Label.of(LABEL_AREA_ID, AREA_ID)).build());
 		assertEquals(TIMESTAMP_1, add1);
+		List<GetResult<String, String>> results = ts.tsMget(FILTER);
+		assertEquals(1, results.size());
+		assertEquals(TIMESTAMP_1, results.get(0).getSample().getTimestamp());
 		// TS.ADD temperature:3:11 1548149191 42
 		Long add2 = ts.add(KEY, TIMESTAMP_2, VALUE_2);
 		assertEquals(TIMESTAMP_2, add2);
@@ -765,10 +771,12 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 		assertEquals(VALUE_2, results.get(1).getValue());
 	}
 
+	@SuppressWarnings("unchecked")
 	private void populateTimeSeries(RedisTimeSeriesCommands<String, String> ts) {
 		// TS.CREATE temperature:3:11 RETENTION 6000 LABELS sensor_id 2 area_id 32
 		// TS.ADD temperature:3:11 1548149181 30
-		ts.add(KEY, Sample.of(TIMESTAMP_1, VALUE_1), CREATE_OPTIONS);
+		ts.add(KEY, Sample.of(TIMESTAMP_1, VALUE_1), AddOptions.<String, String>builder().retentionPeriod(6000)
+				.labels(Label.of(LABEL_SENSOR_ID, SENSOR_ID), Label.of(LABEL_AREA_ID, AREA_ID)).build());
 		// TS.ADD temperature:3:11 1548149191 42
 		ts.add(KEY, TIMESTAMP_2, VALUE_2);
 	}

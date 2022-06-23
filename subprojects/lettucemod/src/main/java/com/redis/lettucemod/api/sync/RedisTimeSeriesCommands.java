@@ -2,6 +2,7 @@ package com.redis.lettucemod.api.sync;
 
 import java.util.List;
 
+import com.redis.lettucemod.timeseries.AddOptions;
 import com.redis.lettucemod.timeseries.Aggregation;
 import com.redis.lettucemod.timeseries.CreateOptions;
 import com.redis.lettucemod.timeseries.GetResult;
@@ -22,13 +23,13 @@ public interface RedisTimeSeriesCommands<K, V> {
 
 	Long addAutoTimestamp(K key, double value);
 
-	Long add(K key, long timestamp, double value, CreateOptions<K, V> options);
+	Long add(K key, long timestamp, double value, AddOptions<K, V> options);
 
-	Long addAutoTimestamp(K key, double value, CreateOptions<K, V> options);
+	Long addAutoTimestamp(K key, double value, AddOptions<K, V> options);
 
 	Long add(K key, Sample sample);
 
-	Long add(K key, Sample sample, CreateOptions<K, V> options);
+	Long add(K key, Sample sample, AddOptions<K, V> options);
 
 	List<Long> madd(KeySample<K>... samples);
 
@@ -52,6 +53,11 @@ public interface RedisTimeSeriesCommands<K, V> {
 
 	List<RangeResult<K, V>> mrevrange(MRangeOptions<K, V> options);
 
+	/**
+	 * Get the last sample.
+	 * @param key Key name for time series
+	 * @return The last sample.
+	 */
 	Sample tsGet(K key);
 
 	List<GetResult<K, V>> tsMget(V... filters);

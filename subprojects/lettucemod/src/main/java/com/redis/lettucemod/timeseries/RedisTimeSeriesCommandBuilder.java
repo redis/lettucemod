@@ -56,7 +56,7 @@ public class RedisTimeSeriesCommandBuilder<K, V> extends RedisModulesCommandBuil
 		return add(key, sample, null);
 	}
 
-	public Command<K, V, Long> add(K key, Sample sample, CreateOptions<K, V> options) {
+	public Command<K, V, Long> add(K key, Sample sample, AddOptions<K, V> options) {
 		notNull(sample, "Sample");
 		return doAdd(key, sample.getTimestamp(), sample.getValue(), options);
 	}
@@ -65,7 +65,7 @@ public class RedisTimeSeriesCommandBuilder<K, V> extends RedisModulesCommandBuil
 		return doAdd(key, timestamp, value, null);
 	}
 
-	public Command<K, V, Long> add(K key, long timestamp, double value, CreateOptions<K, V> options) {
+	public Command<K, V, Long> add(K key, long timestamp, double value, AddOptions<K, V> options) {
 		return doAdd(key, timestamp, value, options);
 	}
 
@@ -73,11 +73,11 @@ public class RedisTimeSeriesCommandBuilder<K, V> extends RedisModulesCommandBuil
 		return addAutoTimestamp(key, value, null);
 	}
 
-	public Command<K, V, Long> addAutoTimestamp(K key, double value, CreateOptions<K, V> options) {
+	public Command<K, V, Long> addAutoTimestamp(K key, double value, AddOptions<K, V> options) {
 		return doAdd(key, Sample.AUTO_TIMESTAMP, value, options);
 	}
 
-	private Command<K, V, Long> doAdd(K key, long timestamp, double value, CreateOptions<K, V> options) {
+	private Command<K, V, Long> doAdd(K key, long timestamp, double value, AddOptions<K, V> options) {
 		CommandArgs<K, V> args = args(key);
 		add(args, timestamp, value);
 		if (options != null) {
