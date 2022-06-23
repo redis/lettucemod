@@ -69,7 +69,9 @@ public class SearchOutput<K, V> extends CommandOutput<K, V, SearchResults<K, V>>
 			sortKeySet = true;
 			return;
 		}
-		nested.set(bytes);
+		if (bytes != null) {
+			nested.set(bytes);
+		}
 	}
 
 	@Override
@@ -92,7 +94,9 @@ public class SearchOutput<K, V> extends CommandOutput<K, V, SearchResults<K, V>>
 		}
 		if (nested.get().size() == counts.get(0)) {
 			counts.remove(0);
-			current.putAll(nested.get());
+			if (current != null) {
+				current.putAll(nested.get());
+			}
 			nested = new MapOutput<>(codec);
 			current = null;
 			payloadSet = false;
@@ -112,4 +116,8 @@ public class SearchOutput<K, V> extends CommandOutput<K, V, SearchResults<K, V>>
 		}
 	}
 
+	@Override
+	public boolean hasError() {
+		return super.hasError() && !getError().startsWith("Success");
+	}
 }

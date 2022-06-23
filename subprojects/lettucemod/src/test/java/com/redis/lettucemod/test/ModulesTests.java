@@ -64,6 +64,7 @@ import com.redis.lettucemod.search.Group;
 import com.redis.lettucemod.search.IndexInfo;
 import com.redis.lettucemod.search.Language;
 import com.redis.lettucemod.search.Limit;
+import com.redis.lettucemod.search.Order;
 import com.redis.lettucemod.search.Reducers.Avg;
 import com.redis.lettucemod.search.Reducers.Count;
 import com.redis.lettucemod.search.Reducers.Max;
@@ -350,6 +351,31 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 				"9", "5.5");
 		assertSearch(context, "sculpin",
 				SearchOptions.<String, String>builder().inField(Beers.FIELD_NAME.getName()).build(), 1, "7");
+	}
+
+	@ParameterizedTest
+	@RedisTestContextsSource
+	void testExpiry(RedisTestContext context) throws InterruptedException {
+		// Save 100 beers expiring after 3 seconds, with slight delay between every save
+		// operation
+		RedisModulesCommands<String, String> commands = context.sync();
+		try {
+			commands.create("beers", Field.text("name").build());
+		} catch (RedisCommandExecutionException e) {
+			// in case index already exists
+		}
+		for (int i = 0; i < 100; i++) {
+			String key = "beer:" + i;
+			commands.hmset(key, Map.of("name", "Chouffe" + i));
+			commands.pexpire(key, 100);
+		}
+		// Add sorting to our search options
+		SearchOptions<String, String> searchOptions = SearchOptions.<String, String>builder()
+				.sortBy(new SearchOptions.SortBy<>("name", Order.ASC)).build();
+		long start = System.currentTimeMillis();
+		while (System.currentTimeMillis() - start < 1000) {
+			commands.search("beers", "chou*", searchOptions);
+		}
 	}
 
 	@ParameterizedTest
