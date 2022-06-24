@@ -28,14 +28,15 @@ import com.redis.lettucemod.search.SearchResults;
 import com.redis.lettucemod.search.Suggestion;
 import com.redis.lettucemod.search.SuggetOptions;
 import com.redis.lettucemod.timeseries.AddOptions;
-import com.redis.lettucemod.timeseries.Aggregation;
 import com.redis.lettucemod.timeseries.CreateOptions;
+import com.redis.lettucemod.timeseries.CreateRuleOptions;
 import com.redis.lettucemod.timeseries.GetResult;
 import com.redis.lettucemod.timeseries.KeySample;
 import com.redis.lettucemod.timeseries.MRangeOptions;
 import com.redis.lettucemod.timeseries.RangeOptions;
 import com.redis.lettucemod.timeseries.RangeResult;
 import com.redis.lettucemod.timeseries.Sample;
+import com.redis.lettucemod.timeseries.TimeRange;
 
 import io.lettuce.core.KeyValue;
 import io.lettuce.core.cluster.RedisAdvancedClusterReactiveCommandsImpl;
@@ -393,8 +394,8 @@ public class RedisModulesAdvancedClusterReactiveCommandsImpl<K, V> extends
 	}
 
 	@Override
-	public Mono<String> createrule(K sourceKey, K destKey, Aggregation aggregation) {
-		return delegate.createrule(sourceKey, destKey, aggregation);
+	public Mono<String> createrule(K sourceKey, K destKey, CreateRuleOptions options) {
+		return delegate.createrule(sourceKey, destKey, options);
 	}
 
 	@Override
@@ -403,23 +404,23 @@ public class RedisModulesAdvancedClusterReactiveCommandsImpl<K, V> extends
 	}
 
 	@Override
-	public Flux<Sample> range(K key, RangeOptions options) {
-		return delegate.range(key, options);
+	public Flux<Sample> range(K key, TimeRange range, RangeOptions options) {
+		return delegate.range(key, range, options);
 	}
 
 	@Override
-	public Flux<Sample> revrange(K key, RangeOptions range) {
-		return delegate.revrange(key, range);
+	public Flux<Sample> revrange(K key, TimeRange range, RangeOptions options) {
+		return delegate.revrange(key, range, options);
 	}
 
 	@Override
-	public Flux<RangeResult<K, V>> mrange(MRangeOptions<K, V> options) {
-		return delegate.mrange(options);
+	public Flux<RangeResult<K, V>> mrange(TimeRange range, MRangeOptions<K, V> options) {
+		return delegate.mrange(range, options);
 	}
 
 	@Override
-	public Flux<RangeResult<K, V>> mrevrange(MRangeOptions<K, V> options) {
-		return delegate.mrevrange(options);
+	public Flux<RangeResult<K, V>> mrevrange(TimeRange range, MRangeOptions<K, V> options) {
+		return delegate.mrevrange(range, options);
 	}
 
 	@Override

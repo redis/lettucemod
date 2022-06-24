@@ -1,84 +1,58 @@
 package com.redis.lettucemod.timeseries;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 import java.util.OptionalLong;
-import java.util.stream.Collectors;
 
 import com.redis.lettucemod.protocol.TimeSeriesCommandKeyword;
 
 import io.lettuce.core.CompositeArgument;
 import io.lettuce.core.protocol.CommandArgs;
 
-class BaseRangeOptions implements CompositeArgument {
+abstract class BaseRangeOptions implements CompositeArgument {
 
-	public static final long START = Long.MIN_VALUE;
-	public static final long END = Long.MAX_VALUE;
-
-	private final long from;
-	private final long to;
-	private final List<Long> filterByTimestamp;
+	private final Optional<long[]> filterByTimestamp;
 	private final Optional<FilterByValue> filterByValue;
 	private final OptionalLong count;
 	private final Optional<Aggregation> aggregation;
 
 	protected BaseRangeOptions(Builder<?> builder) {
-		this.from = builder.from;
-		this.to = builder.to;
 		this.filterByTimestamp = builder.filterByTimestamp;
 		this.filterByValue = builder.filterByValue;
 		this.count = builder.count;
 		this.aggregation = builder.aggregation;
 	}
 
-	@Override
-	public <K, V> void build(CommandArgs<K, V> args) {
-		buildFromToFilterBys(args);
-		buildCountAlign(args);
+	protected <K, V> void buildCount(CommandArgs<K, V> args) {
+		count.ifPresent(c -> args.add(TimeSeriesCommandKeyword.COUNT).add(c));
 	}
 
-	protected <K, V> void buildCountAlign(CommandArgs<K, V> args) {
-		count.ifPresent(c -> args.add(TimeSeriesCommandKeyword.COUNT).add(c));
+	protected <K, V> void buildAggregation(CommandArgs<K, V> args) {
 		aggregation.ifPresent(a -> a.build(args));
 	}
 
-	protected <K, V> void buildFromToFilterBys(CommandArgs<K, V> args) {
-		if (from == START) {
-			args.add(TimeSeriesCommandKeyword.START);
-		} else {
-			args.add(from);
-		}
-		if (to == END) {
-			args.add(TimeSeriesCommandKeyword.END);
-		} else {
-			args.add(to);
-		}
-		if (!filterByTimestamp.isEmpty()) {
+	protected <K, V> void buildFilterByTimestamp(CommandArgs<K, V> args) {
+		filterByTimestamp.ifPresent(f -> {
 			args.add(TimeSeriesCommandKeyword.FILTER_BY_TS);
-			filterByTimestamp.forEach(args::add);
-		}
+			for (long ts : f) {
+				args.add(ts);
+			}
+		});
+	}
+
+	protected <K, V> void buildFilterByValue(CommandArgs<K, V> args) {
 		filterByValue.ifPresent(f -> f.build(args));
 	}
 
 	@SuppressWarnings("unchecked")
-	static class Builder<B extends Builder<B>> {
+	public static class Builder<B extends Builder<B>> {
 
-		private final long from;
-		private final long to;
+		private Optional<long[]> filterByTimestamp = Optional.empty();
+		private Optional<FilterByValue> filterByValue = Optional.empty();
 		private OptionalLong count = OptionalLong.empty();
 		private Optional<Aggregation> aggregation = Optional.empty();
-		private List<Long> filterByTimestamp = new ArrayList<>();
-		private Optional<FilterByValue> filterByValue = Optional.empty();
-
-		public Builder(long from, long to) {
-			this.from = from;
-			this.to = to;
-		}
 
 		public B filterByTimestamp(long... timestamps) {
-			filterByTimestamp = Arrays.stream(timestamps).boxed().collect(Collectors.toList());
+			filterByTimestamp = Optional.of(timestamps);
 			return (B) this;
 		}
 

@@ -1,14 +1,15 @@
 package com.redis.lettucemod.api.reactive;
 
 import com.redis.lettucemod.timeseries.AddOptions;
-import com.redis.lettucemod.timeseries.Aggregation;
 import com.redis.lettucemod.timeseries.CreateOptions;
+import com.redis.lettucemod.timeseries.CreateRuleOptions;
 import com.redis.lettucemod.timeseries.GetResult;
 import com.redis.lettucemod.timeseries.KeySample;
 import com.redis.lettucemod.timeseries.MRangeOptions;
 import com.redis.lettucemod.timeseries.RangeOptions;
 import com.redis.lettucemod.timeseries.RangeResult;
 import com.redis.lettucemod.timeseries.Sample;
+import com.redis.lettucemod.timeseries.TimeRange;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -42,17 +43,17 @@ public interface RedisTimeSeriesReactiveCommands<K, V> {
 
 	Mono<Long> decrbyAutoTimestamp(K key, double value, CreateOptions<K, V> options);
 
-	Mono<String> createrule(K sourceKey, K destKey, Aggregation aggregation);
+	Mono<String> createrule(K sourceKey, K destKey, CreateRuleOptions options);
 
 	Mono<String> deleterule(K sourceKey, K destKey);
 
-	Flux<Sample> range(K key, RangeOptions options);
+	Flux<Sample> range(K key, TimeRange range, RangeOptions options);
 
-	Flux<Sample> revrange(K key, RangeOptions options);
+	Flux<Sample> revrange(K key, TimeRange range, RangeOptions options);
 
-	Flux<RangeResult<K, V>> mrange(MRangeOptions<K, V> options);
+	Flux<RangeResult<K, V>> mrange(TimeRange range, MRangeOptions<K, V> options);
 
-	Flux<RangeResult<K, V>> mrevrange(MRangeOptions<K, V> options);
+	Flux<RangeResult<K, V>> mrevrange(TimeRange range, MRangeOptions<K, V> options);
 
 	Mono<Sample> tsGet(K key);
 

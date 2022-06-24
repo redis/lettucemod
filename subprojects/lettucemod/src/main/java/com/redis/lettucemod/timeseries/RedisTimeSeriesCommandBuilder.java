@@ -140,13 +140,13 @@ public class RedisTimeSeriesCommandBuilder<K, V> extends RedisModulesCommandBuil
 		return createCommand(commandType, new IntegerOutput<>(codec), args);
 	}
 
-	public Command<K, V, String> createRule(K sourceKey, K destKey, Aggregation aggregation) {
+	public Command<K, V, String> createRule(K sourceKey, K destKey, CreateRuleOptions options) {
 		notNull(sourceKey, "Source key");
 		notNull(destKey, "Destination key");
-		notNull(aggregation, "Aggregation");
+		notNull(options, "Options");
 		CommandArgs<K, V> args = args(sourceKey);
 		args.addKey(destKey);
-		aggregation.build(args);
+		options.build(args);
 		return createCommand(TimeSeriesCommandType.CREATERULE, new StatusOutput<>(codec), args);
 	}
 
@@ -158,37 +158,45 @@ public class RedisTimeSeriesCommandBuilder<K, V> extends RedisModulesCommandBuil
 		return createCommand(TimeSeriesCommandType.DELETERULE, new StatusOutput<>(codec), args);
 	}
 
-	public Command<K, V, List<Sample>> range(K key, RangeOptions options) {
-		return range(TimeSeriesCommandType.RANGE, key, options);
+	public Command<K, V, List<Sample>> range(K key, TimeRange range, RangeOptions options) {
+		return range(TimeSeriesCommandType.RANGE, key, range, options);
 	}
 
-	public Command<K, V, List<Sample>> revrange(K key, RangeOptions options) {
-		return range(TimeSeriesCommandType.REVRANGE, key, options);
+	public Command<K, V, List<Sample>> revrange(K key, TimeRange range, RangeOptions options) {
+		return range(TimeSeriesCommandType.REVRANGE, key, range, options);
 	}
 
-	private Command<K, V, List<Sample>> range(TimeSeriesCommandType commandType, K key, RangeOptions options) {
-		notNull(options, "Options");
+	private Command<K, V, List<Sample>> range(TimeSeriesCommandType commandType, K key, TimeRange range,
+			RangeOptions options) {
+		notNull(range, "Time range");
 		CommandArgs<K, V> args = args(key);
-		options.build(args);
+		range.build(args);
+		if (options != null) {
+			options.build(args);
+		}
 		return createCommand(commandType, new SampleListOutput<>(codec), args);
 	}
 
-	public Command<K, V, List<RangeResult<K, V>>> mrange(MRangeOptions<K, V> options) {
-		return mrange(RangeDirection.FORWARD, options);
+	public Command<K, V, List<RangeResult<K, V>>> mrange(TimeRange range, MRangeOptions<K, V> options) {
+		return mrange(RangeDirection.FORWARD, range, options);
 	}
 
-	public Command<K, V, List<RangeResult<K, V>>> mrevrange(MRangeOptions<K, V> options) {
-		return mrange(RangeDirection.REVERSE, options);
+	public Command<K, V, List<RangeResult<K, V>>> mrevrange(TimeRange range, MRangeOptions<K, V> options) {
+		return mrange(RangeDirection.REVERSE, range, options);
 	}
 
 	private enum RangeDirection {
 		FORWARD, REVERSE
 	}
 
-	private Command<K, V, List<RangeResult<K, V>>> mrange(RangeDirection direction, MRangeOptions<K, V> options) {
-		notNull(options, "Options");
+	private Command<K, V, List<RangeResult<K, V>>> mrange(RangeDirection direction, TimeRange range,
+			MRangeOptions<K, V> options) {
+		notNull(range, "Time range");
 		CommandArgs<K, V> args = new CommandArgs<>(codec);
-		options.build(args);
+		range.build(args);
+		if (options != null) {
+			options.build(args);
+		}
 		return createCommand(
 				direction == RangeDirection.REVERSE ? TimeSeriesCommandType.MREVRANGE : TimeSeriesCommandType.MRANGE,
 				new RangeOutput<>(codec), args);

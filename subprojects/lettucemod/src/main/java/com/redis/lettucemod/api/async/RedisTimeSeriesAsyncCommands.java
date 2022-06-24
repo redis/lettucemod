@@ -3,14 +3,15 @@ package com.redis.lettucemod.api.async;
 import java.util.List;
 
 import com.redis.lettucemod.timeseries.AddOptions;
-import com.redis.lettucemod.timeseries.Aggregation;
 import com.redis.lettucemod.timeseries.CreateOptions;
+import com.redis.lettucemod.timeseries.CreateRuleOptions;
 import com.redis.lettucemod.timeseries.GetResult;
 import com.redis.lettucemod.timeseries.KeySample;
 import com.redis.lettucemod.timeseries.MRangeOptions;
 import com.redis.lettucemod.timeseries.RangeOptions;
 import com.redis.lettucemod.timeseries.RangeResult;
 import com.redis.lettucemod.timeseries.Sample;
+import com.redis.lettucemod.timeseries.TimeRange;
 
 import io.lettuce.core.RedisFuture;
 
@@ -43,20 +44,21 @@ public interface RedisTimeSeriesAsyncCommands<K, V> {
 
 	RedisFuture<Long> decrbyAutoTimestamp(K key, double value, CreateOptions<K, V> options);
 
-	RedisFuture<String> createrule(K sourceKey, K destKey, Aggregation aggregation);
+	RedisFuture<String> createrule(K sourceKey, K destKey, CreateRuleOptions options);
 
 	RedisFuture<String> deleterule(K sourceKey, K destKey);
 
-	RedisFuture<List<Sample>> range(K key, RangeOptions options);
+	RedisFuture<List<Sample>> range(K key, TimeRange range, RangeOptions options);
 
-	RedisFuture<List<Sample>> revrange(K key, RangeOptions options);
+	RedisFuture<List<Sample>> revrange(K key, TimeRange range, RangeOptions options);
 
-	RedisFuture<List<RangeResult<K, V>>> mrange(MRangeOptions<K, V> options);
+	RedisFuture<List<RangeResult<K, V>>> mrange(TimeRange range, MRangeOptions<K, V> options);
 
-	RedisFuture<List<RangeResult<K, V>>> mrevrange(MRangeOptions<K, V> options);
+	RedisFuture<List<RangeResult<K, V>>> mrevrange(TimeRange range, MRangeOptions<K, V> options);
 
 	/**
 	 * Get the last sample.
+	 * 
 	 * @param key Key name for time series
 	 * @return The last sample.
 	 */

@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -77,6 +78,7 @@ import com.redis.lettucemod.search.Suggestion;
 import com.redis.lettucemod.search.SuggetOptions;
 import com.redis.lettucemod.timeseries.AddOptions;
 import com.redis.lettucemod.timeseries.Aggregation;
+import com.redis.lettucemod.timeseries.Aggregator;
 import com.redis.lettucemod.timeseries.DuplicatePolicy;
 import com.redis.lettucemod.timeseries.GetResult;
 import com.redis.lettucemod.timeseries.Label;
@@ -84,6 +86,7 @@ import com.redis.lettucemod.timeseries.MRangeOptions;
 import com.redis.lettucemod.timeseries.RangeOptions;
 import com.redis.lettucemod.timeseries.RangeResult;
 import com.redis.lettucemod.timeseries.Sample;
+import com.redis.lettucemod.timeseries.TimeRange;
 import com.redis.testcontainers.RedisEnterpriseContainer;
 import com.redis.testcontainers.RedisModulesContainer;
 import com.redis.testcontainers.RedisServer;
@@ -754,14 +757,26 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 	void tsRange(RedisTestContext context) {
 		RedisTimeSeriesCommands<String, String> ts = context.sync();
 		populateTimeSeries(ts);
-		assertTSRange(ts.range(KEY, RangeOptions.range(TIMESTAMP_1 - 10, TIMESTAMP_2 + 10)
-				.aggregation(Aggregation.builder(Aggregation.Aggregator.AVG, 5).build()).build()));
-		assertTSRange(ts.range(KEY,
-				RangeOptions.all().aggregation(Aggregation.builder(Aggregation.Aggregator.AVG, 5).build()).build()));
-		assertTSRange(ts.range(KEY, RangeOptions.from(TIMESTAMP_1 - 10)
-				.aggregation(Aggregation.builder(Aggregation.Aggregator.AVG, 5).build()).build()));
-		assertTSRange(ts.range(KEY, RangeOptions.to(TIMESTAMP_2 + 10)
-				.aggregation(Aggregation.builder(Aggregation.Aggregator.AVG, 5).build()).build()));
+		assertTSRange(ts.range(KEY, TimeRange.builder().from(TIMESTAMP_1 - 10).to(TIMESTAMP_2 + 10).build(),
+				RangeOptions.builder()
+						.aggregation(
+								Aggregation.aggregator(Aggregator.AVG).bucketDuration(Duration.ofMillis(5)).build())
+						.build()));
+		assertTSRange(ts.range(KEY, TimeRange.unbounded(),
+				RangeOptions.builder()
+						.aggregation(
+								Aggregation.aggregator(Aggregator.AVG).bucketDuration(Duration.ofMillis(5)).build())
+						.build()));
+		assertTSRange(ts.range(KEY, TimeRange.from(TIMESTAMP_1 - 10).build(),
+				RangeOptions.builder()
+						.aggregation(
+								Aggregation.aggregator(Aggregator.AVG).bucketDuration(Duration.ofMillis(5)).build())
+						.build()));
+		assertTSRange(ts.range(KEY, TimeRange.to(TIMESTAMP_2 + 10).build(),
+				RangeOptions.builder()
+						.aggregation(
+								Aggregation.aggregator(Aggregator.AVG).bucketDuration(Duration.ofMillis(5)).build())
+						.build()));
 	}
 
 	private void assertTSRange(List<Sample> results) {
@@ -809,11 +824,13 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 	void tsMrange(RedisTestContext context) {
 		RedisTimeSeriesCommands<String, String> ts = context.sync();
 		populateTimeSeries(ts);
-		assertTSMRange(KEY, ts.mrange(MRangeOptions.<String, String>all().filters(FILTER).build()));
-		assertTSMRange(KEY, ts.mrange(MRangeOptions.<String, String>from(TIMESTAMP_1 - 10).filters(FILTER).build()));
-		assertTSMRange(KEY, ts.mrange(MRangeOptions.<String, String>to(TIMESTAMP_2 + 10).filters(FILTER).build()));
-		List<RangeResult<String, String>> results = ts
-				.mrange(MRangeOptions.<String, String>from(0).withLabels().filters(FILTER).build());
+		assertTSMRange(KEY, ts.mrange(TimeRange.unbounded(), MRangeOptions.<String, String>filters(FILTER).build()));
+		assertTSMRange(KEY, ts.mrange(TimeRange.from(TIMESTAMP_1 - 10).build(),
+				MRangeOptions.<String, String>filters(FILTER).build()));
+		assertTSMRange(KEY, ts.mrange(TimeRange.to(TIMESTAMP_2 + 10).build(),
+				MRangeOptions.<String, String>filters(FILTER).build()));
+		List<RangeResult<String, String>> results = ts.mrange(TimeRange.unbounded(),
+				MRangeOptions.<String, String>filters(FILTER).withLabels().build());
 		assertEquals(1, results.size());
 		assertEquals(KEY, results.get(0).getKey());
 		assertEquals(2, results.get(0).getSamples().size());

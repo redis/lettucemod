@@ -26,7 +26,8 @@ public class MRangeOptions<K, V> extends BaseRangeOptions {
 	@SuppressWarnings("unchecked")
 	@Override
 	public <L, W> void build(CommandArgs<L, W> args) {
-		buildFromToFilterBys(args);
+		buildFilterByTimestamp(args);
+		buildFilterByValue(args);
 		withLabels.ifPresent(labels -> {
 			if (labels.isEmpty()) {
 				args.add(TimeSeriesCommandKeyword.WITHLABELS);
@@ -35,7 +36,8 @@ public class MRangeOptions<K, V> extends BaseRangeOptions {
 				labels.forEach(l -> args.addKey((L) l));
 			}
 		});
-		buildCountAlign(args);
+		buildCount(args);
+		buildAggregation(args);
 		if (!filters.isEmpty()) {
 			args.add(TimeSeriesCommandKeyword.FILTER);
 			filters.forEach(f -> args.addValue((W) f));
@@ -72,20 +74,9 @@ public class MRangeOptions<K, V> extends BaseRangeOptions {
 		SUM, MIN, MAX
 	}
 
-	public static <K, V> Builder<K, V> all() {
-		return new Builder<>(START, END);
-	}
-
-	public static <K, V> Builder<K, V> from(long from) {
-		return new Builder<>(from, END);
-	}
-
-	public static <K, V> Builder<K, V> to(long to) {
-		return new Builder<>(START, to);
-	}
-
-	public static <K, V> Builder<K, V> range(long from, long to) {
-		return new Builder<>(from, to);
+	@SuppressWarnings("unchecked")
+	public static <K, V> Builder<K, V> filters(V... filters) {
+		return new Builder<>(filters);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -95,8 +86,8 @@ public class MRangeOptions<K, V> extends BaseRangeOptions {
 		private List<V> filters = new ArrayList<>();
 		private Optional<GroupBy<K>> groupBy = Optional.empty();
 
-		public Builder(long from, long to) {
-			super(from, to);
+		public Builder(V... filters) {
+			this.filters.addAll(Arrays.asList(filters));
 		}
 
 		public Builder<K, V> filters(V... filters) {

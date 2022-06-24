@@ -4,7 +4,7 @@ import com.redis.lettucemod.protocol.TimeSeriesCommandKeyword;
 
 public class AddOptions<K, V> extends AbstractCreateOptions<K, V> {
 
-	private AddOptions(Builder<K, V, ?> builder) {
+	private AddOptions(Builder<K, V> builder) {
 		super(builder);
 	}
 
@@ -13,8 +13,16 @@ public class AddOptions<K, V> extends AbstractCreateOptions<K, V> {
 		return TimeSeriesCommandKeyword.ON_DUPLICATE;
 	}
 
-	public static <K, V> Builder<K, V, AddOptions<K, V>> builder() {
-		return new Builder<>(AddOptions::new);
+	public static <K, V> Builder<K, V> builder() {
+		return new Builder<>();
+	}
+
+	public static class Builder<K, V> extends AbstractCreateOptions.Builder<K, V, Builder<K, V>> {
+
+		public AddOptions<K, V> build() {
+			return new AddOptions<>(this);
+		}
+
 	}
 
 }

@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalLong;
-import java.util.function.Function;
 
 import com.redis.lettucemod.protocol.TimeSeriesCommandKeyword;
 
@@ -47,47 +46,39 @@ abstract class AbstractCreateOptions<K, V> implements CompositeArgument {
 		COMPRESSED, UNCOMPRESSED
 	}
 
-	public static class Builder<K, V, T extends AbstractCreateOptions<K, V>> {
+	@SuppressWarnings("unchecked")
+	public static class Builder<K, V, B extends Builder<K, V, B>> {
 		private OptionalLong retentionTime = OptionalLong.empty();
 		private Optional<Encoding> encoding = Optional.empty();
 		private OptionalLong chunkSize = OptionalLong.empty();
 		private Optional<DuplicatePolicy> policy = Optional.empty();
 		private List<Label<K, V>> labels = new ArrayList<>();
-		private final Function<Builder<K, V, T>, T> build;
 
-		protected Builder(Function<Builder<K, V, T>, T> build) {
-			this.build = build;
-		}
-
-		public Builder<K, V, T> retentionPeriod(long retentionPeriod) {
+		public B retentionPeriod(long retentionPeriod) {
 			this.retentionTime = OptionalLong.of(retentionPeriod);
-			return this;
+			return (B) this;
 		}
 
-		public Builder<K, V, T> encoding(Encoding encoding) {
+		public B encoding(Encoding encoding) {
 			this.encoding = Optional.of(encoding);
-			return this;
+			return (B) this;
 		}
 
-		public Builder<K, V, T> chunkSize(long chunkSize) {
+		public B chunkSize(long chunkSize) {
 			this.chunkSize = OptionalLong.of(chunkSize);
-			return this;
+			return (B) this;
 		}
 
-		public Builder<K, V, T> policy(DuplicatePolicy policy) {
+		public B policy(DuplicatePolicy policy) {
 			this.policy = Optional.of(policy);
-			return this;
+			return (B) this;
 		}
 
-		@SuppressWarnings("unchecked")
-		public Builder<K, V, T> labels(Label<K, V>... labels) {
+		public B labels(Label<K, V>... labels) {
 			this.labels.addAll(Arrays.asList(labels));
-			return this;
+			return (B) this;
 		}
 
-		public T build() {
-			return build.apply(this);
-		}
 	}
 
 }

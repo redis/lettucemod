@@ -25,8 +25,8 @@ import com.redis.lettucemod.search.SearchResults;
 import com.redis.lettucemod.search.Suggestion;
 import com.redis.lettucemod.search.SuggetOptions;
 import com.redis.lettucemod.timeseries.AddOptions;
-import com.redis.lettucemod.timeseries.Aggregation;
 import com.redis.lettucemod.timeseries.CreateOptions;
+import com.redis.lettucemod.timeseries.CreateRuleOptions;
 import com.redis.lettucemod.timeseries.GetResult;
 import com.redis.lettucemod.timeseries.KeySample;
 import com.redis.lettucemod.timeseries.MRangeOptions;
@@ -34,6 +34,7 @@ import com.redis.lettucemod.timeseries.RangeOptions;
 import com.redis.lettucemod.timeseries.RangeResult;
 import com.redis.lettucemod.timeseries.RedisTimeSeriesCommandBuilder;
 import com.redis.lettucemod.timeseries.Sample;
+import com.redis.lettucemod.timeseries.TimeRange;
 
 import io.lettuce.core.KeyValue;
 import io.lettuce.core.RedisAsyncCommandsImpl;
@@ -199,8 +200,8 @@ public class RedisModulesAsyncCommandsImpl<K, V> extends RedisAsyncCommandsImpl<
 	}
 
 	@Override
-	public RedisFuture<String> createrule(K sourceKey, K destKey, Aggregation aggregation) {
-		return dispatch(timeSeriesCommandBuilder.createRule(sourceKey, destKey, aggregation));
+	public RedisFuture<String> createrule(K sourceKey, K destKey, CreateRuleOptions options) {
+		return dispatch(timeSeriesCommandBuilder.createRule(sourceKey, destKey, options));
 	}
 
 	@Override
@@ -209,23 +210,23 @@ public class RedisModulesAsyncCommandsImpl<K, V> extends RedisAsyncCommandsImpl<
 	}
 
 	@Override
-	public RedisFuture<List<Sample>> range(K key, RangeOptions options) {
-		return dispatch(timeSeriesCommandBuilder.range(key, options));
+	public RedisFuture<List<Sample>> range(K key, TimeRange range, RangeOptions options) {
+		return dispatch(timeSeriesCommandBuilder.range(key, range, options));
 	}
 
 	@Override
-	public RedisFuture<List<Sample>> revrange(K key, RangeOptions options) {
-		return dispatch(timeSeriesCommandBuilder.revrange(key, options));
+	public RedisFuture<List<Sample>> revrange(K key, TimeRange range, RangeOptions options) {
+		return dispatch(timeSeriesCommandBuilder.revrange(key, range, options));
 	}
 
 	@Override
-	public RedisFuture<List<RangeResult<K, V>>> mrange(MRangeOptions<K, V> options) {
-		return dispatch(timeSeriesCommandBuilder.mrange(options));
+	public RedisFuture<List<RangeResult<K, V>>> mrange(TimeRange range, MRangeOptions<K, V> options) {
+		return dispatch(timeSeriesCommandBuilder.mrange(range, options));
 	}
 
 	@Override
-	public RedisFuture<List<RangeResult<K, V>>> mrevrange(MRangeOptions<K, V> options) {
-		return dispatch(timeSeriesCommandBuilder.mrevrange(options));
+	public RedisFuture<List<RangeResult<K, V>>> mrevrange(TimeRange range, MRangeOptions<K, V> options) {
+		return dispatch(timeSeriesCommandBuilder.mrevrange(range, options));
 	}
 
 	@Override

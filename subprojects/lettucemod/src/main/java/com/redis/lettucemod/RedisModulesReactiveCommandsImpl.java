@@ -24,8 +24,8 @@ import com.redis.lettucemod.search.SearchResults;
 import com.redis.lettucemod.search.Suggestion;
 import com.redis.lettucemod.search.SuggetOptions;
 import com.redis.lettucemod.timeseries.AddOptions;
-import com.redis.lettucemod.timeseries.Aggregation;
 import com.redis.lettucemod.timeseries.CreateOptions;
+import com.redis.lettucemod.timeseries.CreateRuleOptions;
 import com.redis.lettucemod.timeseries.GetResult;
 import com.redis.lettucemod.timeseries.KeySample;
 import com.redis.lettucemod.timeseries.MRangeOptions;
@@ -33,6 +33,7 @@ import com.redis.lettucemod.timeseries.RangeOptions;
 import com.redis.lettucemod.timeseries.RangeResult;
 import com.redis.lettucemod.timeseries.RedisTimeSeriesCommandBuilder;
 import com.redis.lettucemod.timeseries.Sample;
+import com.redis.lettucemod.timeseries.TimeRange;
 
 import io.lettuce.core.KeyValue;
 import io.lettuce.core.RedisReactiveCommandsImpl;
@@ -200,8 +201,8 @@ public class RedisModulesReactiveCommandsImpl<K, V> extends RedisReactiveCommand
 	}
 
 	@Override
-	public Mono<String> createrule(K sourceKey, K destKey, Aggregation aggregation) {
-		return createMono(() -> timeSeriesCommandBuilder.createRule(sourceKey, destKey, aggregation));
+	public Mono<String> createrule(K sourceKey, K destKey, CreateRuleOptions options) {
+		return createMono(() -> timeSeriesCommandBuilder.createRule(sourceKey, destKey, options));
 	}
 
 	@Override
@@ -210,23 +211,23 @@ public class RedisModulesReactiveCommandsImpl<K, V> extends RedisReactiveCommand
 	}
 
 	@Override
-	public Flux<Sample> range(K key, RangeOptions options) {
-		return createDissolvingFlux(() -> timeSeriesCommandBuilder.range(key, options));
+	public Flux<Sample> range(K key, TimeRange range, RangeOptions options) {
+		return createDissolvingFlux(() -> timeSeriesCommandBuilder.range(key, range, options));
 	}
 
 	@Override
-	public Flux<Sample> revrange(K key, RangeOptions options) {
-		return createDissolvingFlux(() -> timeSeriesCommandBuilder.revrange(key, options));
+	public Flux<Sample> revrange(K key, TimeRange range, RangeOptions options) {
+		return createDissolvingFlux(() -> timeSeriesCommandBuilder.revrange(key, range, options));
 	}
 
 	@Override
-	public Flux<RangeResult<K, V>> mrange(MRangeOptions<K, V> options) {
-		return createDissolvingFlux(() -> timeSeriesCommandBuilder.mrange(options));
+	public Flux<RangeResult<K, V>> mrange(TimeRange range, MRangeOptions<K, V> options) {
+		return createDissolvingFlux(() -> timeSeriesCommandBuilder.mrange(range, options));
 	}
 
 	@Override
-	public Flux<RangeResult<K, V>> mrevrange(MRangeOptions<K, V> options) {
-		return createDissolvingFlux(() -> timeSeriesCommandBuilder.mrevrange(options));
+	public Flux<RangeResult<K, V>> mrevrange(TimeRange range, MRangeOptions<K, V> options) {
+		return createDissolvingFlux(() -> timeSeriesCommandBuilder.mrevrange(range, options));
 	}
 
 	@Override
