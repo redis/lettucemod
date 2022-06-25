@@ -2,7 +2,7 @@ package com.redis.lettucemod.timeseries;
 
 public class Timestamp {
 
-	public static final Timestamp UNBOUNDED = new Timestamp(0);
+	private static final Timestamp UNBOUNDED = new Timestamp(0);
 
 	private final long value;
 
