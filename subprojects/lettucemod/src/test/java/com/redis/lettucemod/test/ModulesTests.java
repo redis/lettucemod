@@ -817,6 +817,8 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 		Sample result = ts.tsGet(KEY);
 		Assertions.assertEquals(TIMESTAMP_2, result.getTimestamp());
 		Assertions.assertEquals(VALUE_2, result.getValue());
+		ts.create("ts:empty", com.redis.lettucemod.timeseries.CreateOptions.<String, String>builder().build());
+		Assertions.assertNull(ts.tsGet("ts:empty"));
 	}
 
 	@ParameterizedTest
