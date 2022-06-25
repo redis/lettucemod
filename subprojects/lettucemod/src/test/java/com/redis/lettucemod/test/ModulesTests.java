@@ -1076,7 +1076,6 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 	}
 
 	private void clearGears(RedisTestContext context) throws InterruptedException {
-		Thread.sleep(100);
 		RedisModulesCommands<String, String> sync = context.sync();
 		// Unregister all registrations
 		for (Registration registration : sync.dumpregistrations()) {
@@ -1127,7 +1126,7 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 		String function = "GB('KeysReader').register('*', keyTypes=['hash'])";
 		Assertions.assertTrue(sync.pyexecute(function).isOk());
 //		Assertions.assertTrue(sync.pyexecute(function).isOk());
-		Assertions.assertTrue(sync.dumpregistrations().size() == 1);
+		Assertions.assertEquals(1, sync.dumpregistrations().size());
 	}
 
 	@ParameterizedTest
