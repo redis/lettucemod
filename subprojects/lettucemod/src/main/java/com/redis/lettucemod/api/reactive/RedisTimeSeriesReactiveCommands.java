@@ -47,11 +47,19 @@ public interface RedisTimeSeriesReactiveCommands<K, V> {
 
 	Mono<String> deleterule(K sourceKey, K destKey);
 
+	Flux<Sample> range(K key, TimeRange range);
+
 	Flux<Sample> range(K key, TimeRange range, RangeOptions options);
+
+	Flux<Sample> revrange(K key, TimeRange range);
 
 	Flux<Sample> revrange(K key, TimeRange range, RangeOptions options);
 
+	Flux<RangeResult<K, V>> mrange(TimeRange range);
+
 	Flux<RangeResult<K, V>> mrange(TimeRange range, MRangeOptions<K, V> options);
+
+	Flux<RangeResult<K, V>> mrevrange(TimeRange range);
 
 	Flux<RangeResult<K, V>> mrevrange(TimeRange range, MRangeOptions<K, V> options);
 

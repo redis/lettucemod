@@ -211,8 +211,18 @@ public class RedisModulesReactiveCommandsImpl<K, V> extends RedisReactiveCommand
 	}
 
 	@Override
+	public Flux<Sample> range(K key, TimeRange range) {
+		return createDissolvingFlux(() -> timeSeriesCommandBuilder.range(key, range));
+	}
+
+	@Override
 	public Flux<Sample> range(K key, TimeRange range, RangeOptions options) {
 		return createDissolvingFlux(() -> timeSeriesCommandBuilder.range(key, range, options));
+	}
+
+	@Override
+	public Flux<Sample> revrange(K key, TimeRange range) {
+		return createDissolvingFlux(() -> timeSeriesCommandBuilder.revrange(key, range));
 	}
 
 	@Override
@@ -221,8 +231,18 @@ public class RedisModulesReactiveCommandsImpl<K, V> extends RedisReactiveCommand
 	}
 
 	@Override
+	public Flux<RangeResult<K, V>> mrange(TimeRange range) {
+		return createDissolvingFlux(() -> timeSeriesCommandBuilder.mrange(range));
+	}
+
+	@Override
 	public Flux<RangeResult<K, V>> mrange(TimeRange range, MRangeOptions<K, V> options) {
 		return createDissolvingFlux(() -> timeSeriesCommandBuilder.mrange(range, options));
+	}
+
+	@Override
+	public Flux<RangeResult<K, V>> mrevrange(TimeRange range) {
+		return createDissolvingFlux(() -> timeSeriesCommandBuilder.mrevrange(range));
 	}
 
 	@Override

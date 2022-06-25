@@ -46,11 +46,19 @@ public interface RedisTimeSeriesCommands<K, V> {
 
 	String deleterule(K sourceKey, K destKey);
 
+	List<Sample> range(K key, TimeRange range);
+
 	List<Sample> range(K key, TimeRange range, RangeOptions options);
+
+	List<Sample> revrange(K key, TimeRange range);
 
 	List<Sample> revrange(K key, TimeRange range, RangeOptions options);
 
+	List<RangeResult<K, V>> mrange(TimeRange range);
+
 	List<RangeResult<K, V>> mrange(TimeRange range, MRangeOptions<K, V> options);
+
+	List<RangeResult<K, V>> mrevrange(TimeRange range);
 
 	List<RangeResult<K, V>> mrevrange(TimeRange range, MRangeOptions<K, V> options);
 

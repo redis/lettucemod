@@ -396,8 +396,18 @@ public class RedisModulesAdvancedClusterAsyncCommandsImpl<K, V> extends RedisAdv
 	}
 
 	@Override
+	public RedisFuture<List<Sample>> range(K key, TimeRange range) {
+		return delegate.range(key, range);
+	}
+
+	@Override
 	public RedisFuture<List<Sample>> range(K key, TimeRange range, RangeOptions options) {
 		return delegate.range(key, range, options);
+	}
+
+	@Override
+	public RedisFuture<List<Sample>> revrange(K key, TimeRange range) {
+		return delegate.revrange(key, range);
 	}
 
 	@Override
@@ -406,8 +416,18 @@ public class RedisModulesAdvancedClusterAsyncCommandsImpl<K, V> extends RedisAdv
 	}
 
 	@Override
+	public RedisFuture<List<RangeResult<K, V>>> mrange(TimeRange range) {
+		return delegate.mrange(range);
+	}
+
+	@Override
 	public RedisFuture<List<RangeResult<K, V>>> mrange(TimeRange range, MRangeOptions<K, V> options) {
 		return delegate.mrange(range, options);
+	}
+
+	@Override
+	public RedisFuture<List<RangeResult<K, V>>> mrevrange(TimeRange range) {
+		return delegate.mrevrange(range);
 	}
 
 	@Override

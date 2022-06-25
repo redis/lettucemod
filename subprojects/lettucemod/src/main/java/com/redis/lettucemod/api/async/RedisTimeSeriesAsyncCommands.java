@@ -48,11 +48,19 @@ public interface RedisTimeSeriesAsyncCommands<K, V> {
 
 	RedisFuture<String> deleterule(K sourceKey, K destKey);
 
+	RedisFuture<List<Sample>> range(K key, TimeRange range);
+
 	RedisFuture<List<Sample>> range(K key, TimeRange range, RangeOptions options);
+
+	RedisFuture<List<Sample>> revrange(K key, TimeRange range);
 
 	RedisFuture<List<Sample>> revrange(K key, TimeRange range, RangeOptions options);
 
+	RedisFuture<List<RangeResult<K, V>>> mrange(TimeRange range);
+
 	RedisFuture<List<RangeResult<K, V>>> mrange(TimeRange range, MRangeOptions<K, V> options);
+
+	RedisFuture<List<RangeResult<K, V>>> mrevrange(TimeRange range);
 
 	RedisFuture<List<RangeResult<K, V>>> mrevrange(TimeRange range, MRangeOptions<K, V> options);
 

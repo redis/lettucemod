@@ -210,8 +210,18 @@ public class RedisModulesAsyncCommandsImpl<K, V> extends RedisAsyncCommandsImpl<
 	}
 
 	@Override
+	public RedisFuture<List<Sample>> range(K key, TimeRange range) {
+		return dispatch(timeSeriesCommandBuilder.range(key, range));
+	}
+
+	@Override
 	public RedisFuture<List<Sample>> range(K key, TimeRange range, RangeOptions options) {
 		return dispatch(timeSeriesCommandBuilder.range(key, range, options));
+	}
+
+	@Override
+	public RedisFuture<List<Sample>> revrange(K key, TimeRange range) {
+		return dispatch(timeSeriesCommandBuilder.revrange(key, range));
 	}
 
 	@Override
@@ -220,8 +230,18 @@ public class RedisModulesAsyncCommandsImpl<K, V> extends RedisAsyncCommandsImpl<
 	}
 
 	@Override
+	public RedisFuture<List<RangeResult<K, V>>> mrange(TimeRange range) {
+		return dispatch(timeSeriesCommandBuilder.mrange(range));
+	}
+
+	@Override
 	public RedisFuture<List<RangeResult<K, V>>> mrange(TimeRange range, MRangeOptions<K, V> options) {
 		return dispatch(timeSeriesCommandBuilder.mrange(range, options));
+	}
+
+	@Override
+	public RedisFuture<List<RangeResult<K, V>>> mrevrange(TimeRange range) {
+		return dispatch(timeSeriesCommandBuilder.mrevrange(range));
 	}
 
 	@Override

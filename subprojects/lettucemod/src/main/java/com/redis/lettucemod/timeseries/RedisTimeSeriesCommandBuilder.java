@@ -158,8 +158,16 @@ public class RedisTimeSeriesCommandBuilder<K, V> extends RedisModulesCommandBuil
 		return createCommand(TimeSeriesCommandType.DELETERULE, new StatusOutput<>(codec), args);
 	}
 
+	public Command<K, V, List<Sample>> range(K key, TimeRange range) {
+		return range(key, range, null);
+	}
+
 	public Command<K, V, List<Sample>> range(K key, TimeRange range, RangeOptions options) {
 		return range(TimeSeriesCommandType.RANGE, key, range, options);
+	}
+
+	public Command<K, V, List<Sample>> revrange(K key, TimeRange range) {
+		return revrange(key, range, null);
 	}
 
 	public Command<K, V, List<Sample>> revrange(K key, TimeRange range, RangeOptions options) {
@@ -177,8 +185,16 @@ public class RedisTimeSeriesCommandBuilder<K, V> extends RedisModulesCommandBuil
 		return createCommand(commandType, new SampleListOutput<>(codec), args);
 	}
 
+	public Command<K, V, List<RangeResult<K, V>>> mrange(TimeRange range) {
+		return mrange(range, null);
+	}
+
 	public Command<K, V, List<RangeResult<K, V>>> mrange(TimeRange range, MRangeOptions<K, V> options) {
 		return mrange(RangeDirection.FORWARD, range, options);
+	}
+
+	public Command<K, V, List<RangeResult<K, V>>> mrevrange(TimeRange range) {
+		return mrevrange(range, null);
 	}
 
 	public Command<K, V, List<RangeResult<K, V>>> mrevrange(TimeRange range, MRangeOptions<K, V> options) {
