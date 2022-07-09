@@ -49,6 +49,8 @@ release:
       hide:
         categories:
           - 'Merge'
+      replacers:
+        - search: 'deps: '
 
 distributions:
   lettucemod:
