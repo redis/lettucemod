@@ -3,9 +3,11 @@ package com.redis.lettucemod.api.sync;
 import java.util.List;
 
 import com.redis.lettucemod.timeseries.AddOptions;
+import com.redis.lettucemod.timeseries.AlterOptions;
 import com.redis.lettucemod.timeseries.CreateOptions;
 import com.redis.lettucemod.timeseries.CreateRuleOptions;
 import com.redis.lettucemod.timeseries.GetResult;
+import com.redis.lettucemod.timeseries.IncrbyOptions;
 import com.redis.lettucemod.timeseries.KeySample;
 import com.redis.lettucemod.timeseries.MRangeOptions;
 import com.redis.lettucemod.timeseries.RangeOptions;
@@ -16,51 +18,43 @@ import com.redis.lettucemod.timeseries.TimeRange;
 @SuppressWarnings("unchecked")
 public interface RedisTimeSeriesCommands<K, V> {
 
-	String create(K key, CreateOptions<K, V> options);
+	String tsCreate(K key, CreateOptions<K, V> options);
 
-	String alter(K key, CreateOptions<K, V> options);
+	String tsAlter(K key, AlterOptions<K, V> options);
 
-	Long add(K key, long timestamp, double value);
+	Long tsAdd(K key, Sample sample);
 
-	Long addAutoTimestamp(K key, double value);
+	Long tsAdd(K key, Sample sample, AddOptions<K, V> options);
 
-	Long add(K key, long timestamp, double value, AddOptions<K, V> options);
+	List<Long> tsMadd(KeySample<K>... samples);
 
-	Long addAutoTimestamp(K key, double value, AddOptions<K, V> options);
+	Long tsIncrby(K key, double value);
 
-	Long add(K key, Sample sample);
+	Long tsIncrby(K key, double value, IncrbyOptions<K, V> options);
 
-	Long add(K key, Sample sample, AddOptions<K, V> options);
+	Long tsDecrby(K key, double value);
 
-	List<Long> madd(KeySample<K>... samples);
+	Long tsDecrby(K key, double value, IncrbyOptions<K, V> options);
 
-	Long incrby(K key, double value, Long timestamp, CreateOptions<K, V> options);
+	String tsCreaterule(K sourceKey, K destKey, CreateRuleOptions options);
 
-	Long decrby(K key, double value, Long timestamp, CreateOptions<K, V> options);
+	String tsDeleterule(K sourceKey, K destKey);
 
-	Long incrbyAutoTimestamp(K key, double value, CreateOptions<K, V> options);
+	List<Sample> tsRange(K key, TimeRange range);
 
-	Long decrbyAutoTimestamp(K key, double value, CreateOptions<K, V> options);
+	List<Sample> tsRange(K key, TimeRange range, RangeOptions options);
 
-	String createrule(K sourceKey, K destKey, CreateRuleOptions options);
+	List<Sample> tsRevrange(K key, TimeRange range);
 
-	String deleterule(K sourceKey, K destKey);
+	List<Sample> tsRevrange(K key, TimeRange range, RangeOptions options);
 
-	List<Sample> range(K key, TimeRange range);
+	List<RangeResult<K, V>> tsMrange(TimeRange range);
 
-	List<Sample> range(K key, TimeRange range, RangeOptions options);
+	List<RangeResult<K, V>> tsMrange(TimeRange range, MRangeOptions<K, V> options);
 
-	List<Sample> revrange(K key, TimeRange range);
+	List<RangeResult<K, V>> tsMrevrange(TimeRange range);
 
-	List<Sample> revrange(K key, TimeRange range, RangeOptions options);
-
-	List<RangeResult<K, V>> mrange(TimeRange range);
-
-	List<RangeResult<K, V>> mrange(TimeRange range, MRangeOptions<K, V> options);
-
-	List<RangeResult<K, V>> mrevrange(TimeRange range);
-
-	List<RangeResult<K, V>> mrevrange(TimeRange range, MRangeOptions<K, V> options);
+	List<RangeResult<K, V>> tsMrevrange(TimeRange range, MRangeOptions<K, V> options);
 
 	/**
 	 * Get the last sample.

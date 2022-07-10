@@ -13,32 +13,32 @@ import java.util.Map;
 @SuppressWarnings("unchecked")
 public interface RedisGearsAsyncCommands<K, V> {
 
-    RedisFuture<String> abortexecution(String id);
+    RedisFuture<String> rgAbortexecution(String id);
 
-    RedisFuture<List<V>> configget(K... keys);
+    RedisFuture<List<V>> rgConfigget(K... keys);
 
-    RedisFuture<List<V>> configset(Map<K, V> map);
+    RedisFuture<List<V>> rgConfigset(Map<K, V> map);
 
-    RedisFuture<String> dropexecution(String id);
+    RedisFuture<String> rgDropexecution(String id);
 
-    RedisFuture<List<Execution>> dumpexecutions();
+    RedisFuture<List<Execution>> rgDumpexecutions();
 
-    RedisFuture<List<Registration>> dumpregistrations();
+    RedisFuture<List<Registration>> rgDumpregistrations();
 
-    RedisFuture<ExecutionDetails> getexecution(String id);
+    RedisFuture<ExecutionDetails> rgGetexecution(String id);
 
-    RedisFuture<ExecutionDetails> getexecution(String id, ExecutionMode mode);
+    RedisFuture<ExecutionDetails> rgGetexecution(String id, ExecutionMode mode);
 
-    RedisFuture<ExecutionResults> getresults(String id);
+    RedisFuture<ExecutionResults> rgGetresults(String id);
 
-    RedisFuture<ExecutionResults> getresultsBlocking(String id);
+    RedisFuture<ExecutionResults> rgGetresultsblocking(String id);
 
-    RedisFuture<ExecutionResults> pyexecute(String function, V... requirements);
+    RedisFuture<ExecutionResults> rgPyexecute(String function, V... requirements);
 
-    RedisFuture<String> pyexecuteUnblocking(String function, V... requirements);
+    RedisFuture<String> rgPyexecuteUnblocking(String function, V... requirements);
 
-    RedisFuture<List<Object>> trigger(String trigger, V... args);
+    RedisFuture<List<Object>> rgTrigger(String trigger, V... args);
 
-    RedisFuture<String> unregister(String id);
+    RedisFuture<String> rgUnregister(String id);
 
 }

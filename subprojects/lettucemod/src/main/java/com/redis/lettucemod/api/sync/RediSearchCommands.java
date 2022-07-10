@@ -6,75 +6,67 @@ import com.redis.lettucemod.search.*;
 
 public interface RediSearchCommands<K, V> {
 
-    String create(K index, Field... fields);
+	String ftCreate(K index, Field... fields);
 
-    String create(K index, CreateOptions<K, V> options, Field... fields);
+	String ftCreate(K index, CreateOptions<K, V> options, Field... fields);
 
-    String dropindex(K index);
+	String ftDropindex(K index);
 
-    String dropindexDeleteDocs(K index);
+	String ftDropindexDeleteDocs(K index);
 
-    String alter(K index, Field field);
+	String ftAlter(K index, Field field);
 
-    List<Object> indexInfo(K index);
+	List<Object> ftInfo(K index);
 
-    String aliasadd(K name, K index);
+	String ftAliasadd(K name, K index);
 
-    String aliasupdate(K name, K index);
+	String ftAliasupdate(K name, K index);
 
-    String aliasdel(K name);
+	String ftAliasdel(K name);
 
-    /**
-     * 
-     * @return List of RediSearch indexes 
-     */
-    List<K> list();
+	/**
+	 * 
+	 * @return List of RediSearch indexes
+	 */
+	List<K> ftList();
 
-    SearchResults<K, V> search(K index, V query);
+	SearchResults<K, V> ftSearch(K index, V query);
 
-    SearchResults<K, V> search(K index, V query, SearchOptions<K, V> options);
+	SearchResults<K, V> ftSearch(K index, V query, SearchOptions<K, V> options);
 
-    AggregateResults<K> aggregate(K index, V query);
+	AggregateResults<K> ftAggregate(K index, V query);
 
-    AggregateResults<K> aggregate(K index, V query, AggregateOptions<K, V> options);
+	AggregateResults<K> ftAggregate(K index, V query, AggregateOptions<K, V> options);
 
-    AggregateWithCursorResults<K> aggregate(K index, V query, CursorOptions cursor);
+	AggregateWithCursorResults<K> ftAggregate(K index, V query, CursorOptions cursor);
 
-    AggregateWithCursorResults<K> aggregate(K index, V query, CursorOptions cursor, AggregateOptions<K, V> options);
+	AggregateWithCursorResults<K> ftAggregate(K index, V query, CursorOptions cursor, AggregateOptions<K, V> options);
 
-    AggregateWithCursorResults<K> cursorRead(K index, long cursor);
+	AggregateWithCursorResults<K> ftCursorRead(K index, long cursor);
 
-    AggregateWithCursorResults<K> cursorRead(K index, long cursor, long count);
+	AggregateWithCursorResults<K> ftCursorRead(K index, long cursor, long count);
 
-    String cursorDelete(K index, long cursor);
+	String ftCursorDelete(K index, long cursor);
 
-    List<V> tagvals(K index, K field);
+	List<V> ftTagvals(K index, K field);
 
-    Long sugadd(K key, V string, double score);
+	Long ftSugadd(K key, Suggestion<V> suggestion);
 
-    Long sugaddIncr(K key, V string, double score);
+	Long ftSugaddIncr(K key, Suggestion<V> suggestion);
 
-    Long sugadd(K key, V string, double score, V payload);
+	List<Suggestion<V>> ftSugget(K key, V prefix);
 
-    Long sugaddIncr(K key, V string, double score, V payload);
+	List<Suggestion<V>> ftSugget(K key, V prefix, SuggetOptions options);
 
-    Long sugadd(K key, Suggestion<V> suggestion);
+	Boolean ftSugdel(K key, V string);
 
-    Long sugaddIncr(K key, Suggestion<V> suggestion);
+	Long ftSuglen(K key);
 
-    List<Suggestion<V>> sugget(K key, V prefix);
+	@SuppressWarnings("unchecked")
+	Long ftDictadd(K dict, V... terms);
 
-    List<Suggestion<V>> sugget(K key, V prefix, SuggetOptions options);
+	@SuppressWarnings("unchecked")
+	Long ftDictdel(K dict, V... terms);
 
-    Boolean sugdel(K key, V string);
-
-    Long suglen(K key);
-
-    @SuppressWarnings("unchecked")
-    Long dictadd(K dict, V... terms);
-
-    @SuppressWarnings("unchecked")
-    Long dictdel(K dict, V... terms);
-
-    List<V> dictdump(K dict);
+	List<V> ftDictdump(K dict);
 }

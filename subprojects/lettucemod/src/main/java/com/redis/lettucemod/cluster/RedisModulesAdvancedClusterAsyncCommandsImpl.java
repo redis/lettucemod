@@ -27,9 +27,11 @@ import com.redis.lettucemod.search.SearchResults;
 import com.redis.lettucemod.search.Suggestion;
 import com.redis.lettucemod.search.SuggetOptions;
 import com.redis.lettucemod.timeseries.AddOptions;
+import com.redis.lettucemod.timeseries.AlterOptions;
 import com.redis.lettucemod.timeseries.CreateOptions;
 import com.redis.lettucemod.timeseries.CreateRuleOptions;
 import com.redis.lettucemod.timeseries.GetResult;
+import com.redis.lettucemod.timeseries.IncrbyOptions;
 import com.redis.lettucemod.timeseries.KeySample;
 import com.redis.lettucemod.timeseries.MRangeOptions;
 import com.redis.lettucemod.timeseries.RangeOptions;
@@ -75,364 +77,324 @@ public class RedisModulesAdvancedClusterAsyncCommandsImpl<K, V> extends RedisAdv
 	}
 
 	@Override
-	public RedisFuture<String> abortexecution(String id) {
-		return delegate.abortexecution(id);
+	public RedisFuture<String> rgAbortexecution(String id) {
+		return delegate.rgAbortexecution(id);
 	}
 
 	@Override
-	public RedisFuture<List<V>> configget(K... keys) {
-		return delegate.configget(keys);
+	public RedisFuture<List<V>> rgConfigget(K... keys) {
+		return delegate.rgConfigget(keys);
 	}
 
 	@Override
-	public RedisFuture<List<V>> configset(Map<K, V> map) {
-		return delegate.configset(map);
+	public RedisFuture<List<V>> rgConfigset(Map<K, V> map) {
+		return delegate.rgConfigset(map);
 	}
 
 	@Override
-	public RedisFuture<String> dropexecution(String id) {
-		return delegate.dropexecution(id);
+	public RedisFuture<String> rgDropexecution(String id) {
+		return delegate.rgDropexecution(id);
 	}
 
 	@Override
-	public RedisFuture<List<Execution>> dumpexecutions() {
-		return delegate.dumpexecutions();
+	public RedisFuture<List<Execution>> rgDumpexecutions() {
+		return delegate.rgDumpexecutions();
 	}
 
 	@Override
-	public RedisFuture<List<Registration>> dumpregistrations() {
-		return delegate.dumpregistrations();
+	public RedisFuture<List<Registration>> rgDumpregistrations() {
+		return delegate.rgDumpregistrations();
 	}
 
 	@Override
-	public RedisFuture<ExecutionDetails> getexecution(String id) {
-		return delegate.getexecution(id);
+	public RedisFuture<ExecutionDetails> rgGetexecution(String id) {
+		return delegate.rgGetexecution(id);
 	}
 
 	@Override
-	public RedisFuture<ExecutionDetails> getexecution(String id, ExecutionMode mode) {
-		return delegate.getexecution(id, mode);
+	public RedisFuture<ExecutionDetails> rgGetexecution(String id, ExecutionMode mode) {
+		return delegate.rgGetexecution(id, mode);
 	}
 
 	@Override
-	public RedisFuture<ExecutionResults> getresults(String id) {
-		return delegate.getresults(id);
+	public RedisFuture<ExecutionResults> rgGetresults(String id) {
+		return delegate.rgGetresults(id);
 	}
 
 	@Override
-	public RedisFuture<ExecutionResults> getresultsBlocking(String id) {
-		return delegate.getresultsBlocking(id);
+	public RedisFuture<ExecutionResults> rgGetresultsblocking(String id) {
+		return delegate.rgGetresultsblocking(id);
 	}
 
 	@Override
-	public RedisFuture<ExecutionResults> pyexecute(String function, V... requirements) {
-		return delegate.pyexecute(function, requirements);
+	public RedisFuture<ExecutionResults> rgPyexecute(String function, V... requirements) {
+		return delegate.rgPyexecute(function, requirements);
 	}
 
 	@Override
-	public RedisFuture<String> pyexecuteUnblocking(String function, V... requirements) {
-		return delegate.pyexecuteUnblocking(function, requirements);
+	public RedisFuture<String> rgPyexecuteUnblocking(String function, V... requirements) {
+		return delegate.rgPyexecuteUnblocking(function, requirements);
 	}
 
 	@Override
-	public RedisFuture<List<Object>> trigger(String trigger, V... args) {
-		return delegate.trigger(trigger, args);
+	public RedisFuture<List<Object>> rgTrigger(String trigger, V... args) {
+		return delegate.rgTrigger(trigger, args);
 	}
 
 	@Override
-	public RedisFuture<String> unregister(String id) {
-		return delegate.unregister(id);
+	public RedisFuture<String> rgUnregister(String id) {
+		return delegate.rgUnregister(id);
 	}
 
 	@Override
-	public RedisFuture<String> create(K index, Field... fields) {
-		return create(index, null, fields);
+	public RedisFuture<String> ftCreate(K index, Field... fields) {
+		return ftCreate(index, null, fields);
 	}
 
 	@Override
-	public RedisFuture<String> create(K index, com.redis.lettucemod.search.CreateOptions<K, V> options,
+	public RedisFuture<String> ftCreate(K index, com.redis.lettucemod.search.CreateOptions<K, V> options,
 			Field... fields) {
 		return MultiNodeExecution.firstOfAsync(executeOnUpstream(
-				commands -> ((RedisModulesAsyncCommands<K, V>) commands).create(index, options, fields)));
+				commands -> ((RedisModulesAsyncCommands<K, V>) commands).ftCreate(index, options, fields)));
 	}
 
 	@Override
-	public RedisFuture<String> dropindex(K index) {
+	public RedisFuture<String> ftDropindex(K index) {
 		return MultiNodeExecution.firstOfAsync(
-				executeOnUpstream(commands -> ((RedisModulesAsyncCommands<K, V>) commands).dropindex(index)));
+				executeOnUpstream(commands -> ((RedisModulesAsyncCommands<K, V>) commands).ftDropindex(index)));
 	}
 
 	@Override
-	public RedisFuture<String> dropindexDeleteDocs(K index) {
+	public RedisFuture<String> ftDropindexDeleteDocs(K index) {
+		return MultiNodeExecution.firstOfAsync(executeOnUpstream(
+				commands -> ((RedisModulesAsyncCommands<K, V>) commands).ftDropindexDeleteDocs(index)));
+	}
+
+	@Override
+	public RedisFuture<String> ftAlter(K index, Field field) {
 		return MultiNodeExecution.firstOfAsync(
-				executeOnUpstream(commands -> ((RedisModulesAsyncCommands<K, V>) commands).dropindexDeleteDocs(index)));
+				executeOnUpstream(commands -> ((RedisModulesAsyncCommands<K, V>) commands).ftAlter(index, field)));
 	}
 
 	@Override
-	public RedisFuture<String> alter(K index, Field field) {
+	public RedisFuture<List<Object>> ftInfo(K index) {
+		return delegate.ftInfo(index);
+	}
+
+	@Override
+	public RedisFuture<String> ftAliasadd(K name, K index) {
 		return MultiNodeExecution.firstOfAsync(
-				executeOnUpstream(commands -> ((RedisModulesAsyncCommands<K, V>) commands).alter(index, field)));
+				executeOnUpstream(commands -> ((RedisModulesAsyncCommands<K, V>) commands).ftAliasadd(name, index)));
 	}
 
 	@Override
-	public RedisFuture<List<Object>> indexInfo(K index) {
-		return delegate.indexInfo(index);
-	}
-
-	@Override
-	public RedisFuture<String> aliasadd(K name, K index) {
+	public RedisFuture<String> ftAliasupdate(K name, K index) {
 		return MultiNodeExecution.firstOfAsync(
-				executeOnUpstream(commands -> ((RedisModulesAsyncCommands<K, V>) commands).aliasadd(name, index)));
+				executeOnUpstream(commands -> ((RedisModulesAsyncCommands<K, V>) commands).ftAliasupdate(name, index)));
 	}
 
 	@Override
-	public RedisFuture<String> aliasupdate(K name, K index) {
+	public RedisFuture<String> ftAliasdel(K name) {
 		return MultiNodeExecution.firstOfAsync(
-				executeOnUpstream(commands -> ((RedisModulesAsyncCommands<K, V>) commands).aliasupdate(name, index)));
+				executeOnUpstream(commands -> ((RedisModulesAsyncCommands<K, V>) commands).ftAliasdel(name)));
 	}
 
 	@Override
-	public RedisFuture<String> aliasdel(K name) {
-		return MultiNodeExecution.firstOfAsync(
-				executeOnUpstream(commands -> ((RedisModulesAsyncCommands<K, V>) commands).aliasdel(name)));
+	public RedisFuture<List<K>> ftList() {
+		return delegate.ftList();
 	}
 
 	@Override
-	public RedisFuture<List<K>> list() {
-		return delegate.list();
+	public RedisFuture<SearchResults<K, V>> ftSearch(K index, V query) {
+		return delegate.ftSearch(index, query);
 	}
 
 	@Override
-	public RedisFuture<SearchResults<K, V>> search(K index, V query) {
-		return delegate.search(index, query);
+	public RedisFuture<SearchResults<K, V>> ftSearch(K index, V query, SearchOptions<K, V> options) {
+		return delegate.ftSearch(index, query, options);
 	}
 
 	@Override
-	public RedisFuture<SearchResults<K, V>> search(K index, V query, SearchOptions<K, V> options) {
-		return delegate.search(index, query, options);
+	public RedisFuture<AggregateResults<K>> ftAggregate(K index, V query) {
+		return delegate.ftAggregate(index, query);
 	}
 
 	@Override
-	public RedisFuture<AggregateResults<K>> aggregate(K index, V query) {
-		return delegate.aggregate(index, query);
+	public RedisFuture<AggregateResults<K>> ftAggregate(K index, V query, AggregateOptions<K, V> options) {
+		return delegate.ftAggregate(index, query, options);
 	}
 
 	@Override
-	public RedisFuture<AggregateResults<K>> aggregate(K index, V query, AggregateOptions<K, V> options) {
-		return delegate.aggregate(index, query, options);
+	public RedisFuture<AggregateWithCursorResults<K>> ftAggregate(K index, V query, CursorOptions cursor) {
+		return delegate.ftAggregate(index, query, cursor);
 	}
 
 	@Override
-	public RedisFuture<AggregateWithCursorResults<K>> aggregate(K index, V query, CursorOptions cursor) {
-		return delegate.aggregate(index, query, cursor);
-	}
-
-	@Override
-	public RedisFuture<AggregateWithCursorResults<K>> aggregate(K index, V query, CursorOptions cursor,
+	public RedisFuture<AggregateWithCursorResults<K>> ftAggregate(K index, V query, CursorOptions cursor,
 			AggregateOptions<K, V> options) {
-		return delegate.aggregate(index, query, cursor, options);
+		return delegate.ftAggregate(index, query, cursor, options);
 	}
 
 	@Override
-	public RedisFuture<AggregateWithCursorResults<K>> cursorRead(K index, long cursor) {
-		return delegate.cursorRead(index, cursor);
+	public RedisFuture<AggregateWithCursorResults<K>> ftCursorRead(K index, long cursor) {
+		return delegate.ftCursorRead(index, cursor);
 	}
 
 	@Override
-	public RedisFuture<AggregateWithCursorResults<K>> cursorRead(K index, long cursor, long count) {
-		return delegate.cursorRead(index, cursor, count);
+	public RedisFuture<AggregateWithCursorResults<K>> ftCursorRead(K index, long cursor, long count) {
+		return delegate.ftCursorRead(index, cursor, count);
 	}
 
 	@Override
-	public RedisFuture<String> cursorDelete(K index, long cursor) {
-		return delegate.cursorDelete(index, cursor);
+	public RedisFuture<String> ftCursorDelete(K index, long cursor) {
+		return delegate.ftCursorDelete(index, cursor);
 	}
 
 	@Override
-	public RedisFuture<List<V>> tagvals(K index, K field) {
-		return delegate.tagvals(index, field);
+	public RedisFuture<List<V>> ftTagvals(K index, K field) {
+		return delegate.ftTagvals(index, field);
 	}
 
 	@Override
-	public RedisFuture<Long> sugadd(K key, V string, double score) {
-		return delegate.sugadd(key, string, score);
+	public RedisFuture<Long> ftSugadd(K key, Suggestion<V> suggestion) {
+		return delegate.ftSugadd(key, suggestion);
 	}
 
 	@Override
-	public RedisFuture<Long> sugaddIncr(K key, V string, double score) {
-		return delegate.sugaddIncr(key, string, score);
+	public RedisFuture<Long> ftSugaddIncr(K key, Suggestion<V> suggestion) {
+		return delegate.ftSugaddIncr(key, suggestion);
 	}
 
 	@Override
-	public RedisFuture<Long> sugadd(K key, V string, double score, V payload) {
-		return delegate.sugadd(key, string, score, payload);
+	public RedisFuture<List<Suggestion<V>>> ftSugget(K key, V prefix) {
+		return delegate.ftSugget(key, prefix);
 	}
 
 	@Override
-	public RedisFuture<Long> sugaddIncr(K key, V string, double score, V payload) {
-		return delegate.sugaddIncr(key, string, score, payload);
+	public RedisFuture<List<Suggestion<V>>> ftSugget(K key, V prefix, SuggetOptions options) {
+		return delegate.ftSugget(key, prefix, options);
 	}
 
 	@Override
-	public RedisFuture<Long> sugadd(K key, Suggestion<V> suggestion) {
-		return delegate.sugadd(key, suggestion);
+	public RedisFuture<Boolean> ftSugdel(K key, V string) {
+		return delegate.ftSugdel(key, string);
 	}
 
 	@Override
-	public RedisFuture<Long> sugaddIncr(K key, Suggestion<V> suggestion) {
-		return delegate.sugaddIncr(key, suggestion);
+	public RedisFuture<Long> ftSuglen(K key) {
+		return delegate.ftSuglen(key);
 	}
 
 	@Override
-	public RedisFuture<List<Suggestion<V>>> sugget(K key, V prefix) {
-		return delegate.sugget(key, prefix);
-	}
-
-	@Override
-	public RedisFuture<List<Suggestion<V>>> sugget(K key, V prefix, SuggetOptions options) {
-		return delegate.sugget(key, prefix, options);
-	}
-
-	@Override
-	public RedisFuture<Boolean> sugdel(K key, V string) {
-		return delegate.sugdel(key, string);
-	}
-
-	@Override
-	public RedisFuture<Long> suglen(K key) {
-		return delegate.suglen(key);
-	}
-
-	@Override
-	public RedisFuture<Long> dictadd(K dict, V... terms) {
+	public RedisFuture<Long> ftDictadd(K dict, V... terms) {
 		return MultiNodeExecution.firstOfAsync(
-				executeOnUpstream(commands -> ((RedisModulesAsyncCommands<K, V>) commands).dictadd(dict, terms)));
+				executeOnUpstream(commands -> ((RedisModulesAsyncCommands<K, V>) commands).ftDictadd(dict, terms)));
 	}
 
 	@Override
-	public RedisFuture<Long> dictdel(K dict, V... terms) {
+	public RedisFuture<Long> ftDictdel(K dict, V... terms) {
 		return MultiNodeExecution.firstOfAsync(
-				executeOnUpstream(commands -> ((RedisModulesAsyncCommands<K, V>) commands).dictdel(dict, terms)));
+				executeOnUpstream(commands -> ((RedisModulesAsyncCommands<K, V>) commands).ftDictdel(dict, terms)));
 	}
 
 	@Override
-	public RedisFuture<List<V>> dictdump(K dict) {
-		return delegate.dictdump(dict);
+	public RedisFuture<List<V>> ftDictdump(K dict) {
+		return delegate.ftDictdump(dict);
 	}
 
 	@Override
-	public RedisFuture<String> create(K key, CreateOptions<K, V> options) {
-		return delegate.create(key, options);
+	public RedisFuture<String> tsCreate(K key, CreateOptions<K, V> options) {
+		return delegate.tsCreate(key, options);
 	}
 
 	@Override
-	public RedisFuture<String> alter(K key, CreateOptions<K, V> options) {
-		return delegate.alter(key, options);
+	public RedisFuture<String> tsAlter(K key, AlterOptions<K, V> options) {
+		return delegate.tsAlter(key, options);
 	}
 
 	@Override
-	public RedisFuture<Long> add(K key, long timestamp, double value) {
-		return delegate.add(key, timestamp, value);
+	public RedisFuture<Long> tsAdd(K key, Sample sample) {
+		return delegate.tsAdd(key, sample);
 	}
 
 	@Override
-	public RedisFuture<Long> add(K key, long timestamp, double value, AddOptions<K, V> options) {
-		return delegate.add(key, timestamp, value, options);
+	public RedisFuture<Long> tsAdd(K key, Sample sample, AddOptions<K, V> options) {
+		return delegate.tsAdd(key, sample, options);
 	}
 
 	@Override
-	public RedisFuture<Long> addAutoTimestamp(K key, double value) {
-		return delegate.addAutoTimestamp(key, value);
+	public RedisFuture<List<Long>> tsMadd(KeySample<K>... samples) {
+		return delegate.tsMadd(samples);
+	}
+	
+	@Override
+	public RedisFuture<Long> tsDecrby(K key, double value) {
+		return delegate.tsDecrby(key, value);
+	}
+	
+	@Override
+	public RedisFuture<Long> tsDecrby(K key, double value, IncrbyOptions<K, V> options) {
+		return delegate.tsDecrby(key, value, options);
+	}
+	
+	@Override
+	public RedisFuture<Long> tsIncrby(K key, double value) {
+		return delegate.tsIncrby(key, value);
+	}
+	
+	@Override
+	public RedisFuture<Long> tsIncrby(K key, double value, IncrbyOptions<K, V> options) {
+		return delegate.tsIncrby(key, value, options);
 	}
 
 	@Override
-	public RedisFuture<Long> addAutoTimestamp(K key, double value, AddOptions<K, V> options) {
-		return delegate.addAutoTimestamp(key, value, options);
+	public RedisFuture<String> tsCreaterule(K sourceKey, K destKey, CreateRuleOptions options) {
+		return delegate.tsCreaterule(sourceKey, destKey, options);
 	}
 
 	@Override
-	public RedisFuture<Long> add(K key, Sample sample) {
-		return delegate.add(key, sample);
+	public RedisFuture<String> tsDeleterule(K sourceKey, K destKey) {
+		return delegate.tsDeleterule(sourceKey, destKey);
 	}
 
 	@Override
-	public RedisFuture<Long> add(K key, Sample sample, AddOptions<K, V> options) {
-		return delegate.add(key, sample, options);
+	public RedisFuture<List<Sample>> tsRange(K key, TimeRange range) {
+		return delegate.tsRange(key, range);
 	}
 
 	@Override
-	public RedisFuture<List<Long>> madd(KeySample<K>... samples) {
-		return delegate.madd(samples);
+	public RedisFuture<List<Sample>> tsRange(K key, TimeRange range, RangeOptions options) {
+		return delegate.tsRange(key, range, options);
 	}
 
 	@Override
-	public RedisFuture<Long> incrby(K key, double value, Long timestamp, CreateOptions<K, V> options) {
-		return delegate.incrby(key, value, timestamp, options);
+	public RedisFuture<List<Sample>> tsRevrange(K key, TimeRange range) {
+		return delegate.tsRevrange(key, range);
 	}
 
 	@Override
-	public RedisFuture<Long> decrby(K key, double value, Long timestamp, CreateOptions<K, V> options) {
-		return delegate.decrby(key, value, timestamp, options);
+	public RedisFuture<List<Sample>> tsRevrange(K key, TimeRange range, RangeOptions options) {
+		return delegate.tsRevrange(key, range, options);
 	}
 
 	@Override
-	public RedisFuture<Long> incrbyAutoTimestamp(K key, double value, CreateOptions<K, V> options) {
-		return delegate.incrbyAutoTimestamp(key, value, options);
+	public RedisFuture<List<RangeResult<K, V>>> tsMrange(TimeRange range) {
+		return delegate.tsMrange(range);
 	}
 
 	@Override
-	public RedisFuture<Long> decrbyAutoTimestamp(K key, double value, CreateOptions<K, V> options) {
-		return delegate.decrbyAutoTimestamp(key, value, options);
+	public RedisFuture<List<RangeResult<K, V>>> tsMrange(TimeRange range, MRangeOptions<K, V> options) {
+		return delegate.tsMrange(range, options);
 	}
 
 	@Override
-	public RedisFuture<String> createrule(K sourceKey, K destKey, CreateRuleOptions options) {
-		return delegate.createrule(sourceKey, destKey, options);
+	public RedisFuture<List<RangeResult<K, V>>> tsMrevrange(TimeRange range) {
+		return delegate.tsMrevrange(range);
 	}
 
 	@Override
-	public RedisFuture<String> deleterule(K sourceKey, K destKey) {
-		return delegate.deleterule(sourceKey, destKey);
-	}
-
-	@Override
-	public RedisFuture<List<Sample>> range(K key, TimeRange range) {
-		return delegate.range(key, range);
-	}
-
-	@Override
-	public RedisFuture<List<Sample>> range(K key, TimeRange range, RangeOptions options) {
-		return delegate.range(key, range, options);
-	}
-
-	@Override
-	public RedisFuture<List<Sample>> revrange(K key, TimeRange range) {
-		return delegate.revrange(key, range);
-	}
-
-	@Override
-	public RedisFuture<List<Sample>> revrange(K key, TimeRange range, RangeOptions options) {
-		return delegate.revrange(key, range, options);
-	}
-
-	@Override
-	public RedisFuture<List<RangeResult<K, V>>> mrange(TimeRange range) {
-		return delegate.mrange(range);
-	}
-
-	@Override
-	public RedisFuture<List<RangeResult<K, V>>> mrange(TimeRange range, MRangeOptions<K, V> options) {
-		return delegate.mrange(range, options);
-	}
-
-	@Override
-	public RedisFuture<List<RangeResult<K, V>>> mrevrange(TimeRange range) {
-		return delegate.mrevrange(range);
-	}
-
-	@Override
-	public RedisFuture<List<RangeResult<K, V>>> mrevrange(TimeRange range, MRangeOptions<K, V> options) {
-		return delegate.mrevrange(range, options);
+	public RedisFuture<List<RangeResult<K, V>>> tsMrevrange(TimeRange range, MRangeOptions<K, V> options) {
+		return delegate.tsMrevrange(range, options);
 	}
 
 	@Override
@@ -558,103 +520,103 @@ public class RedisModulesAdvancedClusterAsyncCommandsImpl<K, V> extends RedisAdv
 	}
 
 	@Override
-	public RedisFuture<V> numincrby(K key, K path, double number) {
-		return delegate.numincrby(key, path, number);
+	public RedisFuture<V> jsonNumincrby(K key, K path, double number) {
+		return delegate.jsonNumincrby(key, path, number);
 	}
 
 	@Override
-	public RedisFuture<V> nummultby(K key, K path, double number) {
-		return delegate.nummultby(key, path, number);
+	public RedisFuture<V> jsonNummultby(K key, K path, double number) {
+		return delegate.jsonNummultby(key, path, number);
 	}
 
 	@Override
-	public RedisFuture<Long> strappend(K key, V json) {
-		return delegate.strappend(key, json);
+	public RedisFuture<Long> jsonStrappend(K key, V json) {
+		return delegate.jsonStrappend(key, json);
 	}
 
 	@Override
-	public RedisFuture<Long> strappend(K key, K path, V json) {
-		return delegate.strappend(key, path, json);
+	public RedisFuture<Long> jsonStrappend(K key, K path, V json) {
+		return delegate.jsonStrappend(key, path, json);
 	}
 
 	@Override
-	public RedisFuture<Long> strlen(K key, K path) {
-		return delegate.strlen(key, path);
+	public RedisFuture<Long> jsonStrlen(K key, K path) {
+		return delegate.jsonStrlen(key, path);
 	}
 
 	@Override
-	public RedisFuture<Long> arrappend(K key, K path, V... jsons) {
-		return delegate.arrappend(key, path, jsons);
+	public RedisFuture<Long> jsonArrappend(K key, K path, V... jsons) {
+		return delegate.jsonArrappend(key, path, jsons);
 	}
 
 	@Override
-	public RedisFuture<Long> arrindex(K key, K path, V scalar) {
-		return delegate.arrindex(key, path, scalar);
+	public RedisFuture<Long> jsonArrindex(K key, K path, V scalar) {
+		return delegate.jsonArrindex(key, path, scalar);
 	}
 
 	@Override
-	public RedisFuture<Long> arrindex(K key, K path, V scalar, long start) {
-		return delegate.arrindex(key, path, scalar, start);
+	public RedisFuture<Long> jsonArrindex(K key, K path, V scalar, long start) {
+		return delegate.jsonArrindex(key, path, scalar, start);
 	}
 
 	@Override
-	public RedisFuture<Long> arrindex(K key, K path, V scalar, long start, long stop) {
-		return delegate.arrindex(key, path, scalar, start, stop);
+	public RedisFuture<Long> jsonArrindex(K key, K path, V scalar, long start, long stop) {
+		return delegate.jsonArrindex(key, path, scalar, start, stop);
 	}
 
 	@Override
-	public RedisFuture<Long> arrinsert(K key, K path, long index, V... jsons) {
-		return delegate.arrinsert(key, path, index, jsons);
+	public RedisFuture<Long> jsonArrinsert(K key, K path, long index, V... jsons) {
+		return delegate.jsonArrinsert(key, path, index, jsons);
 	}
 
 	@Override
-	public RedisFuture<Long> arrlen(K key) {
-		return delegate.arrlen(key);
+	public RedisFuture<Long> jsonArrlen(K key) {
+		return delegate.jsonArrlen(key);
 	}
 
 	@Override
-	public RedisFuture<Long> arrlen(K key, K path) {
-		return delegate.arrlen(key, path);
+	public RedisFuture<Long> jsonArrlen(K key, K path) {
+		return delegate.jsonArrlen(key, path);
 	}
 
 	@Override
-	public RedisFuture<V> arrpop(K key) {
-		return delegate.arrpop(key);
+	public RedisFuture<V> jsonArrpop(K key) {
+		return delegate.jsonArrpop(key);
 	}
 
 	@Override
-	public RedisFuture<V> arrpop(K key, K path) {
-		return delegate.arrpop(key, path);
+	public RedisFuture<V> jsonArrpop(K key, K path) {
+		return delegate.jsonArrpop(key, path);
 	}
 
 	@Override
-	public RedisFuture<V> arrpop(K key, K path, long index) {
-		return delegate.arrpop(key, path, index);
+	public RedisFuture<V> jsonArrpop(K key, K path, long index) {
+		return delegate.jsonArrpop(key, path, index);
 	}
 
 	@Override
-	public RedisFuture<Long> arrtrim(K key, K path, long start, long stop) {
-		return delegate.arrtrim(key, path, start, stop);
+	public RedisFuture<Long> jsonArrtrim(K key, K path, long start, long stop) {
+		return delegate.jsonArrtrim(key, path, start, stop);
 	}
 
 	@Override
-	public RedisFuture<List<K>> objkeys(K key) {
-		return delegate.objkeys(key);
+	public RedisFuture<List<K>> jsonObjkeys(K key) {
+		return delegate.jsonObjkeys(key);
 	}
 
 	@Override
-	public RedisFuture<List<K>> objkeys(K key, K path) {
-		return delegate.objkeys(key, path);
+	public RedisFuture<List<K>> jsonObjkeys(K key, K path) {
+		return delegate.jsonObjkeys(key, path);
 	}
 
 	@Override
-	public RedisFuture<Long> objlen(K key) {
-		return delegate.objlen(key);
+	public RedisFuture<Long> jsonObjlen(K key) {
+		return delegate.jsonObjlen(key);
 	}
 
 	@Override
-	public RedisFuture<Long> objlen(K key, K path) {
-		return delegate.objlen(key, path);
+	public RedisFuture<Long> jsonObjlen(K key, K path) {
+		return delegate.jsonObjlen(key, path);
 	}
 
 }

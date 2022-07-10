@@ -32,7 +32,7 @@ class JsonSearchTests {
 		StatefulRedisModulesConnection<String, String> connection = client.connect();
 		RediSearchCommands<String, String> redisearch = connection.sync();
 		String index = "beers";
-		redisearch.create(index, CreateOptions.<String, String>builder().on(DataType.JSON).build(),
+		redisearch.ftCreate(index, CreateOptions.<String, String>builder().on(DataType.JSON).build(),
 				Field.tag("$." + Beers.FIELD_ID.getName()).as(Beers.FIELD_ID.getName()).build(),
 				Field.text("$." + Beers.FIELD_NAME.getName()).as(Beers.FIELD_NAME.getName()).build(),
 				Field.text("$." + Beers.FIELD_STYLE_NAME.getName()).as(Beers.FIELD_STYLE_NAME.getName()).build());
@@ -41,7 +41,7 @@ class JsonSearchTests {
 			JsonNode beer = iterator.next();
 			redisjson.jsonSet("beer:" + beer.get(Beers.FIELD_ID.getName()).asText(), "$", beer.toString());
 		}
-		SearchResults<String, String> results = redisearch.search(index,
+		SearchResults<String, String> results = redisearch.ftSearch(index,
 				"@" + Beers.FIELD_NAME.getName() + ":California");
 		Assertions.assertEquals(5, results.getCount());
 		connection.close();

@@ -27,9 +27,9 @@ import java.util.List;
 /**
  * Builder dedicated to RediSearch commands.
  */
-public class RediSearchCommandBuilder<K, V> extends RedisModulesCommandBuilder<K, V> {
+public class SearchCommandBuilder<K, V> extends RedisModulesCommandBuilder<K, V> {
 
-    public RediSearchCommandBuilder(RedisCodec<K, V> codec) {
+    public SearchCommandBuilder(RedisCodec<K, V> codec) {
         super(codec);
     }
 

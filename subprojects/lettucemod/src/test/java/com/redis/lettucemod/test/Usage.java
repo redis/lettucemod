@@ -28,6 +28,8 @@ import com.redis.lettucemod.search.Field;
 import com.redis.lettucemod.search.Filter;
 import com.redis.lettucemod.search.Group;
 import com.redis.lettucemod.search.SearchResults;
+import com.redis.lettucemod.search.Suggestion;
+import com.redis.lettucemod.timeseries.Sample;
 
 import io.lettuce.core.LettuceFutures;
 import io.lettuce.core.RedisFuture;
@@ -57,16 +59,16 @@ RedisModulesCommands<String, String> commands = connection.sync(); // <3>
 		
 RediSearchCommands<String, String> search = connection.sync(); // <1>
 
-search.create("beers", Field.text("name").build(), Field.numeric("ibu").build()); // <2>
+search.ftCreate("beers", Field.text("name").build(), Field.numeric("ibu").build()); // <2>
 
-SearchResults<String, String> results = search.search("beers", "chou*"); // <3>
+SearchResults<String, String> results = search.ftSearch("beers", "chou*"); // <3>
 
 
 // RedisGears
 
 RedisGearsCommands<String, String> gears = connection.sync(); // <1>
 
-gears.pyexecute("GearsBuilder().run('person:*')"); // <2>
+gears.rgPyexecute("GearsBuilder().run('person:*')"); // <2>
 
 
 // RedisJSON
@@ -80,7 +82,7 @@ json.jsonSet("arr", ".", "[1,2,3]"); // <2>
 
 RedisTimeSeriesCommands<String, String> ts = connection.sync(); // <1>
 
-ts.add("temp:3:11", 1548149181, 30); // <2>
+ts.tsAdd("temp:3:11", Sample.of(1548149181, 30)); // <2>
 
 
         //@formatter:on
@@ -131,7 +133,7 @@ commands.setAutoFlushCommands(false); // <1>
 
 List<RedisFuture<?>> futures = new ArrayList<>(); // <2>
 for (MyEntity element : entities()) {
-	futures.add(commands.sugadd("names", element.getName(), element.getScore()));
+	futures.add(commands.ftSugadd("names", Suggestion.string(element.getName()).score(element.getScore()).build()));
 }
 
 commands.flushCommands(); // <3>

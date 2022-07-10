@@ -13,32 +13,32 @@ import java.util.Map;
 @SuppressWarnings("unchecked")
 public interface RedisGearsReactiveCommands<K, V> {
 
-    Mono<String> abortexecution(String id);
+    Mono<String> rgAbortexecution(String id);
 
-    Flux<V> configget(K... keys);
+    Flux<V> rgConfigget(K... keys);
 
-    Flux<V> configset(Map<K, V> map);
+    Flux<V> rgConfigset(Map<K, V> map);
 
-    Mono<String> dropexecution(String id);
+    Mono<String> rgDropexecution(String id);
 
-    Flux<Execution> dumpexecutions();
+    Flux<Execution> rgDumpexecutions();
 
-    Flux<Registration> dumpregistrations();
+    Flux<Registration> rgDumpregistrations();
 
-    Mono<ExecutionDetails> getexecution(String id);
+    Mono<ExecutionDetails> rgGetexecution(String id);
 
-    Mono<ExecutionDetails> getexecution(String id, ExecutionMode mode);
+    Mono<ExecutionDetails> rgGetexecution(String id, ExecutionMode mode);
 
-    Mono<ExecutionResults> getresults(String id);
+    Mono<ExecutionResults> rgGetresults(String id);
 
-    Mono<ExecutionResults> getresultsBlocking(String id);
+    Mono<ExecutionResults> rgGetresultsblocking(String id);
 
-    Mono<ExecutionResults> pyexecute(String function, V... requirements);
+    Mono<ExecutionResults> rgPyexecute(String function, V... requirements);
 
-    Mono<String> pyexecuteUnblocking(String function, V... requirements);
+    Mono<String> rgPyexecuteUnblocking(String function, V... requirements);
 
-    Flux<Object> trigger(String trigger, V... args);
+    Flux<Object> rgTrigger(String trigger, V... args);
 
-    Mono<String> unregister(String id);
+    Mono<String> rgUnregister(String id);
 
 }

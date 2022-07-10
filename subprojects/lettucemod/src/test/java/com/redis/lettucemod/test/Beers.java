@@ -42,7 +42,7 @@ public class Beers {
 	public static void createIndex(RedisModulesCommands<String, String> commands) {
 		CreateOptions<String, String> options = CreateOptions.<String, String>builder().prefix(PREFIX)
 				.payloadField(FIELD_PAYLOAD).build();
-		commands.create(INDEX, options, SCHEMA);
+		commands.ftCreate(INDEX, options, SCHEMA);
 	}
 
 	public static Iterator<JsonNode> jsonNodeIterator() throws IOException {

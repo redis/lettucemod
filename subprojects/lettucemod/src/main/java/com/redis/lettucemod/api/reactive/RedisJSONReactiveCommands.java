@@ -30,47 +30,47 @@ public interface RedisJSONReactiveCommands<K, V> {
 
     Mono<String> jsonType(K key, K path);
 
-    Mono<V> numincrby(K key, K path, double number);
+    Mono<V> jsonNumincrby(K key, K path, double number);
 
-    Mono<V> nummultby(K key, K path, double number);
+    Mono<V> jsonNummultby(K key, K path, double number);
 
-    Mono<Long> strappend(K key, V json);
+    Mono<Long> jsonStrappend(K key, V json);
 
-    Mono<Long> strappend(K key, K path, V json);
+    Mono<Long> jsonStrappend(K key, K path, V json);
 
-    Mono<Long> strlen(K key, K path);
-
-    @SuppressWarnings("unchecked")
-	Mono<Long> arrappend(K key, K path, V... jsons);
-
-    Mono<Long> arrindex(K key, K path, V scalar);
-
-    Mono<Long> arrindex(K key, K path, V scalar, long start);
-
-    Mono<Long> arrindex(K key, K path, V scalar, long start, long stop);
+    Mono<Long> jsonStrlen(K key, K path);
 
     @SuppressWarnings("unchecked")
-	Mono<Long> arrinsert(K key, K path, long index, V... jsons);
+	Mono<Long> jsonArrappend(K key, K path, V... jsons);
 
-    Mono<Long> arrlen(K key);
+    Mono<Long> jsonArrindex(K key, K path, V scalar);
 
-    Mono<Long> arrlen(K key, K path);
+    Mono<Long> jsonArrindex(K key, K path, V scalar, long start);
 
-    Mono<V> arrpop(K key);
+    Mono<Long> jsonArrindex(K key, K path, V scalar, long start, long stop);
 
-    Mono<V> arrpop(K key, K path);
+    @SuppressWarnings("unchecked")
+	Mono<Long> jsonArrinsert(K key, K path, long index, V... jsons);
 
-    Mono<V> arrpop(K key, K path, long index);
+    Mono<Long> jsonArrlen(K key);
 
-    Mono<Long> arrtrim(K key, K path, long start, long stop);
+    Mono<Long> jsonArrlen(K key, K path);
 
-    Flux<K> objkeys(K key);
+    Mono<V> jsonArrpop(K key);
 
-    Flux<K> objkeys(K key, K path);
+    Mono<V> jsonArrpop(K key, K path);
 
-    Mono<Long> objlen(K key);
+    Mono<V> jsonArrpop(K key, K path, long index);
 
-    Mono<Long> objlen(K key, K path);
+    Mono<Long> jsonArrtrim(K key, K path, long start, long stop);
+
+    Flux<K> jsonObjkeys(K key);
+
+    Flux<K> jsonObjkeys(K key, K path);
+
+    Mono<Long> jsonObjlen(K key);
+
+    Mono<Long> jsonObjlen(K key, K path);
 
 
 }

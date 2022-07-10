@@ -3,9 +3,11 @@ package com.redis.lettucemod.api.async;
 import java.util.List;
 
 import com.redis.lettucemod.timeseries.AddOptions;
+import com.redis.lettucemod.timeseries.AlterOptions;
 import com.redis.lettucemod.timeseries.CreateOptions;
 import com.redis.lettucemod.timeseries.CreateRuleOptions;
 import com.redis.lettucemod.timeseries.GetResult;
+import com.redis.lettucemod.timeseries.IncrbyOptions;
 import com.redis.lettucemod.timeseries.KeySample;
 import com.redis.lettucemod.timeseries.MRangeOptions;
 import com.redis.lettucemod.timeseries.RangeOptions;
@@ -18,51 +20,43 @@ import io.lettuce.core.RedisFuture;
 @SuppressWarnings("unchecked")
 public interface RedisTimeSeriesAsyncCommands<K, V> {
 
-	RedisFuture<String> create(K key, CreateOptions<K, V> options);
+	RedisFuture<String> tsCreate(K key, CreateOptions<K, V> options);
 
-	RedisFuture<String> alter(K key, CreateOptions<K, V> options);
+	RedisFuture<String> tsAlter(K key, AlterOptions<K, V> options);
 
-	RedisFuture<Long> add(K key, long timestamp, double value);
+	RedisFuture<Long> tsAdd(K key, Sample sample);
 
-	RedisFuture<Long> addAutoTimestamp(K key, double value);
+	RedisFuture<Long> tsAdd(K key, Sample sample, AddOptions<K, V> options);
 
-	RedisFuture<Long> add(K key, long timestamp, double value, AddOptions<K, V> options);
+	RedisFuture<List<Long>> tsMadd(KeySample<K>... samples);
 
-	RedisFuture<Long> addAutoTimestamp(K key, double value, AddOptions<K, V> options);
+	RedisFuture<Long> tsIncrby(K key, double value);
 
-	RedisFuture<Long> add(K key, Sample sample);
+	RedisFuture<Long> tsIncrby(K key, double value, IncrbyOptions<K, V> options);
 
-	RedisFuture<Long> add(K key, Sample sample, AddOptions<K, V> options);
+	RedisFuture<Long> tsDecrby(K key, double value);
 
-	RedisFuture<List<Long>> madd(KeySample<K>... samples);
+	RedisFuture<Long> tsDecrby(K key, double value, IncrbyOptions<K, V> options);
 
-	RedisFuture<Long> incrby(K key, double value, Long timestamp, CreateOptions<K, V> options);
+	RedisFuture<String> tsCreaterule(K sourceKey, K destKey, CreateRuleOptions options);
 
-	RedisFuture<Long> decrby(K key, double value, Long timestamp, CreateOptions<K, V> options);
+	RedisFuture<String> tsDeleterule(K sourceKey, K destKey);
 
-	RedisFuture<Long> incrbyAutoTimestamp(K key, double value, CreateOptions<K, V> options);
+	RedisFuture<List<Sample>> tsRange(K key, TimeRange range);
 
-	RedisFuture<Long> decrbyAutoTimestamp(K key, double value, CreateOptions<K, V> options);
+	RedisFuture<List<Sample>> tsRange(K key, TimeRange range, RangeOptions options);
 
-	RedisFuture<String> createrule(K sourceKey, K destKey, CreateRuleOptions options);
+	RedisFuture<List<Sample>> tsRevrange(K key, TimeRange range);
 
-	RedisFuture<String> deleterule(K sourceKey, K destKey);
+	RedisFuture<List<Sample>> tsRevrange(K key, TimeRange range, RangeOptions options);
 
-	RedisFuture<List<Sample>> range(K key, TimeRange range);
+	RedisFuture<List<RangeResult<K, V>>> tsMrange(TimeRange range);
 
-	RedisFuture<List<Sample>> range(K key, TimeRange range, RangeOptions options);
+	RedisFuture<List<RangeResult<K, V>>> tsMrange(TimeRange range, MRangeOptions<K, V> options);
 
-	RedisFuture<List<Sample>> revrange(K key, TimeRange range);
+	RedisFuture<List<RangeResult<K, V>>> tsMrevrange(TimeRange range);
 
-	RedisFuture<List<Sample>> revrange(K key, TimeRange range, RangeOptions options);
-
-	RedisFuture<List<RangeResult<K, V>>> mrange(TimeRange range);
-
-	RedisFuture<List<RangeResult<K, V>>> mrange(TimeRange range, MRangeOptions<K, V> options);
-
-	RedisFuture<List<RangeResult<K, V>>> mrevrange(TimeRange range);
-
-	RedisFuture<List<RangeResult<K, V>>> mrevrange(TimeRange range, MRangeOptions<K, V> options);
+	RedisFuture<List<RangeResult<K, V>>> tsMrevrange(TimeRange range, MRangeOptions<K, V> options);
 
 	/**
 	 * Get the last sample.

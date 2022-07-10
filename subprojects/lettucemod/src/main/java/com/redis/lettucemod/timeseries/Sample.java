@@ -31,9 +31,37 @@ public class Sample {
 
 	public static Sample of(long timestamp, double value) {
 		Sample sample = new Sample();
-		sample.setTimestamp(timestamp);
-		sample.setValue(value);
+		sample.timestamp = timestamp;
+		sample.value = value;
 		return sample;
+	}
+
+	public static Builder value(double value) {
+		return new Builder(value);
+	}
+
+	public static class Builder {
+
+		private final double value;
+
+		public Builder(double value) {
+			this.value = value;
+		}
+
+		public Sample timestamp(long timestamp) {
+			Sample sample = new Sample();
+			sample.timestamp = timestamp;
+			sample.value = value;
+			return sample;
+		}
+
+		public Sample build() {
+			Sample sample = new Sample();
+			sample.timestamp = AUTO_TIMESTAMP;
+			sample.value = value;
+			return sample;
+		}
+
 	}
 
 	@Override

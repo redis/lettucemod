@@ -40,9 +40,9 @@ class RedisModulesAutoConfigurationIntegrationTests {
 			RedisModulesClient client = context.getBean(RedisModulesClient.class);
 			StatefulRedisModulesConnection<String, String> connection = client.connect();
 			String key = "suggestIdx";
-			connection.sync().sugadd(key, "rome", 1);
-			connection.sync().sugadd(key, "romarin", 1);
-			List<Suggestion<String>> suggestions = connection.sync().sugget(key, "rom");
+			connection.sync().ftSugadd(key, Suggestion.of("rome", 1));
+			connection.sync().ftSugadd(key, Suggestion.of("romarin", 1));
+			List<Suggestion<String>> suggestions = connection.sync().ftSugget(key, "rom");
 			Assertions.assertEquals(2, suggestions.size());
 		});
 	}

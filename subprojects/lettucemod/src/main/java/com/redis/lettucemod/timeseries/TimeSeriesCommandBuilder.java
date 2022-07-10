@@ -23,11 +23,11 @@ import io.lettuce.core.protocol.CommandArgs;
  * Builder for RedisTimeSeries commands.
  */
 @SuppressWarnings("unchecked")
-public class RedisTimeSeriesCommandBuilder<K, V> extends RedisModulesCommandBuilder<K, V> {
+public class TimeSeriesCommandBuilder<K, V> extends RedisModulesCommandBuilder<K, V> {
 
 	private static final String AUTO_TIMESTAMP = "*";
 
-	public RedisTimeSeriesCommandBuilder(RedisCodec<K, V> codec) {
+	public TimeSeriesCommandBuilder(RedisCodec<K, V> codec) {
 		super(codec);
 	}
 
@@ -44,7 +44,7 @@ public class RedisTimeSeriesCommandBuilder<K, V> extends RedisModulesCommandBuil
 		return createCommand(TimeSeriesCommandType.CREATE, new StatusOutput<>(codec), args);
 	}
 
-	public Command<K, V, String> alter(K key, CreateOptions<K, V> options) {
+	public Command<K, V, String> alter(K key, AlterOptions<K, V> options) {
 		CommandArgs<K, V> args = args(key);
 		if (options != null) {
 			options.build(args);
@@ -58,28 +58,8 @@ public class RedisTimeSeriesCommandBuilder<K, V> extends RedisModulesCommandBuil
 
 	public Command<K, V, Long> add(K key, Sample sample, AddOptions<K, V> options) {
 		notNull(sample, "Sample");
-		return doAdd(key, sample.getTimestamp(), sample.getValue(), options);
-	}
-
-	public Command<K, V, Long> add(K key, long timestamp, double value) {
-		return doAdd(key, timestamp, value, null);
-	}
-
-	public Command<K, V, Long> add(K key, long timestamp, double value, AddOptions<K, V> options) {
-		return doAdd(key, timestamp, value, options);
-	}
-
-	public Command<K, V, Long> addAutoTimestamp(K key, double value) {
-		return addAutoTimestamp(key, value, null);
-	}
-
-	public Command<K, V, Long> addAutoTimestamp(K key, double value, AddOptions<K, V> options) {
-		return doAdd(key, Sample.AUTO_TIMESTAMP, value, options);
-	}
-
-	private Command<K, V, Long> doAdd(K key, long timestamp, double value, AddOptions<K, V> options) {
 		CommandArgs<K, V> args = args(key);
-		add(args, timestamp, value);
+		add(args, sample.getTimestamp(), sample.getValue());
 		if (options != null) {
 			options.build(args);
 		}
@@ -87,12 +67,16 @@ public class RedisTimeSeriesCommandBuilder<K, V> extends RedisModulesCommandBuil
 	}
 
 	private void add(CommandArgs<K, V> args, long timestamp, double value) {
+		addTimestamp(args, timestamp);
+		args.add(value);
+	}
+
+	public static <K, V> void addTimestamp(CommandArgs<K, V> args, long timestamp) {
 		if (timestamp == Sample.AUTO_TIMESTAMP) {
 			args.add(AUTO_TIMESTAMP);
 		} else {
 			args.add(timestamp);
 		}
-		args.add(value);
 	}
 
 	public Command<K, V, List<Long>> madd(KeySample<K>... samples) {
@@ -105,35 +89,18 @@ public class RedisTimeSeriesCommandBuilder<K, V> extends RedisModulesCommandBuil
 		return createCommand(TimeSeriesCommandType.MADD, new IntegerListOutput<>(codec), args);
 	}
 
-	public Command<K, V, Long> incrbyAutoTimestamp(K key, double value, CreateOptions<K, V> options) {
-		return deincrby(TimeSeriesCommandType.INCRBY, key, value, null, true, options);
+	public Command<K, V, Long> incrby(K key, double value, IncrbyOptions<K, V> options) {
+		return incrby(TimeSeriesCommandType.INCRBY, key, value, options);
 	}
 
-	public Command<K, V, Long> decrbyAutoTimestamp(K key, double value, CreateOptions<K, V> options) {
-		return deincrby(TimeSeriesCommandType.DECRBY, key, value, null, true, options);
+	public Command<K, V, Long> decrby(K key, double value, IncrbyOptions<K, V> options) {
+		return incrby(TimeSeriesCommandType.DECRBY, key, value, options);
 	}
 
-	public Command<K, V, Long> incrby(K key, double value, Long timestamp, CreateOptions<K, V> options) {
-		return deincrby(TimeSeriesCommandType.INCRBY, key, value, timestamp, false, options);
-	}
-
-	public Command<K, V, Long> decrby(K key, double value, Long timestamp, CreateOptions<K, V> options) {
-		return deincrby(TimeSeriesCommandType.DECRBY, key, value, timestamp, false, options);
-	}
-
-	private Command<K, V, Long> deincrby(TimeSeriesCommandType commandType, K key, double value, Long timestamp,
-			boolean autoTimestamp, CreateOptions<K, V> options) {
+	private Command<K, V, Long> incrby(TimeSeriesCommandType commandType, K key, double value,
+			IncrbyOptions<K, V> options) {
 		CommandArgs<K, V> args = args(key);
 		args.add(value);
-		if (autoTimestamp) {
-			args.add(TimeSeriesCommandKeyword.TIMESTAMP);
-			args.add(AUTO_TIMESTAMP);
-		} else {
-			if (timestamp != null) {
-				args.add(TimeSeriesCommandKeyword.TIMESTAMP);
-				args.add(timestamp);
-			}
-		}
 		if (options != null) {
 			options.build(args);
 		}

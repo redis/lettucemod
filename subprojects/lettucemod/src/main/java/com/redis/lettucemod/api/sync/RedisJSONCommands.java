@@ -34,46 +34,46 @@ public interface RedisJSONCommands<K, V> {
 
     String jsonType(K key, K path);
 
-    V numincrby(K key, K path, double number);
+    V jsonNumincrby(K key, K path, double number);
 
-    V nummultby(K key, K path, double number);
+    V jsonNummultby(K key, K path, double number);
 
-    Long strappend(K key, V json);
+    Long jsonStrappend(K key, V json);
 
-    Long strappend(K key, K path, V json);
+    Long jsonStrappend(K key, K path, V json);
 
-    Long strlen(K key, K path);
-
-    @SuppressWarnings("unchecked")
-	Long arrappend(K key, K path, V... jsons);
-
-    Long arrindex(K key, K path, V scalar);
-
-    Long arrindex(K key, K path, V scalar, long start);
-
-    Long arrindex(K key, K path, V scalar, long start, long stop);
+    Long jsonStrlen(K key, K path);
 
     @SuppressWarnings("unchecked")
-	Long arrinsert(K key, K path, long index, V... jsons);
+	Long jsonArrappend(K key, K path, V... jsons);
 
-    Long arrlen(K key);
+    Long jsonArrindex(K key, K path, V scalar);
 
-    Long arrlen(K key, K path);
+    Long jsonArrindex(K key, K path, V scalar, long start);
 
-    V arrpop(K key);
+    Long jsonArrindex(K key, K path, V scalar, long start, long stop);
 
-    V arrpop(K key, K path);
+    @SuppressWarnings("unchecked")
+	Long jsonArrinsert(K key, K path, long index, V... jsons);
 
-    V arrpop(K key, K path, long index);
+    Long jsonArrlen(K key);
 
-    Long arrtrim(K key, K path, long start, long stop);
+    Long jsonArrlen(K key, K path);
 
-    List<K> objkeys(K key);
+    V jsonArrpop(K key);
 
-    List<K> objkeys(K key, K path);
+    V jsonArrpop(K key, K path);
 
-    Long objlen(K key);
+    V jsonArrpop(K key, K path, long index);
 
-    Long objlen(K key, K path);
+    Long jsonArrtrim(K key, K path, long start, long stop);
+
+    List<K> jsonObjkeys(K key);
+
+    List<K> jsonObjkeys(K key, K path);
+
+    Long jsonObjlen(K key);
+
+    Long jsonObjlen(K key, K path);
 
 }

@@ -20,11 +20,11 @@ import java.util.Map;
  * Builder dedicated to RedisGears commands.
  */
 @SuppressWarnings("unchecked")
-public class RedisGearsCommandBuilder<K, V> extends RedisModulesCommandBuilder<K, V> {
+public class GearsCommandBuilder<K, V> extends RedisModulesCommandBuilder<K, V> {
 
     private static final String EXECUTION_ID = "Execution ID";
 
-	public RedisGearsCommandBuilder(RedisCodec<K, V> codec) {
+	public GearsCommandBuilder(RedisCodec<K, V> codec) {
         super(codec);
     }
 

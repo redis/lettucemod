@@ -12,32 +12,32 @@ import java.util.Map;
 @SuppressWarnings("unchecked")
 public interface RedisGearsCommands<K, V> {
 
-    String abortexecution(String id);
+    String rgAbortexecution(String id);
 
-    List<V> configget(K... keys);
+    List<V> rgConfigget(K... keys);
 
-    List<V> configset(Map<K, V> map);
+    List<V> rgConfigset(Map<K, V> map);
 
-    String dropexecution(String id);
+    String rgDropexecution(String id);
 
-    List<Execution> dumpexecutions();
+    List<Execution> rgDumpexecutions();
 
-    List<Registration> dumpregistrations();
+    List<Registration> rgDumpregistrations();
 
-    ExecutionDetails getexecution(String id);
+    ExecutionDetails rgGetexecution(String id);
 
-    ExecutionDetails getexecution(String id, ExecutionMode mode);
+    ExecutionDetails rgGetexecution(String id, ExecutionMode mode);
 
-    ExecutionResults getresults(String id);
+    ExecutionResults rgGetresults(String id);
 
-    ExecutionResults getresultsBlocking(String id);
+    ExecutionResults rgGetresultsblocking(String id);
 
-    ExecutionResults pyexecute(String function, V... requirements);
+    ExecutionResults rgPyexecute(String function, V... requirements);
 
-    String pyexecuteUnblocking(String function, V... requirements);
+    String pyExecuteUnblocking(String function, V... requirements);
 
-    List<Object> trigger(String trigger, V... args);
+    List<Object> rgTrigger(String trigger, V... args);
 
-    String unregister(String id);
+    String rgUnregister(String id);
 
 }

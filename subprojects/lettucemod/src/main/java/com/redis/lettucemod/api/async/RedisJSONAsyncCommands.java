@@ -35,46 +35,46 @@ public interface RedisJSONAsyncCommands<K, V> {
 
     RedisFuture<String> jsonType(K key, K path);
 
-    RedisFuture<V> numincrby(K key, K path, double number);
+    RedisFuture<V> jsonNumincrby(K key, K path, double number);
 
-    RedisFuture<V> nummultby(K key, K path, double number);
+    RedisFuture<V> jsonNummultby(K key, K path, double number);
 
-    RedisFuture<Long> strappend(K key, V json);
+    RedisFuture<Long> jsonStrappend(K key, V json);
 
-    RedisFuture<Long> strappend(K key, K path, V json);
+    RedisFuture<Long> jsonStrappend(K key, K path, V json);
 
-    RedisFuture<Long> strlen(K key, K path);
-
-    @SuppressWarnings("unchecked")
-	RedisFuture<Long> arrappend(K key, K path, V... jsons);
-
-    RedisFuture<Long> arrindex(K key, K path, V scalar);
-
-    RedisFuture<Long> arrindex(K key, K path, V scalar, long start);
-
-    RedisFuture<Long> arrindex(K key, K path, V scalar, long start, long stop);
+    RedisFuture<Long> jsonStrlen(K key, K path);
 
     @SuppressWarnings("unchecked")
-	RedisFuture<Long> arrinsert(K key, K path, long index, V... jsons);
+	RedisFuture<Long> jsonArrappend(K key, K path, V... jsons);
 
-    RedisFuture<Long> arrlen(K key);
+    RedisFuture<Long> jsonArrindex(K key, K path, V scalar);
 
-    RedisFuture<Long> arrlen(K key, K path);
+    RedisFuture<Long> jsonArrindex(K key, K path, V scalar, long start);
 
-    RedisFuture<V> arrpop(K key);
+    RedisFuture<Long> jsonArrindex(K key, K path, V scalar, long start, long stop);
 
-    RedisFuture<V> arrpop(K key, K path);
+    @SuppressWarnings("unchecked")
+	RedisFuture<Long> jsonArrinsert(K key, K path, long index, V... jsons);
 
-    RedisFuture<V> arrpop(K key, K path, long index);
+    RedisFuture<Long> jsonArrlen(K key);
 
-    RedisFuture<Long> arrtrim(K key, K path, long start, long stop);
+    RedisFuture<Long> jsonArrlen(K key, K path);
 
-    RedisFuture<List<K>> objkeys(K key);
+    RedisFuture<V> jsonArrpop(K key);
 
-    RedisFuture<List<K>> objkeys(K key, K path);
+    RedisFuture<V> jsonArrpop(K key, K path);
 
-    RedisFuture<Long> objlen(K key);
+    RedisFuture<V> jsonArrpop(K key, K path, long index);
 
-    RedisFuture<Long> objlen(K key, K path);
+    RedisFuture<Long> jsonArrtrim(K key, K path, long start, long stop);
+
+    RedisFuture<List<K>> jsonObjkeys(K key);
+
+    RedisFuture<List<K>> jsonObjkeys(K key, K path);
+
+    RedisFuture<Long> jsonObjlen(K key);
+
+    RedisFuture<Long> jsonObjlen(K key, K path);
 
 }

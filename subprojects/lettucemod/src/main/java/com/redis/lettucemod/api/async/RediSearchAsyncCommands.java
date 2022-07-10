@@ -8,72 +8,64 @@ import com.redis.lettucemod.search.*;
 
 public interface RediSearchAsyncCommands<K, V> {
 
-    RedisFuture<String> create(K index, Field... fields);
+    RedisFuture<String> ftCreate(K index, Field... fields);
 
-    RedisFuture<String> create(K index, CreateOptions<K, V> options, Field... fields);
+    RedisFuture<String> ftCreate(K index, CreateOptions<K, V> options, Field... fields);
 
-    RedisFuture<String> dropindex(K index);
+    RedisFuture<String> ftDropindex(K index);
 
-    RedisFuture<String> dropindexDeleteDocs(K index);
+    RedisFuture<String> ftDropindexDeleteDocs(K index);
 
-    RedisFuture<String> alter(K index, Field field);
+    RedisFuture<String> ftAlter(K index, Field field);
 
-    RedisFuture<List<Object>> indexInfo(K index);
+    RedisFuture<List<Object>> ftInfo(K index);
 
-    RedisFuture<String> aliasadd(K name, K index);
+    RedisFuture<String> ftAliasadd(K name, K index);
 
-    RedisFuture<String> aliasupdate(K name, K index);
+    RedisFuture<String> ftAliasupdate(K name, K index);
 
-    RedisFuture<String> aliasdel(K name);
+    RedisFuture<String> ftAliasdel(K name);
 
-    RedisFuture<List<K>> list();
+    RedisFuture<List<K>> ftList();
 
-    RedisFuture<SearchResults<K, V>> search(K index, V query);
+    RedisFuture<SearchResults<K, V>> ftSearch(K index, V query);
 
-    RedisFuture<SearchResults<K, V>> search(K index, V query, SearchOptions<K, V> options);
+    RedisFuture<SearchResults<K, V>> ftSearch(K index, V query, SearchOptions<K, V> options);
 
-    RedisFuture<AggregateResults<K>> aggregate(K index, V query);
+    RedisFuture<AggregateResults<K>> ftAggregate(K index, V query);
 
-    RedisFuture<AggregateResults<K>> aggregate(K index, V query, AggregateOptions<K, V> options);
+    RedisFuture<AggregateResults<K>> ftAggregate(K index, V query, AggregateOptions<K, V> options);
 
-    RedisFuture<AggregateWithCursorResults<K>> aggregate(K index, V query, CursorOptions cursor);
+    RedisFuture<AggregateWithCursorResults<K>> ftAggregate(K index, V query, CursorOptions cursor);
 
-    RedisFuture<AggregateWithCursorResults<K>> aggregate(K index, V query, CursorOptions cursor, AggregateOptions<K, V> options);
+    RedisFuture<AggregateWithCursorResults<K>> ftAggregate(K index, V query, CursorOptions cursor, AggregateOptions<K, V> options);
 
-    RedisFuture<AggregateWithCursorResults<K>> cursorRead(K index, long cursor);
+    RedisFuture<AggregateWithCursorResults<K>> ftCursorRead(K index, long cursor);
 
-    RedisFuture<AggregateWithCursorResults<K>> cursorRead(K index, long cursor, long count);
+    RedisFuture<AggregateWithCursorResults<K>> ftCursorRead(K index, long cursor, long count);
 
-    RedisFuture<String> cursorDelete(K index, long cursor);
+    RedisFuture<String> ftCursorDelete(K index, long cursor);
 
-    RedisFuture<List<V>> tagvals(K index, K field);
+    RedisFuture<List<V>> ftTagvals(K index, K field);
 
-    RedisFuture<Long> sugadd(K key, V string, double score);
+    RedisFuture<Long> ftSugadd(K key, Suggestion<V> suggestion);
 
-    RedisFuture<Long> sugaddIncr(K key, V string, double score);
+    RedisFuture<Long> ftSugaddIncr(K key, Suggestion<V> suggestion);
 
-    RedisFuture<Long> sugadd(K key, V string, double score, V payload);
+    RedisFuture<List<Suggestion<V>>> ftSugget(K key, V prefix);
 
-    RedisFuture<Long> sugaddIncr(K key, V string, double score, V payload);
+    RedisFuture<List<Suggestion<V>>> ftSugget(K key, V prefix, SuggetOptions options);
 
-    RedisFuture<Long> sugadd(K key, Suggestion<V> suggestion);
+    RedisFuture<Boolean> ftSugdel(K key, V string);
 
-    RedisFuture<Long> sugaddIncr(K key, Suggestion<V> suggestion);
-
-    RedisFuture<List<Suggestion<V>>> sugget(K key, V prefix);
-
-    RedisFuture<List<Suggestion<V>>> sugget(K key, V prefix, SuggetOptions options);
-
-    RedisFuture<Boolean> sugdel(K key, V string);
-
-    RedisFuture<Long> suglen(K key);
+    RedisFuture<Long> ftSuglen(K key);
 
     @SuppressWarnings("unchecked")
-    RedisFuture<Long> dictadd(K dict, V... terms);
+    RedisFuture<Long> ftDictadd(K dict, V... terms);
 
     @SuppressWarnings("unchecked")
-    RedisFuture<Long> dictdel(K dict, V... terms);
+    RedisFuture<Long> ftDictdel(K dict, V... terms);
 
-    RedisFuture<List<V>> dictdump(K dict);
+    RedisFuture<List<V>> ftDictdump(K dict);
 
 }
