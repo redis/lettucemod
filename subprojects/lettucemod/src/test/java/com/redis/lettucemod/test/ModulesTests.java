@@ -1074,7 +1074,7 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 	}
 
 	private String pyExecuteUnblocking(RedisGearsCommands<String, String> sync, String resourceName) {
-		return sync.pyExecuteUnblocking(load(resourceName));
+		return sync.rgPyexecuteUnblocking(load(resourceName));
 	}
 
 	private String load(String resourceName) {

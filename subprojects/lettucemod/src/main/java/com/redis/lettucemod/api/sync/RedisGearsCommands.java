@@ -34,7 +34,7 @@ public interface RedisGearsCommands<K, V> {
 
     ExecutionResults rgPyexecute(String function, V... requirements);
 
-    String pyExecuteUnblocking(String function, V... requirements);
+    String rgPyexecuteUnblocking(String function, V... requirements);
 
     List<Object> rgTrigger(String trigger, V... args);
 
