@@ -2,41 +2,39 @@ package com.redis.lettucemod.search;
 
 import java.util.Optional;
 
-import com.redis.lettucemod.protocol.SearchCommandArgs;
 import com.redis.lettucemod.protocol.SearchCommandKeyword;
 
-@SuppressWarnings("rawtypes")
-public abstract class Reducer implements RediSearchArgument {
+public abstract class Reducer implements RediSearchArgument<Object, Object> {
 
-	protected final Optional<As> as;
+	protected final Optional<String> as;
 
-	protected Reducer(Optional<As> as) {
+	protected Reducer(Optional<String> as) {
 		this.as = as;
 	}
 
 	@Override
-	public void build(SearchCommandArgs args) {
+	public void build(SearchCommandArgs<Object, Object> args) {
 		args.add(SearchCommandKeyword.REDUCE);
 		buildFunction(args);
-		as.ifPresent(a -> a.build(args));
+		as.ifPresent(a -> args.add(SearchCommandKeyword.AS).add(a));
 	}
 
 	protected String toString(String string) {
 		if (as.isPresent()) {
-			return string + " AS " + as.get().getField();
+			return string + " AS " + as;
 		}
 		return string;
 	}
 
-	protected abstract void buildFunction(SearchCommandArgs args);
+	protected abstract void buildFunction(SearchCommandArgs<Object, Object> args);
 
 	@SuppressWarnings("unchecked")
 	public static class Builder<B extends Builder<B>> {
 
-		protected Optional<As> as = Optional.empty();
+		protected Optional<String> as = Optional.empty();
 
 		public B as(String as) {
-			this.as = Optional.of(new As(as));
+			this.as = Optional.of(as);
 			return (B) this;
 		}
 

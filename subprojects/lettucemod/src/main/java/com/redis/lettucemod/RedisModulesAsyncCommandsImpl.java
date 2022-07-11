@@ -257,13 +257,13 @@ public class RedisModulesAsyncCommandsImpl<K, V> extends RedisAsyncCommandsImpl<
 	}
 
 	@Override
-	public RedisFuture<String> ftCreate(K index, Field... fields) {
+	public RedisFuture<String> ftCreate(K index, Field<K>... fields) {
 		return ftCreate(index, null, fields);
 	}
 
 	@Override
 	public RedisFuture<String> ftCreate(K index, com.redis.lettucemod.search.CreateOptions<K, V> options,
-			Field... fields) {
+			Field<K>... fields) {
 		return dispatch(searchCommandBuilder.create(index, options, fields));
 	}
 
@@ -359,7 +359,7 @@ public class RedisModulesAsyncCommandsImpl<K, V> extends RedisAsyncCommandsImpl<
 	}
 
 	@Override
-	public RedisFuture<String> ftAlter(K index, Field field) {
+	public RedisFuture<String> ftAlter(K index, Field<K> field) {
 		return dispatch(searchCommandBuilder.alter(index, field));
 	}
 

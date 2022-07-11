@@ -5,13 +5,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import com.redis.lettucemod.protocol.SearchCommandArgs;
 import com.redis.lettucemod.protocol.SearchCommandKeyword;
 
 import io.lettuce.core.internal.LettuceAssert;
 
-@SuppressWarnings("rawtypes")
-public class Sort implements AggregateOperation {
+public class Sort implements AggregateOperation<Object, Object> {
 
 	private final List<Property> properties;
 	private final Optional<Max> max;
@@ -22,7 +20,7 @@ public class Sort implements AggregateOperation {
 	}
 
 	@Override
-	public void build(SearchCommandArgs args) {
+	public void build(SearchCommandArgs<Object, Object> args) {
 		args.add(SearchCommandKeyword.SORTBY);
 		args.add((long) properties.size() * 2);
 		for (Property property : properties) {
@@ -67,7 +65,7 @@ public class Sort implements AggregateOperation {
 
 	}
 
-	public static class Property implements RediSearchArgument {
+	public static class Property implements RediSearchArgument<Object, Object> {
 
 		private final String name;
 		private final Order order;
@@ -97,9 +95,9 @@ public class Sort implements AggregateOperation {
 		}
 
 		@Override
-		public void build(SearchCommandArgs args) {
+		public void build(SearchCommandArgs<Object, Object> args) {
 			args.addProperty(name);
-			order.build(args);
+			args.add(order.getKeyword());
 		}
 
 	}

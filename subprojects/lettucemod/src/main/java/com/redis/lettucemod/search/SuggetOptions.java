@@ -2,11 +2,9 @@ package com.redis.lettucemod.search;
 
 import java.util.Optional;
 
-import com.redis.lettucemod.protocol.SearchCommandArgs;
 import com.redis.lettucemod.protocol.SearchCommandKeyword;
 
-@SuppressWarnings("rawtypes")
-public class SuggetOptions implements RediSearchArgument {
+public class SuggetOptions implements RediSearchArgument<Object, Object> {
 
 	private boolean fuzzy;
 	private boolean withScores;
@@ -53,7 +51,7 @@ public class SuggetOptions implements RediSearchArgument {
 	}
 
 	@Override
-	public void build(SearchCommandArgs args) {
+	public void build(SearchCommandArgs<Object, Object> args) {
 		if (fuzzy) {
 			args.add(SearchCommandKeyword.FUZZY);
 		}

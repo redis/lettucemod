@@ -1,10 +1,8 @@
 package com.redis.lettucemod.search;
 
-import com.redis.lettucemod.protocol.SearchCommandArgs;
 import com.redis.lettucemod.protocol.SearchCommandKeyword;
 
-@SuppressWarnings("rawtypes")
-public class Limit implements AggregateOperation {
+public class Limit implements AggregateOperation<Object, Object> {
 
 	private final long offset;
 	private final long num;
@@ -15,7 +13,7 @@ public class Limit implements AggregateOperation {
 	}
 
 	@Override
-	public void build(SearchCommandArgs args) {
+	public void build(SearchCommandArgs<Object, Object> args) {
 		args.add(SearchCommandKeyword.LIMIT);
 		args.add(offset);
 		args.add(num);

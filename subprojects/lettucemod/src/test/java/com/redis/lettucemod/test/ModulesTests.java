@@ -76,6 +76,8 @@ import com.redis.lettucemod.search.SearchResults;
 import com.redis.lettucemod.search.Sort;
 import com.redis.lettucemod.search.Suggestion;
 import com.redis.lettucemod.search.SuggetOptions;
+import com.redis.lettucemod.search.TagField;
+import com.redis.lettucemod.search.TextField;
 import com.redis.lettucemod.timeseries.AddOptions;
 import com.redis.lettucemod.timeseries.Aggregation;
 import com.redis.lettucemod.timeseries.Aggregator;
@@ -207,6 +209,7 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 		assertEquals("somepayload", suggestions.get(0).getPayload());
 	}
 
+	@SuppressWarnings("unchecked")
 	@ParameterizedTest
 	@RedisTestContextsSource
 	void ftCreate(RedisTestContext context) throws Exception {
@@ -215,12 +218,13 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 		assertEquals(count, RedisModulesUtils.indexInfo(sync.ftInfo(Beers.INDEX)).getNumDocs());
 		CreateOptions<String, String> options = CreateOptions.<String, String>builder().prefix("release:")
 				.payloadField("xml").build();
-		Field[] fields = new Field[] { Field.text("artist").sortable().build(), Field.tag("id").sortable().build(),
-				Field.text("title").sortable().build() };
+		Field<String>[] fields = new Field[] { Field.text("artist").sortable().build(),
+				Field.tag("id").sortable().build(), Field.text("title").sortable().build() };
 		sync.ftCreate("releases", options, fields);
 		assertEquals(fields.length, RedisModulesUtils.indexInfo(sync.ftInfo("releases")).getFields().size());
 	}
 
+	@SuppressWarnings("unchecked")
 	@ParameterizedTest
 	@RedisTestContextsSource
 	void ftCreateTemporaryIndex(RedisTestContext context) throws Exception {
@@ -270,6 +274,7 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 		return map;
 	}
 
+	@SuppressWarnings("unchecked")
 	@ParameterizedTest
 	@RedisTestContextsSource
 	void ftList(RedisTestContext context) throws ExecutionException, InterruptedException {
@@ -357,6 +362,7 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 				SearchOptions.<String, String>builder().inField(Beers.FIELD_NAME.getName()).build(), 1, "7");
 	}
 
+	@SuppressWarnings("unchecked")
 	@ParameterizedTest
 	@RedisTestContextsSource
 	void testSearchTags(RedisTestContext context) throws InterruptedException, ExecutionException, IOException {
@@ -499,10 +505,10 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 			assertEquals(20, results.size());
 		};
 		AggregateOptions<String, String> groupByOptions = AggregateOptions
-				.<String, String>group(Group.by(Beers.FIELD_STYLE_NAME.getName())
-						.avg(Avg.property(Beers.FIELD_ABV.getName()).as(Beers.FIELD_ABV.getName()).build()).build())
-				.sort(Sort.by(Sort.Property.desc(Beers.FIELD_ABV.getName())).build()).limit(Limit.offset(0).num(20))
-				.build();
+				.<String, String>operation(Group.by(Beers.FIELD_STYLE_NAME.getName())
+						.reducer(Avg.property(Beers.FIELD_ABV.getName()).as(Beers.FIELD_ABV.getName()).build()).build())
+				.operation(Sort.by(Sort.Property.desc(Beers.FIELD_ABV.getName())).build())
+				.operation(Limit.offset(0).num(20)).build();
 		groupByAsserts.accept(sync.ftAggregate(Beers.INDEX, "*", groupByOptions));
 		groupByAsserts.accept(reactive.ftAggregate(Beers.INDEX, "*", groupByOptions).block());
 
@@ -514,8 +520,8 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 		};
 
 		AggregateOptions<String, String> groupBy0Options = AggregateOptions
-				.<String, String>group(Group.by()
-						.max(Max.property(Beers.FIELD_ABV.getName()).as(Beers.FIELD_ABV.getName()).build()).build())
+				.<String, String>operation(Group.by()
+						.reducer(Max.property(Beers.FIELD_ABV.getName()).as(Beers.FIELD_ABV.getName()).build()).build())
 				.build();
 		groupBy0Asserts.accept(sync.ftAggregate(Beers.INDEX, "*", groupBy0Options));
 		groupBy0Asserts.accept(reactive.ftAggregate(Beers.INDEX, "*", groupBy0Options).block());
@@ -531,10 +537,10 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 			assertTrue(nameCount == 1 || nameCount == 141);
 		};
 		Group group = Group.by(Beers.FIELD_STYLE_NAME.getName())
-				.toList(ToList.property(Beers.FIELD_NAME.getName()).as("names").build()).count(Count.as("count"))
+				.reducer(ToList.property(Beers.FIELD_NAME.getName()).as("names").build()).reducer(Count.as("count"))
 				.build();
-		AggregateOptions<String, String> groupBy2Options = AggregateOptions.<String, String>group(group)
-				.limit(Limit.offset(0).num(2)).build();
+		AggregateOptions<String, String> groupBy2Options = AggregateOptions.<String, String>operation(group)
+				.operation(Limit.offset(0).num(2)).build();
 		groupBy2Asserts.accept(sync.ftAggregate(Beers.INDEX, "*", groupBy2Options));
 		groupBy2Asserts.accept(reactive.ftAggregate(Beers.INDEX, "*", groupBy2Options).block());
 
@@ -618,13 +624,13 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 		List<Object> infoList = context.async().ftInfo(Beers.INDEX).get();
 		IndexInfo info = RedisModulesUtils.indexInfo(infoList);
 		assertEquals(count, info.getNumDocs());
-		List<Field> fields = info.getFields();
-		Field.TextField descriptionField = (Field.TextField) fields.get(5);
+		List<Field<String>> fields = info.getFields();
+		TextField<String> descriptionField = (TextField<String>) fields.get(5);
 		assertEquals(Beers.FIELD_DESCRIPTION.getName(), descriptionField.getName());
 		Assertions.assertFalse(descriptionField.isNoIndex());
 		Assertions.assertTrue(descriptionField.isNoStem());
 		Assertions.assertFalse(descriptionField.isSortable());
-		Field.TagField styleField = (Field.TagField) fields.get(2);
+		TagField<String> styleField = (TagField<String>) fields.get(2);
 		assertEquals(Beers.FIELD_STYLE_NAME.getName(), styleField.getName());
 		Assertions.assertTrue(styleField.isSortable());
 		assertEquals(",", styleField.getSeparator().get());
@@ -661,6 +667,7 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 				context.reactive().ftTagvals(Beers.INDEX, Beers.FIELD_STYLE_NAME.getName()).collectList().block()));
 	}
 
+	@SuppressWarnings("unchecked")
 	@ParameterizedTest
 	@RedisTestContextsSource
 	void ftEmptyToListReducer(RedisTestContext context) {
@@ -672,7 +679,8 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 				Field.tag("size").sortable().build());
 		Map<String, String> doc1 = mapOf("category", "31", "color", "red");
 		sync.hset("my_prefix:1", doc1);
-		AggregateOptions<String, String> aggregateOptions = AggregateOptions.<String, String>group(Group.by("category")
+		AggregateOptions<String, String> aggregateOptions = AggregateOptions.<String, String>operation(Group
+				.by("category")
 				.reducers(ToList.property("color").as("color").build(), ToList.property("size").as("size").build())
 				.build()).build();
 		AggregateResults<String> results = sync.ftAggregate("idx", "@color:{red|blue}", aggregateOptions);

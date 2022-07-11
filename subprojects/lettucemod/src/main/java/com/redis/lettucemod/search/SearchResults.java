@@ -25,7 +25,6 @@ public class SearchResults<K, V> extends ArrayList<Document<K, V>> {
 		return result;
 	}
 
-	@SuppressWarnings("rawtypes")
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -34,7 +33,7 @@ public class SearchResults<K, V> extends ArrayList<Document<K, V>> {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		SearchResults other = (SearchResults) obj;
+		SearchResults<?, ?> other = (SearchResults<?, ?>) obj;
 		return count == other.count;
 	}
 

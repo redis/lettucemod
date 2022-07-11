@@ -1,6 +1,5 @@
 package com.redis.lettucemod.search;
 
-import com.redis.lettucemod.protocol.SearchCommandArgs;
 import com.redis.lettucemod.protocol.SearchCommandKeyword;
 
 public enum Order {
@@ -13,9 +12,8 @@ public enum Order {
 		this.keyword = keyword;
 	}
 
-	@SuppressWarnings("rawtypes")
-	public void build(SearchCommandArgs args) {
-		args.add(keyword);
+	public SearchCommandKeyword getKeyword() {
+		return keyword;
 	}
 
 }

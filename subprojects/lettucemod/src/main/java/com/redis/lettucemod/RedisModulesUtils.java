@@ -12,12 +12,10 @@ import java.util.stream.Collectors;
 
 import com.redis.lettucemod.protocol.SearchCommandKeyword;
 import com.redis.lettucemod.search.Field;
-import com.redis.lettucemod.search.Field.GeoField;
-import com.redis.lettucemod.search.Field.NumericField;
-import com.redis.lettucemod.search.Field.TagField;
-import com.redis.lettucemod.search.Field.TextField;
 import com.redis.lettucemod.search.Field.Type;
 import com.redis.lettucemod.search.IndexInfo;
+import com.redis.lettucemod.search.TagField;
+import com.redis.lettucemod.search.TextField;
 
 import io.lettuce.core.internal.LettuceAssert;
 import io.lettuce.core.internal.LettuceStrings;
@@ -95,11 +93,11 @@ public class RedisModulesUtils {
 	}
 
 	@SuppressWarnings("unchecked")
-	private static List<Field> fieldsFromAttributes(List<Object> list) {
-		List<Field> fields = new ArrayList<>();
+	private static List<Field<String>> fieldsFromAttributes(List<Object> list) {
+		List<Field<String>> fields = new ArrayList<>();
 		for (Object object : list) {
 			List<Object> attributes = (List<Object>) object;
-			Field field = field((String) attributes.get(5), (String) attributes.get(1));
+			Field<String> field = field((String) attributes.get(5), (String) attributes.get(1));
 			if (attributes.size() > 6) {
 				populateField(field, attributes.subList(6, attributes.size()));
 			}
@@ -108,18 +106,18 @@ public class RedisModulesUtils {
 		return fields;
 	}
 
-	private static void populateField(Field field, List<Object> attributes) {
+	private static void populateField(Field<String> field, List<Object> attributes) {
 		if (field.getType() == Type.TAG) {
 			LettuceAssert.isTrue(SearchCommandKeyword.SEPARATOR.name().equals(attributes.remove(0)),
 					"Wrong attribute name");
-			TagField tagField = (TagField) field;
+			TagField<String> tagField = (TagField<String>) field;
 			tagField.setSeparator((String) attributes.remove(0));
 			tagField.setCaseSensitive(attributes.contains(SearchCommandKeyword.CASESENSITIVE.name()));
 		} else {
 			if (field.getType() == Type.TEXT) {
 				LettuceAssert.isTrue(SearchCommandKeyword.WEIGHT.name().equals(attributes.remove(0)),
 						"Wrong attribute name");
-				TextField textField = (TextField) field;
+				TextField<String> textField = (TextField<String>) field;
 				Object weight = attributes.remove(0);
 				textField.setWeight(weight instanceof Double ? (Double) weight : Double.parseDouble((String) weight));
 				textField.setNoStem(attributes.contains(SearchCommandKeyword.NOSTEM.name()));
@@ -131,27 +129,27 @@ public class RedisModulesUtils {
 	}
 
 	@SuppressWarnings("unchecked")
-	private static List<Field> fieldsFromFields(List<Object> list) {
-		List<Field> fields = new ArrayList<>();
+	private static List<Field<String>> fieldsFromFields(List<Object> list) {
+		List<Field<String>> fields = new ArrayList<>();
 		for (Object infoObject : list) {
 			List<Object> info = (List<Object>) infoObject;
-			Field field = field((String) info.get(2), (String) info.get(0));
+			Field<String> field = field((String) info.get(2), (String) info.get(0));
 			populateField(field, info.subList(3, info.size()));
 			fields.add(field);
 		}
 		return fields;
 	}
 
-	private static Field field(String type, String name) {
+	private static Field<String> field(String type, String name) {
 		switch (type) {
 		case "GEO":
-			return new GeoField(name);
+			return Field.geo(name).build();
 		case "NUMERIC":
-			return new NumericField(name);
+			return Field.numeric(name).build();
 		case "TAG":
-			return new TagField(name);
+			return Field.tag(name).build();
 		case "TEXT":
-			return new TextField(name);
+			return Field.text(name).build();
 		default:
 			throw new IllegalArgumentException("Unknown field type: " + type);
 		}

@@ -8,7 +8,7 @@ public class IndexInfo {
 	private String indexName;
 	private Double numDocs;
 	private List<Object> indexOptions;
-	private List<Field> fields;
+	private List<Field<String>> fields;
 	private String maxDocId;
 	private Long numTerms;
 	private Long numRecords;
@@ -74,11 +74,11 @@ public class IndexInfo {
 		this.indexOptions = indexOptions;
 	}
 
-	public List<Field> getFields() {
+	public List<Field<String>> getFields() {
 		return fields;
 	}
 
-	public void setFields(List<Field> fields) {
+	public void setFields(List<Field<String>> fields) {
 		this.fields = fields;
 	}
 
@@ -210,7 +210,7 @@ public class IndexInfo {
 		private String indexName;
 		private Double numDocs;
 		private List<Object> indexOptions = new ArrayList<>();
-		private List<Field> fields = new ArrayList<>();
+		private List<Field<String>> fields = new ArrayList<>();
 		private String maxDocId;
 		private Long numTerms;
 		private Long numRecords;
@@ -245,7 +245,7 @@ public class IndexInfo {
 			return this;
 		}
 
-		public Builder fields(List<Field> fields) {
+		public Builder fields(List<Field<String>> fields) {
 			this.fields = fields;
 			return this;
 		}

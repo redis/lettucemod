@@ -147,13 +147,13 @@ public class RedisModulesAdvancedClusterAsyncCommandsImpl<K, V> extends RedisAdv
 	}
 
 	@Override
-	public RedisFuture<String> ftCreate(K index, Field... fields) {
+	public RedisFuture<String> ftCreate(K index, Field<K>... fields) {
 		return ftCreate(index, null, fields);
 	}
 
 	@Override
 	public RedisFuture<String> ftCreate(K index, com.redis.lettucemod.search.CreateOptions<K, V> options,
-			Field... fields) {
+			Field<K>... fields) {
 		return MultiNodeExecution.firstOfAsync(executeOnUpstream(
 				commands -> ((RedisModulesAsyncCommands<K, V>) commands).ftCreate(index, options, fields)));
 	}
@@ -171,7 +171,7 @@ public class RedisModulesAdvancedClusterAsyncCommandsImpl<K, V> extends RedisAdv
 	}
 
 	@Override
-	public RedisFuture<String> ftAlter(K index, Field field) {
+	public RedisFuture<String> ftAlter(K index, Field<K> field) {
 		return MultiNodeExecution.firstOfAsync(
 				executeOnUpstream(commands -> ((RedisModulesAsyncCommands<K, V>) commands).ftAlter(index, field)));
 	}
@@ -326,22 +326,22 @@ public class RedisModulesAdvancedClusterAsyncCommandsImpl<K, V> extends RedisAdv
 	public RedisFuture<List<Long>> tsMadd(KeySample<K>... samples) {
 		return delegate.tsMadd(samples);
 	}
-	
+
 	@Override
 	public RedisFuture<Long> tsDecrby(K key, double value) {
 		return delegate.tsDecrby(key, value);
 	}
-	
+
 	@Override
 	public RedisFuture<Long> tsDecrby(K key, double value, IncrbyOptions<K, V> options) {
 		return delegate.tsDecrby(key, value, options);
 	}
-	
+
 	@Override
 	public RedisFuture<Long> tsIncrby(K key, double value) {
 		return delegate.tsIncrby(key, value);
 	}
-	
+
 	@Override
 	public RedisFuture<Long> tsIncrby(K key, double value, IncrbyOptions<K, V> options) {
 		return delegate.tsIncrby(key, value, options);

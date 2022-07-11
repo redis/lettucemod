@@ -147,12 +147,12 @@ public class RedisModulesAdvancedClusterReactiveCommandsImpl<K, V> extends
 	}
 
 	@Override
-	public Mono<String> ftCreate(K index, Field... fields) {
+	public Mono<String> ftCreate(K index, Field<K>... fields) {
 		return ftCreate(index, null, fields);
 	}
 
 	@Override
-	public Mono<String> ftCreate(K index, com.redis.lettucemod.search.CreateOptions<K, V> options, Field... fields) {
+	public Mono<String> ftCreate(K index, com.redis.lettucemod.search.CreateOptions<K, V> options, Field<K>... fields) {
 		Map<String, Publisher<String>> publishers = executeOnUpstream(
 				commands -> ((RedisModulesReactiveCommands<K, V>) commands).ftCreate(index, options, fields));
 		return Flux.merge(publishers.values()).last();
@@ -173,7 +173,7 @@ public class RedisModulesAdvancedClusterReactiveCommandsImpl<K, V> extends
 	}
 
 	@Override
-	public Mono<String> ftAlter(K index, Field field) {
+	public Mono<String> ftAlter(K index, Field<K> field) {
 		Map<String, Publisher<String>> publishers = executeOnUpstream(
 				commands -> ((RedisModulesReactiveCommands<K, V>) commands).ftAlter(index, field));
 		return Flux.merge(publishers.values()).last();

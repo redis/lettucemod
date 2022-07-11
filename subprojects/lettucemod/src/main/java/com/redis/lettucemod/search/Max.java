@@ -1,20 +1,18 @@
 package com.redis.lettucemod.search;
 
-import com.redis.lettucemod.protocol.SearchCommandArgs;
 import com.redis.lettucemod.protocol.SearchCommandKeyword;
 
-@SuppressWarnings("rawtypes")
-public class Max implements RediSearchArgument {
+public class Max implements RediSearchArgument<Object, Object> {
 
-	private final long max;
+	private final long value;
 
-	public Max(long max) {
-		this.max = max;
+	public Max(long value) {
+		this.value = value;
 	}
 
 	@Override
-	public void build(SearchCommandArgs args) {
-		args.add(SearchCommandKeyword.MAX).add(max);
+	public void build(SearchCommandArgs<Object, Object> args) {
+		args.add(SearchCommandKeyword.MAX).add(value);
 	}
 
 }

@@ -65,7 +65,7 @@ public class Document<K, V> extends LinkedHashMap<K, V> {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Document<K,V> other = (Document<K,V>) obj;
+		Document<K, V> other = (Document<K, V>) obj;
 		return Objects.equals(id, other.id) && Objects.equals(payload, other.payload)
 				&& Objects.equals(score, other.score) && Objects.equals(sortKey, other.sortKey);
 	}

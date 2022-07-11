@@ -1,14 +1,13 @@
 package com.redis.lettucemod.search;
 
-import com.redis.lettucemod.protocol.SearchCommandArgs;
 import com.redis.lettucemod.protocol.SearchCommandKeyword;
 
 public class Apply<K, V> implements AggregateOperation<K, V> {
 
 	private final V expression;
-	private final As as;
+	private final K as;
 
-	public Apply(V expression, As as) {
+	public Apply(V expression, K as) {
 		this.expression = expression;
 		this.as = as;
 	}
@@ -17,7 +16,7 @@ public class Apply<K, V> implements AggregateOperation<K, V> {
 	public void build(SearchCommandArgs<K, V> args) {
 		args.add(SearchCommandKeyword.APPLY);
 		args.addValue(expression);
-		as.build(args);
+		args.add(SearchCommandKeyword.AS).addKey(as);
 	}
 
 	@Override
@@ -37,8 +36,8 @@ public class Apply<K, V> implements AggregateOperation<K, V> {
 			this.expression = expression;
 		}
 
-		public Apply<K, V> as(String as) {
-			return new Apply<>(expression, As.of(as));
+		public Apply<K, V> as(K as) {
+			return new Apply<>(expression, as);
 		}
 	}
 

@@ -25,6 +25,7 @@ class JsonSearchTests {
 	protected static final RedisModulesContainer REDISMOD_PREVIEW = new RedisModulesContainer(
 			RedisModulesContainer.DEFAULT_IMAGE_NAME.withTag(RedisModulesContainer.DEFAULT_TAG));
 
+	@SuppressWarnings("unchecked")
 	@Test
 	void jsonSearch() throws Exception {
 		Iterator<JsonNode> iterator = Beers.jsonNodeIterator();

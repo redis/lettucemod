@@ -2,10 +2,8 @@ package com.redis.lettucemod.search;
 
 import java.util.Optional;
 
-import com.redis.lettucemod.protocol.SearchCommandArgs;
 import com.redis.lettucemod.protocol.SearchCommandKeyword;
 
-@SuppressWarnings("rawtypes")
 public class Reducers {
 
 	private Reducers() {
@@ -18,7 +16,7 @@ public class Reducers {
 		}
 
 		@Override
-		protected void buildFunction(SearchCommandArgs args) {
+		protected void buildFunction(SearchCommandArgs<Object, Object> args) {
 			args.add(SearchCommandKeyword.MAX);
 			args.add(1);
 			args.addProperty(property);
@@ -51,7 +49,7 @@ public class Reducers {
 		}
 
 		@Override
-		protected void buildFunction(SearchCommandArgs args) {
+		protected void buildFunction(SearchCommandArgs<Object, Object> args) {
 			args.add(SearchCommandKeyword.FIRST_VALUE);
 			args.add(getNumberOfArgs());
 			args.addProperty(property);
@@ -99,7 +97,7 @@ public class Reducers {
 			}
 		}
 
-		public static class By implements RediSearchArgument {
+		public static class By implements RediSearchArgument<Object, Object> {
 
 			private final String property;
 			private final Optional<Order> order;
@@ -129,9 +127,9 @@ public class Reducers {
 			}
 
 			@Override
-			public void build(SearchCommandArgs args) {
+			public void build(SearchCommandArgs<Object, Object> args) {
 				args.add(SearchCommandKeyword.BY).addProperty(property);
-				order.ifPresent(o -> o.build(args));
+				order.ifPresent(o -> args.add(o.getKeyword()));
 			}
 
 			public static By asc(String property) {
@@ -147,12 +145,12 @@ public class Reducers {
 
 	public static class Count extends Reducer {
 
-		private Count(Optional<As> as) {
+		private Count(Optional<String> as) {
 			super(as);
 		}
 
 		@Override
-		protected void buildFunction(SearchCommandArgs args) {
+		protected void buildFunction(SearchCommandArgs<Object, Object> args) {
 			args.add(SearchCommandKeyword.COUNT);
 			args.add(0);
 		}
@@ -167,7 +165,7 @@ public class Reducers {
 		}
 
 		public static Count as(String as) {
-			return new Count(Optional.of(new As(as)));
+			return new Count(Optional.of(as));
 		}
 
 	}
@@ -179,7 +177,7 @@ public class Reducers {
 		}
 
 		@Override
-		protected void buildFunction(SearchCommandArgs args) {
+		protected void buildFunction(SearchCommandArgs<Object, Object> args) {
 			args.add(SearchCommandKeyword.MIN);
 			args.add(1);
 			args.addProperty(property);
@@ -217,7 +215,7 @@ public class Reducers {
 		}
 
 		@Override
-		protected void buildFunction(SearchCommandArgs args) {
+		protected void buildFunction(SearchCommandArgs<Object, Object> args) {
 			args.add(SearchCommandKeyword.RANDOM_SAMPLE);
 			args.add(2);
 			args.addProperty(property);
@@ -266,7 +264,7 @@ public class Reducers {
 		}
 
 		@Override
-		protected void buildFunction(SearchCommandArgs args) {
+		protected void buildFunction(SearchCommandArgs<Object, Object> args) {
 			args.add(SearchCommandKeyword.AVG);
 			args.add(1);
 			args.addProperty(property);
@@ -296,7 +294,7 @@ public class Reducers {
 		}
 
 		@Override
-		protected void buildFunction(SearchCommandArgs args) {
+		protected void buildFunction(SearchCommandArgs<Object, Object> args) {
 			args.add(SearchCommandKeyword.TOLIST);
 			args.add(1);
 			args.addProperty(property);
@@ -325,7 +323,7 @@ public class Reducers {
 		}
 
 		@Override
-		protected void buildFunction(SearchCommandArgs args) {
+		protected void buildFunction(SearchCommandArgs<Object, Object> args) {
 			args.add(SearchCommandKeyword.SUM);
 			args.add(1);
 			args.addProperty(property);
@@ -354,7 +352,7 @@ public class Reducers {
 		}
 
 		@Override
-		protected void buildFunction(SearchCommandArgs args) {
+		protected void buildFunction(SearchCommandArgs<Object, Object> args) {
 			args.add(SearchCommandKeyword.STDDEV);
 			args.add(1);
 			args.addProperty(property);
@@ -384,7 +382,7 @@ public class Reducers {
 		}
 
 		@Override
-		protected void buildFunction(SearchCommandArgs args) {
+		protected void buildFunction(SearchCommandArgs<Object, Object> args) {
 			args.add(SearchCommandKeyword.COUNT_DISTINCTISH);
 			args.add(1);
 			args.addProperty(property);
@@ -414,7 +412,7 @@ public class Reducers {
 		}
 
 		@Override
-		protected void buildFunction(SearchCommandArgs args) {
+		protected void buildFunction(SearchCommandArgs<Object, Object> args) {
 			args.add(SearchCommandKeyword.COUNT_DISTINCT);
 			args.add(1);
 			args.addProperty(property);
@@ -453,7 +451,7 @@ public class Reducers {
 		}
 
 		@Override
-		protected void buildFunction(SearchCommandArgs args) {
+		protected void buildFunction(SearchCommandArgs<Object, Object> args) {
 			args.add(SearchCommandKeyword.QUANTILE);
 			args.add(2);
 			args.addProperty(property);

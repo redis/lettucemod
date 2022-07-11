@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.OptionalLong;
 
-import com.redis.lettucemod.protocol.SearchCommandArgs;
 import com.redis.lettucemod.protocol.SearchCommandKeyword;
 
 public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
@@ -225,6 +224,7 @@ public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
 		this.limit = Optional.of(limit);
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public void build(SearchCommandArgs<K, V> args) {
 		if (noContent) {
@@ -285,7 +285,7 @@ public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
 		scorer.ifPresent(s -> args.add(SearchCommandKeyword.SCORER).add(s));
 		payload.ifPresent(p -> args.add(SearchCommandKeyword.PAYLOAD).addValue(p));
 		sortBy.ifPresent(s -> s.build(args));
-		limit.ifPresent(l -> l.build(args));
+		limit.ifPresent(l -> l.build((SearchCommandArgs) args));
 	}
 
 	public static Limit limit(long offset, long num) {
@@ -615,7 +615,7 @@ public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
 		@Override
 		public void build(SearchCommandArgs<K, V> args) {
 			args.add(SearchCommandKeyword.SORTBY).addKey(field);
-			direction.build(args);
+			args.add(direction.getKeyword());
 		}
 
 		public static <K, V> SortBy<K, V> asc(K field) {

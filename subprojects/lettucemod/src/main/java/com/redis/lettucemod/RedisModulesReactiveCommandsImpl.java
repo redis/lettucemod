@@ -258,12 +258,12 @@ public class RedisModulesReactiveCommandsImpl<K, V> extends RedisReactiveCommand
 	}
 
 	@Override
-	public Mono<String> ftCreate(K index, Field... fields) {
+	public Mono<String> ftCreate(K index, Field<K>... fields) {
 		return ftCreate(index, null, fields);
 	}
 
 	@Override
-	public Mono<String> ftCreate(K index, com.redis.lettucemod.search.CreateOptions<K, V> options, Field... fields) {
+	public Mono<String> ftCreate(K index, com.redis.lettucemod.search.CreateOptions<K, V> options, Field<K>... fields) {
 		return createMono(() -> searchCommandBuilder.create(index, options, fields));
 	}
 
@@ -359,7 +359,7 @@ public class RedisModulesReactiveCommandsImpl<K, V> extends RedisReactiveCommand
 	}
 
 	@Override
-	public Mono<String> ftAlter(K index, Field field) {
+	public Mono<String> ftAlter(K index, Field<K> field) {
 		return createMono(() -> searchCommandBuilder.alter(index, field));
 	}
 

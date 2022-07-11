@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import com.redis.lettucemod.protocol.SearchCommandArgs;
 import com.redis.lettucemod.protocol.SearchCommandKeyword;
 import com.redis.lettucemod.search.Reducers.Avg;
 import com.redis.lettucemod.search.Reducers.Count;
@@ -22,8 +21,7 @@ import com.redis.lettucemod.search.Reducers.ToList;
 
 import io.lettuce.core.internal.LettuceAssert;
 
-@SuppressWarnings("rawtypes")
-public class Group implements AggregateOperation {
+public class Group implements AggregateOperation<Object, Object> {
 
 	private final String[] properties;
 	private final Reducer[] reducers;
@@ -38,7 +36,7 @@ public class Group implements AggregateOperation {
 	}
 
 	@Override
-	public void build(SearchCommandArgs args) {
+	public void build(SearchCommandArgs<Object, Object> args) {
 		args.add(SearchCommandKeyword.GROUPBY);
 		args.add(properties.length);
 		for (String property : properties) {

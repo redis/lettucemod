@@ -6,15 +6,17 @@ import com.redis.lettucemod.search.*;
 
 public interface RediSearchCommands<K, V> {
 
-	String ftCreate(K index, Field... fields);
+	@SuppressWarnings("unchecked")
+	String ftCreate(K index, Field<K>... fields);
 
-	String ftCreate(K index, CreateOptions<K, V> options, Field... fields);
+	@SuppressWarnings("unchecked")
+	String ftCreate(K index, CreateOptions<K, V> options, Field<K>... fields);
 
 	String ftDropindex(K index);
 
 	String ftDropindexDeleteDocs(K index);
 
-	String ftAlter(K index, Field field);
+	String ftAlter(K index, Field<K> field);
 
 	List<Object> ftInfo(K index);
 

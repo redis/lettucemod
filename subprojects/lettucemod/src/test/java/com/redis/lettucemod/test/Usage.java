@@ -41,6 +41,7 @@ public class Usage {
 
 	private static final Logger log = LoggerFactory.getLogger(Usage.class);
 
+	@SuppressWarnings("unchecked")
 	void usage() {
 
 		// @formatter:off
@@ -179,7 +180,7 @@ try (StatefulRedisModulesConnection<String, String> connection = pool.borrowObje
 
 	public void warnings() {
 		AggregateOptions.Builder<String, String> optionsBuilder = AggregateOptions
-				.<String, String>filter(new Filter<>("foo")).group(Group.by("bar").build());
+				.<String, String>operation(new Filter<>("foo")).operation(Group.by("bar").build());
 	}
 
 	public void cluster() {

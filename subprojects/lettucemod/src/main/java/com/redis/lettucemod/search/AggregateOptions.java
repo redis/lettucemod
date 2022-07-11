@@ -7,7 +7,6 @@ import java.util.Optional;
 import java.util.OptionalLong;
 import java.util.stream.Stream;
 
-import com.redis.lettucemod.protocol.SearchCommandArgs;
 import com.redis.lettucemod.protocol.SearchCommandKeyword;
 
 public class AggregateOptions<K, V> implements RediSearchArgument<K, V> {
@@ -26,6 +25,7 @@ public class AggregateOptions<K, V> implements RediSearchArgument<K, V> {
 		this.timeout = builder.timeout;
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public void build(SearchCommandArgs<K, V> args) {
 		if (verbatim) {
@@ -37,7 +37,7 @@ public class AggregateOptions<K, V> implements RediSearchArgument<K, V> {
 				args.add(LOAD_ALL.identifier);
 			} else {
 				args.add(loads.stream().mapToInt(Load::getNargs).sum());
-				loads.forEach(l -> l.build(args));
+				loads.forEach(l -> l.build((SearchCommandArgs) args));
 			}
 		}
 		operations.forEach(op -> op.build(args));
@@ -55,11 +55,10 @@ public class AggregateOptions<K, V> implements RediSearchArgument<K, V> {
 		return string.toString();
 	}
 
-	@SuppressWarnings("rawtypes")
-	public static class Load implements RediSearchArgument {
+	public static class Load implements RediSearchArgument<Object, Object> {
 
 		private final String identifier;
-		private final Optional<As> as;
+		private final Optional<String> as;
 
 		private Load(Builder builder) {
 			this.identifier = builder.identifier;
@@ -80,14 +79,14 @@ public class AggregateOptions<K, V> implements RediSearchArgument<K, V> {
 		public static class Builder {
 
 			private final String identifier;
-			private Optional<As> as = Optional.empty();
+			private Optional<String> as = Optional.empty();
 
 			public Builder(String identifier) {
 				this.identifier = identifier;
 			}
 
 			public Builder as(String field) {
-				as = Optional.of(new As(field));
+				as = Optional.of(field);
 				return this;
 			}
 
@@ -97,9 +96,9 @@ public class AggregateOptions<K, V> implements RediSearchArgument<K, V> {
 		}
 
 		@Override
-		public void build(SearchCommandArgs args) {
+		public void build(SearchCommandArgs<Object, Object> args) {
 			args.add(identifier);
-			as.ifPresent(a -> a.build(args));
+			as.ifPresent(a -> args.add(SearchCommandKeyword.AS).add(a));
 		}
 
 	}
@@ -108,31 +107,8 @@ public class AggregateOptions<K, V> implements RediSearchArgument<K, V> {
 		return new Builder<>();
 	}
 
-	public static <K, V> Builder<K, V> apply(Apply<K, V> apply) {
-		return operation(apply);
-	}
-
-	@SuppressWarnings("unchecked")
-	public static <K, V> Builder<K, V> filter(Filter<V> filter) {
-		return operation(filter);
-	}
-
-	@SuppressWarnings("unchecked")
-	public static <K, V> Builder<K, V> group(Group group) {
-		return operation(group);
-	}
-
-	@SuppressWarnings("unchecked")
-	public static <K, V> Builder<K, V> limit(Limit limit) {
-		return operation(limit);
-	}
-
-	@SuppressWarnings("unchecked")
-	public static <K, V> Builder<K, V> sort(Sort sort) {
-		return operation(sort);
-	}
-
-	public static <K, V> Builder<K, V> operation(AggregateOperation<K, V> operation) {
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public static <K, V> Builder<K, V> operation(AggregateOperation operation) {
 		return new Builder<>(operation);
 	}
 
@@ -150,35 +126,9 @@ public class AggregateOptions<K, V> implements RediSearchArgument<K, V> {
 			operations.add(operation);
 		}
 
-		public Builder<K, V> apply(Apply<K, V> apply) {
-			this.operations.add(apply);
-			return this;
-		}
-
-		@SuppressWarnings("unchecked")
-		public Builder<K, V> filter(Filter<V> filter) {
-			this.operations.add(filter);
-			return this;
-
-		}
-
-		@SuppressWarnings("unchecked")
-		public Builder<K, V> group(Group group) {
-			this.operations.add(group);
-			return this;
-
-		}
-
-		@SuppressWarnings("unchecked")
-		public Builder<K, V> limit(Limit limit) {
-			this.operations.add(limit);
-			return this;
-
-		}
-
-		@SuppressWarnings("unchecked")
-		public Builder<K, V> sort(Sort sort) {
-			this.operations.add(sort);
+		@SuppressWarnings({ "rawtypes", "unchecked" })
+		public Builder<K, V> operation(AggregateOperation operation) {
+			this.operations.add(operation);
 			return this;
 		}
 

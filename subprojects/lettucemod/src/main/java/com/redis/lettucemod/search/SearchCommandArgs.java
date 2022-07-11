@@ -1,4 +1,4 @@
-package com.redis.lettucemod.protocol;
+package com.redis.lettucemod.search;
 
 import io.lettuce.core.codec.RedisCodec;
 import io.lettuce.core.protocol.CommandArgs;

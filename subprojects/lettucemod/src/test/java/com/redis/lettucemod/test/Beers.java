@@ -15,7 +15,7 @@ import com.redis.lettucemod.api.async.RedisModulesAsyncCommands;
 import com.redis.lettucemod.api.sync.RedisModulesCommands;
 import com.redis.lettucemod.search.CreateOptions;
 import com.redis.lettucemod.search.Field;
-import com.redis.lettucemod.search.Field.TextField.PhoneticMatcher;
+import com.redis.lettucemod.search.TextField.PhoneticMatcher;
 
 import io.lettuce.core.LettuceFutures;
 import io.lettuce.core.RedisFuture;
@@ -27,16 +27,18 @@ public class Beers {
 	public static final String INDEX = "beers";
 
 	private static final String FIELD_PAYLOAD = "payload";
-	public static final Field FIELD_ID = Field.tag("id").sortable().build();
-	public static final Field FIELD_BREWERY_ID = Field.tag("brewery_id").sortable().build();
-	public static final Field FIELD_NAME = Field.text("name").sortable().build();
-	public static final Field FIELD_ABV = Field.numeric("abv").sortable().build();
-	public static final Field FIELD_IBU = Field.numeric("ibu").sortable().build();
-	public static final Field FIELD_DESCRIPTION = Field.text("descript").matcher(PhoneticMatcher.ENGLISH).noStem().build();
-	public static final Field FIELD_STYLE_NAME = Field.tag("style_name").sortable().build();
-	public static final Field FIELD_CATEGORY_NAME = Field.tag("cat_name").sortable().build();
-	public static final Field[] SCHEMA = new Field[] { FIELD_ID, FIELD_NAME, FIELD_STYLE_NAME, FIELD_CATEGORY_NAME,
-			FIELD_BREWERY_ID, FIELD_DESCRIPTION, FIELD_ABV, FIELD_IBU };
+	public static final Field<String> FIELD_ID = Field.tag("id").sortable().build();
+	public static final Field<String> FIELD_BREWERY_ID = Field.tag("brewery_id").sortable().build();
+	public static final Field<String> FIELD_NAME = Field.text("name").sortable().build();
+	public static final Field<String> FIELD_ABV = Field.numeric("abv").sortable().build();
+	public static final Field<String> FIELD_IBU = Field.numeric("ibu").sortable().build();
+	public static final Field<String> FIELD_DESCRIPTION = Field.text("descript").matcher(PhoneticMatcher.ENGLISH)
+			.noStem().build();
+	public static final Field<String> FIELD_STYLE_NAME = Field.tag("style_name").sortable().build();
+	public static final Field<String> FIELD_CATEGORY_NAME = Field.tag("cat_name").sortable().build();
+	@SuppressWarnings("unchecked")
+	public static final Field<String>[] SCHEMA = new Field[] { FIELD_ID, FIELD_NAME, FIELD_STYLE_NAME,
+			FIELD_CATEGORY_NAME, FIELD_BREWERY_ID, FIELD_DESCRIPTION, FIELD_ABV, FIELD_IBU };
 	private static final ObjectMapper MAPPER = new ObjectMapper();
 
 	public static void createIndex(RedisModulesCommands<String, String> commands) {
