@@ -1,5 +1,5 @@
 dependencies {
-    api 'io.lettuce:lettuce-core'
+    api group: 'io.lettuce', name: 'lettuce-core', version: lettuceVersion
     testImplementation 'org.apache.commons:commons-pool2'
     testImplementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-csv'
     testImplementation(group: 'com.redis.testcontainers', name: 'testcontainers-redis-junit', version: testcontainersRedisVersion) {

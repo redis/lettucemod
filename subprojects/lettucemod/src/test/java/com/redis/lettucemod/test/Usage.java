@@ -121,23 +121,22 @@ ts.tsAdd("temp:3:11", Sample.of(1548149181, 30)); // <2>
 	}
 
 	public void pipelining() {
-		RedisModulesClient client = RedisModulesClient.create("redis://localhost:6379");
-		StatefulRedisModulesConnection<String, String> connection = client.connect();
-
 		// @formatter:off
-		
 // Pipelining
+RedisModulesClient client = RedisModulesClient.create("redis://localhost:6379");
+
+StatefulRedisModulesConnection<String, String> connection = client.connect();		
+		
+connection.setAutoFlushCommands(false); // <1>
 		
 RedisModulesAsyncCommands<String, String> commands = connection.async();
-
-commands.setAutoFlushCommands(false); // <1>
 
 List<RedisFuture<?>> futures = new ArrayList<>(); // <2>
 for (MyEntity element : entities()) {
 	futures.add(commands.ftSugadd("names", Suggestion.string(element.getName()).score(element.getScore()).build()));
 }
 
-commands.flushCommands(); // <3>
+connection.flushCommands(); // <3>
 
 boolean result = LettuceFutures.awaitAll(5, TimeUnit.SECONDS, futures.toArray(new RedisFuture[0])); // <4>
 

@@ -62,8 +62,8 @@ public class Beers {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static int populateIndex(StatefulRedisModulesConnection<String, String> connection) throws IOException {
 		createIndex(connection.sync());
+		connection.setAutoFlushCommands(false);
 		RedisModulesAsyncCommands<String, String> async = connection.async();
-		async.setAutoFlushCommands(false);
 		List<RedisFuture<?>> futures = new ArrayList<>();
 		try {
 			MappingIterator<Map<String, Object>> iterator = mapIterator();
@@ -72,10 +72,10 @@ public class Beers {
 				beer.put(FIELD_PAYLOAD, beer.get(FIELD_DESCRIPTION.getName()));
 				futures.add(async.hset(PREFIX + beer.get(FIELD_ID.getName()), (Map) beer));
 			}
-			async.flushCommands();
+			connection.flushCommands();
 			LettuceFutures.awaitAll(connection.getTimeout(), futures.toArray(new RedisFuture[0]));
 		} finally {
-			async.setAutoFlushCommands(true);
+			connection.setAutoFlushCommands(true);
 		}
 		return futures.size();
 	}

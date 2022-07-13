@@ -135,16 +135,17 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 
 	private void createBeerSuggestions(RedisTestContext context) throws IOException {
 		MappingIterator<Map<String, Object>> beers = Beers.mapIterator();
-		RedisModulesAsyncCommands<String, String> async = context.async();
-		async.setAutoFlushCommands(false);
+		StatefulRedisModulesConnection<String, String> connection = context.getConnection();
+		connection.setAutoFlushCommands(false);
+		RedisModulesAsyncCommands<String, String> async = connection.async();
 		List<RedisFuture<?>> futures = new ArrayList<>();
 		while (beers.hasNext()) {
 			Map<String, Object> beer = beers.next();
 			futures.add(async.ftSugadd(SUGINDEX,
 					Suggestion.string((String) beer.get(Beers.FIELD_NAME.getName())).score(1).build()));
 		}
-		async.flushCommands();
-		async.setAutoFlushCommands(true);
+		connection.flushCommands();
+		connection.setAutoFlushCommands(true);
 		LettuceFutures.awaitAll(RedisURI.DEFAULT_TIMEOUT_DURATION, futures.toArray(new RedisFuture[0]));
 	}
 
