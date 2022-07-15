@@ -8,7 +8,11 @@ import io.lettuce.core.protocol.CommandArgs;
 public class Slice implements CompositeArgument {
 
 	private final long start;
-	private OptionalLong stop;
+	private OptionalLong stop = OptionalLong.empty();
+
+	public Slice(long start) {
+		this.start = start;
+	}
 
 	private Slice(Builder builder) {
 		this.start = builder.start;
@@ -21,6 +25,10 @@ public class Slice implements CompositeArgument {
 
 	public OptionalLong getStop() {
 		return stop;
+	}
+
+	public static Slice of(long start) {
+		return new Slice(start);
 	}
 
 	public static Builder start(long start) {
