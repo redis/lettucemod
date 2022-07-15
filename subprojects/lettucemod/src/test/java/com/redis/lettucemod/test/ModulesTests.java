@@ -52,6 +52,7 @@ import com.redis.lettucemod.gears.ExecutionDetails;
 import com.redis.lettucemod.gears.Registration;
 import com.redis.lettucemod.json.GetOptions;
 import com.redis.lettucemod.json.SetMode;
+import com.redis.lettucemod.json.Slice;
 import com.redis.lettucemod.output.ExecutionResults;
 import com.redis.lettucemod.search.AggregateOptions;
 import com.redis.lettucemod.search.AggregateOptions.Load;
@@ -1027,14 +1028,17 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 	@RedisTestContextsSource
 	void jsonArrays(RedisTestContext context) {
 		RedisJSONCommands<String, String> sync = context.sync();
-		sync.jsonSet("arr", ".", "[]");
-		assertEquals(1, sync.jsonArrappend("arr", ".", "0"));
-		assertEquals("[0]", sync.jsonGet("arr"));
-		assertEquals(3, sync.jsonArrinsert("arr", ".", 0, "-2", "-1"));
-		assertEquals("[-2,-1,0]", sync.jsonGet("arr"));
-		assertEquals(1, sync.jsonArrtrim("arr", ".", 1, 1));
-		assertEquals("[-1]", sync.jsonGet("arr"));
-		assertEquals("-1", sync.jsonArrpop("arr"));
+		String key = "arr";
+		sync.jsonSet(key, ".", "[]");
+		assertEquals(1, sync.jsonArrappend(key, ".", "0"));
+		assertEquals("[0]", sync.jsonGet(key));
+		assertEquals(3, sync.jsonArrinsert(key, ".", 0, "-2", "-1"));
+		assertEquals("[-2,-1,0]", sync.jsonGet(key));
+		assertEquals(1, sync.jsonArrindex(key, ".", "-1"));
+		assertEquals(1, sync.jsonArrindex(key, ".", "-1", Slice.start(0).stop(3)));
+		assertEquals(1, sync.jsonArrtrim(key, ".", 1, 1));
+		assertEquals("[-1]", sync.jsonGet(key));
+		assertEquals("-1", sync.jsonArrpop(key));
 	}
 
 	@ParameterizedTest

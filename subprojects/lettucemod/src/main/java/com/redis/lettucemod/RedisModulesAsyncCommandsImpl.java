@@ -10,9 +10,11 @@ import com.redis.lettucemod.gears.ExecutionDetails;
 import com.redis.lettucemod.gears.ExecutionMode;
 import com.redis.lettucemod.gears.GearsCommandBuilder;
 import com.redis.lettucemod.gears.Registration;
+import com.redis.lettucemod.json.ArrpopOptions;
 import com.redis.lettucemod.json.GetOptions;
-import com.redis.lettucemod.json.RedisJSONCommandBuilder;
+import com.redis.lettucemod.json.JSONCommandBuilder;
 import com.redis.lettucemod.json.SetMode;
+import com.redis.lettucemod.json.Slice;
 import com.redis.lettucemod.output.ExecutionResults;
 import com.redis.lettucemod.search.AggregateOptions;
 import com.redis.lettucemod.search.AggregateResults;
@@ -51,14 +53,14 @@ public class RedisModulesAsyncCommandsImpl<K, V> extends RedisAsyncCommandsImpl<
 	private final GearsCommandBuilder<K, V> gearsCommandBuilder;
 	private final TimeSeriesCommandBuilder<K, V> timeSeriesCommandBuilder;
 	private final SearchCommandBuilder<K, V> searchCommandBuilder;
-	private final RedisJSONCommandBuilder<K, V> jsonCommandBuilder;
+	private final JSONCommandBuilder<K, V> jsonCommandBuilder;
 
 	public RedisModulesAsyncCommandsImpl(StatefulRedisModulesConnection<K, V> connection, RedisCodec<K, V> codec) {
 		super(connection, codec);
 		this.gearsCommandBuilder = new GearsCommandBuilder<>(codec);
 		this.timeSeriesCommandBuilder = new TimeSeriesCommandBuilder<>(codec);
 		this.searchCommandBuilder = new SearchCommandBuilder<>(codec);
-		this.jsonCommandBuilder = new RedisJSONCommandBuilder<>(codec);
+		this.jsonCommandBuilder = new JSONCommandBuilder<>(codec);
 	}
 
 	@Override
@@ -493,17 +495,12 @@ public class RedisModulesAsyncCommandsImpl<K, V> extends RedisAsyncCommandsImpl<
 
 	@Override
 	public RedisFuture<Long> jsonArrindex(K key, K path, V scalar) {
-		return dispatch(jsonCommandBuilder.arrIndex(key, path, scalar, null, null));
+		return jsonArrindex(key, path, scalar, null);
 	}
 
 	@Override
-	public RedisFuture<Long> jsonArrindex(K key, K path, V scalar, long start) {
-		return dispatch(jsonCommandBuilder.arrIndex(key, path, scalar, start, null));
-	}
-
-	@Override
-	public RedisFuture<Long> jsonArrindex(K key, K path, V scalar, long start, long stop) {
-		return dispatch(jsonCommandBuilder.arrIndex(key, path, scalar, start, stop));
+	public RedisFuture<Long> jsonArrindex(K key, K path, V scalar, Slice slice) {
+		return dispatch(jsonCommandBuilder.arrIndex(key, path, scalar, slice));
 	}
 
 	@Override
@@ -527,13 +524,8 @@ public class RedisModulesAsyncCommandsImpl<K, V> extends RedisAsyncCommandsImpl<
 	}
 
 	@Override
-	public RedisFuture<V> jsonArrpop(K key, K path) {
-		return dispatch(jsonCommandBuilder.arrPop(key, path, null));
-	}
-
-	@Override
-	public RedisFuture<V> jsonArrpop(K key, K path, long index) {
-		return dispatch(jsonCommandBuilder.arrPop(key, path, index));
+	public RedisFuture<V> jsonArrpop(K key, ArrpopOptions<K> options) {
+		return dispatch(jsonCommandBuilder.arrPop(key, options));
 	}
 
 	@Override

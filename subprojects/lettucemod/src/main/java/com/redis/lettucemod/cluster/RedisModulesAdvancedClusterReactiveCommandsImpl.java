@@ -15,8 +15,10 @@ import com.redis.lettucemod.gears.Execution;
 import com.redis.lettucemod.gears.ExecutionDetails;
 import com.redis.lettucemod.gears.ExecutionMode;
 import com.redis.lettucemod.gears.Registration;
+import com.redis.lettucemod.json.ArrpopOptions;
 import com.redis.lettucemod.json.GetOptions;
 import com.redis.lettucemod.json.SetMode;
+import com.redis.lettucemod.json.Slice;
 import com.redis.lettucemod.output.ExecutionResults;
 import com.redis.lettucemod.search.AggregateOptions;
 import com.redis.lettucemod.search.AggregateResults;
@@ -553,13 +555,8 @@ public class RedisModulesAdvancedClusterReactiveCommandsImpl<K, V> extends
 	}
 
 	@Override
-	public Mono<Long> jsonArrindex(K key, K path, V scalar, long start) {
-		return delegate.jsonArrindex(key, path, scalar, start);
-	}
-
-	@Override
-	public Mono<Long> jsonArrindex(K key, K path, V scalar, long start, long stop) {
-		return delegate.jsonArrindex(key, path, scalar, start, stop);
+	public Mono<Long> jsonArrindex(K key, K path, V scalar, Slice slice) {
+		return delegate.jsonArrindex(key, path, scalar, slice);
 	}
 
 	@Override
@@ -583,13 +580,8 @@ public class RedisModulesAdvancedClusterReactiveCommandsImpl<K, V> extends
 	}
 
 	@Override
-	public Mono<V> jsonArrpop(K key, K path) {
-		return delegate.jsonArrpop(key, path);
-	}
-
-	@Override
-	public Mono<V> jsonArrpop(K key, K path, long index) {
-		return delegate.jsonArrpop(key, path, index);
+	public Mono<V> jsonArrpop(K key, ArrpopOptions<K> options) {
+		return delegate.jsonArrpop(key, options);
 	}
 
 	@Override

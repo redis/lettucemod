@@ -46,8 +46,7 @@ class JsonSearchTests {
 				"@" + Beers.FIELD_NAME.getName() + ":California");
 		Assertions.assertEquals(5, results.getCount());
 		connection.close();
-		client.shutdown();
-		client.getResources().shutdown();
+		client.close();
 	}
 
 }
