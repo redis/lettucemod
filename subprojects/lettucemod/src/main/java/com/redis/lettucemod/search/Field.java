@@ -34,6 +34,10 @@ public abstract class Field<K> implements RediSearchArgument<K, Object> {
 		return as;
 	}
 
+	public void setAs(K as) {
+		this.as = Optional.of(as);
+	}
+
 	public boolean isSortable() {
 		return sortable;
 	}

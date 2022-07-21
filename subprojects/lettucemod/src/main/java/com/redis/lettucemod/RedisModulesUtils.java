@@ -98,6 +98,7 @@ public class RedisModulesUtils {
 		for (Object object : list) {
 			List<Object> attributes = (List<Object>) object;
 			Field<String> field = field((String) attributes.get(5), (String) attributes.get(1));
+			field.setAs((String) attributes.get(3));
 			if (attributes.size() > 6) {
 				populateField(field, attributes.subList(6, attributes.size()));
 			}

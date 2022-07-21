@@ -18,4 +18,5 @@ class RedisModulesUtilsTests {
 		Assertions.assertEquals(locationString,
 				RedisModulesUtils.GeoLocation.toString(String.valueOf(longitude), String.valueOf(latitude)));
 	}
+
 }
