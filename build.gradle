@@ -44,6 +44,11 @@ config {
     testing {
         jar = true
     }
+    coverage {
+        jacoco {
+            toolVersion = '0.8.8'
+        }
+    }
 }
 
 allprojects {
@@ -64,6 +69,11 @@ subprojects {
         info {
             description = project.project_description
         }
+	    coverage {
+	        jacoco {
+	            toolVersion = '0.8.8'
+	        }
+	    }        
     }
 
     test {
@@ -82,7 +92,7 @@ subprojects {
     configurations {
         all*.exclude module: 'spring-boot-starter-logging'
     }
-    
+
     sourceCompatibility = 8
     targetCompatibility = 8
 
