@@ -117,7 +117,7 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 				new RedisModulesContainer(
 						RedisModulesContainer.DEFAULT_IMAGE_NAME.withTag(RedisModulesContainer.DEFAULT_TAG)),
 				new RedisEnterpriseContainer(RedisEnterpriseContainer.DEFAULT_IMAGE_NAME.withTag("latest"))
-						.withDatabase(Database.name("ModulesTests").memory(DataSize.ofMegabytes(50)).ossCluster(true)
+						.withDatabase(Database.name("ModulesTests").memory(DataSize.ofMegabytes(90)).ossCluster(true)
 								.modules(RedisModule.SEARCH, RedisModule.JSON, RedisModule.GEARS,
 										RedisModule.TIMESERIES)
 								.build()));

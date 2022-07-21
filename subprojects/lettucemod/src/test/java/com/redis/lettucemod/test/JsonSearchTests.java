@@ -49,8 +49,8 @@ class JsonSearchTests {
 			connection.sync().jsonSet("beer:" + beer.get(Beers.FIELD_ID.getName()).asText(), "$", beer.toString());
 		}
 		SearchResults<String, String> results = connection.sync().ftSearch(index,
-				"@" + Beers.FIELD_NAME.getName() + ":California");
-		Assertions.assertEquals(5, results.getCount());
+				"@" + Beers.FIELD_NAME.getName() + ":Creek");
+		Assertions.assertEquals(1, results.getCount());
 		connection.close();
 		client.close();
 	}
