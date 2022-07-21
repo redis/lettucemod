@@ -303,7 +303,7 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 				.sortBy(SearchOptions.SortBy.asc(Beers.FIELD_NAME.getName())).verbatim(false).withSortKeys(true)
 				.returnField(Beers.FIELD_NAME.getName()).returnField(Beers.FIELD_STYLE_NAME.getName()).build();
 		SearchResults<String, String> results = sync.ftSearch(Beers.INDEX, "pale", options);
-		assertEquals(710, results.getCount());
+		assertEquals(74, results.getCount());
 		Document<String, String> doc1 = results.get(0);
 		assertNotNull(doc1.get(Beers.FIELD_NAME.getName()));
 		assertNotNull(doc1.get(Beers.FIELD_STYLE_NAME.getName()));
@@ -329,7 +329,7 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 		Beers.populateIndex(context.getConnection());
 		RedisModulesCommands<String, String> sync = context.sync();
 		SearchResults<String, String> results = sync.ftSearch(Beers.INDEX, "German");
-		assertEquals(193, results.getCount());
+		assertEquals(3, results.getCount());
 		results = sync.ftSearch(Beers.INDEX, "Hefeweizen",
 				SearchOptions.<String, String>builder().noContent(true).build());
 		assertEquals(10, results.size());
@@ -340,27 +340,27 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 		assertTrue(results.get(0).getScore() > 0);
 		results = sync.ftSearch(Beers.INDEX, "Hefeweizen", SearchOptions.<String, String>builder().withScores(true)
 				.noContent(true).limit(new Limit(0, 100)).build());
-		assertEquals(81, results.getCount());
-		assertEquals(81, results.size());
+		assertEquals(14, results.getCount());
+		assertEquals(14, results.size());
 		assertTrue(results.get(0).getId().startsWith(Beers.PREFIX));
 		assertTrue(results.get(0).getScore() > 0);
 
 		results = sync.ftSearch(Beers.INDEX, "pale",
 				SearchOptions.<String, String>builder().withPayloads(true).build());
-		assertEquals(710, results.getCount());
+		assertEquals(74, results.getCount());
 		Document<String, String> result1 = results.get(0);
 		assertNotNull(result1.get(Beers.FIELD_NAME.getName()));
 		assertEquals(result1.get(Beers.FIELD_DESCRIPTION.getName()), result1.getPayload());
 		assertEquals(sync.hget(result1.getId(), Beers.FIELD_DESCRIPTION.getName()), result1.getPayload());
 
 		assertSearch(context, "pale", SearchOptions.<String, String>builder().returnField(Beers.FIELD_NAME.getName())
-				.returnField(Beers.FIELD_STYLE_NAME.getName()).build(), 710);
+				.returnField(Beers.FIELD_STYLE_NAME.getName()).build(), 74);
 		assertSearch(context, "pale", SearchOptions.<String, String>builder().returnField(Beers.FIELD_NAME.getName())
-				.returnField(Beers.FIELD_STYLE_NAME.getName()).returnField("").build(), 710);
-		assertSearch(context, "*", SearchOptions.<String, String>builder().inKeys("beer:1018", "beer:2428").build(), 2,
-				"9", "5.5");
-		assertSearch(context, "sculpin",
-				SearchOptions.<String, String>builder().inField(Beers.FIELD_NAME.getName()).build(), 1, "7");
+				.returnField(Beers.FIELD_STYLE_NAME.getName()).returnField("").build(), 74);
+		assertSearch(context, "*", SearchOptions.<String, String>builder().inKeys("beer:728", "beer:803").build(), 2,
+				"5.800000190734863", "8");
+		assertSearch(context, "wise",
+				SearchOptions.<String, String>builder().inField(Beers.FIELD_NAME.getName()).build(), 1, "5.900000095367432");
 	}
 
 	@SuppressWarnings("unchecked")
@@ -396,15 +396,15 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 		}
 
 		results = context.reactive().ftSearch(Beers.INDEX, "pale",
-				SearchOptions.<String, String>builder().limit(new Limit(200, 100)).build()).block();
-		assertEquals(710, results.getCount());
+				SearchOptions.<String, String>builder().limit(Limit.offset(10).num(20)).build()).block();
+		assertEquals(74, results.getCount());
 		Document<String, String> result1 = results.get(0);
 		assertNotNull(result1.get(Beers.FIELD_NAME.getName()));
 		assertNotNull(result1.get(Beers.FIELD_STYLE_NAME.getName()));
 		assertNotNull(result1.get(Beers.FIELD_ABV.getName()));
 
 		results = sync.ftSearch(Beers.INDEX, "pail");
-		assertEquals(417, results.getCount());
+		assertEquals(17, results.getCount());
 
 		results = sync.ftSearch(Beers.INDEX, "*",
 				SearchOptions.<String, String>builder().limit(new Limit(0, 0)).build());
@@ -419,14 +419,14 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 		results = context.async().ftSearch(index, "@id:{" + RedisModulesUtils.escapeTag("User1#test.org") + "}").get();
 		assertEquals(1, results.size());
 		double minABV = .18;
-		double maxABV = 3;
+		double maxABV = 10;
 		SearchResults<String, String> filterResults = sync
 				.ftSearch(Beers.INDEX, "*",
 						SearchOptions
 								.<String, String>builder().filter(SearchOptions.NumericFilter
 										.<String, String>field(Beers.FIELD_ABV.getName()).min(minABV).max(maxABV))
 								.build());
-		assertEquals(4, filterResults.size());
+		assertEquals(10, filterResults.size());
 		for (Document<String, String> document : filterResults) {
 			double abv = Double.parseDouble(document.get(Beers.FIELD_ABV.getName()));
 			Assertions.assertTrue(abv >= minABV);
@@ -445,22 +445,22 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 		createBeerSuggestions(context);
 		RedisModulesCommands<String, String> sync = context.sync();
 		RedisModulesReactiveCommands<String, String> reactive = context.reactive();
-		assertEquals(5, sync.ftSugget(SUGINDEX, "Ame").size());
-		assertEquals(5, reactive.ftSugget(SUGINDEX, "Ame").collectList().block().size());
+		assertEquals(1, sync.ftSugget(SUGINDEX, "Ame").size());
+		assertEquals(1, reactive.ftSugget(SUGINDEX, "Ame").collectList().block().size());
 		SuggetOptions options = SuggetOptions.builder().max(1000L).build();
-		assertEquals(8, sync.ftSugget(SUGINDEX, "Ame", options).size());
-		assertEquals(8, reactive.ftSugget(SUGINDEX, "Ame", options).collectList().block().size());
+		assertEquals(1, sync.ftSugget(SUGINDEX, "Ame", options).size());
+		assertEquals(1, reactive.ftSugget(SUGINDEX, "Ame", options).collectList().block().size());
 		Consumer<List<Suggestion<String>>> withScores = results -> {
-			assertEquals(7, results.size());
-			assertEquals("Ameri-Hefe", results.get(0).getString());
-			assertEquals(0.40824830532073975, results.get(0).getScore(), .01);
+			assertEquals(1, results.size());
+			assertEquals("American Pale Ale", results.get(0).getString());
+			assertEquals(0.2773500978946686, results.get(0).getScore(), .01);
 		};
 		SuggetOptions withScoresOptions = SuggetOptions.builder().max(1000L).withScores(true).build();
 		withScores.accept(sync.ftSugget(SUGINDEX, "Ameri", withScoresOptions));
 		withScores.accept(reactive.ftSugget(SUGINDEX, "Ameri", withScoresOptions).collectList().block());
-		assertEquals(3816, sync.ftSuglen(SUGINDEX));
-		assertTrue(sync.ftSugdel(SUGINDEX, "Ameri-Hefe"));
-		assertTrue(reactive.ftSugdel(SUGINDEX, "Thunderstorm").block());
+		assertEquals(410, sync.ftSuglen(SUGINDEX));
+		assertTrue(sync.ftSugdel(SUGINDEX, "American Pale Ale"));
+		assertFalse(reactive.ftSugdel(SUGINDEX, "Thunderstorm").block());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -499,7 +499,7 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 
 		// GroupBy tests
 		Consumer<AggregateResults<String>> groupByAsserts = results -> {
-			assertEquals(70, results.getCount());
+			assertEquals(36, results.getCount());
 			List<Double> abvs = results.stream().map(r -> Double.parseDouble((String) r.get(Beers.FIELD_ABV.getName())))
 					.collect(Collectors.toList());
 			assertTrue(abvs.get(0) > abvs.get(abvs.size() - 1));
@@ -517,7 +517,7 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 			assertEquals(1, results.getCount());
 			assertEquals(1, results.size());
 			Double maxAbv = Double.parseDouble((String) results.get(0).get(Beers.FIELD_ABV.getName()));
-			assertEquals(99.9899978638, maxAbv);
+			assertEquals(16, maxAbv, 0.1);
 		};
 
 		AggregateOptions<String, String> groupBy0Options = AggregateOptions
@@ -528,14 +528,14 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 		groupBy0Asserts.accept(reactive.ftAggregate(Beers.INDEX, "*", groupBy0Options).block());
 
 		Consumer<AggregateResults<String>> groupBy2Asserts = results -> {
-			assertEquals(70, results.getCount());
+			assertEquals(36, results.getCount());
 			Map<String, Object> doc = results.get(1);
 			Assumptions.assumeTrue(doc != null);
 			Assumptions.assumeTrue(doc.get(Beers.FIELD_STYLE_NAME.getName()) != null);
 			String style = ((String) doc.get(Beers.FIELD_STYLE_NAME.getName())).toLowerCase();
 			assertTrue(style.equals("bamberg-style bock rauchbier") || style.equals("south german-style hefeweizen"));
 			int nameCount = ((List<String>) results.get(1).get("names")).size();
-			assertTrue(nameCount == 1 || nameCount == 141);
+			assertTrue(nameCount == 21);
 		};
 		Group group = Group.by(Beers.FIELD_STYLE_NAME.getName())
 				.reducer(ToList.property(Beers.FIELD_NAME.getName()).as("names").build()).reducer(Count.as("count"))
@@ -548,20 +548,19 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 		// Cursor tests
 		Consumer<AggregateWithCursorResults<String>> cursorTests = cursorResults -> {
 			assertEquals(1, cursorResults.getCount());
-			assertEquals(1000, cursorResults.size());
+			assertEquals(10, cursorResults.size());
 			assertTrue(((String) cursorResults.get(9).get(Beers.FIELD_ABV.getName())).length() > 0);
 		};
 		AggregateOptions<String, String> cursorOptions = AggregateOptions.<String, String>builder()
 				.load(Beers.FIELD_ID.getName()).load(Beers.FIELD_NAME.getName()).load(Beers.FIELD_ABV.getName())
 				.build();
-		AggregateWithCursorResults<String> cursorResults = sync.ftAggregate(Beers.INDEX, "*", new CursorOptions(),
-				cursorOptions);
+		AggregateWithCursorResults<String> cursorResults = sync.ftAggregate(Beers.INDEX, "*",
+				CursorOptions.builder().count(10).build(), cursorOptions);
 		cursorTests.accept(cursorResults);
-		cursorTests.accept(reactive.ftAggregate(Beers.INDEX, "*", new CursorOptions(), cursorOptions).block());
-		cursorResults = sync.ftCursorRead(Beers.INDEX, cursorResults.getCursor(), 500);
-		assertEquals(500, cursorResults.size());
-		cursorResults = reactive.ftCursorRead(Beers.INDEX, cursorResults.getCursor()).block();
-		assertEquals(500, cursorResults.size());
+		cursorTests.accept(reactive
+				.ftAggregate(Beers.INDEX, "*", CursorOptions.builder().count(10).build(), cursorOptions).block());
+		cursorResults = sync.ftCursorRead(Beers.INDEX, cursorResults.getCursor(), 400);
+		assertEquals(400, cursorResults.size());
 		String deleteStatus = sync.ftCursorDelete(Beers.INDEX, cursorResults.getCursor());
 		assertEquals("OK", deleteStatus);
 	}
@@ -641,27 +640,9 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 	@RedisTestContextsSource
 	void ftTagVals(RedisTestContext context) throws Exception {
 		Beers.populateIndex(context.getConnection());
-		Set<String> TAG_VALS = new HashSet<>(Arrays.asList("ordinary bitter", "german-style heller bock/maibock",
-				"traditional german-style bock", "smoke beer", "baltic-style porter", "specialty honey lager or ale",
-				"oatmeal stout", "imperial or double red ale", "german-style schwarzbier",
-				"classic english-style pale ale", "old ale", "english-style dark mild ale", "belgian-style tripel",
-				"strong ale", "classic irish-style dry stout", "belgian-style dubbel", "porter",
-				"belgian-style fruit lambic", "german-style brown ale/altbier", "american-style strong pale ale",
-				"golden or blonde ale", "belgian-style quadrupel", "american-style imperial stout",
-				"belgian-style pale strong ale", "english-style pale mild ale", "sweet stout",
-				"american-style pale ale", "irish-style red ale", "dark american-belgo-style ale",
-				"german-style pilsener", "english-style india pale ale", "french & belgian-style saison",
-				"american-style brown ale", "out of category", "vienna-style lager",
-				"american-style cream ale or lager", "american rye ale or lager", "fruit beer", "pumpkin beer",
-				"foreign (export)-style stout", "american-style light lager", "american-style india pale ale",
-				"german-style oktoberfest", "european low-alcohol lager", "other belgian-style ales",
-				"american-style stout", "specialty beer", "belgian-style dark strong ale", "winter warmer",
-				"american-style lager", "american-style barley wine ale", "scottish-style light ale",
-				"herb and spice beer", "south german-style hefeweizen", "hops grown in the great pacific northwest",
-				"imperial or double india pale ale", "american-style dark lager", "special bitter or best bitter",
-				"american-style india black ale", "light american wheat ale or lager", "american-style amber/red ale",
-				"scotch ale", "german-style doppelbock", "bamberg-style bock rauchbier", "extra special bitter",
-				"south german-style weizenbock", "belgian-style white", "belgian-style pale ale", "kellerbier - ale"));
+		Set<String> TAG_VALS = new HashSet<>(Arrays.asList(
+				"american-style brown ale, traditional german-style bock, german-style schwarzbier, old ale, american-style india pale ale, german-style oktoberfest, other belgian-style ales, american-style stout, winter warmer, belgian-style tripel, american-style lager, belgian-style dubbel, porter, american-style barley wine ale, belgian-style fruit lambic, scottish-style light ale, south german-style hefeweizen, imperial or double india pale ale, golden or blonde ale, belgian-style quadrupel, american-style imperial stout, belgian-style pale strong ale, english-style pale mild ale, american-style pale ale, irish-style red ale, dark american-belgo-style ale, light american wheat ale or lager, german-style pilsener, american-style amber/red ale, scotch ale, german-style doppelbock, extra special bitter, south german-style weizenbock, english-style india pale ale, belgian-style pale ale, french & belgian-style saison"
+						.split(", ")));
 		HashSet<String> actual = new HashSet<>(context.sync().ftTagvals(Beers.INDEX, Beers.FIELD_STYLE_NAME.getName()));
 		assertEquals(TAG_VALS, actual);
 		assertEquals(TAG_VALS, new HashSet<>(
