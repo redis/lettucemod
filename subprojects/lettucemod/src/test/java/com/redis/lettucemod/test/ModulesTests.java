@@ -1185,7 +1185,7 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 			assumeGears();
 			clearGears(context);
 			executions(context);
-			assertEquals(1, context.sync().rgDumpexecutions().size());
+			assertFalse(context.sync().rgDumpexecutions().isEmpty());
 		}
 
 		@ParameterizedTest
