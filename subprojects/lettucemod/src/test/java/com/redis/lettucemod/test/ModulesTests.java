@@ -732,9 +732,12 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 		private static final double VALUE_1 = 30;
 		private static final double VALUE_2 = 42;
 		private static final String KEY = "temperature:3:11";
+		private static final String KEY_2 = "temperature:3:12";
 		private static final String SENSOR_ID = "2";
 		private static final String AREA_ID = "32";
+		private static final String AREA_ID_2 = "34";
 		private static final String FILTER = LABEL_SENSOR_ID + "=" + SENSOR_ID;
+		private static final String FILTER_2 = LABEL_AREA_ID + "=" + AREA_ID_2;
 
 		@SuppressWarnings("unchecked")
 		@ParameterizedTest
@@ -812,6 +815,10 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 					.labels(Label.of(LABEL_SENSOR_ID, SENSOR_ID), Label.of(LABEL_AREA_ID, AREA_ID)).build());
 			// TS.ADD temperature:3:11 1548149191 42
 			ts.tsAdd(KEY, Sample.of(TIMESTAMP_2, VALUE_2));
+
+			ts.tsAdd(KEY_2, Sample.of(TIMESTAMP_1, VALUE_1), AddOptions.<String, String>builder().retentionPeriod(6000)
+					.labels(Label.of(LABEL_SENSOR_ID, SENSOR_ID), Label.of(LABEL_AREA_ID, AREA_ID_2)).build());
+			ts.tsAdd(KEY_2, Sample.of(TIMESTAMP_2, VALUE_2));
 		}
 
 		@ParameterizedTest
@@ -820,10 +827,14 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 			RedisTimeSeriesCommands<String, String> ts = context.sync();
 			populate(ts);
 			List<GetResult<String, String>> results = ts.tsMget(FILTER);
-			Assertions.assertEquals(1, results.size());
+			Assertions.assertEquals(2, results.size());
 			Assertions.assertEquals(KEY, results.get(0).getKey());
 			Assertions.assertEquals(TIMESTAMP_2, results.get(0).getSample().getTimestamp());
 			Assertions.assertEquals(VALUE_2, results.get(0).getSample().getValue());
+
+			Assertions.assertEquals(KEY_2, results.get(1).getKey());
+			Assertions.assertEquals(TIMESTAMP_2, results.get(1).getSample().getTimestamp());
+			Assertions.assertEquals(VALUE_2, results.get(1).getSample().getValue());
 		}
 
 		@ParameterizedTest
@@ -851,7 +862,7 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 					MRangeOptions.<String, String>filters(FILTER).build()));
 			List<RangeResult<String, String>> results = ts.tsMrange(TimeRange.unbounded(),
 					MRangeOptions.<String, String>filters(FILTER).withLabels().build());
-			assertEquals(1, results.size());
+			assertEquals(2, results.size());
 			assertEquals(KEY, results.get(0).getKey());
 			assertEquals(2, results.get(0).getSamples().size());
 			assertEquals(TIMESTAMP_1, results.get(0).getSamples().get(0).getTimestamp());
@@ -861,10 +872,20 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 			assertEquals(2, results.get(0).getLabels().size());
 			assertEquals(SENSOR_ID, results.get(0).getLabels().get(LABEL_SENSOR_ID));
 			assertEquals(AREA_ID, results.get(0).getLabels().get(LABEL_AREA_ID));
+
+			assertEquals(KEY_2, results.get(1).getKey());
+			assertEquals(2, results.get(1).getSamples().size());
+			assertEquals(TIMESTAMP_1, results.get(1).getSamples().get(0).getTimestamp());
+			assertEquals(VALUE_1, results.get(1).getSamples().get(0).getValue());
+			assertEquals(TIMESTAMP_2, results.get(1).getSamples().get(1).getTimestamp());
+			assertEquals(VALUE_2, results.get(1).getSamples().get(1).getValue());
+			assertEquals(2, results.get(1).getLabels().size());
+			assertEquals(SENSOR_ID, results.get(1).getLabels().get(LABEL_SENSOR_ID));
+			assertEquals(AREA_ID_2, results.get(1).getLabels().get(LABEL_AREA_ID));
 		}
 
 		private void assertMrange(String key, List<RangeResult<String, String>> results) {
-			assertEquals(1, results.size());
+			assertEquals(2, results.size());
 			assertEquals(key, results.get(0).getKey());
 			assertEquals(2, results.get(0).getSamples().size());
 			assertEquals(TIMESTAMP_1, results.get(0).getSamples().get(0).getTimestamp());
