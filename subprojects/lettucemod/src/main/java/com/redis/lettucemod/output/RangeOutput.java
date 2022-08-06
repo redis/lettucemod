@@ -114,6 +114,7 @@ public class RangeOutput<K, V> extends CommandOutput<K, V, List<RangeResult<K, V
 					skipKeyReset = false;
 				} else {
 					key = null;
+					keyComplete = false;
 				}
 			}
 		}
