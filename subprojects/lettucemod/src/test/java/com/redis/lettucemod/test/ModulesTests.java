@@ -121,7 +121,7 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 				new RedisModulesContainer(
 						RedisModulesContainer.DEFAULT_IMAGE_NAME.withTag(RedisModulesContainer.DEFAULT_TAG)),
 				new RedisEnterpriseContainer(RedisEnterpriseContainer.DEFAULT_IMAGE_NAME.withTag("latest"))
-						.withDatabase(Database.name("ModulesTests").memory(DataSize.ofMegabytes(90)).ossCluster(true)
+						.withDatabase(Database.name("ModulesTests").memory(DataSize.ofMegabytes(110)).ossCluster(true)
 								.modules(RedisModule.SEARCH, RedisModule.JSON, RedisModule.GEARS,
 										RedisModule.TIMESERIES)
 								.build()));
@@ -737,7 +737,6 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 		private static final String AREA_ID = "32";
 		private static final String AREA_ID_2 = "34";
 		private static final String FILTER = LABEL_SENSOR_ID + "=" + SENSOR_ID;
-		private static final String FILTER_2 = LABEL_AREA_ID + "=" + AREA_ID_2;
 
 		@SuppressWarnings("unchecked")
 		@ParameterizedTest
