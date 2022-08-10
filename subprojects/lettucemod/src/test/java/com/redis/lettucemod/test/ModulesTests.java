@@ -827,11 +827,8 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 			populate(ts);
 			List<GetResult<String, String>> results = ts.tsMget(FILTER);
 			Assertions.assertEquals(2, results.size());
-			Assertions.assertEquals(KEY, results.get(0).getKey());
 			Assertions.assertEquals(TIMESTAMP_2, results.get(0).getSample().getTimestamp());
 			Assertions.assertEquals(VALUE_2, results.get(0).getSample().getValue());
-
-			Assertions.assertEquals(KEY_2, results.get(1).getKey());
 			Assertions.assertEquals(TIMESTAMP_2, results.get(1).getSample().getTimestamp());
 			Assertions.assertEquals(VALUE_2, results.get(1).getSample().getValue());
 		}
