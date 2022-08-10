@@ -556,7 +556,7 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 				assertTrue(
 						style.equals("bamberg-style bock rauchbier") || style.equals("south german-style hefeweizen"));
 				int nameCount = ((List<String>) results.get(1).get("names")).size();
-				assertTrue(nameCount == 21);
+				assertEquals(21, nameCount);
 			};
 			Group group = Group.by(Beers.FIELD_STYLE_NAME.getName())
 					.reducer(ToList.property(Beers.FIELD_NAME.getName()).as("names").build()).reducer(Count.as("count"))
@@ -850,39 +850,48 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 		void mrange(RedisTestContext context) {
 			RedisTimeSeriesCommands<String, String> ts = context.sync();
 			populate(ts);
-			assertMrange(KEY,
+			List<String> keys = Arrays.asList(KEY, KEY_2);
+			assertMrange(keys,
 					ts.tsMrange(TimeRange.unbounded(), MRangeOptions.<String, String>filters(FILTER).build()));
-			assertMrange(KEY, ts.tsMrange(TimeRange.from(TIMESTAMP_1 - 10).build(),
+			assertMrange(keys, ts.tsMrange(TimeRange.from(TIMESTAMP_1 - 10).build(),
 					MRangeOptions.<String, String>filters(FILTER).build()));
-			assertMrange(KEY, ts.tsMrange(TimeRange.to(TIMESTAMP_2 + 10).build(),
+			assertMrange(keys, ts.tsMrange(TimeRange.to(TIMESTAMP_2 + 10).build(),
 					MRangeOptions.<String, String>filters(FILTER).build()));
 			List<RangeResult<String, String>> results = ts.tsMrange(TimeRange.unbounded(),
 					MRangeOptions.<String, String>filters(FILTER).withLabels().build());
 			assertEquals(2, results.size());
-			assertEquals(KEY, results.get(0).getKey());
-			assertEquals(2, results.get(0).getSamples().size());
-			assertEquals(TIMESTAMP_1, results.get(0).getSamples().get(0).getTimestamp());
-			assertEquals(VALUE_1, results.get(0).getSamples().get(0).getValue());
-			assertEquals(TIMESTAMP_2, results.get(0).getSamples().get(1).getTimestamp());
-			assertEquals(VALUE_2, results.get(0).getSamples().get(1).getValue());
-			assertEquals(2, results.get(0).getLabels().size());
-			assertEquals(SENSOR_ID, results.get(0).getLabels().get(LABEL_SENSOR_ID));
-			assertEquals(AREA_ID, results.get(0).getLabels().get(LABEL_AREA_ID));
-
-			assertEquals(KEY_2, results.get(1).getKey());
-			assertEquals(2, results.get(1).getSamples().size());
-			assertEquals(TIMESTAMP_1, results.get(1).getSamples().get(0).getTimestamp());
-			assertEquals(VALUE_1, results.get(1).getSamples().get(0).getValue());
-			assertEquals(TIMESTAMP_2, results.get(1).getSamples().get(1).getTimestamp());
-			assertEquals(VALUE_2, results.get(1).getSamples().get(1).getValue());
-			assertEquals(2, results.get(1).getLabels().size());
-			assertEquals(SENSOR_ID, results.get(1).getLabels().get(LABEL_SENSOR_ID));
-			assertEquals(AREA_ID_2, results.get(1).getLabels().get(LABEL_AREA_ID));
+			RangeResult<String, String> key1Result;
+			RangeResult<String, String> key2Result;
+			if (results.get(0).getKey().equals(KEY)) {
+				key1Result = results.get(0);
+				key2Result = results.get(1);
+			} else {
+				key1Result = results.get(1);
+				key2Result = results.get(0);
+			}
+			assertEquals(KEY, key1Result.getKey());
+			assertEquals(2, key1Result.getSamples().size());
+			assertEquals(TIMESTAMP_1, key1Result.getSamples().get(0).getTimestamp());
+			assertEquals(VALUE_1, key1Result.getSamples().get(0).getValue());
+			assertEquals(TIMESTAMP_2, key1Result.getSamples().get(1).getTimestamp());
+			assertEquals(VALUE_2, key1Result.getSamples().get(1).getValue());
+			assertEquals(2, key1Result.getLabels().size());
+			assertEquals(SENSOR_ID, key1Result.getLabels().get(LABEL_SENSOR_ID));
+			assertEquals(AREA_ID, key1Result.getLabels().get(LABEL_AREA_ID));
+			assertEquals(KEY_2, key2Result.getKey());
+			assertEquals(2, key2Result.getSamples().size());
+			assertEquals(TIMESTAMP_1, key2Result.getSamples().get(0).getTimestamp());
+			assertEquals(VALUE_1, key2Result.getSamples().get(0).getValue());
+			assertEquals(TIMESTAMP_2, key2Result.getSamples().get(1).getTimestamp());
+			assertEquals(VALUE_2, key2Result.getSamples().get(1).getValue());
+			assertEquals(2, key2Result.getLabels().size());
+			assertEquals(SENSOR_ID, key2Result.getLabels().get(LABEL_SENSOR_ID));
+			assertEquals(AREA_ID_2, key2Result.getLabels().get(LABEL_AREA_ID));
 		}
 
-		private void assertMrange(String key, List<RangeResult<String, String>> results) {
+		private void assertMrange(List<String> keys, List<RangeResult<String, String>> results) {
 			assertEquals(2, results.size());
-			assertEquals(key, results.get(0).getKey());
+			assertEquals(new HashSet<>(keys), results.stream().map(RangeResult::getKey).collect(Collectors.toSet()));
 			assertEquals(2, results.get(0).getSamples().size());
 			assertEquals(TIMESTAMP_1, results.get(0).getSamples().get(0).getTimestamp());
 			assertEquals(VALUE_1, results.get(0).getSamples().get(0).getValue());
