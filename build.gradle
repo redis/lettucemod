@@ -80,15 +80,6 @@ subprojects {
         useJUnitPlatform()
     }
 
-    bootJar {
-        enabled = false
-    }
-
-    jar {
-        enabled = true
-        archiveClassifier = ''
-    }
-
     configurations {
         all*.exclude module: 'spring-boot-starter-logging'
     }

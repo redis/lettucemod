@@ -1,11 +1,11 @@
 dependencies {
     api group: 'io.lettuce', name: 'lettuce-core', version: lettuceVersion
-    testImplementation 'org.apache.commons:commons-pool2'
-    testImplementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-csv'
+    testImplementation group: 'org.apache.commons', name: 'commons-pool2', version: commonsPoolVersion
+    testImplementation group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-csv', version: jacksonVersion
     testImplementation(group: 'com.redis.testcontainers', name: 'testcontainers-redis-junit', version: testcontainersRedisVersion) {
         exclude group: 'com.redis', module: 'lettucemod'
     }
-    testImplementation 'org.slf4j:slf4j-simple'
+    testImplementation group: 'org.slf4j', name: 'slf4j-simple', version: slf4jVersion
     testImplementation group: 'org.apache.commons', name: 'commons-collections4', version: commonsCollectionsVersion
     testImplementation group: 'org.awaitility', name: 'awaitility', version: awaitilityVersion
 }

@@ -1,10 +1,8 @@
 dependencies {
-    implementation('org.springframework.boot:spring-boot-starter') {
-        exclude group: 'io.lettuce', module: 'lettuce-core'
-    }
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter', version: bootVersion
     api project(':lettucemod')
-    api 'org.apache.commons:commons-pool2'
-    testImplementation('org.springframework.boot:spring-boot-starter-test') {
+    api group: 'org.apache.commons', name: 'commons-pool2', version: commonsPoolVersion
+    testImplementation(group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: bootVersion) {
         exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
     }
     testImplementation(group: 'com.redis.testcontainers', name: 'testcontainers-redis-junit', version: testcontainersRedisVersion) {
