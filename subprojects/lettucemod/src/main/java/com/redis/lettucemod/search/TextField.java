@@ -1,5 +1,6 @@
 package com.redis.lettucemod.search;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalDouble;
 
@@ -10,13 +11,14 @@ public class TextField<K> extends Field<K> {
 	private OptionalDouble weight = OptionalDouble.empty();
 	private boolean noStem;
 	private Optional<PhoneticMatcher> matcher = Optional.empty();
+	private boolean withSuffixTrie;
 
 	private TextField(Builder<K> builder) {
 		super(Type.TEXT, builder);
 		this.noStem = builder.noStem;
 		this.weight = builder.weight;
 		this.matcher = builder.matcher;
-
+		this.withSuffixTrie = builder.withSuffixTrie;
 	}
 
 	public OptionalDouble getWeight() {
@@ -43,6 +45,35 @@ public class TextField<K> extends Field<K> {
 		this.matcher = Optional.of(matcher);
 	}
 
+	public boolean isWithSuffixTrie() {
+		return withSuffixTrie;
+	}
+
+	public void setWithSuffixTrie(boolean withSuffixTrie) {
+		this.withSuffixTrie = withSuffixTrie;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + Objects.hash(matcher, noStem, weight, withSuffixTrie);
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		TextField<?> other = (TextField<?>) obj;
+		return Objects.equals(matcher, other.matcher) && noStem == other.noStem && Objects.equals(weight, other.weight)
+				&& withSuffixTrie == other.withSuffixTrie;
+	}
+
 	@Override
 	protected void buildField(SearchCommandArgs<K, Object> args) {
 		args.add(SearchCommandKeyword.TEXT);
@@ -51,6 +82,9 @@ public class TextField<K> extends Field<K> {
 		}
 		weight.ifPresent(w -> args.add(SearchCommandKeyword.WEIGHT).add(w));
 		matcher.ifPresent(m -> args.add(SearchCommandKeyword.PHONETIC).add(m.getCode()));
+		if (withSuffixTrie) {
+			args.add(SearchCommandKeyword.WITHSUFFIXTRIE);
+		}
 	}
 
 	public static <K> Builder<K> name(K name) {
@@ -62,6 +96,7 @@ public class TextField<K> extends Field<K> {
 		private boolean noStem;
 		private OptionalDouble weight = OptionalDouble.empty();
 		private Optional<PhoneticMatcher> matcher = Optional.empty();
+		private boolean withSuffixTrie;
 
 		public Builder(K name) {
 			super(name);
@@ -79,6 +114,11 @@ public class TextField<K> extends Field<K> {
 
 		public Builder<K> matcher(PhoneticMatcher matcher) {
 			this.matcher = Optional.of(matcher);
+			return this;
+		}
+
+		public Builder<K> withSuffixTrie() {
+			this.withSuffixTrie = true;
 			return this;
 		}
 

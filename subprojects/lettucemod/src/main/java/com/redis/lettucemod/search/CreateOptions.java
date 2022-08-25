@@ -3,6 +3,7 @@ package com.redis.lettucemod.search;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalLong;
@@ -29,7 +30,7 @@ public class CreateOptions<K, V> implements RediSearchArgument<K, V> {
 	private boolean noHL;
 	private boolean noFields;
 	private boolean noFreqs;
-	private boolean noItitialScan;
+	private boolean skipInitialScan;
 	/**
 	 * Set this to empty list for STOPWORDS 0
 	 */
@@ -50,7 +51,7 @@ public class CreateOptions<K, V> implements RediSearchArgument<K, V> {
 		this.noHL = builder.noHL;
 		this.noFields = builder.noFields;
 		this.noFreqs = builder.noFreqs;
-		this.noItitialScan = builder.noItitialScan;
+		this.skipInitialScan = builder.skipInitialScan;
 		this.stopWords = builder.stopWords;
 	}
 
@@ -84,8 +85,8 @@ public class CreateOptions<K, V> implements RediSearchArgument<K, V> {
 		if (noFreqs) {
 			args.add(SearchCommandKeyword.NOFREQS);
 		}
-		if (noItitialScan) {
-			args.add(SearchCommandKeyword.NOINITIALSCAN);
+		if (skipInitialScan) {
+			args.add(SearchCommandKeyword.SKIPINITIALSCAN);
 		}
 		stopWords.ifPresent(w -> {
 			args.add(SearchCommandKeyword.STOPWORDS).add(w.size());
@@ -113,7 +114,7 @@ public class CreateOptions<K, V> implements RediSearchArgument<K, V> {
 		private boolean noHL;
 		private boolean noFields;
 		private boolean noFreqs;
-		private boolean noItitialScan;
+		private boolean skipInitialScan;
 		private Optional<List<V>> stopWords = Optional.empty();
 
 		public Builder<K, V> on(DataType on) {
@@ -192,19 +193,45 @@ public class CreateOptions<K, V> implements RediSearchArgument<K, V> {
 			return this;
 		}
 
-		public Builder<K, V> noItitialScan(boolean noItitialScan) {
-			this.noItitialScan = noItitialScan;
+		public Builder<K, V> skipInitialScan(boolean skipInitialScan) {
+			this.skipInitialScan = skipInitialScan;
 			return this;
 		}
 
-		public Builder<K, V> stopWords(List<V> stopWords) {
-			this.stopWords = Optional.of(stopWords);
+		@SuppressWarnings("unchecked")
+		public Builder<K, V> stopWords(V... stopWords) {
+			this.stopWords = Optional.of(Arrays.asList(stopWords));
 			return this;
 		}
 
 		public CreateOptions<K, V> build() {
 			return new CreateOptions<>(this);
 		}
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(defaultLanguage, defaultScore, filter, languageField, maxTextFields, noFields, noFreqs,
+				noHL, noOffsets, on, payloadField, prefixes, scoreField, skipInitialScan, stopWords, temporary);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		CreateOptions<?, ?> other = (CreateOptions<?, ?>) obj;
+		return Objects.equals(defaultLanguage, other.defaultLanguage)
+				&& Objects.equals(defaultScore, other.defaultScore) && Objects.equals(filter, other.filter)
+				&& Objects.equals(languageField, other.languageField) && maxTextFields == other.maxTextFields
+				&& noFields == other.noFields && noFreqs == other.noFreqs && noHL == other.noHL
+				&& noOffsets == other.noOffsets && Objects.equals(on, other.on)
+				&& Objects.equals(payloadField, other.payloadField) && Objects.equals(prefixes, other.prefixes)
+				&& Objects.equals(scoreField, other.scoreField) && skipInitialScan == other.skipInitialScan
+				&& Objects.equals(stopWords, other.stopWords) && Objects.equals(temporary, other.temporary);
 	}
 
 }

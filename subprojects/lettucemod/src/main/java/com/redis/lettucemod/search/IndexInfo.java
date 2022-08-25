@@ -7,7 +7,7 @@ public class IndexInfo {
 
 	private String indexName;
 	private Double numDocs;
-	private List<Object> indexOptions;
+	private CreateOptions<String, String> indexOptions;
 	private List<Field<String>> fields;
 	private String maxDocId;
 	private Long numTerms;
@@ -66,11 +66,11 @@ public class IndexInfo {
 		this.numDocs = numDocs;
 	}
 
-	public List<Object> getIndexOptions() {
+	public CreateOptions<String, String> getIndexOptions() {
 		return indexOptions;
 	}
 
-	public void setIndexOptions(List<Object> indexOptions) {
+	public void setIndexOptions(CreateOptions<String,String> indexOptions) {
 		this.indexOptions = indexOptions;
 	}
 
@@ -209,7 +209,7 @@ public class IndexInfo {
 	public static final class Builder {
 		private String indexName;
 		private Double numDocs;
-		private List<Object> indexOptions = new ArrayList<>();
+		private CreateOptions<String, String> indexOptions;
 		private List<Field<String>> fields = new ArrayList<>();
 		private String maxDocId;
 		private Long numTerms;
@@ -240,7 +240,7 @@ public class IndexInfo {
 			return this;
 		}
 
-		public Builder indexOptions(List<Object> indexOptions) {
+		public Builder indexOptions(CreateOptions<String,String> indexOptions) {
 			this.indexOptions = indexOptions;
 			return this;
 		}

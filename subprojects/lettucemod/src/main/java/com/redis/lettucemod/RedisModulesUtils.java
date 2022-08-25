@@ -6,14 +6,19 @@ import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import com.redis.lettucemod.protocol.SearchCommandKeyword;
+import com.redis.lettucemod.search.CreateOptions;
+import com.redis.lettucemod.search.CreateOptions.DataType;
 import com.redis.lettucemod.search.Field;
 import com.redis.lettucemod.search.Field.Type;
 import com.redis.lettucemod.search.IndexInfo;
+import com.redis.lettucemod.search.Language;
 import com.redis.lettucemod.search.TagField;
 import com.redis.lettucemod.search.TextField;
 
@@ -40,7 +45,10 @@ public class RedisModulesUtils {
 		}
 		IndexInfo indexInfo = new IndexInfo();
 		indexInfo.setIndexName(getString(map.get("index_name")));
-		indexInfo.setIndexOptions((List<Object>) map.get("index_options"));
+		CreateOptions.Builder<String, String> options = CreateOptions.builder();
+		indexOptions((List<Object>) map.get("index_options"), options);
+		indexDefinition((List<Object>) map.get("index_definition"), options);
+		indexInfo.setIndexOptions(options.build());
 		if (map.containsKey(FIELD_FIELDS)) {
 			indexInfo.setFields(fieldsFromFields((List<Object>) map.getOrDefault(FIELD_FIELDS, new ArrayList<>())));
 		}
@@ -65,6 +73,79 @@ public class RedisModulesUtils {
 		indexInfo.setGcStats((List<Object>) map.get("gc_stats"));
 		indexInfo.setCursorStats((List<Object>) map.get("cursor_stats"));
 		return indexInfo;
+	}
+
+	private static void indexOptions(List<Object> list, CreateOptions.Builder<String, String> options) {
+		// TODO Missing from FT.INFO: NOHL SKIPINITIALSCAN STOPWORDS TEMPORARY
+		Iterator<Object> iterator = list.iterator();
+		while (iterator.hasNext()) {
+			String key = (String) iterator.next();
+			matchOption(key, SearchCommandKeyword.NOOFFSETS, options::noOffsets);
+			matchOption(key, SearchCommandKeyword.NOHL, options::noHL);
+			matchOption(key, SearchCommandKeyword.NOFIELDS, options::noFields);
+			matchOption(key, SearchCommandKeyword.NOFREQS, options::noFreqs);
+			matchOption(key, SearchCommandKeyword.MAXTEXTFIELDS, options::maxTextFields);
+		}
+	}
+
+	private static void matchOption(String key, SearchCommandKeyword keyword, Consumer<Boolean> setter) {
+		if (key.toUpperCase().equals(keyword.name())) {
+			setter.accept(true);
+		}
+	}
+
+	private static void indexDefinition(List<Object> list, CreateOptions.Builder<String, String> options) {
+		new IndexDefinitionParser(list, options).parse();
+	}
+
+	private static class IndexDefinitionParser {
+
+		private final CreateOptions.Builder<String, String> options;
+		private final Iterator<Object> iterator;
+
+		public IndexDefinitionParser(List<Object> list, CreateOptions.Builder<String, String> options) {
+			this.iterator = list.iterator();
+			this.options = options;
+		}
+
+		public CreateOptions<String, String> parse() {
+			while (iterator.hasNext()) {
+				String key = (String) iterator.next();
+				if (key.equals("key_type")) {
+					options.on(DataType.valueOf(nextString().toUpperCase()));
+				} else if (key.equals("prefixes")) {
+					options.prefixes(nextStringArray());
+				} else if (key.equals("filter")) {
+					options.filter(nextString());
+				} else if (key.equals("default_language")) {
+					options.defaultLanguage(Language.valueOf(nextString().toUpperCase()));
+				} else if (key.equals("language_field")) {
+					options.languageField(nextString());
+				} else if (key.equals("default_score")) {
+					options.defaultScore(nextDouble());
+				} else if (key.equals("score_field")) {
+					options.scoreField(nextString());
+				} else if (key.equals("payload_field")) {
+					options.payloadField(nextString());
+				}
+			}
+			return options.build();
+
+		}
+
+		private double nextDouble() {
+			return (Double) iterator.next();
+		}
+
+		private String nextString() {
+			return (String) iterator.next();
+		}
+
+		@SuppressWarnings("unchecked")
+		private String[] nextStringArray() {
+			return ((List<Object>) iterator.next()).toArray(String[]::new);
+		}
+
 	}
 
 	private static Double getDouble(Object object) {
@@ -108,11 +189,15 @@ public class RedisModulesUtils {
 	}
 
 	private static void populateField(Field<String> field, List<Object> attributes) {
+		// TODO Missing from FT.INFO: PHONETIC UNF CASESENSITIVE WITHSUFFIXTRIE
 		if (field.getType() == Type.TAG) {
 			LettuceAssert.isTrue(SearchCommandKeyword.SEPARATOR.name().equals(attributes.remove(0)),
 					"Wrong attribute name");
 			TagField<String> tagField = (TagField<String>) field;
-			tagField.setSeparator((String) attributes.remove(0));
+			String separator = (String) attributes.remove(0);
+			if (!separator.isEmpty()) {
+				tagField.setSeparator(separator.charAt(0));
+			}
 			tagField.setCaseSensitive(attributes.contains(SearchCommandKeyword.CASESENSITIVE.name()));
 		} else {
 			if (field.getType() == Type.TEXT) {
@@ -142,18 +227,19 @@ public class RedisModulesUtils {
 	}
 
 	private static Field<String> field(String type, String name) {
-		switch (type) {
-		case "GEO":
+		if (type.toUpperCase().equals(SearchCommandKeyword.GEO.name())) {
 			return Field.geo(name).build();
-		case "NUMERIC":
-			return Field.numeric(name).build();
-		case "TAG":
-			return Field.tag(name).build();
-		case "TEXT":
-			return Field.text(name).build();
-		default:
-			throw new IllegalArgumentException("Unknown field type: " + type);
 		}
+		if (type.toUpperCase().equals(SearchCommandKeyword.NUMERIC.name())) {
+			return Field.numeric(name).build();
+		}
+		if (type.toUpperCase().equals(SearchCommandKeyword.TAG.name())) {
+			return Field.tag(name).build();
+		}
+		if (type.toUpperCase().equals(SearchCommandKeyword.TEXT.name())) {
+			return Field.text(name).build();
+		}
+		throw new IllegalArgumentException("Unknown field type: " + type);
 	}
 
 	private static Long toLong(Map<String, Object> map, String key) {

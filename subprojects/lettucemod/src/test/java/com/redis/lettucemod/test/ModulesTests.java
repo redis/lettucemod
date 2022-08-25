@@ -62,6 +62,7 @@ import com.redis.lettucemod.search.AggregateOptions.Load;
 import com.redis.lettucemod.search.AggregateResults;
 import com.redis.lettucemod.search.AggregateWithCursorResults;
 import com.redis.lettucemod.search.CreateOptions;
+import com.redis.lettucemod.search.CreateOptions.DataType;
 import com.redis.lettucemod.search.CursorOptions;
 import com.redis.lettucemod.search.Document;
 import com.redis.lettucemod.search.Field;
@@ -643,8 +644,7 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 		@RedisTestContextsSource
 		void info(RedisTestContext context) throws Exception {
 			int count = Beers.populateIndex(context.getConnection());
-			List<Object> infoList = context.async().ftInfo(Beers.INDEX).get();
-			IndexInfo info = RedisModulesUtils.indexInfo(infoList);
+			IndexInfo info = RedisModulesUtils.indexInfo(context.async().ftInfo(Beers.INDEX).get());
 			assertEquals(count, info.getNumDocs());
 			List<Field<String>> fields = info.getFields();
 			TextField<String> descriptionField = (TextField<String>) fields.get(5);
@@ -655,7 +655,43 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 			TagField<String> styleField = (TagField<String>) fields.get(2);
 			assertEquals(Beers.FIELD_STYLE_NAME.getName(), styleField.getName());
 			Assertions.assertTrue(styleField.isSortable());
-			assertEquals(",", styleField.getSeparator().get());
+			assertEquals(',', styleField.getSeparator().get());
+		}
+
+		@SuppressWarnings("unchecked")
+		@ParameterizedTest
+		@RedisTestContextsSource
+		void infoFields(RedisTestContext context) {
+			String index = "indexFields";
+			TagField<String> idField = Field.tag(JsonSearchTests.jsonField(Beers.FIELD_ID.getName()))
+					.as(Beers.FIELD_ID.getName()).separator('-').build();
+			TextField<String> nameField = Field.text(JsonSearchTests.jsonField(Beers.FIELD_NAME.getName()))
+					.as(Beers.FIELD_NAME.getName()).noIndex().noStem().sortable().weight(2).build();
+			String styleFieldName = JsonSearchTests.jsonField(Beers.FIELD_STYLE_NAME.getName());
+			TextField<String> styleField = Field.text(styleFieldName).as(styleFieldName).weight(1).build();
+			context.sync().ftCreate(index, CreateOptions.<String, String>builder().on(DataType.JSON).build(), idField,
+					nameField, styleField);
+			IndexInfo info = RedisModulesUtils.indexInfo(context.sync().ftInfo(index));
+			Assertions.assertEquals(idField, info.getFields().get(0));
+			Assertions.assertEquals(nameField, info.getFields().get(1));
+			Assertions.assertEquals(styleField, info.getFields().get(2));
+		}
+
+		@SuppressWarnings("unchecked")
+		@ParameterizedTest
+		@RedisTestContextsSource
+		void infoOptions(RedisTestContext context) {
+			RedisModulesCommands<String, String> commands = context.sync();
+			String index = "indexWithOptions";
+			CreateOptions<String, String> createOptions = CreateOptions.<String, String>builder().on(DataType.JSON)
+					.prefixes("prefix1", "prefix2").filter("@indexName==\"myindexname\"")
+					.defaultLanguage(Language.CHINESE).languageField("languageField").defaultScore(.5)
+					.scoreField("scoreField").payloadField("payloadField").maxTextFields(true).noOffsets(true)
+					.noFields(true).noFreqs(true).build();
+			commands.ftCreate(index, createOptions, Field.tag("id").build(), Field.numeric("scoreField").build());
+			IndexInfo info = RedisModulesUtils.indexInfo(commands.ftInfo(index));
+			CreateOptions<String, String> actual = info.getIndexOptions();
+			Assertions.assertEquals(createOptions, actual);
 		}
 
 		@ParameterizedTest

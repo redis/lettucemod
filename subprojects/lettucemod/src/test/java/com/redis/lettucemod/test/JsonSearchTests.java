@@ -55,7 +55,7 @@ class JsonSearchTests {
 		client.close();
 	}
 
-	private String jsonField(String name) {
+	public static String jsonField(String name) {
 		return "$." + name;
 	}
 

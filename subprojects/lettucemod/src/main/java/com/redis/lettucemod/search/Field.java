@@ -1,10 +1,15 @@
 package com.redis.lettucemod.search;
 
+import java.util.Objects;
 import java.util.Optional;
 
 import com.redis.lettucemod.protocol.SearchCommandKeyword;
 
 public abstract class Field<K> implements RediSearchArgument<K, Object> {
+
+	public enum Type {
+		TEXT, NUMERIC, GEO, TAG
+	}
 
 	private final Type type;
 	private final K name;
@@ -60,6 +65,24 @@ public abstract class Field<K> implements RediSearchArgument<K, Object> {
 
 	public void setNoIndex(boolean noIndex) {
 		this.noIndex = noIndex;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(as, name, noIndex, sortable, type, unNormalizedForm);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Field<?> other = (Field<?>) obj;
+		return Objects.equals(as, other.as) && Objects.equals(name, other.name) && noIndex == other.noIndex
+				&& sortable == other.sortable && type == other.type && unNormalizedForm == other.unNormalizedForm;
 	}
 
 	@Override
@@ -130,10 +153,6 @@ public abstract class Field<K> implements RediSearchArgument<K, Object> {
 
 	public static <K> NumericField.Builder<K> numeric(K name) {
 		return NumericField.name(name);
-	}
-
-	public enum Type {
-		TEXT, NUMERIC, GEO, TAG
 	}
 
 }
