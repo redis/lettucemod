@@ -27,7 +27,6 @@ import io.lettuce.core.internal.LettuceStrings;
 
 public class RedisModulesUtils {
 
-	private static final Long ZERO = 0L;
 	private static final String GEO_LONLAT_SEPARATOR = ",";
 	private static final String FIELD_FIELDS = "fields";
 	private static final String FIELD_ATTRIBUTES = "attributes";
@@ -134,7 +133,7 @@ public class RedisModulesUtils {
 		}
 
 		private double nextDouble() {
-			return (Double) iterator.next();
+			return getDouble(iterator.next());
 		}
 
 		private String nextString() {
@@ -148,27 +147,36 @@ public class RedisModulesUtils {
 
 	}
 
-	private static Double getDouble(Object object) {
-		if (object == null) {
-			return null;
+	private static Long getLong(Object object) {
+		if (object instanceof String) {
+			try {
+				return Long.parseLong((String) object);
+			} catch (NumberFormatException e) {
+				return null;
+			}
 		}
+		if (object instanceof Long) {
+			return (Long) object;
+		}
+		return null;
+	}
+
+	private static Double getDouble(Object object) {
 		if (object instanceof String) {
 			return LettuceStrings.toDouble((String) object);
 		}
 		if (object instanceof Long) {
 			return ((Long) object).doubleValue();
 		}
-		return (Double) object;
+		if (object instanceof Double) {
+			return (Double) object;
+		}
+		return null;
 	}
 
 	private static String getString(Object object) {
-		if (object != null) {
-			if (object instanceof String) {
-				return (String) object;
-			}
-			if (ZERO.equals(object)) {
-				return null;
-			}
+		if (object instanceof String) {
+			return (String) object;
 		}
 		return null;
 	}
@@ -205,7 +213,7 @@ public class RedisModulesUtils {
 						"Wrong attribute name");
 				TextField<String> textField = (TextField<String>) field;
 				Object weight = attributes.remove(0);
-				textField.setWeight(weight instanceof Double ? (Double) weight : Double.parseDouble((String) weight));
+				textField.setWeight(getDouble(weight));
 				textField.setNoStem(attributes.contains(SearchCommandKeyword.NOSTEM.name()));
 			}
 		}
@@ -246,24 +254,7 @@ public class RedisModulesUtils {
 		if (!map.containsKey(key)) {
 			return null;
 		}
-		Object value = map.get(key);
-		if (value == null) {
-			return null;
-		}
-		if (value instanceof Long) {
-			return (Long) value;
-		}
-		if (value instanceof String) {
-			String string = (String) value;
-			if (string.length() > 0) {
-				try {
-					return Long.parseLong(string);
-				} catch (NumberFormatException e) {
-					// ignore
-				}
-			}
-		}
-		return null;
+		return getLong(map.get(key));
 	}
 
 	public static String escapeTag(String value) {
