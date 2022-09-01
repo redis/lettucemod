@@ -16,3 +16,11 @@ jobs:
         uses: redis-field-engineering/redis-build-action@v1
         with:
           release: false
+
+      - name: Upload test reports
+        if: failure()
+        uses: actions/upload-artifact@v2
+        with:
+          name: test-reports
+          path: |
+            build/reports/aggregate-tests/
