@@ -6,6 +6,7 @@ dependencies {
     testImplementation 'org.slf4j:slf4j-simple'
     testImplementation group: 'org.apache.commons', name: 'commons-collections4', version: commonsCollectionsVersion
     testImplementation group: 'org.awaitility', name: 'awaitility', version: awaitilityVersion
+    testImplementation group: 'org.hamcrest', name: 'hamcrest', version: hamcrestVersion
 }
 
 eclipse {

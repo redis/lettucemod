@@ -1,8 +1,6 @@
 package com.redis.lettucemod.output;
 
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.List;
 
 import com.redis.lettucemod.search.Document;
 import com.redis.lettucemod.search.SearchResults;
@@ -14,16 +12,14 @@ import io.lettuce.core.output.MapOutput;
 
 public class SearchOutput<K, V> extends CommandOutput<K, V, SearchResults<K, V>> {
 
-	private final List<Integer> counts = new ArrayList<>();
 	private final boolean withScores;
 	private final boolean withSortKeys;
 	private final boolean withPayloads;
-	private MapOutput<K, V> nested;
-	private Document<K, V> current;
-	private int mapCount = -1;
 	private boolean sortKeySet = false;
 	private boolean scoreSet = false;
 	private boolean payloadSet = false;
+    private MapOutput<K, V> contentOutput;
+    private Document<K, V> currentDocument;
 
 	public SearchOutput(RedisCodec<K, V> codec) {
 		this(codec, false, false, false);
@@ -31,7 +27,6 @@ public class SearchOutput<K, V> extends CommandOutput<K, V, SearchResults<K, V>>
 
 	public SearchOutput(RedisCodec<K, V> codec, boolean withScores, boolean withSortKeys, boolean withPayloads) {
 		super(codec, new SearchResults<>());
-		nested = new MapOutput<>(codec);
 		this.withScores = withScores;
 		this.withSortKeys = withSortKeys;
 		this.withPayloads = withPayloads;
@@ -39,38 +34,33 @@ public class SearchOutput<K, V> extends CommandOutput<K, V, SearchResults<K, V>>
 
 	@Override
 	public void set(ByteBuffer bytes) {
-		if (current == null) {
-			current = new Document<>();
-			payloadSet = false;
-			scoreSet = false;
-			sortKeySet = false;
+		if (currentDocument == null) {
+			currentDocument = new Document<>();
 			if (bytes != null) {
-				current.setId(codec.decodeKey(bytes));
+				currentDocument.setId(codec.decodeKey(bytes));
 			}
-			return;
-		}
-		if (withScores && !scoreSet) {
-			current.setScore(LettuceStrings.toDouble(decodeAscii(bytes)));
+		} else if (withScores && !scoreSet) {
+            if (bytes != null) {
+                currentDocument.setScore(LettuceStrings.toDouble(decodeAscii(bytes)));
+            }
 			scoreSet = true;
-			return;
-		}
-		if (withPayloads && !payloadSet) {
-			if (bytes != null) {
-				current.setPayload(codec.decodeValue(bytes));
-			}
+		} else if (withPayloads && !payloadSet) {
+            if (bytes != null) {
+                currentDocument.setPayload(codec.decodeValue(bytes));
+            }
 			payloadSet = true;
-			return;
-		}
-		if (withSortKeys && !sortKeySet) {
-			if (bytes != null) {
-				current.setSortKey(codec.decodeValue(bytes));
-			}
+		} else if (withSortKeys && !sortKeySet) {
+            if (bytes != null) {
+                currentDocument.setSortKey(codec.decodeValue(bytes));
+            }
 			sortKeySet = true;
-			return;
-		}
-		if (bytes != null) {
-			nested.set(bytes);
-		}
+		} else if (contentOutput != null) {
+            if (bytes != null) {
+                contentOutput.set(bytes);
+            }
+        } else if (bytes == null) {
+            startNewDocument();
+        }
 	}
 
 	@Override
@@ -81,39 +71,33 @@ public class SearchOutput<K, V> extends CommandOutput<K, V, SearchResults<K, V>>
 	@Override
 	public void set(double number) {
 		if (withScores && !scoreSet) {
-			current.setScore(number);
+			currentDocument.setScore(number);
 			scoreSet = true;
 		}
 	}
 
 	@Override
 	public void complete(int depth) {
-		if (counts.isEmpty()) {
-			return;
-		}
-		int nestedSize = nested.get().size();
-		if (nestedSize == counts.get(0)) {
-			counts.remove(0);
-			if (current != null && nestedSize > 0) {
-				current.putAll(nested.get());
-				output.add(current);
-			}
-			nested = new MapOutput<>(codec);
-			current = null;
-			payloadSet = false;
-			scoreSet = false;
-			sortKeySet = false;
+		if (contentOutput != null && depth == 1) {
+            currentDocument.putAll(contentOutput.get());
+            output.add(currentDocument);
+			startNewDocument();
 		}
 	}
 
+    private void startNewDocument() {
+        currentDocument = null;
+        contentOutput = null;
+        payloadSet = false;
+        scoreSet = false;
+        sortKeySet = false;
+    }
+
 	@Override
 	public void multi(int count) {
-		nested.multi(count);
-		if (mapCount == -1) {
-			mapCount = count;
-		} else {
-			// div 2 because of key value pair counts twice
-			counts.add(count / 2);
+		if (currentDocument != null) {
+            contentOutput = new MapOutput<>(codec);
+            contentOutput.multi(count);
 		}
 	}
 
