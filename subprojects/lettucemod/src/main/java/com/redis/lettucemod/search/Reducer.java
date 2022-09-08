@@ -20,10 +20,9 @@ public abstract class Reducer implements RediSearchArgument<Object, Object> {
 	}
 
 	protected String toString(String string) {
-		if (as.isPresent()) {
-			return string + " AS " + as;
-		}
-		return string;
+		StringBuilder builder = new StringBuilder(string);
+		as.ifPresent(a -> builder.append(" AS ").append(a));
+		return builder.toString();
 	}
 
 	protected abstract void buildFunction(SearchCommandArgs<Object, Object> args);

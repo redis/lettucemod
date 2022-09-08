@@ -58,11 +58,9 @@ public class Reducers {
 
 		@Override
 		public String toString() {
-			String string = super.toString();
-			if (by.isPresent()) {
-				string += " by=" + by.get();
-			}
-			return string;
+			StringBuilder builder = new StringBuilder(super.toString());
+			by.ifPresent(b -> builder.append(" by=").append(by));
+			return builder.toString();
 		}
 
 		private int getNumberOfArgs() {
