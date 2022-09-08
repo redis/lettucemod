@@ -438,7 +438,7 @@ public class RedisModulesAdvancedClusterReactiveCommandsImpl<K, V> extends
 	}
 
 	@Override
-	public Mono<Long> jsonDel(K key, K path) {
+	public Mono<Long> jsonDel(K key, String path) {
 		return delegate.jsonDel(key, path);
 	}
 
@@ -453,11 +453,11 @@ public class RedisModulesAdvancedClusterReactiveCommandsImpl<K, V> extends
 	}
 
 	@Override
-	public Flux<KeyValue<K, V>> jsonMget(K path, K... keys) {
+	public Flux<KeyValue<K, V>> jsonMget(String path, K... keys) {
 		return mget(path, Arrays.asList(keys));
 	}
 
-	public Flux<KeyValue<K, V>> mget(K path, Iterable<K> keys) {
+	public Flux<KeyValue<K, V>> mget(String path, Iterable<K> keys) {
 
 		List<K> keyList = LettuceLists.newList(keys);
 		Map<Integer, List<K>> partitioned = ModulesSlotHash.partition(codec, keyList);
@@ -500,12 +500,12 @@ public class RedisModulesAdvancedClusterReactiveCommandsImpl<K, V> extends
 	}
 
 	@Override
-	public Mono<String> jsonSet(K key, K path, V json) {
+	public Mono<String> jsonSet(K key, String path, V json) {
 		return delegate.jsonSet(key, path, json);
 	}
 
 	@Override
-	public Mono<String> jsonSet(K key, K path, V json, SetMode mode) {
+	public Mono<String> jsonSet(K key, String path, V json, SetMode mode) {
 		return delegate.jsonSet(key, path, json, mode);
 	}
 
@@ -515,17 +515,17 @@ public class RedisModulesAdvancedClusterReactiveCommandsImpl<K, V> extends
 	}
 
 	@Override
-	public Mono<String> jsonType(K key, K path) {
+	public Mono<String> jsonType(K key, String path) {
 		return delegate.jsonType(key, path);
 	}
 
 	@Override
-	public Mono<V> jsonNumincrby(K key, K path, double number) {
+	public Mono<V> jsonNumincrby(K key, String path, double number) {
 		return delegate.jsonNumincrby(key, path, number);
 	}
 
 	@Override
-	public Mono<V> jsonNummultby(K key, K path, double number) {
+	public Mono<V> jsonNummultby(K key, String path, double number) {
 		return delegate.jsonNummultby(key, path, number);
 	}
 
@@ -535,32 +535,32 @@ public class RedisModulesAdvancedClusterReactiveCommandsImpl<K, V> extends
 	}
 
 	@Override
-	public Mono<Long> jsonStrappend(K key, K path, V json) {
+	public Mono<Long> jsonStrappend(K key, String path, V json) {
 		return delegate.jsonStrappend(key, path, json);
 	}
 
 	@Override
-	public Mono<Long> jsonStrlen(K key, K path) {
+	public Mono<Long> jsonStrlen(K key, String path) {
 		return delegate.jsonStrlen(key, path);
 	}
 
 	@Override
-	public Mono<Long> jsonArrappend(K key, K path, V... jsons) {
+	public Mono<Long> jsonArrappend(K key, String path, V... jsons) {
 		return delegate.jsonArrappend(key, path, jsons);
 	}
 
 	@Override
-	public Mono<Long> jsonArrindex(K key, K path, V scalar) {
+	public Mono<Long> jsonArrindex(K key, String path, V scalar) {
 		return delegate.jsonArrindex(key, path, scalar);
 	}
 
 	@Override
-	public Mono<Long> jsonArrindex(K key, K path, V scalar, Slice slice) {
+	public Mono<Long> jsonArrindex(K key, String path, V scalar, Slice slice) {
 		return delegate.jsonArrindex(key, path, scalar, slice);
 	}
 
 	@Override
-	public Mono<Long> jsonArrinsert(K key, K path, long index, V... jsons) {
+	public Mono<Long> jsonArrinsert(K key, String path, long index, V... jsons) {
 		return delegate.jsonArrinsert(key, path, index, jsons);
 	}
 
@@ -570,7 +570,7 @@ public class RedisModulesAdvancedClusterReactiveCommandsImpl<K, V> extends
 	}
 
 	@Override
-	public Mono<Long> jsonArrlen(K key, K path) {
+	public Mono<Long> jsonArrlen(K key, String path) {
 		return delegate.jsonArrlen(key, path);
 	}
 
@@ -585,7 +585,7 @@ public class RedisModulesAdvancedClusterReactiveCommandsImpl<K, V> extends
 	}
 
 	@Override
-	public Mono<Long> jsonArrtrim(K key, K path, long start, long stop) {
+	public Mono<Long> jsonArrtrim(K key, String path, long start, long stop) {
 		return delegate.jsonArrtrim(key, path, start, stop);
 	}
 
@@ -595,7 +595,7 @@ public class RedisModulesAdvancedClusterReactiveCommandsImpl<K, V> extends
 	}
 
 	@Override
-	public Flux<K> jsonObjkeys(K key, K path) {
+	public Flux<K> jsonObjkeys(K key, String path) {
 		return delegate.jsonObjkeys(key, path);
 	}
 
@@ -605,7 +605,7 @@ public class RedisModulesAdvancedClusterReactiveCommandsImpl<K, V> extends
 	}
 
 	@Override
-	public Mono<Long> jsonObjlen(K key, K path) {
+	public Mono<Long> jsonObjlen(K key, String path) {
 		return delegate.jsonObjlen(key, path);
 	}
 

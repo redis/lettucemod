@@ -41,7 +41,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.redis.enterprise.Database;
 import com.redis.enterprise.RedisModule;
 import com.redis.lettucemod.RedisModulesClient;
-import com.redis.lettucemod.RedisModulesUtils;
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
 import com.redis.lettucemod.api.async.RedisModulesAsyncCommands;
 import com.redis.lettucemod.api.reactive.RedisModulesReactiveCommands;
@@ -94,6 +93,9 @@ import com.redis.lettucemod.timeseries.RangeOptions;
 import com.redis.lettucemod.timeseries.RangeResult;
 import com.redis.lettucemod.timeseries.Sample;
 import com.redis.lettucemod.timeseries.TimeRange;
+import com.redis.lettucemod.util.RedisClientBuilder;
+import com.redis.lettucemod.util.RedisClientOptions;
+import com.redis.lettucemod.util.RedisModulesUtils;
 import com.redis.testcontainers.RedisEnterpriseContainer;
 import com.redis.testcontainers.RedisModulesContainer;
 import com.redis.testcontainers.RedisServer;
@@ -102,6 +104,7 @@ import com.redis.testcontainers.junit.RedisTestContext;
 import com.redis.testcontainers.junit.RedisTestContextsSource;
 import com.redis.testcontainers.junit.RedisTestInstance;
 
+import io.lettuce.core.AclSetuserArgs;
 import io.lettuce.core.KeyValue;
 import io.lettuce.core.LettuceFutures;
 import io.lettuce.core.RedisCommandExecutionException;
@@ -661,13 +664,43 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 		@SuppressWarnings("unchecked")
 		@ParameterizedTest
 		@RedisTestContextsSource
+		void jsonSearch(RedisTestContext context) throws Exception {
+			Iterator<JsonNode> iterator = Beers.jsonNodeIterator();
+			String index = "beers";
+			TagField<String> idField = Field.tag(jsonField(Beers.FIELD_ID.getName())).as(Beers.FIELD_ID.getName())
+					.build();
+			TextField<String> nameField = Field.text(jsonField(Beers.FIELD_NAME.getName()))
+					.as(Beers.FIELD_NAME.getName()).build();
+			TextField<String> styleField = Field.text(jsonField(Beers.FIELD_STYLE_NAME.getName())).build();
+			context.sync().ftCreate(index, CreateOptions.<String, String>builder().on(DataType.JSON).build(), idField,
+					nameField, styleField);
+			IndexInfo info = RedisModulesUtils.indexInfo(context.sync().ftInfo(index));
+			Assertions.assertEquals(3, info.getFields().size());
+			Assertions.assertEquals(idField.getAs(), info.getFields().get(0).getAs());
+			Assertions.assertEquals(styleField.getName(), info.getFields().get(2).getAs().get());
+			while (iterator.hasNext()) {
+				JsonNode beer = iterator.next();
+				context.sync().jsonSet("beer:" + beer.get(Beers.FIELD_ID.getName()).asText(), "$", beer.toString());
+			}
+			SearchResults<String, String> results = context.sync().ftSearch(index,
+					"@" + Beers.FIELD_NAME.getName() + ":Creek");
+			Assertions.assertEquals(1, results.getCount());
+		}
+
+		private String jsonField(String name) {
+			return "$." + name;
+		}
+
+		@SuppressWarnings("unchecked")
+		@ParameterizedTest
+		@RedisTestContextsSource
 		void infoFields(RedisTestContext context) {
 			String index = "indexFields";
-			TagField<String> idField = Field.tag(JsonSearchTests.jsonField(Beers.FIELD_ID.getName()))
-					.as(Beers.FIELD_ID.getName()).separator('-').build();
-			TextField<String> nameField = Field.text(JsonSearchTests.jsonField(Beers.FIELD_NAME.getName()))
+			TagField<String> idField = Field.tag(jsonField(Beers.FIELD_ID.getName())).as(Beers.FIELD_ID.getName())
+					.separator('-').build();
+			TextField<String> nameField = Field.text(jsonField(Beers.FIELD_NAME.getName()))
 					.as(Beers.FIELD_NAME.getName()).noIndex().noStem().sortable().weight(2).build();
-			String styleFieldName = JsonSearchTests.jsonField(Beers.FIELD_STYLE_NAME.getName());
+			String styleFieldName = jsonField(Beers.FIELD_STYLE_NAME.getName());
 			TextField<String> styleField = Field.text(styleFieldName).as(styleFieldName).weight(1).build();
 			context.sync().ftCreate(index, CreateOptions.<String, String>builder().on(DataType.JSON).build(), idField,
 					nameField, styleField);
@@ -1279,6 +1312,46 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 
 		private void assumeGears() {
 			Assumptions.assumeTrue(RedisServer.isEnabled("REDISGEARS"));
+		}
+	}
+
+	@Nested
+	class Utils extends NestedTestInstance {
+
+		@ParameterizedTest
+		@RedisTestContextsSource
+		void credentials(RedisTestContext context) {
+			String username = "alice";
+			String password = "ecila";
+			context.sync().aclSetuser(username,
+					AclSetuserArgs.Builder.on().addPassword(password).allCommands().allKeys());
+			try {
+				RedisClientOptions options = RedisClientOptions.builder().uri(context.getRedisURI())
+						.cluster(context.isCluster()).username(username).password("wrongpassword").build();
+				RedisModulesUtils.connection(RedisClientBuilder.create(options).client());
+				Assertions.fail("Expected connection failure");
+			} catch (Exception e) {
+				// expected
+			}
+			String key = "foo";
+			String value = "bar";
+			RedisClientOptions options = RedisClientOptions.builder().uri(context.getRedisURI())
+					.cluster(context.isCluster()).username(username).password(password).build();
+			StatefulRedisModulesConnection<String, String> connection = RedisModulesUtils
+					.connection(RedisClientBuilder.create(options).client());
+			connection.sync().set(key, value);
+			Assertions.assertEquals(value, connection.sync().get(key));
+		}
+
+		@ParameterizedTest
+		@RedisTestContextsSource
+		void hostAndPort(RedisTestContext context) {
+			RedisURI redisURI = RedisURI.create(context.getRedisURI());
+			RedisClientOptions options = RedisClientOptions.builder().host(redisURI.getHost()).port(redisURI.getPort())
+					.cluster(context.isCluster()).build();
+			StatefulRedisModulesConnection<String, String> connection = RedisModulesUtils
+					.connection(RedisClientBuilder.create(options).client());
+			Assertions.assertEquals("PONG", connection.sync().ping());
 		}
 	}
 

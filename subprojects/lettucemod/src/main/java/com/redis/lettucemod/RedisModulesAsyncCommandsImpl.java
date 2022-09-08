@@ -411,7 +411,7 @@ public class RedisModulesAsyncCommandsImpl<K, V> extends RedisAsyncCommandsImpl<
 	}
 
 	@Override
-	public RedisFuture<Long> jsonDel(K key, K path) {
+	public RedisFuture<Long> jsonDel(K key, String path) {
 		return dispatch(jsonCommandBuilder.del(key, path));
 	}
 
@@ -426,30 +426,30 @@ public class RedisModulesAsyncCommandsImpl<K, V> extends RedisAsyncCommandsImpl<
 	}
 
 	@Override
-	public RedisFuture<List<KeyValue<K, V>>> jsonMget(K path, K... keys) {
+	public RedisFuture<List<KeyValue<K, V>>> jsonMget(String path, K... keys) {
 		return dispatch(jsonCommandBuilder.mgetKeyValue(path, keys));
 	}
 
-	public RedisFuture<List<KeyValue<K, V>>> mget(K path, Iterable<K> keys) {
+	public RedisFuture<List<KeyValue<K, V>>> mget(String path, Iterable<K> keys) {
 		return dispatch(jsonCommandBuilder.mgetKeyValue(path, keys));
 	}
 
 	@Override
-	public RedisFuture<Long> jsonMget(KeyValueStreamingChannel<K, V> channel, K path, K... keys) {
+	public RedisFuture<Long> jsonMget(KeyValueStreamingChannel<K, V> channel, String path, K... keys) {
 		return dispatch(jsonCommandBuilder.mget(channel, path, keys));
 	}
 
-	public RedisFuture<Long> mget(KeyValueStreamingChannel<K, V> channel, K path, Iterable<K> keys) {
+	public RedisFuture<Long> mget(KeyValueStreamingChannel<K, V> channel, String path, Iterable<K> keys) {
 		return dispatch(jsonCommandBuilder.mget(channel, path, keys));
 	}
 
 	@Override
-	public RedisFuture<String> jsonSet(K key, K path, V json) {
+	public RedisFuture<String> jsonSet(K key, String path, V json) {
 		return jsonSet(key, path, json, null);
 	}
 
 	@Override
-	public RedisFuture<String> jsonSet(K key, K path, V json, SetMode options) {
+	public RedisFuture<String> jsonSet(K key, String path, V json, SetMode options) {
 		return dispatch(jsonCommandBuilder.set(key, path, json, options));
 	}
 
@@ -459,17 +459,17 @@ public class RedisModulesAsyncCommandsImpl<K, V> extends RedisAsyncCommandsImpl<
 	}
 
 	@Override
-	public RedisFuture<String> jsonType(K key, K path) {
+	public RedisFuture<String> jsonType(K key, String path) {
 		return dispatch(jsonCommandBuilder.type(key, path));
 	}
 
 	@Override
-	public RedisFuture<V> jsonNumincrby(K key, K path, double number) {
+	public RedisFuture<V> jsonNumincrby(K key, String path, double number) {
 		return dispatch(jsonCommandBuilder.numIncrBy(key, path, number));
 	}
 
 	@Override
-	public RedisFuture<V> jsonNummultby(K key, K path, double number) {
+	public RedisFuture<V> jsonNummultby(K key, String path, double number) {
 		return dispatch(jsonCommandBuilder.numMultBy(key, path, number));
 	}
 
@@ -479,32 +479,32 @@ public class RedisModulesAsyncCommandsImpl<K, V> extends RedisAsyncCommandsImpl<
 	}
 
 	@Override
-	public RedisFuture<Long> jsonStrappend(K key, K path, V json) {
+	public RedisFuture<Long> jsonStrappend(K key, String path, V json) {
 		return dispatch(jsonCommandBuilder.strAppend(key, path, json));
 	}
 
 	@Override
-	public RedisFuture<Long> jsonStrlen(K key, K path) {
+	public RedisFuture<Long> jsonStrlen(K key, String path) {
 		return dispatch(jsonCommandBuilder.strLen(key, path));
 	}
 
 	@Override
-	public RedisFuture<Long> jsonArrappend(K key, K path, V... jsons) {
+	public RedisFuture<Long> jsonArrappend(K key, String path, V... jsons) {
 		return dispatch(jsonCommandBuilder.arrAppend(key, path, jsons));
 	}
 
 	@Override
-	public RedisFuture<Long> jsonArrindex(K key, K path, V scalar) {
+	public RedisFuture<Long> jsonArrindex(K key, String path, V scalar) {
 		return jsonArrindex(key, path, scalar, null);
 	}
 
 	@Override
-	public RedisFuture<Long> jsonArrindex(K key, K path, V scalar, Slice slice) {
+	public RedisFuture<Long> jsonArrindex(K key, String path, V scalar, Slice slice) {
 		return dispatch(jsonCommandBuilder.arrIndex(key, path, scalar, slice));
 	}
 
 	@Override
-	public RedisFuture<Long> jsonArrinsert(K key, K path, long index, V... jsons) {
+	public RedisFuture<Long> jsonArrinsert(K key, String path, long index, V... jsons) {
 		return dispatch(jsonCommandBuilder.arrInsert(key, path, index, jsons));
 	}
 
@@ -514,7 +514,7 @@ public class RedisModulesAsyncCommandsImpl<K, V> extends RedisAsyncCommandsImpl<
 	}
 
 	@Override
-	public RedisFuture<Long> jsonArrlen(K key, K path) {
+	public RedisFuture<Long> jsonArrlen(K key, String path) {
 		return dispatch(jsonCommandBuilder.arrLen(key, path));
 	}
 
@@ -529,7 +529,7 @@ public class RedisModulesAsyncCommandsImpl<K, V> extends RedisAsyncCommandsImpl<
 	}
 
 	@Override
-	public RedisFuture<Long> jsonArrtrim(K key, K path, long start, long stop) {
+	public RedisFuture<Long> jsonArrtrim(K key, String path, long start, long stop) {
 		return dispatch(jsonCommandBuilder.arrTrim(key, path, start, stop));
 	}
 
@@ -539,7 +539,7 @@ public class RedisModulesAsyncCommandsImpl<K, V> extends RedisAsyncCommandsImpl<
 	}
 
 	@Override
-	public RedisFuture<List<K>> jsonObjkeys(K key, K path) {
+	public RedisFuture<List<K>> jsonObjkeys(K key, String path) {
 		return dispatch(jsonCommandBuilder.objKeys(key, path));
 	}
 
@@ -549,7 +549,7 @@ public class RedisModulesAsyncCommandsImpl<K, V> extends RedisAsyncCommandsImpl<
 	}
 
 	@Override
-	public RedisFuture<Long> jsonObjlen(K key, K path) {
+	public RedisFuture<Long> jsonObjlen(K key, String path) {
 		return dispatch(jsonCommandBuilder.objLen(key, path));
 	}
 

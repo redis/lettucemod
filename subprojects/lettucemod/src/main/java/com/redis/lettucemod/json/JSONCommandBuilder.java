@@ -38,10 +38,10 @@ public class JSONCommandBuilder<K, V> extends RedisModulesCommandBuilder<K, V> {
 		notNull(path, "Path");
 	}
 
-	public Command<K, V, Long> del(K key, K path) {
+	public Command<K, V, Long> del(K key, String path) {
 		CommandArgs<K, V> args = args(key);
 		if (path != null) {
-			args.addKey(path);
+			args.add(path);
 		}
 		return createCommand(JsonCommandType.DEL, new IntegerOutput<>(codec), args);
 	}
@@ -57,60 +57,60 @@ public class JSONCommandBuilder<K, V> extends RedisModulesCommandBuilder<K, V> {
 	}
 
 	@SuppressWarnings("unchecked")
-	public Command<K, V, List<V>> mget(K path, K... keys) {
+	public Command<K, V, List<V>> mget(String path, K... keys) {
 		notEmptyKeys(keys);
 		notNullPath(path);
 
 		CommandArgs<K, V> args = new CommandArgs<>(codec).addKeys(keys);
-		args.addKey(path);
+		args.add(path);
 		return createCommand(JsonCommandType.MGET, new ValueListOutput<>(codec), args);
 	}
 
 	@SuppressWarnings("unchecked")
-	public Command<K, V, Long> mget(KeyValueStreamingChannel<K, V> channel, K path, K... keys) {
+	public Command<K, V, Long> mget(KeyValueStreamingChannel<K, V> channel, String path, K... keys) {
 		notEmptyKeys(keys);
 		notNullPath(path);
 		notNull(channel);
 
 		CommandArgs<K, V> args = new CommandArgs<>(codec).addKeys(keys);
-		args.addKey(path);
+		args.add(path);
 		return createCommand(JsonCommandType.MGET, new KeyValueStreamingOutput<>(codec, channel, Arrays.asList(keys)),
 				args);
 	}
 
-	public Command<K, V, Long> mget(KeyValueStreamingChannel<K, V> channel, K path, Iterable<K> keys) {
+	public Command<K, V, Long> mget(KeyValueStreamingChannel<K, V> channel, String path, Iterable<K> keys) {
 		notNull(keys, "Keys");
 		notNullPath(path);
 		notNull(channel);
 
 		CommandArgs<K, V> args = new CommandArgs<>(codec).addKeys(keys);
-		args.addKey(path);
+		args.add(path);
 		return createCommand(JsonCommandType.MGET, new KeyValueStreamingOutput<>(codec, channel, keys), args);
 	}
 
 	@SuppressWarnings("unchecked")
-	public Command<K, V, List<KeyValue<K, V>>> mgetKeyValue(K path, K... keys) {
+	public Command<K, V, List<KeyValue<K, V>>> mgetKeyValue(String path, K... keys) {
 		notEmptyKeys(keys);
 		notNullPath(path);
 
 		CommandArgs<K, V> args = new CommandArgs<>(codec).addKeys(keys);
-		args.addKey(path);
+		args.add(path);
 		return createCommand(JsonCommandType.MGET, new KeyValueListOutput<>(codec, Arrays.asList(keys)), args);
 	}
 
-	public Command<K, V, List<KeyValue<K, V>>> mgetKeyValue(K path, Iterable<K> keys) {
+	public Command<K, V, List<KeyValue<K, V>>> mgetKeyValue(String path, Iterable<K> keys) {
 		notNull(keys, "Keys");
 		notNullPath(path);
 
 		CommandArgs<K, V> args = new CommandArgs<>(codec).addKeys(keys);
-		args.addKey(path);
+		args.add(path);
 		return createCommand(JsonCommandType.MGET, new KeyValueListOutput<>(codec, keys), args);
 	}
 
-	public Command<K, V, String> set(K key, K path, V json, SetMode mode) {
+	public Command<K, V, String> set(K key, String path, V json, SetMode mode) {
 		CommandArgs<K, V> args = args(key);
 		notNullPath(path);
-		args.addKey(path);
+		args.add(path);
 		notNull(json, "JSON");
 		args.addValue(json);
 		if (mode != null) {
@@ -119,61 +119,61 @@ public class JSONCommandBuilder<K, V> extends RedisModulesCommandBuilder<K, V> {
 		return createCommand(JsonCommandType.SET, new StatusOutput<>(codec), args);
 	}
 
-	public Command<K, V, String> type(K key, K path) {
+	public Command<K, V, String> type(K key, String path) {
 		CommandArgs<K, V> args = args(key);
 		if (path != null) {
-			args.addKey(path);
+			args.add(path);
 		}
 		return createCommand(JsonCommandType.TYPE, new StatusOutput<>(codec), args);
 	}
 
-	public Command<K, V, V> numIncrBy(K key, K path, double number) {
+	public Command<K, V, V> numIncrBy(K key, String path, double number) {
 		CommandArgs<K, V> args = args(key);
 		notNullPath(path);
-		args.addKey(path);
+		args.add(path);
 		args.add(number);
 		return createCommand(JsonCommandType.NUMINCRBY, new ValueOutput<>(codec), args);
 	}
 
-	public Command<K, V, V> numMultBy(K key, K path, double number) {
+	public Command<K, V, V> numMultBy(K key, String path, double number) {
 		CommandArgs<K, V> args = args(key);
 		notNullPath(path);
-		args.addKey(path);
+		args.add(path);
 		args.add(number);
 		return createCommand(JsonCommandType.NUMMULTBY, new ValueOutput<>(codec), args);
 	}
 
-	public Command<K, V, Long> strAppend(K key, K path, V json) {
+	public Command<K, V, Long> strAppend(K key, String path, V json) {
 		CommandArgs<K, V> args = args(key);
 		if (path != null) {
-			args.addKey(path);
+			args.add(path);
 		}
 		args.addValue(json);
 		return createCommand(JsonCommandType.STRAPPEND, new IntegerOutput<>(codec), args);
 	}
 
-	public Command<K, V, Long> strLen(K key, K path) {
+	public Command<K, V, Long> strLen(K key, String path) {
 		CommandArgs<K, V> args = args(key);
 		if (path != null) {
-			args.addKey(path);
+			args.add(path);
 		}
 		return createCommand(JsonCommandType.STRLEN, new IntegerOutput<>(codec), args);
 	}
 
 	@SuppressWarnings("unchecked")
-	public Command<K, V, Long> arrAppend(K key, K path, V... jsons) {
+	public Command<K, V, Long> arrAppend(K key, String path, V... jsons) {
 		CommandArgs<K, V> args = args(key);
 		notNullPath(path);
-		args.addKey(path);
+		args.add(path);
 		notEmpty(jsons, "JSONs");
 		args.addValues(jsons);
 		return createCommand(JsonCommandType.ARRAPPEND, new IntegerOutput<>(codec), args);
 	}
 
-	public Command<K, V, Long> arrIndex(K key, K path, V jsonScalar, Slice slice) {
+	public Command<K, V, Long> arrIndex(K key, String path, V jsonScalar, Slice slice) {
 		CommandArgs<K, V> args = args(key);
 		notNullPath(path);
-		args.addKey(path);
+		args.add(path);
 		notNull(jsonScalar, "JSON scalar");
 		args.addValue(jsonScalar);
 		if (slice != null) {
@@ -183,20 +183,20 @@ public class JSONCommandBuilder<K, V> extends RedisModulesCommandBuilder<K, V> {
 	}
 
 	@SuppressWarnings("unchecked")
-	public Command<K, V, Long> arrInsert(K key, K path, long index, V... jsons) {
+	public Command<K, V, Long> arrInsert(K key, String path, long index, V... jsons) {
 		CommandArgs<K, V> args = args(key);
 		notNullPath(path);
-		args.addKey(path);
+		args.add(path);
 		args.add(index);
 		notEmpty(jsons, "JSONs");
 		args.addValues(jsons);
 		return createCommand(JsonCommandType.ARRINSERT, new IntegerOutput<>(codec), args);
 	}
 
-	public Command<K, V, Long> arrLen(K key, K path) {
+	public Command<K, V, Long> arrLen(K key, String path) {
 		CommandArgs<K, V> args = args(key);
 		if (path != null) {
-			args.addKey(path);
+			args.add(path);
 		}
 		return createCommand(JsonCommandType.ARRLEN, new IntegerOutput<>(codec), args);
 	}
@@ -209,27 +209,27 @@ public class JSONCommandBuilder<K, V> extends RedisModulesCommandBuilder<K, V> {
 		return createCommand(JsonCommandType.ARRPOP, new ValueOutput<>(codec), args);
 	}
 
-	public Command<K, V, Long> arrTrim(K key, K path, long start, long stop) {
+	public Command<K, V, Long> arrTrim(K key, String path, long start, long stop) {
 		CommandArgs<K, V> args = args(key);
 		notNullPath(path);
-		args.addKey(path);
+		args.add(path);
 		args.add(start);
 		args.add(stop);
 		return createCommand(JsonCommandType.ARRTRIM, new IntegerOutput<>(codec), args);
 	}
 
-	public Command<K, V, List<K>> objKeys(K key, K path) {
+	public Command<K, V, List<K>> objKeys(K key, String path) {
 		CommandArgs<K, V> args = args(key);
 		if (path != null) {
-			args.addKey(path);
+			args.add(path);
 		}
 		return createCommand(JsonCommandType.OBJKEYS, new KeyListOutput<>(codec), args);
 	}
 
-	public Command<K, V, Long> objLen(K key, K path) {
+	public Command<K, V, Long> objLen(K key, String path) {
 		CommandArgs<K, V> args = args(key);
 		if (path != null) {
-			args.addKey(path);
+			args.add(path);
 		}
 		return createCommand(JsonCommandType.OBJLEN, new IntegerOutput<>(codec), args);
 	}

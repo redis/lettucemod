@@ -411,7 +411,7 @@ public class RedisModulesReactiveCommandsImpl<K, V> extends RedisReactiveCommand
 	}
 
 	@Override
-	public Mono<Long> jsonDel(K key, K path) {
+	public Mono<Long> jsonDel(K key, String path) {
 		return createMono(() -> jsonCommandBuilder.del(key, path));
 	}
 
@@ -426,21 +426,21 @@ public class RedisModulesReactiveCommandsImpl<K, V> extends RedisReactiveCommand
 	}
 
 	@Override
-	public Flux<KeyValue<K, V>> jsonMget(K path, K... keys) {
+	public Flux<KeyValue<K, V>> jsonMget(String path, K... keys) {
 		return createDissolvingFlux(() -> jsonCommandBuilder.mget(path, keys));
 	}
 
-	public Flux<KeyValue<K, V>> mget(K path, Iterable<K> keys) {
+	public Flux<KeyValue<K, V>> mget(String path, Iterable<K> keys) {
 		return createDissolvingFlux(() -> jsonCommandBuilder.mgetKeyValue(path, keys));
 	}
 
 	@Override
-	public Mono<String> jsonSet(K key, K path, V json) {
+	public Mono<String> jsonSet(K key, String path, V json) {
 		return jsonSet(key, path, json, null);
 	}
 
 	@Override
-	public Mono<String> jsonSet(K key, K path, V json, SetMode mode) {
+	public Mono<String> jsonSet(K key, String path, V json, SetMode mode) {
 		return createMono(() -> jsonCommandBuilder.set(key, path, json, mode));
 	}
 
@@ -450,17 +450,17 @@ public class RedisModulesReactiveCommandsImpl<K, V> extends RedisReactiveCommand
 	}
 
 	@Override
-	public Mono<String> jsonType(K key, K path) {
+	public Mono<String> jsonType(K key, String path) {
 		return createMono(() -> jsonCommandBuilder.type(key, path));
 	}
 
 	@Override
-	public Mono<V> jsonNumincrby(K key, K path, double number) {
+	public Mono<V> jsonNumincrby(K key, String path, double number) {
 		return createMono(() -> jsonCommandBuilder.numIncrBy(key, path, number));
 	}
 
 	@Override
-	public Mono<V> jsonNummultby(K key, K path, double number) {
+	public Mono<V> jsonNummultby(K key, String path, double number) {
 		return createMono(() -> jsonCommandBuilder.numMultBy(key, path, number));
 	}
 
@@ -470,32 +470,32 @@ public class RedisModulesReactiveCommandsImpl<K, V> extends RedisReactiveCommand
 	}
 
 	@Override
-	public Mono<Long> jsonStrappend(K key, K path, V json) {
+	public Mono<Long> jsonStrappend(K key, String path, V json) {
 		return createMono(() -> jsonCommandBuilder.strAppend(key, path, json));
 	}
 
 	@Override
-	public Mono<Long> jsonStrlen(K key, K path) {
+	public Mono<Long> jsonStrlen(K key, String path) {
 		return createMono(() -> jsonCommandBuilder.strLen(key, path));
 	}
 
 	@Override
-	public Mono<Long> jsonArrappend(K key, K path, V... jsons) {
+	public Mono<Long> jsonArrappend(K key, String path, V... jsons) {
 		return createMono(() -> jsonCommandBuilder.arrAppend(key, path, jsons));
 	}
 
 	@Override
-	public Mono<Long> jsonArrindex(K key, K path, V scalar) {
+	public Mono<Long> jsonArrindex(K key, String path, V scalar) {
 		return jsonArrindex(key, path, scalar, null);
 	}
 
 	@Override
-	public Mono<Long> jsonArrindex(K key, K path, V scalar, Slice slice) {
+	public Mono<Long> jsonArrindex(K key, String path, V scalar, Slice slice) {
 		return createMono(() -> jsonCommandBuilder.arrIndex(key, path, scalar, slice));
 	}
 
 	@Override
-	public Mono<Long> jsonArrinsert(K key, K path, long index, V... jsons) {
+	public Mono<Long> jsonArrinsert(K key, String path, long index, V... jsons) {
 		return createMono(() -> jsonCommandBuilder.arrInsert(key, path, index, jsons));
 	}
 
@@ -505,7 +505,7 @@ public class RedisModulesReactiveCommandsImpl<K, V> extends RedisReactiveCommand
 	}
 
 	@Override
-	public Mono<Long> jsonArrlen(K key, K path) {
+	public Mono<Long> jsonArrlen(K key, String path) {
 		return createMono(() -> jsonCommandBuilder.arrLen(key, path));
 	}
 
@@ -520,7 +520,7 @@ public class RedisModulesReactiveCommandsImpl<K, V> extends RedisReactiveCommand
 	}
 
 	@Override
-	public Mono<Long> jsonArrtrim(K key, K path, long start, long stop) {
+	public Mono<Long> jsonArrtrim(K key, String path, long start, long stop) {
 		return createMono(() -> jsonCommandBuilder.arrTrim(key, path, start, stop));
 	}
 
@@ -530,7 +530,7 @@ public class RedisModulesReactiveCommandsImpl<K, V> extends RedisReactiveCommand
 	}
 
 	@Override
-	public Flux<K> jsonObjkeys(K key, K path) {
+	public Flux<K> jsonObjkeys(K key, String path) {
 		return createDissolvingFlux(() -> jsonCommandBuilder.objKeys(key, path));
 	}
 
@@ -540,7 +540,7 @@ public class RedisModulesReactiveCommandsImpl<K, V> extends RedisReactiveCommand
 	}
 
 	@Override
-	public Mono<Long> jsonObjlen(K key, K path) {
+	public Mono<Long> jsonObjlen(K key, String path) {
 		return createMono(() -> jsonCommandBuilder.objLen(key, path));
 	}
 
