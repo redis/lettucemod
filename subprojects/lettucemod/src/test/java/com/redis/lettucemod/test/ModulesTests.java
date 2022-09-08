@@ -26,6 +26,7 @@ import org.awaitility.Awaitility;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -117,18 +118,17 @@ import reactor.core.publisher.Mono;
 class ModulesTests extends AbstractTestcontainersRedisTestBase {
 
 	private static final Logger log = LoggerFactory.getLogger(ModulesTests.class);
+	private final RedisModulesContainer redisModulesContainer = new RedisModulesContainer(
+			RedisModulesContainer.DEFAULT_IMAGE_NAME.withTag(RedisModulesContainer.DEFAULT_TAG));
+	private final RedisEnterpriseContainer redisEnterpriseContainer = new RedisEnterpriseContainer(
+			RedisEnterpriseContainer.DEFAULT_IMAGE_NAME.withTag("latest"))
+			.withDatabase(Database.name("ModulesTests").memory(DataSize.ofMegabytes(110)).ossCluster(true)
+					.modules(RedisModule.SEARCH, RedisModule.JSON, RedisModule.GEARS, RedisModule.TIMESERIES).build());
 
 	@SuppressWarnings("resource")
 	@Override
 	protected Collection<RedisServer> redisServers() {
-		return Arrays.asList(
-				new RedisModulesContainer(
-						RedisModulesContainer.DEFAULT_IMAGE_NAME.withTag(RedisModulesContainer.DEFAULT_TAG)),
-				new RedisEnterpriseContainer(RedisEnterpriseContainer.DEFAULT_IMAGE_NAME.withTag("latest"))
-						.withDatabase(Database.name("ModulesTests").memory(DataSize.ofMegabytes(110)).ossCluster(true)
-								.modules(RedisModule.SEARCH, RedisModule.JSON, RedisModule.GEARS,
-										RedisModule.TIMESERIES)
-								.build()));
+		return Arrays.asList(redisModulesContainer, redisEnterpriseContainer);
 	}
 
 	protected static Map<String, String> mapOf(String... keyValues) {
@@ -1318,9 +1318,9 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 	@Nested
 	class Utils extends NestedTestInstance {
 
-		@ParameterizedTest
-		@RedisTestContextsSource
-		void credentials(RedisTestContext context) {
+		@Test
+		void credentials() {
+			RedisTestContext context = getContext(redisModulesContainer);
 			String username = "alice";
 			String password = "ecila";
 			context.sync().aclSetuser(username,
