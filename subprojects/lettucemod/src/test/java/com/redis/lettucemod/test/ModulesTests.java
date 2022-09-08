@@ -256,8 +256,6 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 					Field.text("field1").build());
 			assertEquals(tempIndex, RedisModulesUtils.indexInfo(sync.ftInfo(tempIndex)).getIndexName());
 			Awaitility.await().until(() -> !sync.ftList().contains(tempIndex));
-			Assertions.assertThrows(RedisCommandExecutionException.class, () -> sync.ftInfo(tempIndex),
-					"Unknown Index name");
 		}
 
 		@ParameterizedTest
