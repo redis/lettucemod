@@ -1,4 +1,4 @@
-package com.redis.lettucemod;
+package com.redis.lettucemod.util;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -12,22 +12,23 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import com.redis.lettucemod.RedisModulesClient;
+import com.redis.lettucemod.api.StatefulRedisModulesConnection;
+import com.redis.lettucemod.cluster.RedisModulesClusterClient;
 import com.redis.lettucemod.protocol.SearchCommandKeyword;
 import com.redis.lettucemod.search.CreateOptions;
-import com.redis.lettucemod.search.CreateOptions.DataType;
 import com.redis.lettucemod.search.Field;
 import com.redis.lettucemod.search.Field.Type;
 import com.redis.lettucemod.search.IndexInfo;
-import com.redis.lettucemod.search.Language;
 import com.redis.lettucemod.search.TagField;
 import com.redis.lettucemod.search.TextField;
 
+import io.lettuce.core.AbstractRedisClient;
 import io.lettuce.core.internal.LettuceAssert;
 import io.lettuce.core.internal.LettuceStrings;
 
 public class RedisModulesUtils {
 
-	private static final String GEO_LONLAT_SEPARATOR = ",";
 	private static final String FIELD_FIELDS = "fields";
 	private static final String FIELD_ATTRIBUTES = "attributes";
 
@@ -97,56 +98,6 @@ public class RedisModulesUtils {
 		new IndexDefinitionParser(list, options).parse();
 	}
 
-	private static class IndexDefinitionParser {
-
-		private final CreateOptions.Builder<String, String> options;
-		private final Iterator<Object> iterator;
-
-		public IndexDefinitionParser(List<Object> list, CreateOptions.Builder<String, String> options) {
-			this.iterator = list.iterator();
-			this.options = options;
-		}
-
-		public CreateOptions<String, String> parse() {
-			while (iterator.hasNext()) {
-				String key = (String) iterator.next();
-				if (key.equals("key_type")) {
-					options.on(DataType.valueOf(nextString().toUpperCase()));
-				} else if (key.equals("prefixes")) {
-					options.prefixes(nextStringArray());
-				} else if (key.equals("filter")) {
-					options.filter(nextString());
-				} else if (key.equals("default_language")) {
-					options.defaultLanguage(Language.valueOf(nextString().toUpperCase()));
-				} else if (key.equals("language_field")) {
-					options.languageField(nextString());
-				} else if (key.equals("default_score")) {
-					options.defaultScore(nextDouble());
-				} else if (key.equals("score_field")) {
-					options.scoreField(nextString());
-				} else if (key.equals("payload_field")) {
-					options.payloadField(nextString());
-				}
-			}
-			return options.build();
-
-		}
-
-		private double nextDouble() {
-			return getDouble(iterator.next());
-		}
-
-		private String nextString() {
-			return (String) iterator.next();
-		}
-
-		@SuppressWarnings("unchecked")
-		private String[] nextStringArray() {
-			return ((List<Object>) iterator.next()).toArray(String[]::new);
-		}
-
-	}
-
 	private static Long getLong(Object object) {
 		if (object instanceof String) {
 			try {
@@ -161,7 +112,7 @@ public class RedisModulesUtils {
 		return null;
 	}
 
-	private static Double getDouble(Object object) {
+	static Double getDouble(Object object) {
 		if (object instanceof String) {
 			return LettuceStrings.toDouble((String) object);
 		}
@@ -261,42 +212,6 @@ public class RedisModulesUtils {
 		return value.replaceAll("([^a-zA-Z0-9])", "\\\\$1");
 	}
 
-	public static class GeoLocation {
-
-		private double longitude;
-		private double latitude;
-
-		public GeoLocation(double longitude, double latitude) {
-			this.longitude = longitude;
-			this.latitude = latitude;
-		}
-
-		public double getLongitude() {
-			return longitude;
-		}
-
-		public double getLatitude() {
-			return latitude;
-		}
-
-		public static GeoLocation of(String location) {
-			LettuceAssert.notNull(location, "Location string must not be null");
-			String[] lonlat = location.split(GEO_LONLAT_SEPARATOR);
-			LettuceAssert.isTrue(lonlat.length == 2, "Location string not in proper format \"longitude,latitude\"");
-			double longitude = Double.parseDouble(lonlat[0]);
-			double latitude = Double.parseDouble(lonlat[1]);
-			return new GeoLocation(longitude, latitude);
-		}
-
-		public static String toString(String longitude, String latitude) {
-			if (longitude == null || latitude == null) {
-				return null;
-			}
-			return longitude + GEO_LONLAT_SEPARATOR + latitude;
-		}
-
-	}
-
 	public static String toString(InputStream inputStream, Charset charset) {
 		return toString(new InputStreamReader(inputStream, charset));
 	}
@@ -307,6 +222,13 @@ public class RedisModulesUtils {
 
 	public static String toString(InputStream inputStream) {
 		return toString(new InputStreamReader(inputStream));
+	}
+
+	public static StatefulRedisModulesConnection<String, String> connection(AbstractRedisClient client) {
+		if (client instanceof RedisModulesClusterClient) {
+			return ((RedisModulesClusterClient) client).connect();
+		}
+		return ((RedisModulesClient) client).connect();
 	}
 
 }
