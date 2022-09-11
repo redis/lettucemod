@@ -1,14 +1,15 @@
 package com.redis.lettucemod.util;
 
+import java.util.Optional;
+
 import com.redis.lettucemod.RedisModulesClient;
 import com.redis.lettucemod.cluster.RedisModulesClusterClient;
 
 import io.lettuce.core.AbstractRedisClient;
 import io.lettuce.core.ClientOptions;
-import io.lettuce.core.RedisCredentials;
+import io.lettuce.core.RedisCredentialsProvider;
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.SslOptions;
-import io.lettuce.core.StaticCredentialsProvider;
 import io.lettuce.core.cluster.ClusterClientOptions;
 import io.lettuce.core.resource.ClientResources;
 import io.lettuce.core.resource.DefaultClientResources;
@@ -67,6 +68,7 @@ public class RedisClientBuilder {
 		return builder.build();
 	}
 
+	@SuppressWarnings("deprecation")
 	public RedisURI uri() {
 		RedisURI redisURI = options.getUri().orElse(RedisURI.create(options.getHost(), options.getPort()));
 		redisURI.setVerifyPeer(options.getSslVerifyMode());
@@ -77,9 +79,13 @@ public class RedisClientBuilder {
 			redisURI.setStartTls(true);
 		}
 		options.getSocket().ifPresent(redisURI::setSocket);
-		redisURI.setCredentialsProvider(
-				new StaticCredentialsProvider(RedisCredentials.just(options.getUsername(), options.getPassword())));
-		options.getCredentialsProvider().ifPresent(redisURI::setCredentialsProvider);
+		Optional<RedisCredentialsProvider> credentialsProvider = options.getCredentialsProvider();
+		if (credentialsProvider.isPresent()) {
+			redisURI.setCredentialsProvider(credentialsProvider.get());
+		} else {
+			options.getUsername().ifPresent(redisURI::setUsername);
+			options.getPassword().ifPresent(redisURI::setPassword);
+		}
 		redisURI.setDatabase(options.getDatabase());
 		options.getTimeout().ifPresent(redisURI::setTimeout);
 		options.getClientName().ifPresent(redisURI::setClientName);

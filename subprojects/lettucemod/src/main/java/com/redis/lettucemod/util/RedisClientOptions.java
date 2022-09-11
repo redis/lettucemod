@@ -50,8 +50,8 @@ public class RedisClientOptions {
 	private boolean startTls = DEFAULT_START_TLS;
 	private SslVerifyMode sslVerifyMode = DEFAULT_SSL_VERIFY_MODE;
 	private Optional<String> socket = Optional.empty();
-	private String username;
-	private char[] password;
+	private Optional<String> username = Optional.empty();
+	private Optional<String> password = Optional.empty();
 	private Optional<RedisCredentialsProvider> credentialsProvider = Optional.empty();
 	private int database;
 	private Optional<Duration> timeout = Optional.empty();
@@ -209,11 +209,11 @@ public class RedisClientOptions {
 		return socket;
 	}
 
-	public String getUsername() {
+	public Optional<String> getUsername() {
 		return username;
 	}
 
-	public char[] getPassword() {
+	public Optional<String> getPassword() {
 		return password;
 	}
 
@@ -309,6 +309,14 @@ public class RedisClientOptions {
 		this.uri = uri;
 	}
 
+	public void setUriString(String uri) {
+		setUri(RedisURI.create(uri));
+	}
+
+	public void setUriString(Optional<String> uri) {
+		setUri(uri.map(RedisURI::create));
+	}
+
 	public void setCluster(boolean cluster) {
 		this.cluster = cluster;
 	}
@@ -334,10 +342,18 @@ public class RedisClientOptions {
 	}
 
 	public void setUsername(String username) {
+		setUsername(Optional.of(username));
+	}
+
+	public void setUsername(Optional<String> username) {
 		this.username = username;
 	}
 
-	public void setPassword(char[] password) {
+	public void setPassword(String password) {
+		setPassword(Optional.of(password));
+	}
+
+	public void setPassword(Optional<String> password) {
 		this.password = password;
 	}
 
@@ -462,8 +478,8 @@ public class RedisClientOptions {
 		private boolean startTls = DEFAULT_START_TLS;
 		private SslVerifyMode sslVerifyMode = DEFAULT_SSL_VERIFY_MODE;
 		private Optional<String> socket = Optional.empty();
-		private String username;
-		private char[] password;
+		private Optional<String> username = Optional.empty();
+		private Optional<String> password = Optional.empty();
 		private Optional<RedisCredentialsProvider> credentialsProvider = Optional.empty();
 		private int database;
 		private Optional<Duration> timeout = Optional.empty();
@@ -511,6 +527,14 @@ public class RedisClientOptions {
 			return this;
 		}
 
+		public Builder uriString(String uri) {
+			return uri(RedisURI.create(uri));
+		}
+
+		public Builder uriString(Optional<String> uri) {
+			return uri(uri.map(RedisURI::create));
+		}
+
 		public Builder cluster(boolean cluster) {
 			this.cluster = cluster;
 			return this;
@@ -540,19 +564,20 @@ public class RedisClientOptions {
 			return this;
 		}
 
-		public Builder username(String username) {
+		public Builder username(Optional<String> username) {
 			this.username = username;
 			return this;
 		}
 
-		public Builder password(String password) {
-			if (password == null) {
-				return password((char[]) null);
-			}
-			return password(password.toCharArray());
+		public Builder username(String username) {
+			return username(Optional.of(username));
 		}
 
-		public Builder password(char[] password) {
+		public Builder password(String password) {
+			return password(Optional.of(password));
+		}
+
+		public Builder password(Optional<String> password) {
 			this.password = password;
 			return this;
 		}
@@ -690,10 +715,6 @@ public class RedisClientOptions {
 
 		public RedisClientOptions build() {
 			return new RedisClientOptions(this);
-		}
-
-		public Builder uri(String uri) {
-			return uri(RedisURI.create(uri));
 		}
 
 		public Builder keystore(File keystore) {

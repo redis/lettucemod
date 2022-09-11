@@ -31,7 +31,7 @@ class RedisModulesUtilsTests {
 		options.host(host);
 		options.port(port);
 		String password = "secretpassword";
-		options.password(password.toCharArray());
+		options.password(password);
 		RedisURI uri = RedisClientBuilder.create(options.build()).uri();
 		Assertions.assertEquals(host, uri.getHost());
 		Assertions.assertEquals(port, uri.getPort());

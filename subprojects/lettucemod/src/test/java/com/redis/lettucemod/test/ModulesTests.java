@@ -1324,7 +1324,7 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 			context.sync().aclSetuser(username,
 					AclSetuserArgs.Builder.on().addPassword(password).allCommands().allKeys());
 			try {
-				RedisClientOptions options = RedisClientOptions.builder().uri(context.getRedisURI())
+				RedisClientOptions options = RedisClientOptions.builder().uriString(context.getRedisURI())
 						.cluster(context.isCluster()).username(username).password("wrongpassword").build();
 				RedisModulesUtils.connection(RedisClientBuilder.create(options).client());
 				Assertions.fail("Expected connection failure");
@@ -1333,7 +1333,7 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 			}
 			String key = "foo";
 			String value = "bar";
-			RedisClientOptions options = RedisClientOptions.builder().uri(context.getRedisURI())
+			RedisClientOptions options = RedisClientOptions.builder().uriString(context.getRedisURI())
 					.cluster(context.isCluster()).username(username).password(password).build();
 			StatefulRedisModulesConnection<String, String> connection = RedisModulesUtils
 					.connection(RedisClientBuilder.create(options).client());
