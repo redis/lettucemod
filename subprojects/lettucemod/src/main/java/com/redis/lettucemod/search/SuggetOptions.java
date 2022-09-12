@@ -51,6 +51,12 @@ public class SuggetOptions implements RediSearchArgument<Object, Object> {
 	}
 
 	@Override
+	public String toString() {
+		return "SuggetOptions [fuzzy=" + fuzzy + ", withScores=" + withScores + ", withPayloads=" + withPayloads
+				+ ", max=" + max + "]";
+	}
+
+	@Override
 	public void build(SearchCommandArgs<Object, Object> args) {
 		if (fuzzy) {
 			args.add(SearchCommandKeyword.FUZZY);

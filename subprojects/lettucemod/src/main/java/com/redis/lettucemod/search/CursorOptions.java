@@ -53,6 +53,11 @@ public class CursorOptions {
 	}
 
 	@Override
+	public String toString() {
+		return "CursorOptions [count=" + count + ", maxIdle=" + maxIdle + "]";
+	}
+
+	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;

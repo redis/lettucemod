@@ -70,7 +70,7 @@ public class IndexInfo {
 		return indexOptions;
 	}
 
-	public void setIndexOptions(CreateOptions<String,String> indexOptions) {
+	public void setIndexOptions(CreateOptions<String, String> indexOptions) {
 		this.indexOptions = indexOptions;
 	}
 
@@ -202,6 +202,18 @@ public class IndexInfo {
 		this.cursorStats = cursorStats;
 	}
 
+	@Override
+	public String toString() {
+		return "IndexInfo [indexName=" + indexName + ", numDocs=" + numDocs + ", indexOptions=" + indexOptions
+				+ ", fields=" + fields + ", maxDocId=" + maxDocId + ", numTerms=" + numTerms + ", numRecords="
+				+ numRecords + ", invertedSizeMb=" + invertedSizeMb + ", totalInvertedIndexBlocks="
+				+ totalInvertedIndexBlocks + ", offsetVectorsSizeMb=" + offsetVectorsSizeMb + ", docTableSizeMb="
+				+ docTableSizeMb + ", sortableValuesSizeMb=" + sortableValuesSizeMb + ", keyTableSizeMb="
+				+ keyTableSizeMb + ", recordsPerDocAvg=" + recordsPerDocAvg + ", bytesPerRecordAvg=" + bytesPerRecordAvg
+				+ ", offsetsPerTermAvg=" + offsetsPerTermAvg + ", offsetBitsPerRecordAvg=" + offsetBitsPerRecordAvg
+				+ ", gcStats=" + gcStats + ", cursorStats=" + cursorStats + "]";
+	}
+
 	public static Builder builder() {
 		return new Builder();
 	}
@@ -240,7 +252,7 @@ public class IndexInfo {
 			return this;
 		}
 
-		public Builder indexOptions(CreateOptions<String,String> indexOptions) {
+		public Builder indexOptions(CreateOptions<String, String> indexOptions) {
 			this.indexOptions = indexOptions;
 			return this;
 		}

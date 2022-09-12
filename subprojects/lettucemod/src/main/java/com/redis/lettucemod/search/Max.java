@@ -11,6 +11,11 @@ public class Max implements RediSearchArgument<Object, Object> {
 	}
 
 	@Override
+	public String toString() {
+		return "Max [value=" + value + "]";
+	}
+
+	@Override
 	public void build(SearchCommandArgs<Object, Object> args) {
 		args.add(SearchCommandKeyword.MAX).add(value);
 	}

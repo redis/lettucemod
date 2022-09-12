@@ -94,6 +94,15 @@ public class CreateOptions<K, V> implements RediSearchArgument<K, V> {
 		});
 	}
 
+	@Override
+	public String toString() {
+		return "CreateOptions [on=" + on + ", prefixes=" + prefixes + ", filter=" + filter + ", defaultLanguage="
+				+ defaultLanguage + ", languageField=" + languageField + ", defaultScore=" + defaultScore
+				+ ", scoreField=" + scoreField + ", payloadField=" + payloadField + ", maxTextFields=" + maxTextFields
+				+ ", temporary=" + temporary + ", noOffsets=" + noOffsets + ", noHL=" + noHL + ", noFields=" + noFields
+				+ ", noFreqs=" + noFreqs + ", skipInitialScan=" + skipInitialScan + ", stopWords=" + stopWords + "]";
+	}
+
 	public static <K, V> Builder<K, V> builder() {
 		return new Builder<>();
 	}

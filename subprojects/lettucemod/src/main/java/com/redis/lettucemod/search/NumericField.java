@@ -13,6 +13,12 @@ public class NumericField<K> extends Field<K> {
 		args.add(SearchCommandKeyword.NUMERIC);
 	}
 
+	@Override
+	public String toString() {
+		return "NumericField [type=" + type + ", name=" + name + ", as=" + as + ", sortable=" + sortable
+				+ ", unNormalizedForm=" + unNormalizedForm + ", noIndex=" + noIndex + "]";
+	}
+
 	public static <K> Builder<K> name(K name) {
 		return new Builder<>(name);
 	}

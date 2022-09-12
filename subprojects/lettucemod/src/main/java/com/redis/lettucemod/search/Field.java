@@ -11,8 +11,8 @@ public abstract class Field<K> implements RediSearchArgument<K, Object> {
 		TEXT, NUMERIC, GEO, TAG
 	}
 
-	private final Type type;
-	private final K name;
+	protected final Type type;
+	protected final K name;
 	protected Optional<K> as = Optional.empty();
 	protected boolean sortable;
 	protected boolean unNormalizedForm;

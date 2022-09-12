@@ -13,6 +13,12 @@ public class GeoField<K> extends Field<K> {
 		args.add(SearchCommandKeyword.GEO);
 	}
 
+	@Override
+	public String toString() {
+		return "GeoField [type=" + type + ", name=" + name + ", as=" + as + ", sortable=" + sortable
+				+ ", unNormalizedForm=" + unNormalizedForm + ", noIndex=" + noIndex + "]";
+	}
+
 	public static <K> Builder<K> name(K name) {
 		return new Builder<>(name);
 	}

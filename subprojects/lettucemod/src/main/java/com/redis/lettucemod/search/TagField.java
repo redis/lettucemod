@@ -43,6 +43,13 @@ public class TagField<K> extends Field<K> {
 	}
 
 	@Override
+	public String toString() {
+		return "TagField [separator=" + separator + ", caseSensitive=" + caseSensitive + ", withSuffixTrie="
+				+ withSuffixTrie + ", type=" + type + ", name=" + name + ", as=" + as + ", sortable=" + sortable
+				+ ", unNormalizedForm=" + unNormalizedForm + ", noIndex=" + noIndex + "]";
+	}
+
+	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();

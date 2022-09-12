@@ -224,6 +224,16 @@ public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
 		this.limit = Optional.of(limit);
 	}
 
+	@Override
+	public String toString() {
+		return "SearchOptions [noContent=" + noContent + ", verbatim=" + verbatim + ", noStopWords=" + noStopWords
+				+ ", withScores=" + withScores + ", withPayloads=" + withPayloads + ", withSortKeys=" + withSortKeys
+				+ ", filters=" + filters + ", geoFilter=" + geoFilter + ", inKeys=" + inKeys + ", inFields=" + inFields
+				+ ", returnFields=" + returnFields + ", summarize=" + summarize + ", highlight=" + highlight + ", slop="
+				+ slop + ", inOrder=" + inOrder + ", language=" + language + ", expander=" + expander + ", scorer="
+				+ scorer + ", payload=" + payload + ", sortBy=" + sortBy + ", limit=" + limit + "]";
+	}
+
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public void build(SearchCommandArgs<K, V> args) {
