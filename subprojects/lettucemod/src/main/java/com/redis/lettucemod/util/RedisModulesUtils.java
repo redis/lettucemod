@@ -24,8 +24,11 @@ import com.redis.lettucemod.search.TagField;
 import com.redis.lettucemod.search.TextField;
 
 import io.lettuce.core.AbstractRedisClient;
+import io.lettuce.core.codec.RedisCodec;
+import io.lettuce.core.codec.StringCodec;
 import io.lettuce.core.internal.LettuceAssert;
 import io.lettuce.core.internal.LettuceStrings;
+import io.lettuce.core.pubsub.StatefulRedisPubSubConnection;
 
 public class RedisModulesUtils {
 
@@ -225,10 +228,27 @@ public class RedisModulesUtils {
 	}
 
 	public static StatefulRedisModulesConnection<String, String> connection(AbstractRedisClient client) {
+		return connection(client, StringCodec.UTF8);
+	}
+
+	public static <K, V> StatefulRedisModulesConnection<K, V> connection(AbstractRedisClient client,
+			RedisCodec<K, V> codec) {
 		if (client instanceof RedisModulesClusterClient) {
-			return ((RedisModulesClusterClient) client).connect();
+			return ((RedisModulesClusterClient) client).connect(codec);
 		}
-		return ((RedisModulesClient) client).connect();
+		return ((RedisModulesClient) client).connect(codec);
+	}
+
+	public static StatefulRedisPubSubConnection<String, String> pubSubConnection(AbstractRedisClient client) {
+		return pubSubConnection(client, StringCodec.UTF8);
+	}
+
+	public static <K, V> StatefulRedisPubSubConnection<K, V> pubSubConnection(AbstractRedisClient client,
+			RedisCodec<K, V> codec) {
+		if (client instanceof RedisModulesClusterClient) {
+			return ((RedisModulesClusterClient) client).connectPubSub(codec);
+		}
+		return ((RedisModulesClient) client).connectPubSub(codec);
 	}
 
 }

@@ -125,7 +125,6 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 			.withDatabase(Database.name("ModulesTests").memory(DataSize.ofMegabytes(110)).ossCluster(true)
 					.modules(RedisModule.SEARCH, RedisModule.JSON, RedisModule.GEARS, RedisModule.TIMESERIES).build());
 
-	@SuppressWarnings("resource")
 	@Override
 	protected Collection<RedisServer> redisServers() {
 		return Arrays.asList(redisModulesContainer, redisEnterpriseContainer);
@@ -1326,7 +1325,7 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 			try {
 				RedisClientOptions options = RedisClientOptions.builder().uriString(context.getRedisURI())
 						.cluster(context.isCluster()).username(username).password("wrongpassword").build();
-				RedisModulesUtils.connection(RedisClientBuilder.create(options).client());
+				RedisModulesUtils.connection(RedisClientBuilder.create(options).build());
 				Assertions.fail("Expected connection failure");
 			} catch (Exception e) {
 				// expected
@@ -1336,7 +1335,7 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 			RedisClientOptions options = RedisClientOptions.builder().uriString(context.getRedisURI())
 					.cluster(context.isCluster()).username(username).password(password).build();
 			StatefulRedisModulesConnection<String, String> connection = RedisModulesUtils
-					.connection(RedisClientBuilder.create(options).client());
+					.connection(RedisClientBuilder.create(options).build());
 			connection.sync().set(key, value);
 			Assertions.assertEquals(value, connection.sync().get(key));
 		}
@@ -1348,7 +1347,7 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 			RedisClientOptions options = RedisClientOptions.builder().host(redisURI.getHost()).port(redisURI.getPort())
 					.cluster(context.isCluster()).build();
 			StatefulRedisModulesConnection<String, String> connection = RedisModulesUtils
-					.connection(RedisClientBuilder.create(options).client());
+					.connection(RedisClientBuilder.create(options).build());
 			Assertions.assertEquals("PONG", connection.sync().ping());
 		}
 	}

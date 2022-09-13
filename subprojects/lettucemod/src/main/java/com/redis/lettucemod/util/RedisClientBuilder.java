@@ -30,7 +30,7 @@ public class RedisClientBuilder {
 		return options;
 	}
 
-	public AbstractRedisClient client() {
+	public AbstractRedisClient build() {
 		ClientResources clientResources = clientResources();
 		RedisURI redisURI = uri();
 		ClientOptions clientOptions = clientOptions();
