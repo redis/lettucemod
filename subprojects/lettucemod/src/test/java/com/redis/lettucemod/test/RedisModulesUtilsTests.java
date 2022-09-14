@@ -4,8 +4,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import com.redis.lettucemod.util.GeoLocation;
-import com.redis.lettucemod.util.RedisClientBuilder;
-import com.redis.lettucemod.util.RedisClientOptions;
+import com.redis.lettucemod.util.RedisURIBuilder;
 
 import io.lettuce.core.RedisURI;
 
@@ -25,18 +24,17 @@ class RedisModulesUtilsTests {
 
 	@Test
 	void clientBuilderURI() {
-		RedisClientOptions.Builder options = RedisClientOptions.builder();
+		RedisURIBuilder uriBuilder = RedisURIBuilder.create();
 		String host = "streetlamp.lemousse.com";
 		int port = 12345;
-		options.host(host);
-		options.port(port);
-		String password = "secretpassword";
-		options.password(password);
-		RedisURI uri = RedisClientBuilder.create(options.build()).uri();
+		uriBuilder.host(host);
+		uriBuilder.port(port);
+		char[] password = "secretpassword".toCharArray();
+		uriBuilder.password(password);
+		RedisURI uri = uriBuilder.build();
 		Assertions.assertEquals(host, uri.getHost());
 		Assertions.assertEquals(port, uri.getPort());
-		Assertions.assertArrayEquals(password.toCharArray(),
-				uri.getCredentialsProvider().resolveCredentials().block().getPassword());
+		Assertions.assertArrayEquals(password, uri.getCredentialsProvider().resolveCredentials().block().getPassword());
 	}
 
 }

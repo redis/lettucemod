@@ -6,6 +6,7 @@ import java.util.Collections;
 
 import com.redis.lettucemod.StatefulRedisModulesConnectionImpl;
 import com.redis.lettucemod.cluster.api.StatefulRedisModulesClusterConnection;
+import com.redis.lettucemod.util.RedisModulesClusterClientBuilder;
 
 import io.lettuce.core.RedisChannelWriter;
 import io.lettuce.core.RedisURI;
@@ -34,6 +35,10 @@ public class RedisModulesClusterClient extends RedisClusterClient {
 	public static RedisModulesClusterClient create(RedisURI redisURI) {
 		assertNotNull(redisURI);
 		return create(Collections.singleton(redisURI));
+	}
+
+	public static RedisModulesClusterClientBuilder builder(RedisURI redisURI) {
+		return RedisModulesClusterClientBuilder.create(redisURI);
 	}
 
 	/**

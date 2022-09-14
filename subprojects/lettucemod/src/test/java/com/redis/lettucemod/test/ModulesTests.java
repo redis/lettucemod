@@ -94,9 +94,9 @@ import com.redis.lettucemod.timeseries.RangeOptions;
 import com.redis.lettucemod.timeseries.RangeResult;
 import com.redis.lettucemod.timeseries.Sample;
 import com.redis.lettucemod.timeseries.TimeRange;
-import com.redis.lettucemod.util.RedisClientBuilder;
-import com.redis.lettucemod.util.RedisClientOptions;
+import com.redis.lettucemod.util.ClientBuilder;
 import com.redis.lettucemod.util.RedisModulesUtils;
+import com.redis.lettucemod.util.RedisURIBuilder;
 import com.redis.testcontainers.RedisEnterpriseContainer;
 import com.redis.testcontainers.RedisModulesContainer;
 import com.redis.testcontainers.RedisServer;
@@ -105,6 +105,7 @@ import com.redis.testcontainers.junit.RedisTestContext;
 import com.redis.testcontainers.junit.RedisTestContextsSource;
 import com.redis.testcontainers.junit.RedisTestInstance;
 
+import io.lettuce.core.AbstractRedisClient;
 import io.lettuce.core.AclSetuserArgs;
 import io.lettuce.core.KeyValue;
 import io.lettuce.core.LettuceFutures;
@@ -1323,19 +1324,21 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 			context.sync().aclSetuser(username,
 					AclSetuserArgs.Builder.on().addPassword(password).allCommands().allKeys());
 			try {
-				RedisClientOptions options = RedisClientOptions.builder().uriString(context.getRedisURI())
-						.cluster(context.isCluster()).username(username).password("wrongpassword").build();
-				RedisModulesUtils.connection(RedisClientBuilder.create(options).build());
+				AbstractRedisClient client = ClientBuilder
+						.create(RedisURIBuilder.create().uriString(context.getRedisURI()).username(username)
+								.password("wrongpassword".toCharArray()).build())
+						.cluster(context.isCluster()).build();
+				RedisModulesUtils.connection(client);
 				Assertions.fail("Expected connection failure");
 			} catch (Exception e) {
 				// expected
 			}
 			String key = "foo";
 			String value = "bar";
-			RedisClientOptions options = RedisClientOptions.builder().uriString(context.getRedisURI())
-					.cluster(context.isCluster()).username(username).password(password).build();
+			RedisURI uri = RedisURIBuilder.create().uriString(context.getRedisURI()).username(username)
+					.password(password.toCharArray()).build();
 			StatefulRedisModulesConnection<String, String> connection = RedisModulesUtils
-					.connection(RedisClientBuilder.create(options).build());
+					.connection(ClientBuilder.create(uri).cluster(context.isCluster()).build());
 			connection.sync().set(key, value);
 			Assertions.assertEquals(value, connection.sync().get(key));
 		}
@@ -1344,10 +1347,9 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 		@RedisTestContextsSource
 		void hostAndPort(RedisTestContext context) {
 			RedisURI redisURI = RedisURI.create(context.getRedisURI());
-			RedisClientOptions options = RedisClientOptions.builder().host(redisURI.getHost()).port(redisURI.getPort())
-					.cluster(context.isCluster()).build();
+			RedisURI uri = RedisURIBuilder.create().host(redisURI.getHost()).port(redisURI.getPort()).build();
 			StatefulRedisModulesConnection<String, String> connection = RedisModulesUtils
-					.connection(RedisClientBuilder.create(options).build());
+					.connection(ClientBuilder.create(uri).cluster(context.isCluster()).build());
 			Assertions.assertEquals("PONG", connection.sync().ping());
 		}
 	}

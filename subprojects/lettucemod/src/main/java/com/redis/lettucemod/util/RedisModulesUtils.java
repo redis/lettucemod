@@ -226,7 +226,7 @@ public class RedisModulesUtils {
 	public static String toString(InputStream inputStream) {
 		return toString(new InputStreamReader(inputStream));
 	}
-
+	
 	public static StatefulRedisModulesConnection<String, String> connection(AbstractRedisClient client) {
 		return connection(client, StringCodec.UTF8);
 	}

@@ -3,6 +3,7 @@ package com.redis.lettucemod;
 import java.time.Duration;
 
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
+import com.redis.lettucemod.util.RedisModulesClientBuilder;
 
 import io.lettuce.core.ClientOptions;
 import io.lettuce.core.RedisChannelWriter;
@@ -17,10 +18,10 @@ import io.lettuce.core.resource.ClientResources;
 
 /**
  * A scalable and thread-safe client for
- * <a href="https://redis.io/modules">Redis Modules</a> supporting
- * synchronous, asynchronous and reactive execution models. Multiple threads may
- * share one connection if they avoid blocking and transactional operations such
- * as BLPOP and MULTI/EXEC.
+ * <a href="https://redis.io/modules">Redis Modules</a> supporting synchronous,
+ * asynchronous and reactive execution models. Multiple threads may share one
+ * connection if they avoid blocking and transactional operations such as BLPOP
+ * and MULTI/EXEC.
  * <p>
  * {@link RedisModulesClient} can be used with:
  * <ul>
@@ -61,11 +62,15 @@ public class RedisModulesClient extends RedisClient {
 		super();
 	}
 
+	public static RedisModulesClientBuilder builder(RedisURI redisURI) {
+		return RedisModulesClientBuilder.create(redisURI);
+	}
+
 	/**
-	 * Creates a uri-less RedisModulesClient with default {@link ClientResources}. You
-	 * can connect to different Redis servers but you must supply a {@link RedisURI}
-	 * on connecting. Methods without having a {@link RedisURI} will fail with a
-	 * {@link java.lang.IllegalStateException}.
+	 * Creates a uri-less RedisModulesClient with default {@link ClientResources}.
+	 * You can connect to different Redis servers but you must supply a
+	 * {@link RedisURI} on connecting. Methods without having a {@link RedisURI}
+	 * will fail with a {@link java.lang.IllegalStateException}.
 	 *
 	 * @return a new instance of {@link RedisModulesClient}
 	 */
@@ -100,8 +105,8 @@ public class RedisModulesClient extends RedisClient {
 	}
 
 	/**
-	 * Creates a uri-less RedisModulesClient with shared {@link ClientResources}. You
-	 * need to shut down the {@link ClientResources} upon shutting down your
+	 * Creates a uri-less RedisModulesClient with shared {@link ClientResources}.
+	 * You need to shut down the {@link ClientResources} upon shutting down your
 	 * application. You can connect to different Redis servers but you must supply a
 	 * {@link RedisURI} on connecting. Methods without having a {@link RedisURI}
 	 * will fail with a {@link java.lang.IllegalStateException}.
@@ -153,8 +158,8 @@ public class RedisModulesClient extends RedisClient {
 	}
 
 	/**
-	 * Open a new connection to a Redis server that treats keys and values as
-	 * UTF-8 strings.
+	 * Open a new connection to a Redis server that treats keys and values as UTF-8
+	 * strings.
 	 *
 	 * @return A new stateful Redis connection
 	 */
@@ -164,8 +169,8 @@ public class RedisModulesClient extends RedisClient {
 	}
 
 	/**
-	 * Open a new connection to a Redis server. Use the supplied
-	 * {@link RedisCodec codec} to encode/decode keys and values.
+	 * Open a new connection to a Redis server. Use the supplied {@link RedisCodec
+	 * codec} to encode/decode keys and values.
 	 *
 	 * @param codec Use this codec to encode/decode keys and values, must not be
 	 *              {@code null}
@@ -179,8 +184,8 @@ public class RedisModulesClient extends RedisClient {
 	}
 
 	/**
-	 * Open a new connection to a Redis server using the supplied
-	 * {@link RedisURI} that treats keys and values as UTF-8 strings.
+	 * Open a new connection to a Redis server using the supplied {@link RedisURI}
+	 * that treats keys and values as UTF-8 strings.
 	 *
 	 * @param redisURI the Redis server to connect to, must not be {@code null}
 	 * @return A new connection
@@ -191,9 +196,8 @@ public class RedisModulesClient extends RedisClient {
 	}
 
 	/**
-	 * Open a new connection to a Redis server using the supplied
-	 * {@link RedisURI} and the supplied {@link RedisCodec codec} to encode/decode
-	 * keys.
+	 * Open a new connection to a Redis server using the supplied {@link RedisURI}
+	 * and the supplied {@link RedisCodec codec} to encode/decode keys.
 	 *
 	 * @param codec    Use this codec to encode/decode keys and values, must not be
 	 *                 {@code null}
@@ -225,8 +229,8 @@ public class RedisModulesClient extends RedisClient {
 	 * @return new instance of StatefulRedisModulesConnectionImpl
 	 */
 	@Override
-	protected <K, V> StatefulRedisModulesConnectionImpl<K, V> newStatefulRedisConnection(RedisChannelWriter channelWriter,
-																						 PushHandler pushHandler, RedisCodec<K, V> codec, Duration timeout) {
+	protected <K, V> StatefulRedisModulesConnectionImpl<K, V> newStatefulRedisConnection(
+			RedisChannelWriter channelWriter, PushHandler pushHandler, RedisCodec<K, V> codec, Duration timeout) {
 		return new StatefulRedisModulesConnectionImpl<>(channelWriter, pushHandler, codec, timeout);
 	}
 
