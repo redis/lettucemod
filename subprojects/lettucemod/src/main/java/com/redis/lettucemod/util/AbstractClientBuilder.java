@@ -56,7 +56,10 @@ public abstract class AbstractClientBuilder<B extends AbstractClientBuilder<B>> 
 	private char[] keystorePassword;
 	private Optional<File> truststore = Optional.empty();
 	private char[] truststorePassword;
-	private Optional<File> cert = Optional.empty();
+	private Optional<File> trustManager = Optional.empty();
+	private Optional<File> key = Optional.empty();
+	private File keyCert;
+	private char[] keyPassword;
 
 	protected AbstractClientBuilder(RedisURI redisURI) {
 		this.redisURI = redisURI;
@@ -133,6 +136,25 @@ public abstract class AbstractClientBuilder<B extends AbstractClientBuilder<B>> 
 		return (B) this;
 	}
 
+	public B key(File key) {
+		return key(Optional.of(key));
+	}
+
+	public B key(Optional<File> key) {
+		this.key = key;
+		return (B) this;
+	}
+
+	public B keyCert(File cert) {
+		this.keyCert = cert;
+		return (B) this;
+	}
+
+	public B keyPassword(char[] password) {
+		this.keyPassword = password;
+		return (B) this;
+	}
+
 	public B keystore(File keystore) {
 		return keystore(Optional.of(keystore));
 	}
@@ -161,12 +183,12 @@ public abstract class AbstractClientBuilder<B extends AbstractClientBuilder<B>> 
 		return (B) this;
 	}
 
-	public B cert(File cert) {
-		return cert(Optional.of(cert));
+	public B trustManager(File trustManager) {
+		return trustManager(Optional.of(trustManager));
 	}
 
-	public B cert(Optional<File> cert) {
-		this.cert = cert;
+	public B trustManager(Optional<File> trustManager) {
+		this.trustManager = trustManager;
 		return (B) this;
 	}
 
@@ -189,9 +211,10 @@ public abstract class AbstractClientBuilder<B extends AbstractClientBuilder<B>> 
 
 	public SslOptions sslOptions() {
 		SslOptions.Builder ssl = SslOptions.builder();
+		key.ifPresent(k -> ssl.keyManager(keyCert, k, keyPassword));
 		keystore.ifPresent(s -> ssl.keystore(s, keystorePassword));
 		truststore.ifPresent(s -> ssl.truststore(Resource.from(s), truststorePassword));
-		cert.ifPresent(ssl::trustManager);
+		trustManager.ifPresent(ssl::trustManager);
 		return ssl.build();
 	}
 
