@@ -9,6 +9,7 @@ import io.lettuce.core.ClientOptions.DisconnectedBehavior;
 import io.lettuce.core.RedisCredentialsProvider;
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.SslVerifyMode;
+import io.lettuce.core.StaticCredentialsProvider;
 import io.lettuce.core.TimeoutOptions;
 import io.lettuce.core.cluster.ClusterClientOptions;
 import io.lettuce.core.cluster.models.partitions.RedisClusterNode;
@@ -146,7 +147,6 @@ public class RedisURIBuilder {
 		return this;
 	}
 
-	@SuppressWarnings("deprecation")
 	public RedisURI build() {
 		RedisURI redisURI = uri.orElse(RedisURI.create(host, port));
 		redisURI.setVerifyPeer(sslVerifyMode);
@@ -157,20 +157,21 @@ public class RedisURIBuilder {
 			redisURI.setStartTls(true);
 		}
 		socket.ifPresent(redisURI::setSocket);
-		if (credentialsProvider.isPresent()) {
-			redisURI.setCredentialsProvider(credentialsProvider.get());
-		} else {
-			if (username != null) {
-				redisURI.setUsername(username);
-			}
-			if (password != null) {
-				redisURI.setPassword(password);
-			}
-		}
+		credentialsProvider().ifPresent(redisURI::setCredentialsProvider);
 		redisURI.setDatabase(database);
 		timeout.ifPresent(redisURI::setTimeout);
 		clientName.ifPresent(redisURI::setClientName);
 		return redisURI;
+	}
+
+	private Optional<RedisCredentialsProvider> credentialsProvider() {
+		if (credentialsProvider.isPresent()) {
+			return credentialsProvider;
+		}
+		if (username == null && password == null) {
+			return Optional.empty();
+		}
+		return Optional.of(new StaticCredentialsProvider(username, password));
 	}
 
 	public static RedisURIBuilder create() {
