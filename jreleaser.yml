@@ -2,7 +2,8 @@ project:
   name: lettucemod
   description: Redis modules client
   longDescription: Java client for Redis modules based on Lettuce
-  website: https://github.com/redis-developer/lettucemod
+  links:
+    homepage: https://github.com/redis-developer/lettucemod
   authors:
     - Julien Ruaux
   license: Apache-2.0
@@ -10,8 +11,7 @@ project:
     groupId: com.redis
     version: 8
     multiProject: true
-  extraProperties:
-    inceptionYear: 2020
+  inceptionYear: 2020
   tags:
     - 'lettucemod'
     - 'redis'
