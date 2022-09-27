@@ -1,4 +1,4 @@
-package com.redis.lettucemod.test;
+package com.redis.lettucemod;
 
 import java.io.IOException;
 import java.io.InputStream;

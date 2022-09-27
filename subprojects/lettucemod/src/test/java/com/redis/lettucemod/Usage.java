@@ -1,4 +1,4 @@
-package com.redis.lettucemod.test;
+package com.redis.lettucemod;
 
 import java.util.ArrayList;
 import java.util.Arrays;

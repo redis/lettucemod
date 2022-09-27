@@ -1,4 +1,4 @@
-package com.redis.lettucemod.test;
+package com.redis.lettucemod;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

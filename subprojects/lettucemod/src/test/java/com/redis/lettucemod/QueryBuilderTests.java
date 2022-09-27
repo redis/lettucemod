@@ -1,4 +1,4 @@
-package com.redis.lettucemod.test;
+package com.redis.lettucemod;
 
 import static com.redis.lettucemod.search.querybuilder.QueryBuilder.disjunct;
 import static com.redis.lettucemod.search.querybuilder.QueryBuilder.intersect;

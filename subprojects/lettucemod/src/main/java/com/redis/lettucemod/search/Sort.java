@@ -1,6 +1,7 @@
 package com.redis.lettucemod.search;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -41,6 +42,14 @@ public class Sort implements AggregateOperation<Object, Object> {
 		return new Builder(properties);
 	}
 
+	public static Builder asc(String name) {
+		return by(Property.asc(name));
+	}
+
+	public static Builder desc(String name) {
+		return by(Property.desc(name));
+	}
+
 	public static class Builder {
 
 		private final List<Property> properties = new ArrayList<>();
@@ -50,8 +59,17 @@ public class Sort implements AggregateOperation<Object, Object> {
 			Collections.addAll(this.properties, properties);
 		}
 
-		public Builder by(Property property) {
-			return by(property);
+		public Builder by(Property... properties) {
+			this.properties.addAll(Arrays.asList(properties));
+			return this;
+		}
+
+		public Builder asc(String name) {
+			return by(Property.asc(name));
+		}
+
+		public Builder desc(String name) {
+			return by(Property.desc(name));
 		}
 
 		public Builder max(long max) {

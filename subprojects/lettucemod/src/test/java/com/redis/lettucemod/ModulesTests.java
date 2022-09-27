@@ -1,4 +1,4 @@
-package com.redis.lettucemod.test;
+package com.redis.lettucemod;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -41,7 +41,6 @@ import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.redis.enterprise.Database;
 import com.redis.enterprise.RedisModule;
-import com.redis.lettucemod.RedisModulesClient;
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
 import com.redis.lettucemod.api.async.RedisModulesAsyncCommands;
 import com.redis.lettucemod.api.reactive.RedisModulesReactiveCommands;
@@ -79,6 +78,7 @@ import com.redis.lettucemod.search.SearchOptions.Highlight;
 import com.redis.lettucemod.search.SearchOptions.Highlight.Tags;
 import com.redis.lettucemod.search.SearchResults;
 import com.redis.lettucemod.search.Sort;
+import com.redis.lettucemod.search.Sort.Property;
 import com.redis.lettucemod.search.Suggestion;
 import com.redis.lettucemod.search.SuggetOptions;
 import com.redis.lettucemod.search.TagField;
@@ -484,10 +484,7 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 			assertFalse(reactive.ftSugdel(SUGINDEX, "Thunderstorm").block());
 		}
 
-		@SuppressWarnings("unchecked")
-		@ParameterizedTest
-		@RedisTestContextsSource
-		void aggregate(RedisTestContext context) throws Exception {
+		private Map<String, Map<String, Object>> populateBeers(RedisTestContext context) throws IOException {
 			int count = Beers.populateIndex(context.getConnection());
 			MappingIterator<Map<String, Object>> beers = Beers.mapIterator();
 			Map<String, Map<String, Object>> beerMap = new HashMap<>();
@@ -495,12 +492,20 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 				Map<String, Object> beer = beers.next();
 				beerMap.put((String) beer.get(Beers.FIELD_ID.getName()), beer);
 			}
+			Assertions.assertEquals(count, beerMap.size());
+			return beerMap;
+		}
+
+		@ParameterizedTest
+		@RedisTestContextsSource
+		void aggregateLoad(RedisTestContext context) throws Exception {
+			Map<String, Map<String, Object>> beers = populateBeers(context);
 			Consumer<AggregateResults<String>> loadAsserts = results -> {
 				assertEquals(1, results.getCount());
-				assertEquals(count, results.size());
+				assertEquals(beers.size(), results.size());
 				for (Map<String, Object> result : results) {
 					String id = (String) result.get(Beers.FIELD_ID.getName());
-					Map<String, Object> beer = beerMap.get(id);
+					Map<String, Object> beer = beers.get(id);
 					assertEquals(((String) beer.get(Beers.FIELD_NAME.getName())).toLowerCase(),
 							((String) result.get(Beers.FIELD_NAME.getName())).toLowerCase());
 					String style = (String) beer.get("style");
@@ -517,9 +522,13 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 					.load(Load.identifier(Beers.FIELD_STYLE_NAME.getName()).as("style").build()).build();
 			loadAsserts.accept(sync.ftAggregate(Beers.INDEX, "*", loadOptions));
 			loadAsserts.accept(reactive.ftAggregate(Beers.INDEX, "*", loadOptions).block());
+		}
 
-			// GroupBy tests
-			Consumer<AggregateResults<String>> groupByAsserts = results -> {
+		@ParameterizedTest
+		@RedisTestContextsSource
+		void aggregateGroupSortLimit(RedisTestContext context) throws Exception {
+			populateBeers(context);
+			Consumer<AggregateResults<String>> asserts = results -> {
 				assertEquals(36, results.getCount());
 				List<Double> abvs = results.stream()
 						.map(r -> Double.parseDouble((String) r.get(Beers.FIELD_ABV.getName())))
@@ -527,29 +536,61 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 				assertTrue(abvs.get(0) > abvs.get(abvs.size() - 1));
 				assertEquals(20, results.size());
 			};
-			AggregateOptions<String, String> groupByOptions = AggregateOptions
+			AggregateOptions<String, String> options = AggregateOptions
 					.<String, String>operation(Group.by(Beers.FIELD_STYLE_NAME.getName())
 							.reducer(Avg.property(Beers.FIELD_ABV.getName()).as(Beers.FIELD_ABV.getName()).build())
 							.build())
 					.operation(Sort.by(Sort.Property.desc(Beers.FIELD_ABV.getName())).build())
 					.operation(Limit.offset(0).num(20)).build();
-			groupByAsserts.accept(sync.ftAggregate(Beers.INDEX, "*", groupByOptions));
-			groupByAsserts.accept(reactive.ftAggregate(Beers.INDEX, "*", groupByOptions).block());
+			asserts.accept(context.sync().ftAggregate(Beers.INDEX, "*", options));
+			asserts.accept(context.reactive().ftAggregate(Beers.INDEX, "*", options).block());
+		}
 
-			Consumer<AggregateResults<String>> groupBy0Asserts = results -> {
+		@ParameterizedTest
+		@RedisTestContextsSource
+		void aggregateSort(RedisTestContext context) throws Exception {
+			populateBeers(context);
+			Consumer<AggregateResults<String>> asserts = results -> {
+				assertEquals(467, results.getCount());
+				List<Double> abvs = results.stream()
+						.map(r -> Double.parseDouble((String) r.get(Beers.FIELD_ABV.getName())))
+						.collect(Collectors.toList());
+				assertTrue(abvs.get(0) > abvs.get(abvs.size() - 1));
+				assertEquals(10, results.size());
+			};
+			AggregateOptions<String, String> options = AggregateOptions
+					.<String, String>operation(Sort.by(Sort.Property.desc(Beers.FIELD_ABV.getName()))
+							.by(Property.asc(Beers.FIELD_IBU.getName())).build())
+					.build();
+			asserts.accept(context.sync().ftAggregate(Beers.INDEX, "*", options));
+			asserts.accept(context.reactive().ftAggregate(Beers.INDEX, "*", options).block());
+		}
+
+		@ParameterizedTest
+		@RedisTestContextsSource
+		void aggregateGroupNone(RedisTestContext context) throws Exception {
+			populateBeers(context);
+			Consumer<AggregateResults<String>> asserts = results -> {
 				assertEquals(1, results.getCount());
 				assertEquals(1, results.size());
 				Double maxAbv = Double.parseDouble((String) results.get(0).get(Beers.FIELD_ABV.getName()));
 				assertEquals(16, maxAbv, 0.1);
 			};
 
-			AggregateOptions<String, String> groupBy0Options = AggregateOptions.<String, String>operation(Group.by()
+			AggregateOptions<String, String> options = AggregateOptions.<String, String>operation(Group.by()
 					.reducer(Max.property(Beers.FIELD_ABV.getName()).as(Beers.FIELD_ABV.getName()).build()).build())
 					.build();
-			groupBy0Asserts.accept(sync.ftAggregate(Beers.INDEX, "*", groupBy0Options));
-			groupBy0Asserts.accept(reactive.ftAggregate(Beers.INDEX, "*", groupBy0Options).block());
+			asserts.accept(context.sync().ftAggregate(Beers.INDEX, "*", options));
+			asserts.accept(context.reactive().ftAggregate(Beers.INDEX, "*", options).block());
 
-			Consumer<AggregateResults<String>> groupBy2Asserts = results -> {
+		}
+
+		@SuppressWarnings("unchecked")
+		@ParameterizedTest
+		@RedisTestContextsSource
+		void aggregateGroupToList(RedisTestContext context) throws Exception {
+			populateBeers(context);
+			Consumer<AggregateResults<String>> asserts = results -> {
 				assertEquals(36, results.getCount());
 				Map<String, Object> doc = results.get(1);
 				Assumptions.assumeTrue(doc != null);
@@ -563,12 +604,16 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 			Group group = Group.by(Beers.FIELD_STYLE_NAME.getName())
 					.reducer(ToList.property(Beers.FIELD_NAME.getName()).as("names").build()).reducer(Count.as("count"))
 					.build();
-			AggregateOptions<String, String> groupBy2Options = AggregateOptions.<String, String>operation(group)
+			AggregateOptions<String, String> options = AggregateOptions.<String, String>operation(group)
 					.operation(Limit.offset(0).num(2)).build();
-			groupBy2Asserts.accept(sync.ftAggregate(Beers.INDEX, "*", groupBy2Options));
-			groupBy2Asserts.accept(reactive.ftAggregate(Beers.INDEX, "*", groupBy2Options).block());
+			asserts.accept(context.sync().ftAggregate(Beers.INDEX, "*", options));
+			asserts.accept(context.reactive().ftAggregate(Beers.INDEX, "*", options).block());
+		}
 
-			// Cursor tests
+		@ParameterizedTest
+		@RedisTestContextsSource
+		void aggregateCursor(RedisTestContext context) throws Exception {
+			populateBeers(context);
 			Consumer<AggregateWithCursorResults<String>> cursorTests = cursorResults -> {
 				assertEquals(1, cursorResults.getCount());
 				assertEquals(10, cursorResults.size());
@@ -577,22 +622,22 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 			AggregateOptions<String, String> cursorOptions = AggregateOptions.<String, String>builder()
 					.load(Beers.FIELD_ID.getName()).load(Beers.FIELD_NAME.getName()).load(Beers.FIELD_ABV.getName())
 					.build();
-			AggregateWithCursorResults<String> cursorResults = sync.ftAggregate(Beers.INDEX, "*",
+			AggregateWithCursorResults<String> cursorResults = context.sync().ftAggregate(Beers.INDEX, "*",
 					CursorOptions.builder().count(10).build(), cursorOptions);
 			cursorTests.accept(cursorResults);
-			cursorTests.accept(reactive
+			cursorTests.accept(context.reactive()
 					.ftAggregate(Beers.INDEX, "*", CursorOptions.builder().count(10).build(), cursorOptions).block());
-			cursorResults = sync.ftCursorRead(Beers.INDEX, cursorResults.getCursor(), 400);
+			cursorResults = context.sync().ftCursorRead(Beers.INDEX, cursorResults.getCursor(), 400);
 			assertEquals(400, cursorResults.size());
-			String deleteStatus = sync.ftCursorDelete(Beers.INDEX, cursorResults.getCursor());
+			String deleteStatus = context.sync().ftCursorDelete(Beers.INDEX, cursorResults.getCursor());
 			assertEquals("OK", deleteStatus);
 		}
 
 		@ParameterizedTest
 		@RedisTestContextsSource
 		void alias(RedisTestContext context) throws Exception {
-
 			Beers.populateIndex(context.getConnection());
+
 			// SYNC
 
 			String alias = "alias123";
