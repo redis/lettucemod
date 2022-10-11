@@ -1,7 +1,8 @@
-package com.redis.lettucemod.output;
+package com.redis.lettucemod;
 
 import java.nio.ByteBuffer;
 
+import com.redis.lettucemod.output.SearchOutput;
 import com.redis.lettucemod.search.Document;
 import com.redis.lettucemod.search.SearchResults;
 import io.lettuce.core.codec.StringCodec;
