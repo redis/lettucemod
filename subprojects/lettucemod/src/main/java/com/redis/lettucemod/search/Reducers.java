@@ -66,9 +66,9 @@ public class Reducers {
 		private int getNumberOfArgs() {
 			if (by.isPresent()) {
 				if (by.get().getOrder().isPresent()) {
-					return 3;
+					return 4;
 				}
-				return 2;
+				return 3;
 			}
 			return 1;
 		}
