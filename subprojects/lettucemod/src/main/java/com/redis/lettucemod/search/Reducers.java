@@ -64,13 +64,14 @@ public class Reducers {
 		}
 
 		private int getNumberOfArgs() {
+			int nargs = 1;
 			if (by.isPresent()) {
+				nargs += 2;
 				if (by.get().getOrder().isPresent()) {
-					return 4;
+					nargs++;
 				}
-				return 3;
 			}
-			return 1;
+			return nargs;
 		}
 
 		public static Builder property(String property) {

@@ -66,10 +66,11 @@ public class AggregateOptions<K, V> implements RediSearchArgument<K, V> {
 		}
 
 		public int getNargs() {
-			if (as.isEmpty()) {
-				return 1;
+			int nargs = 1;
+			if (as.isPresent()) {
+				nargs += 2;
 			}
-			return 3;
+			return nargs;
 		}
 
 		public static Builder identifier(String identifier) {
