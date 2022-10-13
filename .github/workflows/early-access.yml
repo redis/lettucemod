@@ -16,7 +16,7 @@ jobs:
           fetch-depth: 0
 
       - name: Release
-        uses: redis-field-engineering/redis-release-action@v2
+        uses: redis-field-engineering/redis-release-action@v4
         with:
           gpg-key-id: ${{ secrets.GPG_KEY_ID }}
           gpg-public-key: ${{ secrets.GPG_PUBLIC_KEY }}
@@ -25,7 +25,7 @@ jobs:
           sonatype-username: ${{ secrets.SONATYPE_USERNAME }}
           sonatype-password: ${{ secrets.SONATYPE_PASSWORD }}
           github-token: ${{ secrets.GIT_ACCESS_TOKEN }}
-          slack-webhook: ${{ secrets.JRELEASER_SLACK_WEBHOOK }}
+          slack-webhook: ${{ secrets.SLACK_WEBHOOK }}
 
       - name: Upload test reports
         if: failure()
