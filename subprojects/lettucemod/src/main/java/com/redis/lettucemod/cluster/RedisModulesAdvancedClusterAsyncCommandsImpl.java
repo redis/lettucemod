@@ -46,6 +46,7 @@ import io.lettuce.core.RedisFuture;
 import io.lettuce.core.cluster.MultiNodeExecution;
 import io.lettuce.core.cluster.PipelinedRedisFuture;
 import io.lettuce.core.cluster.RedisAdvancedClusterAsyncCommandsImpl;
+import io.lettuce.core.cluster.SlotHash;
 import io.lettuce.core.codec.RedisCodec;
 import io.lettuce.core.output.KeyValueStreamingChannel;
 
@@ -455,13 +456,13 @@ public class RedisModulesAdvancedClusterAsyncCommandsImpl<K, V> extends RedisAdv
 	}
 
 	public RedisFuture<List<KeyValue<K, V>>> mget(String path, Iterable<K> keys) {
-		Map<Integer, List<K>> partitioned = ModulesSlotHash.partition(codec, keys);
+		Map<Integer, List<K>> partitioned = SlotHash.partition(codec, keys);
 
 		if (partitioned.size() < 2) {
 			return delegate.mget(path, keys);
 		}
 
-		Map<K, Integer> slots = ModulesSlotHash.getSlots(partitioned);
+		Map<K, Integer> slots = SlotHash.getSlots(partitioned);
 		Map<Integer, RedisFuture<List<KeyValue<K, V>>>> executions = new HashMap<>();
 
 		for (Map.Entry<Integer, List<K>> entry : partitioned.entrySet()) {
@@ -485,7 +486,7 @@ public class RedisModulesAdvancedClusterAsyncCommandsImpl<K, V> extends RedisAdv
 	}
 
 	public RedisFuture<Long> mget(KeyValueStreamingChannel<K, V> channel, String path, Iterable<K> keys) {
-		Map<Integer, List<K>> partitioned = ModulesSlotHash.partition(codec, keys);
+		Map<Integer, List<K>> partitioned = SlotHash.partition(codec, keys);
 
 		if (partitioned.size() < 2) {
 			return delegate.mget(channel, path, keys);

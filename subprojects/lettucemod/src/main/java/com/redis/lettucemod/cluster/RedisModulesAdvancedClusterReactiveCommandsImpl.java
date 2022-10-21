@@ -44,6 +44,7 @@ import com.redis.lettucemod.timeseries.TimeRange;
 
 import io.lettuce.core.KeyValue;
 import io.lettuce.core.cluster.RedisAdvancedClusterReactiveCommandsImpl;
+import io.lettuce.core.cluster.SlotHash;
 import io.lettuce.core.codec.RedisCodec;
 import io.lettuce.core.internal.LettuceLists;
 import reactor.core.publisher.Flux;
@@ -460,7 +461,7 @@ public class RedisModulesAdvancedClusterReactiveCommandsImpl<K, V> extends
 	public Flux<KeyValue<K, V>> mget(String path, Iterable<K> keys) {
 
 		List<K> keyList = LettuceLists.newList(keys);
-		Map<Integer, List<K>> partitioned = ModulesSlotHash.partition(codec, keyList);
+		Map<Integer, List<K>> partitioned = SlotHash.partition(codec, keyList);
 
 		if (partitioned.size() < 2) {
 			return delegate.mget(path, keyList);
