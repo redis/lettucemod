@@ -13,9 +13,9 @@ public enum JsonCommandType implements ProtocolKeyword {
 
     DEL, GET, MGET, SET, TYPE, NUMINCRBY, NUMMULTBY, STRAPPEND, STRLEN, ARRAPPEND, ARRINDEX, ARRINSERT, ARRLEN, ARRPOP, ARRTRIM, OBJKEYS, OBJLEN;
 
-    private final static String PREFIX = "JSON.";
+    private static final String PREFIX = "JSON.";
 
-    public final byte[] bytes;
+    private final byte[] bytes;
 
     JsonCommandType() {
         bytes = (PREFIX + name()).getBytes(StandardCharsets.US_ASCII);

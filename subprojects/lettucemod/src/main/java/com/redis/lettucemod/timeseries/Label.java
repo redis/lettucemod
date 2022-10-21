@@ -2,15 +2,15 @@ package com.redis.lettucemod.timeseries;
 
 public class Label<K, V> {
 
-	private K label;
+	private K name;
 	private V value;
 
 	public K getLabel() {
-		return label;
+		return name;
 	}
 
 	public void setLabel(K label) {
-		this.label = label;
+		this.name = label;
 	}
 
 	public V getValue() {

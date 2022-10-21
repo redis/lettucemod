@@ -73,133 +73,103 @@ public class RegistrationListOutput<K, V> extends CommandOutput<K, V, List<Regis
 			return;
 		}
 		if (registration != null) {
-			if (registration.getData() != null) {
-				if (FIELD_MODE.equals(field)) {
-					registration.getData().setMode(decodeAscii(bytes));
-					field = null;
-					return;
-				}
-				if (FIELD_LAST_ERROR.equals(field)) {
-					registration.getData().setLastError(decodeAscii(bytes));
-					field = null;
-					return;
-				}
-				if (FIELD_ARGS.equals(field)) {
-					field = decodeAscii(bytes);
-					return;
-				}
-				if (registration.getData().getArgs() != null && registration.getData().getArgs().size() < argSize) {
-					registration.getData().getArgs().put(field, decodeAscii(bytes));
-					field = null;
-					return;
-				}
-				if (FIELD_STATUS.equals(field)) {
-					registration.getData().setStatus(decodeAscii(bytes));
-					field = null;
-					return;
-				}
-			}
-			if (FIELD_PD.equals(field)) {
-				registration.setPrivateData(decodeAscii(bytes));
+			updateRegistration(bytes);
+		}
+	}
+
+	private void updateRegistration(ByteBuffer bytes) {
+		if (registration.getData() != null) {
+			if (FIELD_MODE.equals(field)) {
+				registration.getData().setMode(decodeAscii(bytes));
 				field = null;
 				return;
 			}
-			subscriber.onNext(output, registration);
-			registration = null;
+			if (FIELD_LAST_ERROR.equals(field)) {
+				registration.getData().setLastError(decodeAscii(bytes));
+				field = null;
+				return;
+			}
+			if (FIELD_ARGS.equals(field)) {
+				field = decodeAscii(bytes);
+				return;
+			}
+			if (registration.getData().getArgs() != null && registration.getData().getArgs().size() < argSize) {
+				registration.getData().getArgs().put(field, decodeAscii(bytes));
+				field = null;
+				return;
+			}
+			if (FIELD_STATUS.equals(field)) {
+				registration.getData().setStatus(decodeAscii(bytes));
+				field = null;
+				return;
+			}
+		}
+		if (FIELD_PD.equals(field)) {
+			registration.setPrivateData(decodeAscii(bytes));
+			field = null;
 			return;
 		}
+		subscriber.onNext(output, registration);
+		registration = null;
 	}
 
 	@Override
 	public void set(long integer) {
-		if (registration != null && registration.getData() != null) {
-			if (FIELD_NUM_TRIGGERED.equals(field)) {
-				registration.getData().setNumTriggered(integer);
-				field = null;
-				return;
-			}
-			if (FIELD_NUM_SUCCESS.equals(field)) {
-				registration.getData().setNumSuccess(integer);
-				field = null;
-				return;
-			}
-			if (FIELD_NUM_FAILURES.equals(field)) {
-				registration.getData().setNumFailures(integer);
-				field = null;
-				return;
-			}
-			if (FIELD_NUM_ABORTED.equals(field)) {
-				registration.getData().setNumAborted(integer);
-				field = null;
-				return;
-			}
-			if (FIELD_LAST_RUN_DURATION.equals(field)) {
-				registration.getData().setLastRunDurationMS(integer);
-				field = null;
-				return;
-			}
-			if (FIELD_TOTAL_RUN_DURATION.equals(field)) {
-				registration.getData().setLastRunDurationMS(integer);
-				field = null;
-				return;
-			}
-			if (FIELD_AVG_RUN_DURATION.equals(field)) {
-				registration.getData().setAvgRunDurationMS(integer);
-				field = null;
-				return;
-			}
-			if (FIELD_LAST_ESTIMATED_LAG.equals(field)) {
-				registration.getData().setLastEstimatedLagMS(integer);
-				field = null;
-				return;
-			}
-			if (FIELD_AVG_ESTIMATED_LAG.equals(field)) {
-				registration.getData().setAvgEstimatedLagMS(integer);
-				field = null;
-				return;
-			}
+		updateRegistrationData(integer);
+	}
+
+	private void updateRegistrationData(long number) {
+		if (registration == null || registration.getData() == null) {
+			return;
+		}
+		switch (field) {
+		case FIELD_NUM_TRIGGERED:
+			registration.getData().setNumTriggered(number);
+			field = null;
+			break;
+		case FIELD_NUM_SUCCESS:
+			registration.getData().setNumSuccess(number);
+			field = null;
+			break;
+		case FIELD_NUM_FAILURES:
+			registration.getData().setNumFailures(number);
+			field = null;
+			break;
+		case FIELD_NUM_ABORTED:
+			registration.getData().setNumAborted(number);
+			field = null;
+			break;
+		case FIELD_LAST_RUN_DURATION:
+			registration.getData().setLastRunDurationMS(number);
+			field = null;
+			break;
+		case FIELD_TOTAL_RUN_DURATION:
+			registration.getData().setTotalRunDurationMS(number);
+			field = null;
+			break;
+		case FIELD_AVG_RUN_DURATION:
+			registration.getData().setAvgRunDurationMS(number);
+			field = null;
+			break;
+		case FIELD_LAST_ESTIMATED_LAG:
+			registration.getData().setLastEstimatedLagMS(number);
+			field = null;
+			break;
+		case FIELD_AVG_ESTIMATED_LAG:
+			registration.getData().setAvgEstimatedLagMS(number);
+			field = null;
+			break;
+		default:
 			if (registration.getData().getArgs() != null && registration.getData().getArgs().size() < argSize) {
-				registration.getData().getArgs().put(field, integer);
+				registration.getData().getArgs().put(field, number);
 				field = null;
-				return;
 			}
 		}
 	}
 
 	@Override
 	public void set(double number) {
-		if (registration != null && registration.getData() != null) {
-			if (FIELD_LAST_RUN_DURATION.equals(field)) {
-				registration.getData().setLastRunDurationMS(Math.round(number));
-				field = null;
-				return;
-			}
-			if (FIELD_TOTAL_RUN_DURATION.equals(field)) {
-				registration.getData().setLastRunDurationMS(Math.round(number));
-				field = null;
-				return;
-			}
-			if (FIELD_AVG_RUN_DURATION.equals(field)) {
-				registration.getData().setAvgRunDurationMS(Math.round(number));
-				field = null;
-				return;
-			}
-			if (FIELD_LAST_ESTIMATED_LAG.equals(field)) {
-				registration.getData().setLastEstimatedLagMS(Math.round(number));
-				field = null;
-				return;
-			}
-			if (FIELD_AVG_ESTIMATED_LAG.equals(field)) {
-				registration.getData().setAvgEstimatedLagMS(Math.round(number));
-				field = null;
-				return;
-			}
-			if (registration.getData().getArgs() != null && registration.getData().getArgs().size() < argSize) {
-				registration.getData().getArgs().put(field, number);
-				field = null;
-				return;
-			}
-		}
+		updateRegistrationData(Math.round(number));
 	}
 
 	@Override

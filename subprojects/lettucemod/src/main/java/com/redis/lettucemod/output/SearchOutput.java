@@ -18,8 +18,8 @@ public class SearchOutput<K, V> extends CommandOutput<K, V, SearchResults<K, V>>
 	private boolean sortKeySet = false;
 	private boolean scoreSet = false;
 	private boolean payloadSet = false;
-    private MapOutput<K, V> contentOutput;
-    private Document<K, V> currentDocument;
+	private MapOutput<K, V> contentOutput;
+	private Document<K, V> currentDocument;
 
 	public SearchOutput(RedisCodec<K, V> codec) {
 		this(codec, false, false, false);
@@ -39,28 +39,38 @@ public class SearchOutput<K, V> extends CommandOutput<K, V, SearchResults<K, V>>
 			if (bytes != null) {
 				currentDocument.setId(codec.decodeKey(bytes));
 			}
-		} else if (withScores && !scoreSet) {
-            if (bytes != null) {
-                currentDocument.setScore(LettuceStrings.toDouble(decodeAscii(bytes)));
-            }
+			return;
+		}
+		if (withScores && !scoreSet) {
+			if (bytes != null) {
+				currentDocument.setScore(LettuceStrings.toDouble(decodeAscii(bytes)));
+			}
 			scoreSet = true;
-		} else if (withPayloads && !payloadSet) {
-            if (bytes != null) {
-                currentDocument.setPayload(codec.decodeValue(bytes));
-            }
+			return;
+		}
+		if (withPayloads && !payloadSet) {
+			if (bytes != null) {
+				currentDocument.setPayload(codec.decodeValue(bytes));
+			}
 			payloadSet = true;
-		} else if (withSortKeys && !sortKeySet) {
-            if (bytes != null) {
-                currentDocument.setSortKey(codec.decodeValue(bytes));
-            }
+			return;
+		}
+		if (withSortKeys && !sortKeySet) {
+			if (bytes != null) {
+				currentDocument.setSortKey(codec.decodeValue(bytes));
+			}
 			sortKeySet = true;
-		} else if (contentOutput != null) {
-            if (bytes != null) {
-                contentOutput.set(bytes);
-            }
-        } else if (bytes == null) {
-            startNewDocument();
-        }
+			return;
+		}
+		if (contentOutput != null) {
+			if (bytes != null) {
+				contentOutput.set(bytes);
+			}
+			return;
+		}
+		if (bytes == null) {
+			startNewDocument();
+		}
 	}
 
 	@Override
@@ -79,25 +89,25 @@ public class SearchOutput<K, V> extends CommandOutput<K, V, SearchResults<K, V>>
 	@Override
 	public void complete(int depth) {
 		if (contentOutput != null && depth == 1) {
-            currentDocument.putAll(contentOutput.get());
-            output.add(currentDocument);
+			currentDocument.putAll(contentOutput.get());
+			output.add(currentDocument);
 			startNewDocument();
 		}
 	}
 
-    private void startNewDocument() {
-        currentDocument = null;
-        contentOutput = null;
-        payloadSet = false;
-        scoreSet = false;
-        sortKeySet = false;
-    }
+	private void startNewDocument() {
+		currentDocument = null;
+		contentOutput = null;
+		payloadSet = false;
+		scoreSet = false;
+		sortKeySet = false;
+	}
 
 	@Override
 	public void multi(int count) {
 		if (currentDocument != null) {
-            contentOutput = new MapOutput<>(codec);
-            contentOutput.multi(count);
+			contentOutput = new MapOutput<>(codec);
+			contentOutput.multi(count);
 		}
 	}
 

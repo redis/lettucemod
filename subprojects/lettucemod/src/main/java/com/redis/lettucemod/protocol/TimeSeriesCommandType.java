@@ -13,9 +13,9 @@ public enum TimeSeriesCommandType implements ProtocolKeyword {
 
 	ADD, ALTER, CREATE, CREATERULE, DELETERULE, MADD, INCRBY, DECRBY, RANGE, REVRANGE, MRANGE, MREVRANGE, GET, MGET, INFO;
 
-	private final static String PREFIX = "TS.";
+	private static final String PREFIX = "TS.";
 
-	public final byte[] bytes;
+	private final byte[] bytes;
 
 	TimeSeriesCommandType() {
 		bytes = (PREFIX + name()).getBytes(StandardCharsets.US_ASCII);

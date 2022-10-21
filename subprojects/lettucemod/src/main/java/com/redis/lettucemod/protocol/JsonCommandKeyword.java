@@ -8,7 +8,7 @@ public enum JsonCommandKeyword implements ProtocolKeyword {
 
 	INDENT, NEWLINE, SPACE, NOESCAPE, NX, XX;
 
-	public final byte[] bytes;
+	private final byte[] bytes;
 
 	JsonCommandKeyword() {
 		bytes = name().getBytes(StandardCharsets.US_ASCII);

@@ -1,8 +1,8 @@
 package com.redis.lettucemod.protocol;
 
-import io.lettuce.core.protocol.ProtocolKeyword;
-
 import java.nio.charset.StandardCharsets;
+
+import io.lettuce.core.protocol.ProtocolKeyword;
 
 /**
  * RediSearch commands.
@@ -11,18 +11,27 @@ import java.nio.charset.StandardCharsets;
  */
 public enum SearchCommandType implements ProtocolKeyword {
 
-    AGGREGATE, ALTER, CREATE, CURSOR, DROPINDEX, INFO, SEARCH, SUGADD, SUGGET, SUGDEL, SUGLEN, ALIASADD, ALIASUPDATE, ALIASDEL, _LIST, TAGVALS, DICTADD, DICTDEL, DICTDUMP;
+	AGGREGATE, ALTER, CREATE, CURSOR, DROPINDEX, INFO, SEARCH, SUGADD, SUGGET, SUGDEL, SUGLEN, ALIASADD, ALIASUPDATE,
+	ALIASDEL, LIST("_LIST"), TAGVALS, DICTADD, DICTDEL, DICTDUMP;
 
-    private final static String PREFIX = "FT.";
+	private static final String PREFIX = "FT.";
 
-    public final byte[] bytes;
+	private final byte[] bytes;
 
-    SearchCommandType() {
-        bytes = (PREFIX + name()).getBytes(StandardCharsets.US_ASCII);
-    }
+	SearchCommandType() {
+		bytes = bytes(name());
+	}
 
-    @Override
-    public byte[] getBytes() {
-        return bytes;
-    }
+	SearchCommandType(String name) {
+		bytes = bytes(name);
+	}
+
+	static byte[] bytes(String name) {
+		return (PREFIX + name).getBytes(StandardCharsets.US_ASCII);
+	}
+
+	@Override
+	public byte[] getBytes() {
+		return bytes;
+	}
 }

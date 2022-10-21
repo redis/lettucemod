@@ -8,7 +8,7 @@ public enum GearsCommandKeyword implements ProtocolKeyword {
 
 	UNBLOCKING, REQUIREMENTS, SHARD, CLUSTER;
 
-	public final byte[] bytes;
+	private final byte[] bytes;
 
 	GearsCommandKeyword() {
 		bytes = name().getBytes(StandardCharsets.US_ASCII);

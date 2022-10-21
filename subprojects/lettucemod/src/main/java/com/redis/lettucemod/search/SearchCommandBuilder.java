@@ -288,7 +288,7 @@ public class SearchCommandBuilder<K, V> extends RedisModulesCommandBuilder<K, V>
 	}
 
 	public Command<K, V, List<K>> list() {
-		return new Command<>(SearchCommandType._LIST, new KeyListOutput<>(codec));
+		return new Command<>(SearchCommandType.LIST, new KeyListOutput<>(codec));
 	}
 
 }

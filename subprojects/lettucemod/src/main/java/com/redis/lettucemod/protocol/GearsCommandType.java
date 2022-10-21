@@ -13,9 +13,9 @@ public enum GearsCommandType implements ProtocolKeyword {
 
     ABORTEXECUTION, CONFIGGET, CONFIGSET, DROPEXECUTION, DUMPEXECUTIONS, DUMPREGISTRATIONS, GETEXECUTION, GETRESULTS, GETRESULTSBLOCKING, PYEXECUTE, TRIGGER, UNREGISTER;
 
-    private final static String PREFIX = "RG.";
+    private static final String PREFIX = "RG.";
 
-    public final byte[] bytes;
+    private final byte[] bytes;
 
     GearsCommandType() {
         bytes = (PREFIX + name()).getBytes(StandardCharsets.US_ASCII);

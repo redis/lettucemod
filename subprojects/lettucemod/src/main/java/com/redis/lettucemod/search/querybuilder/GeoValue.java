@@ -7,15 +7,15 @@ public class GeoValue extends Value {
 	public enum Unit {
 		KILOMETERS("km"), METERS("m"), FEET("ft"), MILES("mi");
 
-		private final String unit;
+		private final String distanceUnit;
 
 		Unit(String unit) {
-			this.unit = unit;
+			this.distanceUnit = unit;
 		}
 
 		@Override
 		public String toString() {
-			return unit;
+			return distanceUnit;
 		}
 	}
 
