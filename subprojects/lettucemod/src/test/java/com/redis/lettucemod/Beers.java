@@ -12,7 +12,6 @@ import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
 import com.redis.lettucemod.api.async.RedisModulesAsyncCommands;
-import com.redis.lettucemod.api.sync.RedisModulesCommands;
 import com.redis.lettucemod.search.CreateOptions;
 import com.redis.lettucemod.search.Field;
 import com.redis.lettucemod.search.TextField.PhoneticMatcher;
@@ -41,10 +40,10 @@ public class Beers {
 			FIELD_CATEGORY_NAME, FIELD_BREWERY_ID, FIELD_DESCRIPTION, FIELD_ABV, FIELD_IBU };
 	private static final ObjectMapper MAPPER = new ObjectMapper();
 
-	public static void createIndex(RedisModulesCommands<String, String> commands) {
+	public static void createIndex(StatefulRedisModulesConnection<String, String> connection) {
 		CreateOptions<String, String> options = CreateOptions.<String, String>builder().prefix(PREFIX)
 				.payloadField(FIELD_PAYLOAD).build();
-		commands.ftCreate(INDEX, options, SCHEMA);
+		connection.sync().ftCreate(INDEX, options, SCHEMA);
 	}
 
 	public static Iterator<JsonNode> jsonNodeIterator() throws IOException {
@@ -61,7 +60,7 @@ public class Beers {
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static int populateIndex(StatefulRedisModulesConnection<String, String> connection) throws IOException {
-		createIndex(connection.sync());
+		createIndex(connection);
 		connection.setAutoFlushCommands(false);
 		RedisModulesAsyncCommands<String, String> async = connection.async();
 		List<RedisFuture<?>> futures = new ArrayList<>();
