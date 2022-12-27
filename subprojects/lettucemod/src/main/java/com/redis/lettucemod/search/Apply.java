@@ -12,6 +12,14 @@ public class Apply<K, V> implements AggregateOperation<K, V> {
 		this.as = as;
 	}
 
+	public V getExpression() {
+		return expression;
+	}
+
+	public K getAs() {
+		return as;
+	}
+
 	@Override
 	public void build(SearchCommandArgs<K, V> args) {
 		args.add(SearchCommandKeyword.APPLY);

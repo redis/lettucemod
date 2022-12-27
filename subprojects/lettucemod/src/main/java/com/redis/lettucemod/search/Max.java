@@ -10,6 +10,10 @@ public class Max implements RediSearchArgument<Object, Object> {
 		this.value = value;
 	}
 
+	public long getValue() {
+		return value;
+	}
+
 	@Override
 	public String toString() {
 		return "Max [value=" + value + "]";

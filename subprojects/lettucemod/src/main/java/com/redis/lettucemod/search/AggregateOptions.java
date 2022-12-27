@@ -13,16 +13,52 @@ public class AggregateOptions<K, V> implements RediSearchArgument<K, V> {
 
 	private static final Load LOAD_ALL = Load.identifier("*").build();
 
-	private final List<AggregateOperation<K, V>> operations;
-	private final List<Load> loads;
-	private final boolean verbatim;
-	private final OptionalLong timeout;
+	private List<AggregateOperation<K, V>> operations = new ArrayList<>();
+	private List<Load> loads = new ArrayList<>();
+	private boolean verbatim;
+	private OptionalLong timeout = OptionalLong.empty();
+
+	public void setOperations(List<AggregateOperation<K, V>> operations) {
+		this.operations = operations;
+	}
+
+	public void setLoads(List<Load> loads) {
+		this.loads = loads;
+	}
+
+	public void setVerbatim(boolean verbatim) {
+		this.verbatim = verbatim;
+	}
+
+	public void setTimeout(OptionalLong timeout) {
+		this.timeout = timeout;
+	}
+
+	public AggregateOptions() {
+
+	}
 
 	private AggregateOptions(Builder<K, V> builder) {
 		this.operations = builder.operations;
 		this.loads = builder.loads;
 		this.verbatim = builder.verbatim;
 		this.timeout = builder.timeout;
+	}
+
+	public List<AggregateOperation<K, V>> getOperations() {
+		return operations;
+	}
+
+	public List<Load> getLoads() {
+		return loads;
+	}
+
+	public boolean isVerbatim() {
+		return verbatim;
+	}
+
+	public OptionalLong getTimeout() {
+		return timeout;
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })

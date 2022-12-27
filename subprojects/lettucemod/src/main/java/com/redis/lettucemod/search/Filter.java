@@ -10,6 +10,10 @@ public class Filter<V> implements AggregateOperation<Object, V> {
 		this.expression = expression;
 	}
 
+	public V getExpression() {
+		return expression;
+	}
+
 	@Override
 	public String toString() {
 		return "FILTER " + expression;

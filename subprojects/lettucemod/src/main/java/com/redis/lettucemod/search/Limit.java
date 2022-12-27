@@ -12,6 +12,14 @@ public class Limit implements AggregateOperation<Object, Object> {
 		this.num = num;
 	}
 
+	public long getOffset() {
+		return offset;
+	}
+
+	public long getNum() {
+		return num;
+	}
+
 	@Override
 	public void build(SearchCommandArgs<Object, Object> args) {
 		args.add(SearchCommandKeyword.LIMIT);

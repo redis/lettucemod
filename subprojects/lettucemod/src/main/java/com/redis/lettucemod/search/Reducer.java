@@ -12,6 +12,10 @@ public abstract class Reducer implements RediSearchArgument<Object, Object> {
 		this.as = as;
 	}
 
+	public Optional<String> getAs() {
+		return as;
+	}
+
 	@Override
 	public void build(SearchCommandArgs<Object, Object> args) {
 		args.add(SearchCommandKeyword.REDUCE);

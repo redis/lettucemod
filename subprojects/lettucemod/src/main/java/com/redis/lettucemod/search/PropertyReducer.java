@@ -13,6 +13,14 @@ public abstract class PropertyReducer extends Reducer {
 		this.property = builder.property;
 	}
 
+	public String getName() {
+		return name;
+	}
+
+	public String getProperty() {
+		return property;
+	}
+
 	public static class Builder<B extends Builder<B>> extends Reducer.Builder<B> {
 
 		protected final String property;

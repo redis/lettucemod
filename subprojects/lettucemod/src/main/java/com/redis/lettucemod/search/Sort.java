@@ -12,12 +12,28 @@ import io.lettuce.core.internal.LettuceAssert;
 
 public class Sort implements AggregateOperation<Object, Object> {
 
-	private final List<Property> properties;
-	private final Optional<Max> max;
+	private List<Property> properties;
+	private Optional<Max> max;
 
 	private Sort(Builder builder) {
 		this.properties = builder.properties;
 		this.max = builder.max;
+	}
+
+	public List<Property> getProperties() {
+		return properties;
+	}
+
+	public Optional<Max> getMax() {
+		return max;
+	}
+
+	public void setProperties(List<Property> properties) {
+		this.properties = properties;
+	}
+
+	public void setMax(Optional<Max> max) {
+		this.max = max;
 	}
 
 	@Override
@@ -85,13 +101,29 @@ public class Sort implements AggregateOperation<Object, Object> {
 
 	public static class Property implements RediSearchArgument<Object, Object> {
 
-		private final String name;
-		private final Order order;
+		private String name;
+		private Order order;
 
 		private Property(String name, Order order) {
 			LettuceAssert.notNull(name, "Name is required");
 			LettuceAssert.notNull(order, "Order is required");
 			this.name = name;
+			this.order = order;
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		public void setName(String name) {
+			this.name = name;
+		}
+
+		public Order getOrder() {
+			return order;
+		}
+
+		public void setOrder(Order order) {
 			this.order = order;
 		}
 

@@ -35,6 +35,14 @@ public class Group implements AggregateOperation<Object, Object> {
 		this.reducers = reducers;
 	}
 
+	public String[] getProperties() {
+		return properties;
+	}
+
+	public Reducer[] getReducers() {
+		return reducers;
+	}
+
 	@Override
 	public void build(SearchCommandArgs<Object, Object> args) {
 		args.add(SearchCommandKeyword.GROUPBY);

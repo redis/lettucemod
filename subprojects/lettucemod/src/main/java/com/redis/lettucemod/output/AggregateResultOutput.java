@@ -72,8 +72,7 @@ public class AggregateResultOutput<K, V> extends CommandOutput<K, V, Map<K, Obje
             initialized = true;
         }
     }
-
-
+    
     public boolean isComplete() {
         return get().size() == expectedSize;
     }
@@ -89,4 +88,7 @@ public class AggregateResultOutput<K, V> extends CommandOutput<K, V, Map<K, Obje
             expectedSize = -1;
         }
     }
+    
+    
+    
 }

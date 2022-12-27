@@ -17,7 +17,7 @@ public class CreateOptions<K, V> implements RediSearchArgument<K, V> {
 	}
 
 	private Optional<DataType> on = Optional.empty();
-	private final List<K> prefixes;
+	private List<K> prefixes = new ArrayList<>();
 	private Optional<V> filter = Optional.empty();
 	private Optional<Language> defaultLanguage = Optional.empty();
 	private Optional<K> languageField = Optional.empty();
@@ -36,6 +36,10 @@ public class CreateOptions<K, V> implements RediSearchArgument<K, V> {
 	 */
 	private Optional<List<V>> stopWords = Optional.empty();
 
+	public CreateOptions() {
+
+	}
+
 	private CreateOptions(Builder<K, V> builder) {
 		this.on = builder.on;
 		this.prefixes = builder.prefixes;
@@ -53,6 +57,130 @@ public class CreateOptions<K, V> implements RediSearchArgument<K, V> {
 		this.noFreqs = builder.noFreqs;
 		this.skipInitialScan = builder.skipInitialScan;
 		this.stopWords = builder.stopWords;
+	}
+
+	public Optional<DataType> getOn() {
+		return on;
+	}
+
+	public void setOn(Optional<DataType> on) {
+		this.on = on;
+	}
+
+	public Optional<V> getFilter() {
+		return filter;
+	}
+
+	public void setFilter(Optional<V> filter) {
+		this.filter = filter;
+	}
+
+	public Optional<Language> getDefaultLanguage() {
+		return defaultLanguage;
+	}
+
+	public void setDefaultLanguage(Optional<Language> defaultLanguage) {
+		this.defaultLanguage = defaultLanguage;
+	}
+
+	public Optional<K> getLanguageField() {
+		return languageField;
+	}
+
+	public void setLanguageField(Optional<K> languageField) {
+		this.languageField = languageField;
+	}
+
+	public OptionalDouble getDefaultScore() {
+		return defaultScore;
+	}
+
+	public void setDefaultScore(OptionalDouble defaultScore) {
+		this.defaultScore = defaultScore;
+	}
+
+	public Optional<K> getScoreField() {
+		return scoreField;
+	}
+
+	public void setScoreField(Optional<K> scoreField) {
+		this.scoreField = scoreField;
+	}
+
+	public Optional<K> getPayloadField() {
+		return payloadField;
+	}
+
+	public void setPayloadField(Optional<K> payloadField) {
+		this.payloadField = payloadField;
+	}
+
+	public boolean isMaxTextFields() {
+		return maxTextFields;
+	}
+
+	public void setMaxTextFields(boolean maxTextFields) {
+		this.maxTextFields = maxTextFields;
+	}
+
+	public OptionalLong getTemporary() {
+		return temporary;
+	}
+
+	public void setTemporary(OptionalLong temporary) {
+		this.temporary = temporary;
+	}
+
+	public boolean isNoOffsets() {
+		return noOffsets;
+	}
+
+	public void setNoOffsets(boolean noOffsets) {
+		this.noOffsets = noOffsets;
+	}
+
+	public boolean isNoHL() {
+		return noHL;
+	}
+
+	public void setNoHL(boolean noHL) {
+		this.noHL = noHL;
+	}
+
+	public boolean isNoFields() {
+		return noFields;
+	}
+
+	public void setNoFields(boolean noFields) {
+		this.noFields = noFields;
+	}
+
+	public boolean isNoFreqs() {
+		return noFreqs;
+	}
+
+	public void setNoFreqs(boolean noFreqs) {
+		this.noFreqs = noFreqs;
+	}
+
+	public boolean isSkipInitialScan() {
+		return skipInitialScan;
+	}
+
+	public void setSkipInitialScan(boolean skipInitialScan) {
+		this.skipInitialScan = skipInitialScan;
+	}
+
+	public Optional<List<V>> getStopWords() {
+		return stopWords;
+	}
+
+	public void setStopWords(Optional<List<V>> stopWords) {
+		this.stopWords = stopWords;
+	}
+
+	public List<K> getPrefixes() {
+		return prefixes;
 	}
 
 	@Override
@@ -110,7 +238,7 @@ public class CreateOptions<K, V> implements RediSearchArgument<K, V> {
 	public static final class Builder<K, V> {
 
 		private Optional<DataType> on = Optional.of(DataType.HASH);
-		private final List<K> prefixes = new ArrayList<>();
+		private List<K> prefixes = new ArrayList<>();
 		private Optional<V> filter = Optional.empty();
 		private Optional<Language> defaultLanguage = Optional.empty();
 		private Optional<K> languageField = Optional.empty();
