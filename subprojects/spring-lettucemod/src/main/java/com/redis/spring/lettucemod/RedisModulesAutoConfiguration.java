@@ -22,6 +22,7 @@ import io.lettuce.core.support.ConnectionPoolSupport;
 @EnableConfigurationProperties(RedisProperties.class)
 public class RedisModulesAutoConfiguration {
 
+	@SuppressWarnings("deprecation")
 	@Bean
 	RedisURI redisURI(RedisProperties properties) {
 		RedisURI redisURI = RedisURI.create(properties.getHost(), properties.getPort());

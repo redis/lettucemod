@@ -21,7 +21,8 @@ import com.redis.lettucemod.search.Reducers.ToList;
 
 import io.lettuce.core.internal.LettuceAssert;
 
-public class Group implements AggregateOperation<Object, Object> {
+@SuppressWarnings("rawtypes")
+public class Group implements AggregateOperation {
 
 	private final String[] properties;
 	private final Reducer[] reducers;
@@ -35,6 +36,11 @@ public class Group implements AggregateOperation<Object, Object> {
 		this.reducers = reducers;
 	}
 
+	@Override
+	public Type getType() {
+		return Type.GROUP;
+	}
+
 	public String[] getProperties() {
 		return properties;
 	}
@@ -44,7 +50,7 @@ public class Group implements AggregateOperation<Object, Object> {
 	}
 
 	@Override
-	public void build(SearchCommandArgs<Object, Object> args) {
+	public void build(SearchCommandArgs args) {
 		args.add(SearchCommandKeyword.GROUPBY);
 		args.add(properties.length);
 		for (String property : properties) {

@@ -5,7 +5,8 @@ import java.util.Optional;
 
 import com.redis.lettucemod.protocol.SearchCommandKeyword;
 
-public abstract class Field<K> implements RediSearchArgument<K, Object> {
+@SuppressWarnings("rawtypes")
+public abstract class Field<K> implements RediSearchArgument {
 
 	public enum Type {
 		TEXT, NUMERIC, GEO, TAG
@@ -85,8 +86,9 @@ public abstract class Field<K> implements RediSearchArgument<K, Object> {
 				&& sortable == other.sortable && type == other.type && unNormalizedForm == other.unNormalizedForm;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public void build(SearchCommandArgs<K, Object> args) {
+	public void build(SearchCommandArgs args) {
 		args.addKey(name);
 		as.ifPresent(a -> args.add(SearchCommandKeyword.AS).addKey(a));
 		buildField(args);

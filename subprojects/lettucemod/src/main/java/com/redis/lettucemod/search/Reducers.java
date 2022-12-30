@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import com.redis.lettucemod.protocol.SearchCommandKeyword;
 
+@SuppressWarnings("rawtypes")
 public class Reducers {
 
 	private Reducers() {
@@ -16,7 +17,7 @@ public class Reducers {
 		}
 
 		@Override
-		protected void buildFunction(SearchCommandArgs<Object, Object> args) {
+		protected void buildFunction(SearchCommandArgs args) {
 			args.add(SearchCommandKeyword.MAX);
 			args.add(1);
 			args.addProperty(property);
@@ -49,7 +50,7 @@ public class Reducers {
 		}
 
 		@Override
-		protected void buildFunction(SearchCommandArgs<Object, Object> args) {
+		protected void buildFunction(SearchCommandArgs args) {
 			args.add(SearchCommandKeyword.FIRST_VALUE);
 			args.add(getNumberOfArgs());
 			args.addProperty(property);
@@ -96,7 +97,7 @@ public class Reducers {
 			}
 		}
 
-		public static class By implements RediSearchArgument<Object, Object> {
+		public static class By implements RediSearchArgument {
 
 			private final String property;
 			private final Optional<Order> order;
@@ -126,7 +127,7 @@ public class Reducers {
 			}
 
 			@Override
-			public void build(SearchCommandArgs<Object, Object> args) {
+			public void build(SearchCommandArgs args) {
 				args.add(SearchCommandKeyword.BY).addProperty(property);
 				order.ifPresent(o -> args.add(o.getKeyword()));
 			}
@@ -149,7 +150,7 @@ public class Reducers {
 		}
 
 		@Override
-		protected void buildFunction(SearchCommandArgs<Object, Object> args) {
+		protected void buildFunction(SearchCommandArgs args) {
 			args.add(SearchCommandKeyword.COUNT);
 			args.add(0);
 		}
@@ -176,7 +177,7 @@ public class Reducers {
 		}
 
 		@Override
-		protected void buildFunction(SearchCommandArgs<Object, Object> args) {
+		protected void buildFunction(SearchCommandArgs args) {
 			args.add(SearchCommandKeyword.MIN);
 			args.add(1);
 			args.addProperty(property);
@@ -214,7 +215,7 @@ public class Reducers {
 		}
 
 		@Override
-		protected void buildFunction(SearchCommandArgs<Object, Object> args) {
+		protected void buildFunction(SearchCommandArgs args) {
 			args.add(SearchCommandKeyword.RANDOM_SAMPLE);
 			args.add(2);
 			args.addProperty(property);
@@ -263,7 +264,7 @@ public class Reducers {
 		}
 
 		@Override
-		protected void buildFunction(SearchCommandArgs<Object, Object> args) {
+		protected void buildFunction(SearchCommandArgs args) {
 			args.add(SearchCommandKeyword.AVG);
 			args.add(1);
 			args.addProperty(property);
@@ -293,7 +294,7 @@ public class Reducers {
 		}
 
 		@Override
-		protected void buildFunction(SearchCommandArgs<Object, Object> args) {
+		protected void buildFunction(SearchCommandArgs args) {
 			args.add(SearchCommandKeyword.TOLIST);
 			args.add(1);
 			args.addProperty(property);
@@ -322,7 +323,7 @@ public class Reducers {
 		}
 
 		@Override
-		protected void buildFunction(SearchCommandArgs<Object, Object> args) {
+		protected void buildFunction(SearchCommandArgs args) {
 			args.add(SearchCommandKeyword.SUM);
 			args.add(1);
 			args.addProperty(property);
@@ -351,7 +352,7 @@ public class Reducers {
 		}
 
 		@Override
-		protected void buildFunction(SearchCommandArgs<Object, Object> args) {
+		protected void buildFunction(SearchCommandArgs args) {
 			args.add(SearchCommandKeyword.STDDEV);
 			args.add(1);
 			args.addProperty(property);
@@ -381,7 +382,7 @@ public class Reducers {
 		}
 
 		@Override
-		protected void buildFunction(SearchCommandArgs<Object, Object> args) {
+		protected void buildFunction(SearchCommandArgs args) {
 			args.add(SearchCommandKeyword.COUNT_DISTINCTISH);
 			args.add(1);
 			args.addProperty(property);
@@ -411,7 +412,7 @@ public class Reducers {
 		}
 
 		@Override
-		protected void buildFunction(SearchCommandArgs<Object, Object> args) {
+		protected void buildFunction(SearchCommandArgs args) {
 			args.add(SearchCommandKeyword.COUNT_DISTINCT);
 			args.add(1);
 			args.addProperty(property);
@@ -450,7 +451,7 @@ public class Reducers {
 		}
 
 		@Override
-		protected void buildFunction(SearchCommandArgs<Object, Object> args) {
+		protected void buildFunction(SearchCommandArgs args) {
 			args.add(SearchCommandKeyword.QUANTILE);
 			args.add(2);
 			args.addProperty(property);

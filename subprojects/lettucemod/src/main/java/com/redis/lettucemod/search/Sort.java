@@ -10,7 +10,8 @@ import com.redis.lettucemod.protocol.SearchCommandKeyword;
 
 import io.lettuce.core.internal.LettuceAssert;
 
-public class Sort implements AggregateOperation<Object, Object> {
+@SuppressWarnings("rawtypes")
+public class Sort implements AggregateOperation {
 
 	private List<Property> properties;
 	private Optional<Max> max;
@@ -18,6 +19,11 @@ public class Sort implements AggregateOperation<Object, Object> {
 	private Sort(Builder builder) {
 		this.properties = builder.properties;
 		this.max = builder.max;
+	}
+
+	@Override
+	public Type getType() {
+		return Type.SORT;
 	}
 
 	public List<Property> getProperties() {
@@ -37,7 +43,7 @@ public class Sort implements AggregateOperation<Object, Object> {
 	}
 
 	@Override
-	public void build(SearchCommandArgs<Object, Object> args) {
+	public void build(SearchCommandArgs args) {
 		args.add(SearchCommandKeyword.SORTBY);
 		args.add((long) properties.size() * 2);
 		for (Property property : properties) {
@@ -99,7 +105,7 @@ public class Sort implements AggregateOperation<Object, Object> {
 
 	}
 
-	public static class Property implements RediSearchArgument<Object, Object> {
+	public static class Property implements RediSearchArgument {
 
 		private String name;
 		private Order order;
@@ -145,7 +151,7 @@ public class Sort implements AggregateOperation<Object, Object> {
 		}
 
 		@Override
-		public void build(SearchCommandArgs<Object, Object> args) {
+		public void build(SearchCommandArgs args) {
 			args.addProperty(name);
 			args.add(order.getKeyword());
 		}

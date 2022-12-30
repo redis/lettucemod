@@ -71,7 +71,7 @@ public class SearchCommandBuilder<K, V> extends RedisModulesCommandBuilder<K, V>
 		return createCommand(SearchCommandType.INFO, new NestedMultiOutput<>(codec), args);
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings("rawtypes")
 	public Command<K, V, String> alter(K index, Field<K> field) {
 		notNullIndex(index);
 		notNull(field, "Field");
@@ -235,14 +235,13 @@ public class SearchCommandBuilder<K, V> extends RedisModulesCommandBuilder<K, V>
 		return sugget(key, prefix, null);
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Command<K, V, List<Suggestion<V>>> sugget(K key, V prefix, SuggetOptions options) {
 		notNullKey(key);
 		notNull(prefix, "Prefix");
 		SearchCommandArgs<K, V> args = args(key);
 		args.addValue(prefix);
 		if (options != null) {
-			options.build((SearchCommandArgs) args);
+			options.build(args);
 		}
 		return createCommand(SearchCommandType.SUGGET, suggetOutput(options), args);
 	}

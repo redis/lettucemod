@@ -2,12 +2,18 @@ package com.redis.lettucemod.search;
 
 import com.redis.lettucemod.protocol.SearchCommandKeyword;
 
-public class Filter<V> implements AggregateOperation<Object, V> {
+@SuppressWarnings("rawtypes")
+public class Filter<V> implements AggregateOperation {
 
 	private final V expression;
 
 	public Filter(V expression) {
 		this.expression = expression;
+	}
+
+	@Override
+	public Type getType() {
+		return Type.FILTER;
 	}
 
 	public V getExpression() {
@@ -23,8 +29,9 @@ public class Filter<V> implements AggregateOperation<Object, V> {
 		return new Filter<>(expression);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public void build(SearchCommandArgs<Object, V> args) {
+	public void build(SearchCommandArgs args) {
 		args.add(SearchCommandKeyword.FILTER);
 		args.addValue(expression);
 	}

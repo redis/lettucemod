@@ -2,7 +2,8 @@ package com.redis.lettucemod.search;
 
 import com.redis.lettucemod.protocol.SearchCommandKeyword;
 
-public class Limit implements AggregateOperation<Object, Object> {
+@SuppressWarnings("rawtypes")
+public class Limit implements AggregateOperation {
 
 	private final long offset;
 	private final long num;
@@ -10,6 +11,11 @@ public class Limit implements AggregateOperation<Object, Object> {
 	public Limit(long offset, long num) {
 		this.offset = offset;
 		this.num = num;
+	}
+
+	@Override
+	public Type getType() {
+		return Type.LIMIT;
 	}
 
 	public long getOffset() {
@@ -21,7 +27,7 @@ public class Limit implements AggregateOperation<Object, Object> {
 	}
 
 	@Override
-	public void build(SearchCommandArgs<Object, Object> args) {
+	public void build(SearchCommandArgs args) {
 		args.add(SearchCommandKeyword.LIMIT);
 		args.add(offset);
 		args.add(num);
@@ -32,26 +38,27 @@ public class Limit implements AggregateOperation<Object, Object> {
 		return "LIMIT [offset=" + offset + ", num=" + num + "]";
 	}
 
-	public static INumStage offset(long offset) {
+	public static NumBuilder offset(long offset) {
 		return new Builder().offset(offset);
 	}
 
-	public interface IOffsetStage {
-		public INumStage offset(long offset);
+	public interface OffsetBuilder {
+		public NumBuilder offset(long offset);
 	}
 
-	public interface INumStage {
+	public interface NumBuilder {
 		public Limit num(long num);
 	}
 
-	public static final class Builder implements IOffsetStage, INumStage {
+	public static final class Builder implements OffsetBuilder, NumBuilder {
+
 		private long offset;
 
 		private Builder() {
 		}
 
 		@Override
-		public INumStage offset(long offset) {
+		public NumBuilder offset(long offset) {
 			this.offset = offset;
 			return this;
 		}

@@ -61,7 +61,7 @@ public class AggregateOptions<K, V> implements RediSearchArgument<K, V> {
 		return timeout;
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings("rawtypes")
 	@Override
 	public void build(SearchCommandArgs<K, V> args) {
 		if (verbatim) {
@@ -91,7 +91,8 @@ public class AggregateOptions<K, V> implements RediSearchArgument<K, V> {
 		return string.toString();
 	}
 
-	public static class Load implements RediSearchArgument<Object, Object> {
+	@SuppressWarnings("rawtypes")
+	public static class Load implements RediSearchArgument {
 
 		private final String identifier;
 		private final Optional<String> as;
@@ -133,7 +134,7 @@ public class AggregateOptions<K, V> implements RediSearchArgument<K, V> {
 		}
 
 		@Override
-		public void build(SearchCommandArgs<Object, Object> args) {
+		public void build(SearchCommandArgs args) {
 			args.add(identifier);
 			as.ifPresent(a -> args.add(SearchCommandKeyword.AS).add(a));
 		}

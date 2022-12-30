@@ -234,7 +234,7 @@ public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
 				+ scorer + ", payload=" + payload + ", sortBy=" + sortBy + ", limit=" + limit + "]";
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings("rawtypes")
 	@Override
 	public void build(SearchCommandArgs<K, V> args) {
 		if (noContent) {

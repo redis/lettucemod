@@ -12,6 +12,11 @@ public class Apply<K, V> implements AggregateOperation<K, V> {
 		this.as = as;
 	}
 
+	@Override
+	public Type getType() {
+		return Type.APPLY;
+	}
+
 	public V getExpression() {
 		return expression;
 	}

@@ -4,7 +4,8 @@ import java.util.Optional;
 
 import com.redis.lettucemod.protocol.SearchCommandKeyword;
 
-public abstract class Reducer implements RediSearchArgument<Object, Object> {
+@SuppressWarnings("rawtypes")
+public abstract class Reducer implements RediSearchArgument {
 
 	protected final Optional<String> as;
 
@@ -17,7 +18,7 @@ public abstract class Reducer implements RediSearchArgument<Object, Object> {
 	}
 
 	@Override
-	public void build(SearchCommandArgs<Object, Object> args) {
+	public void build(SearchCommandArgs args) {
 		args.add(SearchCommandKeyword.REDUCE);
 		buildFunction(args);
 		as.ifPresent(a -> args.add(SearchCommandKeyword.AS).add(a));
@@ -29,7 +30,7 @@ public abstract class Reducer implements RediSearchArgument<Object, Object> {
 		return builder.toString();
 	}
 
-	protected abstract void buildFunction(SearchCommandArgs<Object, Object> args);
+	protected abstract void buildFunction(SearchCommandArgs args);
 
 	@SuppressWarnings("unchecked")
 	public static class Builder<B extends Builder<B>> {
