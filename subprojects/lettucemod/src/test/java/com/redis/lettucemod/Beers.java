@@ -25,7 +25,7 @@ public class Beers {
 	public static final String PREFIX = "beer:";
 	public static final String INDEX = "beers";
 
-	private static final String FIELD_PAYLOAD = "payload";
+	public static final String FIELD_PAYLOAD = "payload";
 	public static final Field<String> FIELD_ID = Field.tag("id").sortable().build();
 	public static final Field<String> FIELD_BREWERY_ID = Field.tag("brewery_id").sortable().build();
 	public static final Field<String> FIELD_NAME = Field.text("name").sortable().build();

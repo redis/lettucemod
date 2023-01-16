@@ -766,8 +766,7 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 					.noFields(true).noFreqs(true).build();
 			commands.ftCreate(index, createOptions, Field.tag("id").build(), Field.numeric("scoreField").build());
 			IndexInfo info = RedisModulesUtils.indexInfo(commands.ftInfo(index));
-			CreateOptions<String, String> actual = info.getIndexOptions();
-			Assertions.assertEquals(createOptions, actual);
+			Assertions.assertEquals(createOptions, info.getIndexOptions());
 		}
 
 		@ParameterizedTest
