@@ -1,0 +1,2 @@
+com.redis.spring.lettucemod.RedisModulesAutoConfiguration
+org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
