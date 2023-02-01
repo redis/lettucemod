@@ -749,7 +749,10 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 					nameField, styleField);
 			IndexInfo info = RedisModulesUtils.indexInfo(context.sync().ftInfo(index));
 			Assertions.assertEquals(idField, info.getFields().get(0));
-			Assertions.assertEquals(nameField, info.getFields().get(1));
+			Field<String> actualNameField = info.getFields().get(1);
+			// Workaround for older RediSearch versions (Redis Enterprise tests)
+			actualNameField.setUnNormalizedForm(true);
+			Assertions.assertEquals(nameField, actualNameField);
 			Assertions.assertEquals(styleField, info.getFields().get(2));
 		}
 
