@@ -27,12 +27,11 @@ config {
         
         people {
             person {
-                id = 'jruaux'
-                name = 'Julien Ruaux'
+                id    = 'jruaux'
+                name  = 'Julien Ruaux'
                 roles = ['developer', 'author']
             }
         }
-        
     }
     
     docs {
@@ -95,9 +94,11 @@ subprojects {
     
     dependencies {
         testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
-        testImplementation group: 'com.redis.testcontainers', name: 'testcontainers-redis-junit', version: testcontainersRedisVersion
+        testImplementation(group: 'com.redis.testcontainers', name: 'testcontainers-redis-junit', version: testcontRedisVersion) {
+            exclude group: 'com.redis', module: 'lettucemod'
+        }
     }
-
+    
     test {
         useJUnitPlatform()
     }
@@ -105,12 +106,12 @@ subprojects {
     bootJar {
         enabled = false
     }
-
+    
     jar {
         enabled = true
         archiveClassifier = ''
     }
-
+    
     configurations {
         all*.exclude module: 'spring-boot-starter-logging'
     }

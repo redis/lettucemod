@@ -33,7 +33,3 @@ projects {
         }
     }
 }
-
-enforce {
-    enabled = false
-}
