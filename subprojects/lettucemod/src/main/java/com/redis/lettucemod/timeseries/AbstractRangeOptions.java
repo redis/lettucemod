@@ -10,11 +10,11 @@ import io.lettuce.core.protocol.CommandArgs;
 
 abstract class AbstractRangeOptions implements CompositeArgument {
 
-	private final boolean latest;
-	private final Optional<long[]> filterByTimestamp;
-	private final Optional<FilterByValue> filterByValue;
-	private final OptionalLong count;
-	private final Optional<Aggregation> aggregation;
+	private boolean latest;
+	private Optional<long[]> filterByTimestamp;
+	private Optional<FilterByValue> filterByValue;
+	private OptionalLong count;
+	private Optional<Aggregation> aggregation;
 
 	protected AbstractRangeOptions(Builder<?> builder) {
 		this.latest = builder.latest;
@@ -22,6 +22,46 @@ abstract class AbstractRangeOptions implements CompositeArgument {
 		this.filterByValue = builder.filterByValue;
 		this.count = builder.count;
 		this.aggregation = builder.aggregation;
+	}
+
+	public void setLatest(boolean latest) {
+		this.latest = latest;
+	}
+
+	public boolean isLatest() {
+		return latest;
+	}
+
+	public void setFilterByTimestamp(Optional<long[]> filterByTimestamp) {
+		this.filterByTimestamp = filterByTimestamp;
+	}
+
+	public Optional<long[]> getFilterByTimestamp() {
+		return filterByTimestamp;
+	}
+
+	public void setFilterByValue(Optional<FilterByValue> filterByValue) {
+		this.filterByValue = filterByValue;
+	}
+
+	public Optional<FilterByValue> getFilterByValue() {
+		return filterByValue;
+	}
+
+	public void setCount(OptionalLong count) {
+		this.count = count;
+	}
+
+	public OptionalLong getCount() {
+		return count;
+	}
+
+	public Optional<Aggregation> getAggregation() {
+		return aggregation;
+	}
+
+	public void setAggregation(Optional<Aggregation> aggregation) {
+		this.aggregation = aggregation;
 	}
 
 	protected <K, V> void buildCount(CommandArgs<K, V> args) {
@@ -59,6 +99,10 @@ abstract class AbstractRangeOptions implements CompositeArgument {
 		private Optional<FilterByValue> filterByValue = Optional.empty();
 		private OptionalLong count = OptionalLong.empty();
 		private Optional<Aggregation> aggregation = Optional.empty();
+
+		public B latest() {
+			return latest(true);
+		}
 
 		public B latest(boolean latest) {
 			this.latest = latest;

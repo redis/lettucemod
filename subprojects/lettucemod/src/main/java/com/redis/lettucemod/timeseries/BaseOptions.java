@@ -1,9 +1,11 @@
 package com.redis.lettucemod.timeseries;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.OptionalLong;
 
 import com.redis.lettucemod.protocol.TimeSeriesCommandKeyword;
@@ -13,7 +15,7 @@ import io.lettuce.core.protocol.CommandArgs;
 
 public class BaseOptions<K, V> implements CompositeArgument {
 
-	private final OptionalLong retentionPeriod;
+	private final Optional<Duration> retentionPeriod;
 	private final OptionalLong chunkSize;
 	private final List<Label<K, V>> labels;
 
@@ -26,7 +28,7 @@ public class BaseOptions<K, V> implements CompositeArgument {
 	@SuppressWarnings({ "hiding", "unchecked" })
 	@Override
 	public <K, V> void build(CommandArgs<K, V> args) {
-		retentionPeriod.ifPresent(t -> args.add(TimeSeriesCommandKeyword.RETENTION).add(t));
+		retentionPeriod.ifPresent(t -> args.add(TimeSeriesCommandKeyword.RETENTION).add(t.toMillis()));
 		chunkSize.ifPresent(s -> args.add(TimeSeriesCommandKeyword.CHUNK_SIZE).add(s));
 		if (!labels.isEmpty()) {
 			args.add(TimeSeriesCommandKeyword.LABELS);
@@ -52,12 +54,16 @@ public class BaseOptions<K, V> implements CompositeArgument {
 
 	@SuppressWarnings("unchecked")
 	public static class Builder<K, V, B extends Builder<K, V, B>> {
-		private OptionalLong retentionTime = OptionalLong.empty();
+		private Optional<Duration> retentionTime = Optional.empty();
 		private OptionalLong chunkSize = OptionalLong.empty();
 		private final List<Label<K, V>> labels = new ArrayList<>();
 
-		public B retentionPeriod(long retentionPeriod) {
-			this.retentionTime = OptionalLong.of(retentionPeriod);
+		public B retentionPeriod(long millis) {
+			return retentionPeriod(Duration.ofMillis(millis));
+		}
+
+		public B retentionPeriod(Duration duration) {
+			this.retentionTime = Optional.of(duration);
 			return (B) this;
 		}
 

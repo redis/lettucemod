@@ -638,9 +638,17 @@ public class SearchOptions<K, V> extends BaseSearchOptions<K, V> {
 		private Builder() {
 		}
 
+		public Builder<K, V> noContent() {
+			return noContent(true);
+		}
+
 		public Builder<K, V> noContent(boolean noContent) {
 			this.noContent = noContent;
 			return this;
+		}
+
+		public Builder<K, V> noStopWords() {
+			return noStopWords(true);
 		}
 
 		public Builder<K, V> noStopWords(boolean noStopWords) {
@@ -648,14 +656,26 @@ public class SearchOptions<K, V> extends BaseSearchOptions<K, V> {
 			return this;
 		}
 
+		public Builder<K, V> withScores() {
+			return withScores(true);
+		}
+
 		public Builder<K, V> withScores(boolean withScores) {
 			this.withScores = withScores;
 			return this;
 		}
 
+		public Builder<K, V> withPayloads() {
+			return withPayloads(true);
+		}
+
 		public Builder<K, V> withPayloads(boolean withPayloads) {
 			this.withPayloads = withPayloads;
 			return this;
+		}
+
+		public Builder<K, V> withSortKeys() {
+			return withSortKeys(true);
 		}
 
 		public Builder<K, V> withSortKeys(boolean withSortKeys) {
@@ -725,6 +745,10 @@ public class SearchOptions<K, V> extends BaseSearchOptions<K, V> {
 		public Builder<K, V> slop(long slop) {
 			this.slop = OptionalLong.of(slop);
 			return this;
+		}
+
+		public Builder<K, V> inOrder() {
+			return inOrder(true);
 		}
 
 		public Builder<K, V> inOrder(boolean inOrder) {

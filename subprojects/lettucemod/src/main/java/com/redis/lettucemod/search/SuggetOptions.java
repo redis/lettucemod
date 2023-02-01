@@ -83,15 +83,27 @@ public class SuggetOptions implements RediSearchArgument {
 
 		private Builder() {
 		}
+		
+		public Builder fuzzy() {
+			return fuzzy(true);
+		}
 
 		public Builder fuzzy(boolean fuzzy) {
 			this.fuzzy = fuzzy;
 			return this;
 		}
+		
+		public Builder withScores() {
+			return withScores(true);
+		}
 
 		public Builder withScores(boolean withScores) {
 			this.withScores = withScores;
 			return this;
+		}
+		
+		public Builder withPayloads() {
+			return withPayloads(true);
 		}
 
 		public Builder withPayloads(boolean withPayloads) {

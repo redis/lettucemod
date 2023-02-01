@@ -46,32 +46,37 @@ public class GetOptions implements CompositeArgument {
 		this.noEscape = noEscape;
 	}
 
-	public static GetOptionsBuilder builder() {
-		return new GetOptionsBuilder();
+	public static Builder builder() {
+		return new Builder();
 	}
 
-	public static class GetOptionsBuilder {
+	public static class Builder {
+
 		private String indent;
 		private String newline;
 		private String space;
 		private boolean noEscape;
 
-		public GetOptions.GetOptionsBuilder indent(String indent) {
+		public Builder indent(String indent) {
 			this.indent = indent;
 			return this;
 		}
 
-		public GetOptions.GetOptionsBuilder newline(String newline) {
+		public Builder newline(String newline) {
 			this.newline = newline;
 			return this;
 		}
 
-		public GetOptions.GetOptionsBuilder space(String space) {
+		public Builder space(String space) {
 			this.space = space;
 			return this;
 		}
 
-		public GetOptions.GetOptionsBuilder noEscape(boolean noEscape) {
+		public Builder noEscape() {
+			return noEscape(true);
+		}
+
+		public Builder noEscape(boolean noEscape) {
 			this.noEscape = noEscape;
 			return this;
 		}

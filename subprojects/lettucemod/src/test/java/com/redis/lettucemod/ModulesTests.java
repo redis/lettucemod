@@ -314,12 +314,13 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 			Beers.populateIndex(context.getConnection());
 			RedisModulesCommands<String, String> sync = context.sync();
 			SearchOptions<String, String> options = SearchOptions.<String, String>builder().withPayloads(true)
-					.noStopWords(true).limit(SearchOptions.limit(10, 100)).withScores(true)
+					.noStopWords(true).limit(10, 100).withScores(true)
 					.highlight(Highlight.<String, String>builder().field(Beers.FIELD_NAME.getName())
 							.tags("<TAG>", "</TAG>").build())
-					.language(Language.ENGLISH).noContent(false)
-					.sortBy(SearchOptions.SortBy.asc(Beers.FIELD_NAME.getName())).verbatim(false).withSortKeys(true)
-					.returnField(Beers.FIELD_NAME.getName()).returnField(Beers.FIELD_STYLE_NAME.getName()).build();
+					.language(Language.ENGLISH).noContent(false).timeout(Duration.ofSeconds(10))
+					.param("param1", "value").dialect(2).sortBy(SearchOptions.SortBy.asc(Beers.FIELD_NAME.getName()))
+					.verbatim(false).withSortKeys().returnField(Beers.FIELD_NAME.getName())
+					.returnField(Beers.FIELD_STYLE_NAME.getName()).build();
 			SearchResults<String, String> results = sync.ftSearch(Beers.INDEX, "pale", options);
 			assertEquals(74, results.getCount());
 			Document<String, String> doc1 = results.get(0);

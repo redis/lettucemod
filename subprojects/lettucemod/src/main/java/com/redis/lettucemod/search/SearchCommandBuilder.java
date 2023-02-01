@@ -41,7 +41,7 @@ public class SearchCommandBuilder<K, V> extends RedisModulesCommandBuilder<K, V>
 		notNull(index, "Index");
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings("unchecked")
 	public Command<K, V, String> create(K index, CreateOptions<K, V> options, Field<K>... fields) {
 		notNullIndex(index);
 		LettuceAssert.isTrue(fields.length > 0, "At least one field is required.");
@@ -51,7 +51,7 @@ public class SearchCommandBuilder<K, V> extends RedisModulesCommandBuilder<K, V>
 		}
 		args.add(SearchCommandKeyword.SCHEMA);
 		for (Field<K> field : fields) {
-			field.build((SearchCommandArgs) args);
+			field.build(args);
 		}
 		return createCommand(SearchCommandType.CREATE, new StatusOutput<>(codec), args);
 	}
@@ -71,14 +71,13 @@ public class SearchCommandBuilder<K, V> extends RedisModulesCommandBuilder<K, V>
 		return createCommand(SearchCommandType.INFO, new NestedMultiOutput<>(codec), args);
 	}
 
-	@SuppressWarnings("rawtypes")
 	public Command<K, V, String> alter(K index, Field<K> field) {
 		notNullIndex(index);
 		notNull(field, "Field");
 		SearchCommandArgs<K, V> args = args(index);
 		args.add(SearchCommandKeyword.SCHEMA);
 		args.add(SearchCommandKeyword.ADD);
-		field.build((SearchCommandArgs) args);
+		field.build(args);
 		return createCommand(SearchCommandType.ALTER, new StatusOutput<>(codec), args);
 	}
 

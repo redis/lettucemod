@@ -299,6 +299,10 @@ public class CreateOptions<K, V> implements RediSearchArgument<K, V> {
 			this.payloadField = Optional.of(payloadField);
 			return this;
 		}
+		
+		public Builder<K, V> maxTextFields() {
+			return maxTextFields(true);
+		}
 
 		public Builder<K, V> maxTextFields(boolean maxTextFields) {
 			this.maxTextFields = maxTextFields;
@@ -309,25 +313,45 @@ public class CreateOptions<K, V> implements RediSearchArgument<K, V> {
 			this.temporary = OptionalLong.of(temporary);
 			return this;
 		}
+		
+		public Builder<K, V> noOffsets() {
+			return noOffsets(true);
+		}
 
 		public Builder<K, V> noOffsets(boolean noOffsets) {
 			this.noOffsets = noOffsets;
 			return this;
+		}
+		
+		public Builder<K, V> noHL() {
+			return noHL(true);
 		}
 
 		public Builder<K, V> noHL(boolean noHL) {
 			this.noHL = noHL;
 			return this;
 		}
+		
+		public Builder<K, V> noFields() {
+			return noFields(true);
+		}
 
 		public Builder<K, V> noFields(boolean noFields) {
 			this.noFields = noFields;
 			return this;
 		}
+		
+		public Builder<K, V> noFreqs() {
+			return noFreqs(true);
+		}
 
 		public Builder<K, V> noFreqs(boolean noFreqs) {
 			this.noFreqs = noFreqs;
 			return this;
+		}
+		
+		public Builder<K, V> skipInitialScan() {
+			return skipInitialScan(true);
 		}
 
 		public Builder<K, V> skipInitialScan(boolean skipInitialScan) {

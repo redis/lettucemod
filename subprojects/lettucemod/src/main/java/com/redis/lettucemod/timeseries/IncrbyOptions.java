@@ -40,6 +40,10 @@ public class IncrbyOptions<K, V> extends BaseOptions<K, V> {
 		public IncrbyOptions<K, V> build() {
 			return new IncrbyOptions<>(this);
 		}
+		
+		public Builder<K, V> uncompressed() {
+			return uncompressed(true);
+		}
 
 		public Builder<K, V> uncompressed(boolean uncompressed) {
 			this.uncompressed = uncompressed;

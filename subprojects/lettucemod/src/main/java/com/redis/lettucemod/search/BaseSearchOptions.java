@@ -1,19 +1,19 @@
 package com.redis.lettucemod.search;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalInt;
-import java.util.OptionalLong;
 
 import com.redis.lettucemod.protocol.SearchCommandKeyword;
 
 public class BaseSearchOptions<K, V> implements RediSearchArgument<K, V> {
 
 	private boolean verbatim;
-	private OptionalLong timeout = OptionalLong.empty();
+	private Optional<Duration> timeout = Optional.empty();
 	private Optional<Limit> limit = Optional.empty();
 	private List<Parameter<K, V>> params = new ArrayList<>();
 	private OptionalInt dialect = OptionalInt.empty();
@@ -29,11 +29,11 @@ public class BaseSearchOptions<K, V> implements RediSearchArgument<K, V> {
 		this.dialect = builder.dialect;
 	}
 
-	public OptionalLong getTimeout() {
+	public Optional<Duration> getTimeout() {
 		return timeout;
 	}
 
-	public void setTimeout(OptionalLong timeout) {
+	public void setTimeout(Optional<Duration> timeout) {
 		this.timeout = timeout;
 	}
 
@@ -69,17 +69,16 @@ public class BaseSearchOptions<K, V> implements RediSearchArgument<K, V> {
 		this.dialect = dialect;
 	}
 
-	@SuppressWarnings("rawtypes")
 	@Override
 	public void build(SearchCommandArgs<K, V> args) {
 		if (verbatim) {
 			args.add(SearchCommandKeyword.VERBATIM);
 		}
-		timeout.ifPresent(t -> args.add(SearchCommandKeyword.TIMEOUT).add(t));
-		limit.ifPresent(l -> l.build((SearchCommandArgs) args));
+		timeout.ifPresent(t -> args.add(SearchCommandKeyword.TIMEOUT).add(t.toMillis()));
+		limit.ifPresent(l -> l.build(args));
 		if (!params.isEmpty()) {
 			args.add(SearchCommandKeyword.PARAMS);
-			args.add(params.size());
+			args.add(params.size() * 2l);
 			params.forEach(p -> args.addKey(p.getName()).addValue(p.getValue()));
 		}
 		dialect.ifPresent(d -> args.add(SearchCommandKeyword.DIALECT).add(d));
@@ -88,12 +87,16 @@ public class BaseSearchOptions<K, V> implements RediSearchArgument<K, V> {
 	public static class Builder<K, V, B extends Builder<K, V, B>> {
 
 		private boolean verbatim;
-		private OptionalLong timeout = OptionalLong.empty();
+		private Optional<Duration> timeout = Optional.empty();
 		private final List<Parameter<K, V>> params = new ArrayList<>();
 		private Optional<Limit> limit = Optional.empty();
 		private OptionalInt dialect = OptionalInt.empty();
 
 		protected Builder() {
+		}
+
+		public B verbatim() {
+			return verbatim(true);
 		}
 
 		@SuppressWarnings("unchecked")
@@ -102,9 +105,13 @@ public class BaseSearchOptions<K, V> implements RediSearchArgument<K, V> {
 			return (B) this;
 		}
 
+		public B timeout(long millis) {
+			return timeout(Duration.ofMillis(millis));
+		}
+
 		@SuppressWarnings("unchecked")
-		public B timeout(long timeout) {
-			this.timeout = OptionalLong.of(timeout);
+		public B timeout(Duration timeout) {
+			this.timeout = Optional.of(timeout);
 			return (B) this;
 		}
 
@@ -130,6 +137,10 @@ public class BaseSearchOptions<K, V> implements RediSearchArgument<K, V> {
 		public B limit(Limit limit) {
 			this.limit = Optional.of(limit);
 			return (B) this;
+		}
+
+		public B limit(long offset, long num) {
+			return limit(Limit.offset(offset).num(num));
 		}
 
 		@SuppressWarnings("unchecked")

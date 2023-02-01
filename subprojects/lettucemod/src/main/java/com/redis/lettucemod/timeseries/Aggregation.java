@@ -133,6 +133,10 @@ public class Aggregation implements CompositeArgument {
 			return this;
 		}
 
+		public Builder empty() {
+			return empty(true);
+		}
+
 		public Builder empty(boolean empty) {
 			this.empty = empty;
 			return this;
