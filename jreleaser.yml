@@ -18,10 +18,11 @@ project:
     - 'modules'
     - 'client'
     - 'java'
-    - 'redistimeseries'
-    - 'redisgears'
-    - 'redisjson'
-    - 'redisearch'
+    - 'stack'
+    - 'timeseries'
+    - 'gears'
+    - 'json'
+    - 'search'
 
 release:
   github:
@@ -52,16 +53,26 @@ release:
       replacers:
         - search: 'deps: '
 
-distributions:
-  lettucemod:
-    artifacts:
-      - path: subprojects/{{distributionName}}/build/distributions/{{distributionName}}-{{projectVersion}}.zip
-        transform: '{{distributionName}}/{{distributionName}}-{{projectEffectiveVersion}}.zip'
-  spring-lettucemod:
-    artifacts:
-      - path: subprojects/{{distributionName}}/build/distributions/{{distributionName}}-{{projectVersion}}.zip
-        transform: '{{distributionName}}/{{distributionName}}-{{projectEffectiveVersion}}.zip'
+signing:
+  active: ALWAYS
+  armored: true
+
+deploy:
+  maven:
+    pomchecker:
+      version: early-access
+    nexus2:
+      maven-central:
+        active: RELEASE
+        url: https://s01.oss.sonatype.org/service/local
+        closeRepository: true
+        releaseRepository: true
+        stagingRepositories:
+          - build/repos/local/release
 
 files:
   artifacts:
     - path: VERSION
+      extraProperties:
+        skipChecksum: true
+        skipSigning: true

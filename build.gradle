@@ -3,24 +3,49 @@ config {
         description = 'LettuceMod'
         inceptionYear = '2020'
         vendor = 'Redis'
-        tags = ['redis', 'modules', 'java', 'spring']
+        tags = ['redis', 'modules', 'stack', 'java', 'client', 'spring']
+        
         links {
             website      = "https://github.com/redis-developer/${project.rootProject.name}"
             issueTracker = "https://github.com/redis-developer/${project.rootProject.name}/issues"
             scm          = "https://github.com/redis-developer/${project.rootProject.name}.git"
         }
+        
         scm {
             url                 = "https://github.com/redis-developer/${project.rootProject.name}"
             connection          = "scm:git:https://github.com/redis-developer/${project.rootProject.name}.git"
             developerConnection = "scm:git:git@github.com:redis-developer/${project.rootProject.name}.git"
         }
+        
         specification {
             enabled = true
         }
+        
         implementation {
             enabled = true
         }
+        
+        people {
+            person {
+                id = 'jruaux'
+                name = 'Julien Ruaux'
+                roles = ['developer', 'author']
+            }
+        }
+        
     }
+    
+    docs {
+        javadoc {
+            autoLinks {
+                enabled = false
+            }
+        }
+        sourceHtml {
+            enabled = false
+        }
+    }
+    
     licensing {
         enabled = false
         licenses {
@@ -29,51 +54,48 @@ config {
             }
         }
     }
-    docs {
-        javadoc {
-            options {
-                autoLinks {
-                    enabled = false
-                }
-            }
-            aggregate {
-                enabled = false
-            }
-        }
-    }
-    testing {
-        jar = true
-    }
+    
     coverage {
         jacoco {
-            toolVersion = '0.8.8'
+            enabled = true
+            toolVersion = jacocoVersion
         }
+    }
+    
+    testing {
+        jar = true
     }
 }
 
 allprojects {
     repositories {
-        gradlePluginPortal()
-        mavenCentral()
         mavenLocal()
+        gradlePluginPortal()
     }
-
+    
     tasks.withType(GenerateModuleMetadata) {
         enabled = false
+    }
+    
+    tasks.withType(JavaCompile) {
+        options.encoding = 'UTF-8'
     }
 }
 
 subprojects {
-
     config {
         info {
             description = project.project_description
         }
-	    coverage {
-	        jacoco {
-	            toolVersion = '0.8.8'
-	        }
-	    }        
+    }
+    
+    license {
+        exclude('build/**')
+    }
+    
+    dependencies {
+        testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+        testImplementation group: 'com.redis.testcontainers', name: 'testcontainers-redis-junit', version: testcontainersRedisVersion
     }
 
     test {
@@ -99,9 +121,5 @@ subprojects {
 				details.useVersion lettuceVersion
 			}
 		}
-	}    
-
-    sourceCompatibility = 8
-    targetCompatibility = 8
-
+	}
 }

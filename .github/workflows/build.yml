@@ -1,19 +1,9 @@
 name: Build
+
 on:
   pull_request:
+
 jobs:
   build:
-    name: Build
-    if: startsWith(github.event.head_commit.message, 'Releasing version') != true
-    runs-on: ubuntu-latest
-    steps:
-    - name: Build
-      uses: redis-field-engineering/redis-build-action@v1
-      with:
-        gpg-key-id: ${{ secrets.GPG_KEY_ID }}
-        gpg-public-key: ${{ secrets.GPG_PUBLIC_KEY }}
-        gpg-secret-key: ${{ secrets.GPG_SECRET_KEY }}
-        gpg-passphrase: ${{ secrets.GPG_PASSPHRASE }}
-        sonatype-username: ${{ secrets.SONATYPE_USERNAME }}
-        sonatype-password: ${{ secrets.SONATYPE_PASSWORD }}
-        github-token: ${{ secrets.GIT_ACCESS_TOKEN
+    name: 'Build'
+    uses: redis-field-engineering/redis-github-workflows/.github/workflows/build.yml@main
