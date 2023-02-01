@@ -10,7 +10,7 @@ import com.redis.lettucemod.protocol.TimeSeriesCommandKeyword;
 import io.lettuce.core.CompositeArgument;
 import io.lettuce.core.protocol.CommandArgs;
 
-public class MRangeOptions<K, V> extends BaseRangeOptions {
+public class MRangeOptions<K, V> extends AbstractRangeOptions {
 
 	private final Optional<List<K>> withLabels;
 	private final List<V> filters;
@@ -26,6 +26,7 @@ public class MRangeOptions<K, V> extends BaseRangeOptions {
 	@SuppressWarnings("unchecked")
 	@Override
 	public <L, W> void build(CommandArgs<L, W> args) {
+		buildLatest(args);
 		buildFilterByTimestamp(args);
 		buildFilterByValue(args);
 		withLabels.ifPresent(labels -> {
@@ -80,7 +81,7 @@ public class MRangeOptions<K, V> extends BaseRangeOptions {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static class Builder<K, V> extends BaseRangeOptions.Builder<Builder<K, V>> {
+	public static class Builder<K, V> extends AbstractRangeOptions.Builder<Builder<K, V>> {
 
 		private Optional<List<K>> withLabels = Optional.empty();
 		private List<V> filters = new ArrayList<>();

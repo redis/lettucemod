@@ -98,8 +98,8 @@ import com.redis.lettucemod.util.ClientBuilder;
 import com.redis.lettucemod.util.RedisModulesUtils;
 import com.redis.lettucemod.util.RedisURIBuilder;
 import com.redis.testcontainers.RedisEnterpriseContainer;
-import com.redis.testcontainers.RedisModulesContainer;
 import com.redis.testcontainers.RedisServer;
+import com.redis.testcontainers.RedisStackContainer;
 import com.redis.testcontainers.junit.AbstractTestcontainersRedisTestBase;
 import com.redis.testcontainers.junit.RedisTestContext;
 import com.redis.testcontainers.junit.RedisTestContextsSource;
@@ -119,8 +119,8 @@ import reactor.core.publisher.Mono;
 class ModulesTests extends AbstractTestcontainersRedisTestBase {
 
 	private static final Logger log = LoggerFactory.getLogger(ModulesTests.class);
-	private final RedisModulesContainer redisModulesContainer = new RedisModulesContainer(
-			RedisModulesContainer.DEFAULT_IMAGE_NAME.withTag(RedisModulesContainer.DEFAULT_TAG));
+	private final RedisStackContainer redisStackContainer = new RedisStackContainer(
+			RedisStackContainer.DEFAULT_IMAGE_NAME.withTag(RedisStackContainer.DEFAULT_TAG));
 	private final RedisEnterpriseContainer redisEnterpriseContainer = new RedisEnterpriseContainer(
 			RedisEnterpriseContainer.DEFAULT_IMAGE_NAME.withTag("latest"))
 			.withDatabase(Database.name("ModulesTests").memory(DataSize.ofMegabytes(110)).ossCluster(true)
@@ -128,7 +128,7 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 
 	@Override
 	protected Collection<RedisServer> redisServers() {
-		return Arrays.asList(redisModulesContainer, redisEnterpriseContainer);
+		return Arrays.asList(redisStackContainer, redisEnterpriseContainer);
 	}
 
 	protected static Map<String, String> mapOf(String... keyValues) {
@@ -742,7 +742,7 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 			TagField<String> idField = Field.tag(jsonField(Beers.FIELD_ID.getName())).as(Beers.FIELD_ID.getName())
 					.separator('-').build();
 			TextField<String> nameField = Field.text(jsonField(Beers.FIELD_NAME.getName()))
-					.as(Beers.FIELD_NAME.getName()).noIndex().noStem().sortable().weight(2).build();
+					.as(Beers.FIELD_NAME.getName()).noIndex().noStem().unNormalizedForm().weight(2).build();
 			String styleFieldName = jsonField(Beers.FIELD_STYLE_NAME.getName());
 			TextField<String> styleField = Field.text(styleFieldName).as(styleFieldName).weight(1).build();
 			context.sync().ftCreate(index, CreateOptions.<String, String>builder().on(DataType.JSON).build(), idField,
@@ -1362,7 +1362,7 @@ class ModulesTests extends AbstractTestcontainersRedisTestBase {
 
 		@Test
 		void credentials() {
-			RedisTestContext context = getContext(redisModulesContainer);
+			RedisTestContext context = getContext(redisStackContainer);
 			String username = "alice";
 			String password = "ecila";
 			context.sync().aclSetuser(username,

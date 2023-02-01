@@ -110,7 +110,11 @@ public class TextField<K> extends Field<K> {
 		}
 
 		public Builder<K> noStem() {
-			this.noStem = true;
+			return noStem(true);
+		}
+
+		public Builder<K> noStem(boolean noStem) {
+			this.noStem = noStem;
 			return this;
 		}
 
@@ -125,7 +129,11 @@ public class TextField<K> extends Field<K> {
 		}
 
 		public Builder<K> withSuffixTrie() {
-			this.withSuffixTrie = true;
+			return withSuffixTrie(true);
+		}
+
+		public Builder<K> withSuffixTrie(boolean withSuffixTrie) {
+			this.withSuffixTrie = withSuffixTrie;
 			return this;
 		}
 

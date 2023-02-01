@@ -102,12 +102,20 @@ public class TagField<K> extends Field<K> {
 		}
 
 		public Builder<K> caseSensitive() {
-			this.caseSensitive = true;
+			return caseSensitive(true);
+		}
+
+		public Builder<K> caseSensitive(boolean caseSensitive) {
+			this.caseSensitive = caseSensitive;
 			return this;
 		}
 
 		public Builder<K> withSuffixTrie() {
-			this.withSuffixTrie = true;
+			return withSuffixTrie(true);
+		}
+
+		public Builder<K> withSuffixTrie(boolean withSuffixTrie) {
+			this.withSuffixTrie = withSuffixTrie;
 			return this;
 		}
 

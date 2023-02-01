@@ -8,14 +8,16 @@ import com.redis.lettucemod.protocol.TimeSeriesCommandKeyword;
 import io.lettuce.core.CompositeArgument;
 import io.lettuce.core.protocol.CommandArgs;
 
-abstract class BaseRangeOptions implements CompositeArgument {
+abstract class AbstractRangeOptions implements CompositeArgument {
 
+	private final boolean latest;
 	private final Optional<long[]> filterByTimestamp;
 	private final Optional<FilterByValue> filterByValue;
 	private final OptionalLong count;
 	private final Optional<Aggregation> aggregation;
 
-	protected BaseRangeOptions(Builder<?> builder) {
+	protected AbstractRangeOptions(Builder<?> builder) {
+		this.latest = builder.latest;
 		this.filterByTimestamp = builder.filterByTimestamp;
 		this.filterByValue = builder.filterByValue;
 		this.count = builder.count;
@@ -28,6 +30,12 @@ abstract class BaseRangeOptions implements CompositeArgument {
 
 	protected <K, V> void buildAggregation(CommandArgs<K, V> args) {
 		aggregation.ifPresent(a -> a.build(args));
+	}
+
+	protected <K, V> void buildLatest(CommandArgs<K, V> args) {
+		if (latest) {
+			args.add(TimeSeriesCommandKeyword.LATEST);
+		}
 	}
 
 	protected <K, V> void buildFilterByTimestamp(CommandArgs<K, V> args) {
@@ -46,10 +54,16 @@ abstract class BaseRangeOptions implements CompositeArgument {
 	@SuppressWarnings("unchecked")
 	public static class Builder<B extends Builder<B>> {
 
+		private boolean latest;
 		private Optional<long[]> filterByTimestamp = Optional.empty();
 		private Optional<FilterByValue> filterByValue = Optional.empty();
 		private OptionalLong count = OptionalLong.empty();
 		private Optional<Aggregation> aggregation = Optional.empty();
+
+		public B latest(boolean latest) {
+			this.latest = latest;
+			return (B) this;
+		}
 
 		public B filterByTimestamp(long... timestamps) {
 			filterByTimestamp = Optional.of(timestamps);

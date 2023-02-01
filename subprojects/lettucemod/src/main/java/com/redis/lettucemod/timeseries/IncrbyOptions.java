@@ -6,7 +6,7 @@ import com.redis.lettucemod.protocol.TimeSeriesCommandKeyword;
 
 import io.lettuce.core.protocol.CommandArgs;
 
-public class IncrbyOptions<K, V> extends AbstractAddAlterCreateIncrbyOptions<K, V> {
+public class IncrbyOptions<K, V> extends BaseOptions<K, V> {
 
 	private final boolean uncompressed;
 	private final OptionalLong timestamp;
@@ -17,23 +17,22 @@ public class IncrbyOptions<K, V> extends AbstractAddAlterCreateIncrbyOptions<K, 
 		this.timestamp = builder.timestamp;
 	}
 
+	@SuppressWarnings("hiding")
 	@Override
-	public <L, W> void build(CommandArgs<L, W> args) {
+	public <K, V> void build(CommandArgs<K, V> args) {
+		super.build(args);
 		timestamp
 				.ifPresent(t -> TimeSeriesCommandBuilder.addTimestamp(args.add(TimeSeriesCommandKeyword.TIMESTAMP), t));
-		buildRetentionPeriod(args);
 		if (uncompressed) {
 			args.add(TimeSeriesCommandKeyword.UNCOMPRESSED);
 		}
-		buildChunkSize(args);
-		buildLabels(args);
 	}
 
 	public static <K, V> Builder<K, V> builder() {
 		return new Builder<>();
 	}
 
-	public static class Builder<K, V> extends AbstractAddAlterCreateIncrbyOptions.Builder<K, V, Builder<K, V>> {
+	public static class Builder<K, V> extends BaseOptions.Builder<K, V, Builder<K, V>> {
 
 		private OptionalLong timestamp = OptionalLong.empty();
 		private boolean uncompressed;

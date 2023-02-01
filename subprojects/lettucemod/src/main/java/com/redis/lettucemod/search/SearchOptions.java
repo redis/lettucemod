@@ -8,10 +8,9 @@ import java.util.OptionalLong;
 
 import com.redis.lettucemod.protocol.SearchCommandKeyword;
 
-public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
+public class SearchOptions<K, V> extends BaseSearchOptions<K, V> {
 
 	private boolean noContent;
-	private boolean verbatim;
 	private boolean noStopWords;
 	private boolean withScores;
 	private boolean withPayloads;
@@ -23,18 +22,21 @@ public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
 	private List<K> returnFields = new ArrayList<>();
 	private Optional<Summarize<K, V>> summarize = Optional.empty();
 	private Optional<Highlight<K, V>> highlight = Optional.empty();
-	private Optional<Long> slop = Optional.empty();
+	private OptionalLong slop = OptionalLong.empty();
 	private boolean inOrder;
 	private Optional<Language> language = Optional.empty();
 	private Optional<String> expander = Optional.empty();
 	private Optional<String> scorer = Optional.empty();
 	private Optional<V> payload = Optional.empty();
 	private Optional<SortBy<K, V>> sortBy = Optional.empty();
-	private Optional<Limit> limit = Optional.empty();
+
+	public SearchOptions() {
+
+	}
 
 	private SearchOptions(Builder<K, V> builder) {
+		super(builder);
 		this.noContent = builder.noContent;
-		this.verbatim = builder.verbatim;
 		this.noStopWords = builder.noStopWords;
 		this.withScores = builder.withScores;
 		this.withPayloads = builder.withPayloads;
@@ -53,7 +55,6 @@ public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
 		this.scorer = builder.scorer;
 		this.payload = builder.payload;
 		this.sortBy = builder.sortBy;
-		this.limit = builder.limit;
 	}
 
 	public boolean isNoContent() {
@@ -62,14 +63,6 @@ public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
 
 	public void setNoContent(boolean noContent) {
 		this.noContent = noContent;
-	}
-
-	public boolean isVerbatim() {
-		return verbatim;
-	}
-
-	public void setVerbatim(boolean verbatim) {
-		this.verbatim = verbatim;
 	}
 
 	public boolean isNoStopWords() {
@@ -160,12 +153,12 @@ public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
 		this.highlight = Optional.of(highlight);
 	}
 
-	public Optional<Long> getSlop() {
+	public OptionalLong getSlop() {
 		return slop;
 	}
 
 	public void setSlop(long slop) {
-		this.slop = Optional.of(slop);
+		this.slop = OptionalLong.of(slop);
 	}
 
 	public boolean isInOrder() {
@@ -216,32 +209,11 @@ public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
 		this.sortBy = Optional.of(sortBy);
 	}
 
-	public Optional<Limit> getLimit() {
-		return limit;
-	}
-
-	public void setLimit(Limit limit) {
-		this.limit = Optional.of(limit);
-	}
-
-	@Override
-	public String toString() {
-		return "SearchOptions [noContent=" + noContent + ", verbatim=" + verbatim + ", noStopWords=" + noStopWords
-				+ ", withScores=" + withScores + ", withPayloads=" + withPayloads + ", withSortKeys=" + withSortKeys
-				+ ", filters=" + filters + ", geoFilter=" + geoFilter + ", inKeys=" + inKeys + ", inFields=" + inFields
-				+ ", returnFields=" + returnFields + ", summarize=" + summarize + ", highlight=" + highlight + ", slop="
-				+ slop + ", inOrder=" + inOrder + ", language=" + language + ", expander=" + expander + ", scorer="
-				+ scorer + ", payload=" + payload + ", sortBy=" + sortBy + ", limit=" + limit + "]";
-	}
-
-	@SuppressWarnings("rawtypes")
 	@Override
 	public void build(SearchCommandArgs<K, V> args) {
+		super.build(args);
 		if (noContent) {
 			args.add(SearchCommandKeyword.NOCONTENT);
-		}
-		if (verbatim) {
-			args.add(SearchCommandKeyword.VERBATIM);
 		}
 		if (noStopWords) {
 			args.add(SearchCommandKeyword.NOSTOPWORDS);
@@ -295,7 +267,6 @@ public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
 		scorer.ifPresent(s -> args.add(SearchCommandKeyword.SCORER).add(s));
 		payload.ifPresent(p -> args.add(SearchCommandKeyword.PAYLOAD).addValue(p));
 		sortBy.ifPresent(s -> s.build(args));
-		limit.ifPresent(l -> l.build((SearchCommandArgs) args));
 	}
 
 	public static Limit limit(long offset, long num) {
@@ -642,9 +613,9 @@ public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
 		return new Builder<>();
 	}
 
-	public static final class Builder<K, V> {
+	public static final class Builder<K, V> extends BaseSearchOptions.Builder<K, V, Builder<K, V>> {
+
 		private boolean noContent;
-		private boolean verbatim;
 		private boolean noStopWords;
 		private boolean withScores;
 		private boolean withPayloads;
@@ -656,25 +627,19 @@ public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
 		private List<K> returnFields = new ArrayList<>();
 		private Optional<Summarize<K, V>> summarize = Optional.empty();
 		private Optional<Highlight<K, V>> highlight = Optional.empty();
-		private Optional<Long> slop = Optional.empty();
+		private OptionalLong slop = OptionalLong.empty();
 		private boolean inOrder;
 		private Optional<Language> language = Optional.empty();
 		private Optional<String> expander = Optional.empty();
 		private Optional<String> scorer = Optional.empty();
 		private Optional<V> payload = Optional.empty();
 		private Optional<SortBy<K, V>> sortBy = Optional.empty();
-		private Optional<Limit> limit = Optional.empty();
 
 		private Builder() {
 		}
 
 		public Builder<K, V> noContent(boolean noContent) {
 			this.noContent = noContent;
-			return this;
-		}
-
-		public Builder<K, V> verbatim(boolean verbatim) {
-			this.verbatim = verbatim;
 			return this;
 		}
 
@@ -758,7 +723,7 @@ public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
 		}
 
 		public Builder<K, V> slop(long slop) {
-			this.slop = Optional.of(slop);
+			this.slop = OptionalLong.of(slop);
 			return this;
 		}
 
@@ -789,11 +754,6 @@ public class SearchOptions<K, V> implements RediSearchArgument<K, V> {
 
 		public Builder<K, V> sortBy(SortBy<K, V> sortBy) {
 			this.sortBy = Optional.of(sortBy);
-			return this;
-		}
-
-		public Builder<K, V> limit(Limit limit) {
-			this.limit = Optional.of(limit);
 			return this;
 		}
 

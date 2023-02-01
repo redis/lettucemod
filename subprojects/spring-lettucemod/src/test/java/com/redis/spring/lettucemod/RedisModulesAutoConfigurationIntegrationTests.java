@@ -14,7 +14,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import com.redis.lettucemod.RedisModulesClient;
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
 import com.redis.lettucemod.search.Suggestion;
-import com.redis.testcontainers.RedisModulesContainer;
+import com.redis.testcontainers.RedisStackContainer;
 
 /**
  * Integration tests for {@link RedisModulesAutoConfiguration}.
@@ -23,13 +23,13 @@ import com.redis.testcontainers.RedisModulesContainer;
 class RedisModulesAutoConfigurationIntegrationTests {
 
 	@Container
-	static final RedisModulesContainer redisModules = new RedisModulesContainer(
-			RedisModulesContainer.DEFAULT_IMAGE_NAME.withTag(RedisModulesContainer.DEFAULT_TAG));
+	static final RedisStackContainer redisStackContainer = new RedisStackContainer(
+			RedisStackContainer.DEFAULT_IMAGE_NAME.withTag(RedisStackContainer.DEFAULT_TAG));
 
 	private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
 			.withConfiguration(AutoConfigurations.of(RedisModulesAutoConfiguration.class))
-			.withPropertyValues("spring.redis.host: " + redisModules.getHost(),
-					"spring.redis.port:" + redisModules.getFirstMappedPort());
+			.withPropertyValues("spring.redis.host: " + redisStackContainer.getHost(),
+					"spring.redis.port:" + redisStackContainer.getFirstMappedPort());
 
 	@Test
 	void defaultConfiguration() {

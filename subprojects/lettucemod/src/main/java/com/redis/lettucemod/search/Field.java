@@ -124,18 +124,30 @@ public abstract class Field<K> implements RediSearchArgument {
 		}
 
 		public B sortable() {
-			this.sortable = true;
+			return sortable(true);
+		}
+
+		public B sortable(boolean sortable) {
+			this.sortable = sortable;
 			return (B) this;
 		}
 
 		public B unNormalizedForm() {
-			this.sortable = true;
-			this.unNormalizedForm = true;
+			return unNormalizedForm(true);
+		}
+
+		public B unNormalizedForm(boolean unf) {
+			this.sortable = unf;
+			this.unNormalizedForm = unf;
 			return (B) this;
 		}
 
 		public B noIndex() {
-			this.noIndex = true;
+			return noIndex(true);
+		}
+
+		public B noIndex(boolean noIndex) {
+			this.noIndex = noIndex;
 			return (B) this;
 		}
 

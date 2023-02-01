@@ -6,28 +6,29 @@ import com.redis.lettucemod.protocol.TimeSeriesCommandKeyword;
 
 import io.lettuce.core.protocol.CommandArgs;
 
-abstract class AbstractAddCreateOptions<K, V> extends AbstractAddAlterCreateIncrbyOptions<K, V> {
+public class BaseCreateOptions<K, V> extends BaseOptions<K, V> {
 
 	private final Optional<Encoding> encoding;
 	private final Optional<DuplicatePolicy> duplicatePolicy;
+	private final TimeSeriesCommandKeyword keyword;
 
-	protected AbstractAddCreateOptions(Builder<K, V, ?> builder) {
+	protected BaseCreateOptions(TimeSeriesCommandKeyword keyword, Builder<K, V, ?> builder) {
 		super(builder);
+		this.keyword = keyword;
 		this.encoding = builder.encoding;
 		this.duplicatePolicy = builder.policy;
 	}
 
-	protected <L, W> void buildDuplicatePolicy(CommandArgs<L, W> args, TimeSeriesCommandKeyword keyword) {
+	@SuppressWarnings("hiding")
+	@Override
+	public <K, V> void build(CommandArgs<K, V> args) {
+		super.build(args);
 		duplicatePolicy.ifPresent(p -> args.add(keyword).add(p.getKeyword()));
-	}
-
-	protected <L, W> void buildEncoding(CommandArgs<L, W> args) {
 		encoding.ifPresent(e -> args.add(TimeSeriesCommandKeyword.ENCODING).add(e.getKeyword()));
 	}
 
 	@SuppressWarnings("unchecked")
-	public static class Builder<K, V, B extends Builder<K, V, B>>
-			extends AbstractAddAlterCreateIncrbyOptions.Builder<K, V, B> {
+	public static class Builder<K, V, B extends Builder<K, V, B>> extends BaseOptions.Builder<K, V, B> {
 
 		private Optional<Encoding> encoding = Optional.empty();
 		private Optional<DuplicatePolicy> policy = Optional.empty();
