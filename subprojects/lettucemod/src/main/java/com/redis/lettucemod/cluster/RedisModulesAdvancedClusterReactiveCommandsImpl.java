@@ -36,6 +36,7 @@ import com.redis.lettucemod.timeseries.CreateRuleOptions;
 import com.redis.lettucemod.timeseries.GetResult;
 import com.redis.lettucemod.timeseries.IncrbyOptions;
 import com.redis.lettucemod.timeseries.KeySample;
+import com.redis.lettucemod.timeseries.MGetOptions;
 import com.redis.lettucemod.timeseries.MRangeOptions;
 import com.redis.lettucemod.timeseries.RangeOptions;
 import com.redis.lettucemod.timeseries.RangeResult;
@@ -411,6 +412,11 @@ public class RedisModulesAdvancedClusterReactiveCommandsImpl<K, V> extends
 	@Override
 	public Mono<Sample> tsGet(K key) {
 		return delegate.tsGet(key);
+	}
+
+	@Override
+	public Flux<GetResult<K, V>> tsMget(MGetOptions<K, V> options) {
+		return delegate.tsMget(options);
 	}
 
 	@Override

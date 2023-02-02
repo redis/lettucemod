@@ -32,6 +32,7 @@ import com.redis.lettucemod.timeseries.CreateRuleOptions;
 import com.redis.lettucemod.timeseries.GetResult;
 import com.redis.lettucemod.timeseries.IncrbyOptions;
 import com.redis.lettucemod.timeseries.KeySample;
+import com.redis.lettucemod.timeseries.MGetOptions;
 import com.redis.lettucemod.timeseries.MRangeOptions;
 import com.redis.lettucemod.timeseries.RangeOptions;
 import com.redis.lettucemod.timeseries.RangeResult;
@@ -240,13 +241,18 @@ public class RedisModulesReactiveCommandsImpl<K, V> extends RedisReactiveCommand
 	}
 
 	@Override
+	public Flux<GetResult<K, V>> tsMget(MGetOptions<K, V> options) {
+		return createDissolvingFlux(() -> timeSeriesCommandBuilder.mget(options));
+	}
+
+	@Override
 	public Flux<GetResult<K, V>> tsMget(V... filters) {
-		return createDissolvingFlux(() -> timeSeriesCommandBuilder.mget(false, filters));
+		return createDissolvingFlux(() -> timeSeriesCommandBuilder.mget(filters));
 	}
 
 	@Override
 	public Flux<GetResult<K, V>> tsMgetWithLabels(V... filters) {
-		return createDissolvingFlux(() -> timeSeriesCommandBuilder.mget(true, filters));
+		return createDissolvingFlux(() -> timeSeriesCommandBuilder.mgetWithLabels(filters));
 	}
 
 	@Override

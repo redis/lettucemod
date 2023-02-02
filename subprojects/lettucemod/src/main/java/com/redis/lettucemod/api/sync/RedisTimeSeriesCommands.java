@@ -9,6 +9,7 @@ import com.redis.lettucemod.timeseries.CreateRuleOptions;
 import com.redis.lettucemod.timeseries.GetResult;
 import com.redis.lettucemod.timeseries.IncrbyOptions;
 import com.redis.lettucemod.timeseries.KeySample;
+import com.redis.lettucemod.timeseries.MGetOptions;
 import com.redis.lettucemod.timeseries.MRangeOptions;
 import com.redis.lettucemod.timeseries.RangeOptions;
 import com.redis.lettucemod.timeseries.RangeResult;
@@ -64,6 +65,8 @@ public interface RedisTimeSeriesCommands<K, V> {
 	 */
 	Sample tsGet(K key);
 
+	List<GetResult<K, V>> tsMget(MGetOptions<K, V> options);
+	
 	List<GetResult<K, V>> tsMget(V... filters);
 
 	List<GetResult<K, V>> tsMgetWithLabels(V... filters);

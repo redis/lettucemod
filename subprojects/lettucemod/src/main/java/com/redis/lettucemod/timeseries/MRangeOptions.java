@@ -1,8 +1,5 @@
 package com.redis.lettucemod.timeseries;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 
 import com.redis.lettucemod.protocol.TimeSeriesCommandKeyword;
@@ -12,37 +9,50 @@ import io.lettuce.core.protocol.CommandArgs;
 
 public class MRangeOptions<K, V> extends AbstractRangeOptions {
 
-	private final Optional<List<K>> withLabels;
-	private final List<V> filters;
-	private final Optional<GroupBy<K>> groupBy;
+	private Optional<Labels<K>> labels = Optional.empty();
+	private Filters<V> filters = new Filters<>();
+	private Optional<GroupBy<K>> groupBy = Optional.empty();
+
+	public MRangeOptions() {
+	}
 
 	private MRangeOptions(Builder<K, V> builder) {
 		super(builder);
-		this.withLabels = builder.withLabels;
+		this.labels = builder.labels;
 		this.filters = builder.filters;
 		this.groupBy = builder.groupBy;
 	}
 
-	@SuppressWarnings("unchecked")
+	public Optional<Labels<K>> getLabels() {
+		return labels;
+	}
+
+	public void setLabels(Optional<Labels<K>> labels) {
+		this.labels = labels;
+	}
+
+	public Filters<V> getFilters() {
+		return filters;
+	}
+
+	public void setFilters(Filters<V> filters) {
+		this.filters = filters;
+	}
+
+	public Optional<GroupBy<K>> getGroupBy() {
+		return groupBy;
+	}
+
+	public void setGroupBy(Optional<GroupBy<K>> groupBy) {
+		this.groupBy = groupBy;
+	}
+
+	@SuppressWarnings("hiding")
 	@Override
-	public <L, W> void build(CommandArgs<L, W> args) {
-		buildLatest(args);
-		buildFilterByTimestamp(args);
-		buildFilterByValue(args);
-		withLabels.ifPresent(labels -> {
-			if (labels.isEmpty()) {
-				args.add(TimeSeriesCommandKeyword.WITHLABELS);
-			} else {
-				args.add(TimeSeriesCommandKeyword.SELECTED_LABELS);
-				labels.forEach(l -> args.addKey((L) l));
-			}
-		});
-		buildCount(args);
-		buildAggregation(args);
-		if (!filters.isEmpty()) {
-			args.add(TimeSeriesCommandKeyword.FILTER);
-			filters.forEach(f -> args.addValue((W) f));
-		}
+	public <K, V> void build(CommandArgs<K, V> args) {
+		super.build(args);
+		labels.ifPresent(l -> l.build(args));
+		filters.build(args);
 		groupBy.ifPresent(g -> g.build(args));
 	}
 
@@ -83,26 +93,26 @@ public class MRangeOptions<K, V> extends AbstractRangeOptions {
 	@SuppressWarnings("unchecked")
 	public static class Builder<K, V> extends AbstractRangeOptions.Builder<Builder<K, V>> {
 
-		private Optional<List<K>> withLabels = Optional.empty();
-		private List<V> filters = new ArrayList<>();
+		private Optional<Labels<K>> labels = Optional.empty();
+		private Filters<V> filters = new Filters<>();
 		private Optional<GroupBy<K>> groupBy = Optional.empty();
 
 		public Builder(V... filters) {
-			this.filters.addAll(Arrays.asList(filters));
+			this.filters = Filters.of(filters);
 		}
 
 		public Builder<K, V> filters(V... filters) {
-			this.filters = Arrays.asList(filters);
+			this.filters = Filters.of(filters);
 			return this;
 		}
 
 		public Builder<K, V> withLabels() {
-			this.withLabels = Optional.of(new ArrayList<>());
+			this.labels = Optional.of(new Labels<>());
 			return this;
 		}
 
 		public Builder<K, V> selectedLabels(K... labels) {
-			this.withLabels = Optional.of(Arrays.asList(labels));
+			this.labels = Optional.of(Labels.of(labels));
 			return this;
 		}
 

@@ -35,6 +35,7 @@ import com.redis.lettucemod.timeseries.CreateRuleOptions;
 import com.redis.lettucemod.timeseries.GetResult;
 import com.redis.lettucemod.timeseries.IncrbyOptions;
 import com.redis.lettucemod.timeseries.KeySample;
+import com.redis.lettucemod.timeseries.MGetOptions;
 import com.redis.lettucemod.timeseries.MRangeOptions;
 import com.redis.lettucemod.timeseries.RangeOptions;
 import com.redis.lettucemod.timeseries.RangeResult;
@@ -403,6 +404,11 @@ public class RedisModulesAdvancedClusterAsyncCommandsImpl<K, V> extends RedisAdv
 	@Override
 	public RedisFuture<Sample> tsGet(K key) {
 		return delegate.tsGet(key);
+	}
+
+	@Override
+	public RedisFuture<List<GetResult<K, V>>> tsMget(MGetOptions<K, V> options) {
+		return delegate.tsMget(options);
 	}
 
 	@Override

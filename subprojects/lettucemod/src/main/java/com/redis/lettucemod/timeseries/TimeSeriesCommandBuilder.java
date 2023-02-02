@@ -189,13 +189,17 @@ public class TimeSeriesCommandBuilder<K, V> extends RedisModulesCommandBuilder<K
 		return createCommand(TimeSeriesCommandType.GET, new SampleOutput<>(codec), args(key));
 	}
 
-	public Command<K, V, List<GetResult<K, V>>> mget(boolean withLabels, V... filters) {
+	public Command<K, V, List<GetResult<K, V>>> mgetWithLabels(V... filters) {
+		return mget(MGetOptions.<K, V>filters(filters).withLabels().build());
+	}
+
+	public Command<K, V, List<GetResult<K, V>>> mget(V... filters) {
+		return mget(MGetOptions.<K, V>filters(filters).build());
+	}
+
+	public Command<K, V, List<GetResult<K, V>>> mget(MGetOptions<K, V> options) {
 		CommandArgs<K, V> args = new CommandArgs<>(codec);
-		if (withLabels) {
-			args.add(TimeSeriesCommandKeyword.WITHLABELS);
-		}
-		args.add(TimeSeriesCommandKeyword.FILTER);
-		args.addValues(filters);
+		options.build(args);
 		return createCommand(TimeSeriesCommandType.MGET, new GetOutput<>(codec), args);
 	}
 

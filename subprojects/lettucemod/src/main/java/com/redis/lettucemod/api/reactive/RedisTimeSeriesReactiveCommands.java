@@ -7,6 +7,7 @@ import com.redis.lettucemod.timeseries.CreateRuleOptions;
 import com.redis.lettucemod.timeseries.GetResult;
 import com.redis.lettucemod.timeseries.IncrbyOptions;
 import com.redis.lettucemod.timeseries.KeySample;
+import com.redis.lettucemod.timeseries.MGetOptions;
 import com.redis.lettucemod.timeseries.MRangeOptions;
 import com.redis.lettucemod.timeseries.RangeOptions;
 import com.redis.lettucemod.timeseries.RangeResult;
@@ -58,6 +59,8 @@ public interface RedisTimeSeriesReactiveCommands<K, V> {
 	Flux<RangeResult<K, V>> tsMrevrange(TimeRange range, MRangeOptions<K, V> options);
 
 	Mono<Sample> tsGet(K key);
+
+	Flux<GetResult<K, V>> tsMget(MGetOptions<K, V> options);
 
 	Flux<GetResult<K, V>> tsMget(V... filters);
 

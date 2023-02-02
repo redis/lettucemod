@@ -9,6 +9,7 @@ import com.redis.lettucemod.timeseries.CreateRuleOptions;
 import com.redis.lettucemod.timeseries.GetResult;
 import com.redis.lettucemod.timeseries.IncrbyOptions;
 import com.redis.lettucemod.timeseries.KeySample;
+import com.redis.lettucemod.timeseries.MGetOptions;
 import com.redis.lettucemod.timeseries.MRangeOptions;
 import com.redis.lettucemod.timeseries.RangeOptions;
 import com.redis.lettucemod.timeseries.RangeResult;
@@ -65,6 +66,8 @@ public interface RedisTimeSeriesAsyncCommands<K, V> {
 	 * @return The last sample.
 	 */
 	RedisFuture<Sample> tsGet(K key);
+
+	RedisFuture<List<GetResult<K, V>>> tsMget(MGetOptions<K, V> options);
 
 	RedisFuture<List<GetResult<K, V>>> tsMget(V... filters);
 

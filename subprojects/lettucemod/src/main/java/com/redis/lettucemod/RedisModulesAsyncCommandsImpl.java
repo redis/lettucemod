@@ -33,6 +33,7 @@ import com.redis.lettucemod.timeseries.CreateRuleOptions;
 import com.redis.lettucemod.timeseries.GetResult;
 import com.redis.lettucemod.timeseries.IncrbyOptions;
 import com.redis.lettucemod.timeseries.KeySample;
+import com.redis.lettucemod.timeseries.MGetOptions;
 import com.redis.lettucemod.timeseries.MRangeOptions;
 import com.redis.lettucemod.timeseries.RangeOptions;
 import com.redis.lettucemod.timeseries.RangeResult;
@@ -239,13 +240,18 @@ public class RedisModulesAsyncCommandsImpl<K, V> extends RedisAsyncCommandsImpl<
 	}
 
 	@Override
+	public RedisFuture<List<GetResult<K, V>>> tsMget(MGetOptions<K, V> options) {
+		return dispatch(timeSeriesCommandBuilder.mget(options));
+	}
+
+	@Override
 	public RedisFuture<List<GetResult<K, V>>> tsMget(V... filters) {
-		return dispatch(timeSeriesCommandBuilder.mget(false, filters));
+		return dispatch(timeSeriesCommandBuilder.mget(filters));
 	}
 
 	@Override
 	public RedisFuture<List<GetResult<K, V>>> tsMgetWithLabels(V... filters) {
-		return dispatch(timeSeriesCommandBuilder.mget(true, filters));
+		return dispatch(timeSeriesCommandBuilder.mgetWithLabels(filters));
 	}
 
 	@Override

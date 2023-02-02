@@ -11,11 +11,16 @@ import io.lettuce.core.protocol.CommandArgs;
 
 public class Aggregation implements CompositeArgument {
 
-	private final Optional<Align> align;
 	private final Aggregator aggregator;
 	private final Duration bucketDuration;
-	private final Optional<BucketTimestamp> bucketTimestamp;
-	private final boolean empty;
+	private Optional<Align> align = Optional.empty();
+	private Optional<BucketTimestamp> bucketTimestamp = Optional.empty();
+	private boolean empty;
+
+	public Aggregation(Aggregator aggregator, Duration bucketDuration) {
+		this.aggregator = aggregator;
+		this.bucketDuration = bucketDuration;
+	}
 
 	private Aggregation(Builder builder) {
 		this.align = builder.align;
@@ -23,6 +28,38 @@ public class Aggregation implements CompositeArgument {
 		this.bucketDuration = builder.bucketDuration;
 		this.bucketTimestamp = builder.bucketTimestamp;
 		this.empty = builder.empty;
+	}
+
+	public Aggregator getAggregator() {
+		return aggregator;
+	}
+
+	public Duration getBucketDuration() {
+		return bucketDuration;
+	}
+
+	public Optional<Align> getAlign() {
+		return align;
+	}
+
+	public void setAlign(Optional<Align> align) {
+		this.align = align;
+	}
+
+	public Optional<BucketTimestamp> getBucketTimestamp() {
+		return bucketTimestamp;
+	}
+
+	public void setBucketTimestamp(Optional<BucketTimestamp> bucketTimestamp) {
+		this.bucketTimestamp = bucketTimestamp;
+	}
+
+	public boolean isEmpty() {
+		return empty;
+	}
+
+	public void setEmpty(boolean empty) {
+		this.empty = empty;
 	}
 
 	@Override
@@ -34,6 +71,12 @@ public class Aggregation implements CompositeArgument {
 		if (empty) {
 			args.add(TimeSeriesCommandKeyword.EMPTY);
 		}
+	}
+
+	@Override
+	public String toString() {
+		return "Aggregation [aggregator=" + aggregator + ", bucketDuration=" + bucketDuration + ", align=" + align
+				+ ", bucketTimestamp=" + bucketTimestamp + ", empty=" + empty + "]";
 	}
 
 	public static class Align implements CompositeArgument {
@@ -112,11 +155,11 @@ public class Aggregation implements CompositeArgument {
 
 	public static class Builder {
 
-		private Optional<Align> align = Optional.empty();
 		private final Aggregator aggregator;
 		private final Duration bucketDuration;
+		private Optional<Align> align = Optional.empty();
 		private Optional<BucketTimestamp> bucketTimestamp = Optional.empty();
-		private boolean empty = false;
+		private boolean empty;
 
 		private Builder(Aggregator aggregator, Duration bucketDuration) {
 			this.aggregator = aggregator;

@@ -8,13 +8,16 @@ import com.redis.lettucemod.protocol.TimeSeriesCommandKeyword;
 import io.lettuce.core.CompositeArgument;
 import io.lettuce.core.protocol.CommandArgs;
 
-abstract class AbstractRangeOptions implements CompositeArgument {
+public class AbstractRangeOptions implements CompositeArgument {
 
-	private boolean latest;
-	private Optional<long[]> filterByTimestamp;
-	private Optional<FilterByValue> filterByValue;
-	private OptionalLong count;
-	private Optional<Aggregation> aggregation;
+	private Latest latest = new Latest();
+	private Optional<long[]> filterByTimestamp = Optional.empty();
+	private Optional<FilterByValue> filterByValue = Optional.empty();
+	private OptionalLong count = OptionalLong.empty();
+	private Optional<Aggregation> aggregation = Optional.empty();
+
+	protected AbstractRangeOptions() {
+	}
 
 	protected AbstractRangeOptions(Builder<?> builder) {
 		this.latest = builder.latest;
@@ -24,12 +27,26 @@ abstract class AbstractRangeOptions implements CompositeArgument {
 		this.aggregation = builder.aggregation;
 	}
 
+	@Override
+	public <K, V> void build(CommandArgs<K, V> args) {
+		latest.build(args);
+		filterByTimestamp.ifPresent(f -> {
+			args.add(TimeSeriesCommandKeyword.FILTER_BY_TS);
+			for (long ts : f) {
+				args.add(ts);
+			}
+		});
+		filterByValue.ifPresent(f -> f.build(args));
+		count.ifPresent(c -> args.add(TimeSeriesCommandKeyword.COUNT).add(c));
+		aggregation.ifPresent(a -> a.build(args));
+	}
+
 	public void setLatest(boolean latest) {
-		this.latest = latest;
+		this.latest = Latest.of(latest);
 	}
 
 	public boolean isLatest() {
-		return latest;
+		return latest.isEnabled();
 	}
 
 	public void setFilterByTimestamp(Optional<long[]> filterByTimestamp) {
@@ -64,37 +81,10 @@ abstract class AbstractRangeOptions implements CompositeArgument {
 		this.aggregation = aggregation;
 	}
 
-	protected <K, V> void buildCount(CommandArgs<K, V> args) {
-		count.ifPresent(c -> args.add(TimeSeriesCommandKeyword.COUNT).add(c));
-	}
-
-	protected <K, V> void buildAggregation(CommandArgs<K, V> args) {
-		aggregation.ifPresent(a -> a.build(args));
-	}
-
-	protected <K, V> void buildLatest(CommandArgs<K, V> args) {
-		if (latest) {
-			args.add(TimeSeriesCommandKeyword.LATEST);
-		}
-	}
-
-	protected <K, V> void buildFilterByTimestamp(CommandArgs<K, V> args) {
-		filterByTimestamp.ifPresent(f -> {
-			args.add(TimeSeriesCommandKeyword.FILTER_BY_TS);
-			for (long ts : f) {
-				args.add(ts);
-			}
-		});
-	}
-
-	protected <K, V> void buildFilterByValue(CommandArgs<K, V> args) {
-		filterByValue.ifPresent(f -> f.build(args));
-	}
-
 	@SuppressWarnings("unchecked")
 	public static class Builder<B extends Builder<B>> {
 
-		private boolean latest;
+		private Latest latest = new Latest();
 		private Optional<long[]> filterByTimestamp = Optional.empty();
 		private Optional<FilterByValue> filterByValue = Optional.empty();
 		private OptionalLong count = OptionalLong.empty();
@@ -105,7 +95,7 @@ abstract class AbstractRangeOptions implements CompositeArgument {
 		}
 
 		public B latest(boolean latest) {
-			this.latest = latest;
+			this.latest = Latest.of(latest);
 			return (B) this;
 		}
 
