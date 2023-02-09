@@ -94,7 +94,7 @@ subprojects {
     
     dependencies {
         testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
-        testImplementation(group: 'com.redis.testcontainers', name: 'testcontainers-redis-junit', version: testcontRedisVersion) {
+        testImplementation(group: 'com.redis.testcontainers', name: 'testcontainers-redis-junit', version: testcontainersRedisVersion) {
             exclude group: 'com.redis', module: 'lettucemod'
         }
     }
