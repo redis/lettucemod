@@ -102,7 +102,7 @@ subprojects {
     test {
         useJUnitPlatform()
     }
-
+    
     bootJar {
         enabled = false
     }
@@ -117,10 +117,10 @@ subprojects {
     }
     
     configurations.all {
-		resolutionStrategy.eachDependency { DependencyResolveDetails details ->
-			if (details.requested.name == 'lettuce-core' ) {
-				details.useVersion lettuceVersion
-			}
-		}
-	}
+        resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+            if (details.requested.name == 'lettuce-core' ) {
+                details.useVersion lettuceVersion
+            }
+        }
+    }
 }
