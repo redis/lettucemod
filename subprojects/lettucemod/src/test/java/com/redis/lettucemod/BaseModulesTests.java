@@ -127,7 +127,6 @@ abstract class BaseModulesTests {
 		RedisServer server = getRedisServer();
 		server.start();
 		RedisURI uri = RedisURI.create(server.getRedisURI());
-		uri.setTimeout(Duration.ofMillis(300));
 		client = server.isCluster() ? RedisModulesClusterClient.create(uri) : RedisModulesClient.create(uri);
 		connection = RedisModulesUtils.connection(client);
 	}
@@ -1166,15 +1165,6 @@ abstract class BaseModulesTests {
 			Assertions.assertTrue(Integer.parseInt(array[1]) >= 0);
 		}
 
-//    
-//    
-//    void pyExecuteNoResults() {
-//        RedisModulesCommands<String, String> sync = context.sync();
-//        ExecutionResults results = pyExecute(sync, "sleep.py");
-//        Assertions.assertTrue(results.getResults().isEmpty());
-//        Assertions.assertTrue(results.getErrors().isEmpty());
-//    }
-
 		private ExecutionResults pyExecute(RedisGearsCommands<String, String> sync, String resourceName) {
 			return sync.rgPyexecute(load(resourceName));
 		}
@@ -1281,7 +1271,6 @@ abstract class BaseModulesTests {
 				Assertions.assertTrue(details.getPlan().getStatus().matches("done|aborted"));
 			}
 		}
-
 	}
 
 	@Nested

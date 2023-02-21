@@ -11,12 +11,12 @@ import com.redis.testcontainers.RedisServer;
 
 class RedisModulesTests extends BaseModulesTests {
 
-	private final RedisModulesContainer redisContainer = new RedisModulesContainer(
+	private final RedisModulesContainer container = new RedisModulesContainer(
 			RedisModulesContainer.DEFAULT_IMAGE_NAME.withTag(RedisModulesContainer.DEFAULT_TAG));
 
 	@Override
 	protected RedisServer getRedisServer() {
-		return redisContainer;
+		return container;
 	}
 
 	@Test
