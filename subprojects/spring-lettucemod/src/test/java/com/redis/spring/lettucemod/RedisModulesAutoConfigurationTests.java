@@ -16,7 +16,6 @@ import com.redis.lettucemod.api.StatefulRedisModulesConnection;
 import com.redis.lettucemod.search.Suggestion;
 import com.redis.testcontainers.RedisStackContainer;
 
-import io.lettuce.core.ClientOptions;
 import io.lettuce.core.resource.ClientResources;
 
 /**
