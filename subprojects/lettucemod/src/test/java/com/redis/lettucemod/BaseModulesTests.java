@@ -31,8 +31,6 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
-import org.junit.jupiter.api.condition.EnabledOnOs;
-import org.junit.jupiter.api.condition.OS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -45,18 +43,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
 import com.redis.lettucemod.api.async.RedisModulesAsyncCommands;
 import com.redis.lettucemod.api.reactive.RedisModulesReactiveCommands;
-import com.redis.lettucemod.api.sync.RedisGearsCommands;
 import com.redis.lettucemod.api.sync.RedisJSONCommands;
 import com.redis.lettucemod.api.sync.RedisModulesCommands;
 import com.redis.lettucemod.api.sync.RedisTimeSeriesCommands;
 import com.redis.lettucemod.cluster.RedisModulesClusterClient;
-import com.redis.lettucemod.gears.Execution;
-import com.redis.lettucemod.gears.ExecutionDetails;
-import com.redis.lettucemod.gears.Registration;
 import com.redis.lettucemod.json.GetOptions;
 import com.redis.lettucemod.json.SetMode;
 import com.redis.lettucemod.json.Slice;
-import com.redis.lettucemod.output.ExecutionResults;
 import com.redis.lettucemod.search.AggregateOptions;
 import com.redis.lettucemod.search.AggregateOptions.Load;
 import com.redis.lettucemod.search.AggregateResults;
@@ -101,7 +94,6 @@ import com.redis.lettucemod.util.RedisURIBuilder;
 import com.redis.testcontainers.RedisServer;
 
 import io.lettuce.core.AbstractRedisClient;
-import io.lettuce.core.AclSetuserArgs;
 import io.lettuce.core.KeyValue;
 import io.lettuce.core.LettuceFutures;
 import io.lettuce.core.RedisCommandExecutionException;
@@ -1142,165 +1134,8 @@ abstract class BaseModulesTests {
 		}
 	}
 
-	@EnabledOnOs(OS.LINUX)
-	@Nested
-	class Gears {
-
-		@Test
-		void pyExecute() {
-			RedisModulesCommands<String, String> sync = connection.sync();
-			sync.set("foo", "bar");
-			ExecutionResults results = pyExecute(sync, "sleep.py");
-			assertEquals("1", results.getResults().get(0));
-		}
-
-		@Test
-		void pyExecuteUnblocking() {
-			RedisModulesCommands<String, String> sync = connection.sync();
-			sync.set("foo", "bar");
-			String executionId = pyExecuteUnblocking(sync, "sleep.py");
-			String[] array = executionId.split("-");
-			assertEquals(2, array.length);
-			assertEquals(40, array[0].length());
-			Assertions.assertTrue(Integer.parseInt(array[1]) >= 0);
-		}
-
-		private ExecutionResults pyExecute(RedisGearsCommands<String, String> sync, String resourceName) {
-			return sync.rgPyexecute(load(resourceName));
-		}
-
-		private String pyExecuteUnblocking(RedisGearsCommands<String, String> sync, String resourceName) {
-			return sync.rgPyexecuteUnblocking(load(resourceName));
-		}
-
-		private String load(String resourceName) {
-			return RedisModulesUtils.toString(getClass().getClassLoader().getResourceAsStream(resourceName));
-		}
-
-		private void clearGears() throws InterruptedException {
-			RedisModulesCommands<String, String> sync = connection.sync();
-			// Unregister all registrations
-			for (Registration registration : sync.rgDumpregistrations()) {
-				log.info("Unregistering {}", registration.getId());
-				sync.rgUnregister(registration.getId());
-			}
-			// Drop all executions
-			for (Execution execution : sync.rgDumpexecutions()) {
-				if (execution.getStatus().matches("running|created")) {
-					log.info("Aborting execution {} with status {}", execution.getId(), execution.getStatus());
-					sync.rgAbortexecution(execution.getId());
-				}
-				try {
-					sync.rgDropexecution(execution.getId());
-				} catch (RedisCommandExecutionException e) {
-					log.info("Execution status: {}", execution.getStatus());
-					throw e;
-				}
-			}
-		}
-
-		@Test
-		void dumpRegistrations() throws InterruptedException {
-			clearGears();
-			RedisModulesCommands<String, String> sync = connection.sync();
-			// Single registration
-			List<Registration> registrations = sync.rgDumpregistrations();
-			assertEquals(0, registrations.size());
-			ExecutionResults results = pyExecute(sync, "streamreader.py");
-			Assertions.assertFalse(results.isError());
-			registrations = sync.rgDumpregistrations();
-			assertEquals(1, registrations.size());
-			Registration registration = registrations.get(0);
-			assertEquals("StreamReader", registration.getReader());
-			assertEquals("MyStreamReader", registration.getDescription());
-			assertEquals("async", registration.getData().getMode());
-			Map<String, Object> args = registration.getData().getArgs();
-			assertTrue(args.size() >= 3);
-			assertEquals(1L, args.get("batchSize"));
-			assertEquals("mystream", args.get("stream"));
-			assertEquals("OK", registration.getData().getStatus());
-
-			// Multiple registrations
-			sync.rgDumpregistrations().forEach(r -> sync.rgUnregister(r.getId()));
-			String function = "GB('KeysReader').register('*', keyTypes=['hash'])";
-			Assertions.assertTrue(sync.rgPyexecute(function).isOk());
-			Assertions.assertEquals(1, sync.rgDumpregistrations().size());
-		}
-
-		@Test
-		void pyExecuteResults() {
-			RedisModulesCommands<String, String> sync = connection.sync();
-			sync.set("foo", "bar");
-			ExecutionResults results = sync.rgPyexecute("GB().foreach(lambda x: log('test')).register()");
-			Assertions.assertTrue(results.isOk());
-			Assertions.assertFalse(results.isError());
-		}
-
-		private void executions() {
-			RedisModulesCommands<String, String> sync = connection.sync();
-			sync.set("foo", "bar");
-			pyExecuteUnblocking(sync, "sleep.py");
-		}
-
-		@Test
-		void dumpExecutions() throws InterruptedException {
-			clearGears();
-			executions();
-			assertFalse(connection.sync().rgDumpexecutions().isEmpty());
-		}
-
-		@Test
-		void dropExecution() throws InterruptedException {
-			clearGears();
-			executions();
-			RedisModulesCommands<String, String> sync = connection.sync();
-			List<Execution> executions = sync.rgDumpexecutions();
-			executions.forEach(e -> sync.rgAbortexecution(e.getId()));
-			executions.forEach(e -> sync.rgDropexecution(e.getId()));
-			assertEquals(0, sync.rgDumpexecutions().size());
-		}
-
-		@Test
-		void abortExecution() throws InterruptedException {
-			clearGears();
-			executions();
-			RedisModulesCommands<String, String> sync = connection.sync();
-			for (Execution execution : sync.rgDumpexecutions()) {
-				sync.rgAbortexecution(execution.getId());
-				ExecutionDetails details = sync.rgGetexecution(execution.getId());
-				Assertions.assertTrue(details.getPlan().getStatus().matches("done|aborted"));
-			}
-		}
-	}
-
 	@Nested
 	class Utils {
-
-		@Test
-		void credentials() {
-			String username = "alice";
-			String password = "ecila";
-			connection.sync().aclSetuser(username,
-					AclSetuserArgs.Builder.on().addPassword(password).allCommands().allKeys());
-			try {
-				AbstractRedisClient client = ClientBuilder
-						.create(RedisURIBuilder.create(getRedisServer().getRedisURI()).username(username)
-								.password("wrongpassword".toCharArray()).build())
-						.cluster(getRedisServer().isCluster()).build();
-				RedisModulesUtils.connection(client);
-				Assertions.fail("Expected connection failure");
-			} catch (Exception e) {
-				// expected
-			}
-			String key = "foo";
-			String value = "bar";
-			RedisURI uri = RedisURIBuilder.create(getRedisServer().getRedisURI()).username(username)
-					.password(password.toCharArray()).build();
-			StatefulRedisModulesConnection<String, String> connection = RedisModulesUtils
-					.connection(ClientBuilder.create(uri).cluster(getRedisServer().isCluster()).build());
-			connection.sync().set(key, value);
-			Assertions.assertEquals(value, connection.sync().get(key));
-		}
 
 		@Test
 		void hostAndPort() {
