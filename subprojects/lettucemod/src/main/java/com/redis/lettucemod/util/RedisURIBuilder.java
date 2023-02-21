@@ -2,46 +2,21 @@ package com.redis.lettucemod.util;
 
 import java.time.Duration;
 import java.util.Optional;
-import java.util.function.Predicate;
 
-import io.lettuce.core.ClientOptions;
-import io.lettuce.core.ClientOptions.DisconnectedBehavior;
 import io.lettuce.core.RedisCredentialsProvider;
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.SslVerifyMode;
-import io.lettuce.core.StaticCredentialsProvider;
-import io.lettuce.core.TimeoutOptions;
-import io.lettuce.core.cluster.ClusterClientOptions;
-import io.lettuce.core.cluster.models.partitions.RedisClusterNode;
-import io.lettuce.core.protocol.DecodeBufferPolicies;
-import io.lettuce.core.protocol.DecodeBufferPolicy;
 
 public class RedisURIBuilder {
 
 	public static final String DEFAULT_HOST = "localhost";
-	public static final int DEFAULT_PORT = RedisURI.DEFAULT_REDIS_PORT;
-	public static final SslVerifyMode DEFAULT_SSL_VERIFY_MODE = SslVerifyMode.FULL;
-	public static final boolean DEFAULT_SSL = false;
-	public static final boolean DEFAULT_START_TLS = false;
-	public static final boolean DEFAULT_AUTO_RECONNECT = ClientOptions.DEFAULT_AUTO_RECONNECT;
-	public static final boolean DEFAULT_PUBLISH_ON_SCHEDULER = ClientOptions.DEFAULT_PUBLISH_ON_SCHEDULER;
-	public static final DisconnectedBehavior DEFAULT_DISCONNECTED_BEHAVIOR = ClientOptions.DEFAULT_DISCONNECTED_BEHAVIOR;
-	public static final boolean DEFAULT_SUSPEND_RECONNECT_ON_PROTOCOL_FAILURE = ClientOptions.DEFAULT_SUSPEND_RECONNECT_PROTO_FAIL;
-	public static final DecodeBufferPolicy DEFAULT_DECODE_BUFFER_POLICY = DecodeBufferPolicies
-			.ratio(ClientOptions.DEFAULT_BUFFER_USAGE_RATIO);
-	public static final int DEFAULT_REQUEST_QUEUE_SIZE = ClientOptions.DEFAULT_REQUEST_QUEUE_SIZE;
-	public static final TimeoutOptions DEFAULT_TIMEOUT_OPTIONS = TimeoutOptions.create();
-	public static final boolean DEFAULT_SHOW_METRICS = false;
-	public static final int DEFAULT_MAX_REDIRECTS = ClusterClientOptions.DEFAULT_MAX_REDIRECTS;
-	public static final boolean DEFAULT_VALIDATE_CLUSTER_MEMBERSHIP = ClusterClientOptions.DEFAULT_VALIDATE_CLUSTER_MEMBERSHIP;
-	public static final Predicate<RedisClusterNode> DEFAULT_NODE_FILTER = ClusterClientOptions.DEFAULT_NODE_FILTER;
 
 	private String host = DEFAULT_HOST;
-	private int port = RedisURI.DEFAULT_REDIS_PORT;
-	private Optional<RedisURI> uri = Optional.empty();
-	private boolean ssl = DEFAULT_SSL;
-	private boolean startTls = DEFAULT_START_TLS;
-	private SslVerifyMode sslVerifyMode = DEFAULT_SSL_VERIFY_MODE;
+	private int port;
+	private Optional<String> uri = Optional.empty();
+	private boolean ssl;
+	private boolean startTls;
+	private Optional<SslVerifyMode> sslVerifyMode = Optional.empty();
 	private Optional<String> socket = Optional.empty();
 	private String username;
 	private char[] password;
@@ -60,21 +35,13 @@ public class RedisURIBuilder {
 		return this;
 	}
 
-	public RedisURIBuilder uri(RedisURI uri) {
-		return uri(Optional.of(uri));
+	public RedisURIBuilder uri(String uri) {
+		return uri(Optional.ofNullable(uri));
 	}
 
-	public RedisURIBuilder uri(Optional<RedisURI> uri) {
+	public RedisURIBuilder uri(Optional<String> uri) {
 		this.uri = uri;
 		return this;
-	}
-
-	public RedisURIBuilder uriString(String uri) {
-		return uri(RedisURI.create(uri));
-	}
-
-	public RedisURIBuilder uriString(Optional<String> uri) {
-		return uri(uri.map(RedisURI::create));
 	}
 
 	public RedisURIBuilder ssl(boolean ssl) {
@@ -87,13 +54,17 @@ public class RedisURIBuilder {
 		return this;
 	}
 
-	public RedisURIBuilder sslVerifyMode(SslVerifyMode sslVerifyMode) {
+	public RedisURIBuilder sslVerifyMode(Optional<SslVerifyMode> sslVerifyMode) {
 		this.sslVerifyMode = sslVerifyMode;
 		return this;
 	}
 
+	public RedisURIBuilder sslVerifyMode(SslVerifyMode sslVerifyMode) {
+		return sslVerifyMode(Optional.of(sslVerifyMode));
+	}
+
 	public RedisURIBuilder socket(String socket) {
-		return socket(Optional.of(socket));
+		return socket(Optional.ofNullable(socket));
 	}
 
 	public RedisURIBuilder socket(Optional<String> socket) {
@@ -106,13 +77,20 @@ public class RedisURIBuilder {
 		return this;
 	}
 
+	public RedisURIBuilder password(String password) {
+		if (password == null) {
+			return this;
+		}
+		return password(password.toCharArray());
+	}
+
 	public RedisURIBuilder password(char[] password) {
 		this.password = password;
 		return this;
 	}
 
 	public RedisURIBuilder credentialsProvider(RedisCredentialsProvider credentialsProvider) {
-		return credentialsProvider(Optional.of(credentialsProvider));
+		return credentialsProvider(Optional.ofNullable(credentialsProvider));
 	}
 
 	public RedisURIBuilder credentialsProvider(Optional<RedisCredentialsProvider> credentialsProvider) {
@@ -130,7 +108,7 @@ public class RedisURIBuilder {
 	}
 
 	public RedisURIBuilder timeout(Duration timeout) {
-		return timeout(Optional.of(timeout));
+		return timeout(Optional.ofNullable(timeout));
 	}
 
 	public RedisURIBuilder timeout(Optional<Duration> timeout) {
@@ -139,7 +117,7 @@ public class RedisURIBuilder {
 	}
 
 	public RedisURIBuilder clientName(String clientName) {
-		return clientName(Optional.of(clientName));
+		return clientName(Optional.ofNullable(clientName));
 	}
 
 	public RedisURIBuilder clientName(Optional<String> clientName) {
@@ -148,30 +126,38 @@ public class RedisURIBuilder {
 	}
 
 	public RedisURI build() {
-		RedisURI redisURI = uri.orElse(RedisURI.create(host, port));
-		redisURI.setVerifyPeer(sslVerifyMode);
+		RedisURI.Builder builder = uri.map(RedisURI::create).map(RedisURI::builder)
+				.orElse(RedisURI.builder().withHost(host));
+		if (port > 0) {
+			builder.withPort(port);
+		}
+		if (database > 0) {
+			builder.withDatabase(database);
+		}
 		if (ssl) {
-			redisURI.setSsl(true);
+			builder.withSsl(ssl);
 		}
 		if (startTls) {
-			redisURI.setStartTls(true);
+			builder.withStartTls(startTls);
 		}
+		sslVerifyMode.ifPresent(builder::withVerifyPeer);
+		credentialsProvider.ifPresent(builder::withAuthentication);
+		if (password != null && password.length > 0) {
+			if (username == null) {
+				builder.withPassword(password);
+			} else {
+				builder.withAuthentication(username, password);
+			}
+		}
+		clientName.ifPresent(builder::withClientName);
+		timeout.ifPresent(builder::withTimeout);
+		RedisURI redisURI = builder.build();
 		socket.ifPresent(redisURI::setSocket);
-		credentialsProvider().ifPresent(redisURI::setCredentialsProvider);
-		redisURI.setDatabase(database);
-		timeout.ifPresent(redisURI::setTimeout);
-		clientName.ifPresent(redisURI::setClientName);
 		return redisURI;
 	}
 
-	private Optional<RedisCredentialsProvider> credentialsProvider() {
-		if (credentialsProvider.isPresent()) {
-			return credentialsProvider;
-		}
-		if (username == null && password == null) {
-			return Optional.empty();
-		}
-		return Optional.of(new StaticCredentialsProvider(username, password));
+	public static RedisURIBuilder create(String uri) {
+		return new RedisURIBuilder().uri(uri);
 	}
 
 	public static RedisURIBuilder create() {

@@ -16,11 +16,14 @@ import com.redis.lettucemod.api.StatefulRedisModulesConnection;
 import com.redis.lettucemod.search.Suggestion;
 import com.redis.testcontainers.RedisStackContainer;
 
+import io.lettuce.core.ClientOptions;
+import io.lettuce.core.resource.ClientResources;
+
 /**
  * Integration tests for {@link RedisModulesAutoConfiguration}.
  */
-@Testcontainers(disabledWithoutDocker = true)
-class RedisModulesAutoConfigurationIntegrationTests {
+@Testcontainers
+class RedisModulesAutoConfigurationTests {
 
 	@Container
 	static final RedisStackContainer redisStackContainer = new RedisStackContainer(
@@ -29,7 +32,7 @@ class RedisModulesAutoConfigurationIntegrationTests {
 	private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
 			.withConfiguration(AutoConfigurations.of(RedisModulesAutoConfiguration.class))
 			.withPropertyValues("spring.redis.host: " + redisStackContainer.getHost(),
-					"spring.redis.port:" + redisStackContainer.getFirstMappedPort());
+					"spring.redis.port:" + redisStackContainer.getFirstMappedPort(), "spring.redis.ssl:false");
 
 	@Test
 	void defaultConfiguration() {
@@ -37,6 +40,7 @@ class RedisModulesAutoConfigurationIntegrationTests {
 			assertThat(context.getBean("client")).isInstanceOf(RedisModulesClient.class);
 			assertThat(context).hasSingleBean(RedisModulesClient.class);
 			assertThat(context).hasSingleBean(StatefulRedisModulesConnection.class);
+			assertThat(context).hasSingleBean(ClientResources.class);
 			RedisModulesClient client = context.getBean(RedisModulesClient.class);
 			StatefulRedisModulesConnection<String, String> connection = client.connect();
 			String key = "suggestIdx";

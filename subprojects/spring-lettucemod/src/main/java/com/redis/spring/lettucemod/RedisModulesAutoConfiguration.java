@@ -5,6 +5,7 @@ import java.time.Duration;
 import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
+import org.springframework.boot.autoconfigure.data.redis.RedisProperties.Lettuce.Cluster.Refresh;
 import org.springframework.boot.autoconfigure.data.redis.RedisProperties.Pool;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -12,8 +13,17 @@ import org.springframework.context.annotation.Configuration;
 
 import com.redis.lettucemod.RedisModulesClient;
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
+import com.redis.lettucemod.cluster.RedisModulesClusterClient;
+import com.redis.lettucemod.util.RedisURIBuilder;
 
+import io.lettuce.core.AbstractRedisClient;
+import io.lettuce.core.ClientOptions;
 import io.lettuce.core.RedisURI;
+import io.lettuce.core.SocketOptions;
+import io.lettuce.core.TimeoutOptions;
+import io.lettuce.core.cluster.ClusterClientOptions;
+import io.lettuce.core.cluster.ClusterTopologyRefreshOptions;
+import io.lettuce.core.cluster.ClusterTopologyRefreshOptions.Builder;
 import io.lettuce.core.resource.ClientResources;
 import io.lettuce.core.resource.DefaultClientResources;
 import io.lettuce.core.support.ConnectionPoolSupport;
@@ -22,21 +32,43 @@ import io.lettuce.core.support.ConnectionPoolSupport;
 @EnableConfigurationProperties(RedisProperties.class)
 public class RedisModulesAutoConfiguration {
 
-	@SuppressWarnings("deprecation")
-	@Bean
-	RedisURI redisURI(RedisProperties properties) {
-		RedisURI redisURI = RedisURI.create(properties.getHost(), properties.getPort());
-		if (properties.getPassword() != null) {
-			redisURI.setPassword(properties.getPassword().toCharArray());
+	private RedisURI redisURI(RedisProperties properties) {
+		RedisURIBuilder builder = RedisURIBuilder.create();
+		builder.clientName(properties.getClientName());
+		builder.database(properties.getDatabase());
+		builder.host(properties.getHost());
+		builder.password(properties.getPassword());
+		builder.port(properties.getPort());
+		builder.ssl(properties.isSsl());
+		builder.timeout(properties.getTimeout());
+		builder.uri(properties.getUrl());
+		builder.username(properties.getUsername());
+		properties.getConnectTimeout();
+		return builder.build();
+	}
+
+	private <B extends ClientOptions.Builder> B clientOptions(B builder, RedisProperties properties) {
+		Duration connectTimeout = properties.getConnectTimeout();
+		if (connectTimeout != null) {
+			builder.socketOptions(SocketOptions.builder().connectTimeout(connectTimeout).build());
 		}
-		if (properties.getUsername() != null) {
-			redisURI.setUsername(properties.getUsername());
+		builder.timeoutOptions(TimeoutOptions.enabled());
+		return builder;
+	}
+
+	private ClusterClientOptions clusterClientOptions(RedisProperties properties) {
+		ClusterClientOptions.Builder builder = ClusterClientOptions.builder();
+		Refresh refreshProperties = properties.getLettuce().getCluster().getRefresh();
+		Builder refreshBuilder = ClusterTopologyRefreshOptions.builder()
+				.dynamicRefreshSources(refreshProperties.isDynamicRefreshSources());
+		if (refreshProperties.getPeriod() != null) {
+			refreshBuilder.enablePeriodicRefresh(refreshProperties.getPeriod());
 		}
-		Duration timeout = properties.getTimeout();
-		if (timeout != null) {
-			redisURI.setTimeout(timeout);
+		if (refreshProperties.isAdaptive()) {
+			refreshBuilder.enableAllAdaptiveRefreshTriggers();
 		}
-		return redisURI;
+		builder.topologyRefreshOptions(refreshBuilder.build());
+		return clientOptions(builder, properties).build();
 	}
 
 	@Bean(destroyMethod = "shutdown")
@@ -45,8 +77,16 @@ public class RedisModulesAutoConfiguration {
 	}
 
 	@Bean(destroyMethod = "shutdown")
-	RedisModulesClient client(RedisURI redisURI, ClientResources clientResources) {
-		return RedisModulesClient.create(clientResources, redisURI);
+	AbstractRedisClient client(RedisProperties properties, ClientResources clientResources) {
+		RedisURI redisURI = redisURI(properties);
+		if (properties.getCluster() != null) {
+			RedisModulesClusterClient client = RedisModulesClusterClient.create(clientResources, redisURI);
+			client.setOptions(clusterClientOptions(properties));
+			return client;
+		}
+		RedisModulesClient client = RedisModulesClient.create(clientResources, redisURI);
+		client.setOptions(clientOptions(ClientOptions.builder(), properties).build());
+		return client;
 	}
 
 	@Bean(name = "redisModulesConnection", destroyMethod = "close")
