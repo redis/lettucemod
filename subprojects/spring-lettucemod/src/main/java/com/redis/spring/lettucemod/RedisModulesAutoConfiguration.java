@@ -32,7 +32,8 @@ import io.lettuce.core.support.ConnectionPoolSupport;
 @EnableConfigurationProperties(RedisProperties.class)
 public class RedisModulesAutoConfiguration {
 
-	private RedisURI redisURI(RedisProperties properties) {
+	@Bean
+	RedisURI redisURI(RedisProperties properties) {
 		RedisURIBuilder builder = RedisURIBuilder.create();
 		builder.clientName(properties.getClientName());
 		builder.database(properties.getDatabase());
@@ -77,8 +78,7 @@ public class RedisModulesAutoConfiguration {
 	}
 
 	@Bean(destroyMethod = "shutdown")
-	AbstractRedisClient client(RedisProperties properties, ClientResources clientResources) {
-		RedisURI redisURI = redisURI(properties);
+	AbstractRedisClient client(RedisURI redisURI, RedisProperties properties, ClientResources clientResources) {
 		if (properties.getCluster() != null) {
 			RedisModulesClusterClient client = RedisModulesClusterClient.create(clientResources, redisURI);
 			client.setOptions(clusterClientOptions(properties));
