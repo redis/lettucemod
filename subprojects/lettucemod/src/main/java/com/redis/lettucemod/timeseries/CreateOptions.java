@@ -4,6 +4,10 @@ import com.redis.lettucemod.protocol.TimeSeriesCommandKeyword;
 
 public class CreateOptions<K, V> extends BaseCreateOptions<K, V> {
 
+	public CreateOptions() {
+		super(TimeSeriesCommandKeyword.DUPLICATE_POLICY);
+	}
+
 	private CreateOptions(Builder<K, V> builder) {
 		super(TimeSeriesCommandKeyword.DUPLICATE_POLICY, builder);
 	}

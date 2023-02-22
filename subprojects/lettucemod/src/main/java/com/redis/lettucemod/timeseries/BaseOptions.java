@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalLong;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import com.redis.lettucemod.protocol.TimeSeriesCommandKeyword;
 
@@ -15,14 +17,41 @@ import io.lettuce.core.protocol.CommandArgs;
 
 public class BaseOptions<K, V> implements CompositeArgument {
 
-	private final Optional<Duration> retentionPeriod;
-	private final OptionalLong chunkSize;
-	private final List<Label<K, V>> labels;
+	private Optional<Duration> retentionPeriod = Optional.empty();
+	private OptionalLong chunkSize = OptionalLong.empty();
+	private List<Label<K, V>> labels = new ArrayList<>();
+
+	public BaseOptions() {
+	}
 
 	protected BaseOptions(Builder<K, V, ?> builder) {
 		this.retentionPeriod = builder.retentionTime;
 		this.chunkSize = builder.chunkSize;
 		this.labels = builder.labels;
+	}
+
+	public List<Label<K, V>> getLabels() {
+		return labels;
+	}
+
+	public void setLabels(Iterable<Label<K, V>> labels) {
+		this.labels = StreamSupport.stream(labels.spliterator(), false).collect(Collectors.toList());
+	}
+
+	public OptionalLong getChunkSize() {
+		return chunkSize;
+	}
+
+	public void setChunkSize(OptionalLong chunkSize) {
+		this.chunkSize = chunkSize;
+	}
+
+	public Optional<Duration> getRetentionPeriod() {
+		return retentionPeriod;
+	}
+
+	public void setRetentionPeriod(Optional<Duration> retentionPeriod) {
+		this.retentionPeriod = retentionPeriod;
 	}
 
 	@SuppressWarnings({ "hiding", "unchecked" })
@@ -54,6 +83,7 @@ public class BaseOptions<K, V> implements CompositeArgument {
 
 	@SuppressWarnings("unchecked")
 	public static class Builder<K, V, B extends Builder<K, V, B>> {
+
 		private Optional<Duration> retentionTime = Optional.empty();
 		private OptionalLong chunkSize = OptionalLong.empty();
 		private final List<Label<K, V>> labels = new ArrayList<>();
@@ -72,9 +102,38 @@ public class BaseOptions<K, V> implements CompositeArgument {
 			return (B) this;
 		}
 
-		public B labels(Label<K, V>... labels) {
-			this.labels.addAll(Arrays.asList(labels));
+		public B labels(Iterable<Label<K, V>> labels) {
+			for (Label<K, V> label : labels) {
+				this.labels.add(label);
+			}
 			return (B) this;
+		}
+
+		/**
+		 * Sets labels with the given key/value pairs.
+		 * 
+		 * @param keyValues the name/value pairs to add
+		 * @return this builder
+		 */
+		public B labels(Object... keyValues) {
+			if (keyValues == null || keyValues.length == 0) {
+				return (B) this;
+			}
+			if (keyValues.length % 2 == 1) {
+				throw new IllegalArgumentException("size must be even, it is a set of key=value pairs");
+			}
+			for (int i = 0; i < keyValues.length; i += 2) {
+				label(Label.of((K) keyValues[i], (V) keyValues[i + 1]));
+			}
+			return (B) this;
+		}
+
+		public B label(Label<K, V> label) {
+			return labels(label);
+		}
+
+		public B labels(Label<K, V>... labels) {
+			return labels(Arrays.asList(labels));
 		}
 
 		public B labels(Map<K, V> map) {

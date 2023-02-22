@@ -1,11 +1,11 @@
 package com.redis.lettucemod.timeseries;
 
-import java.util.Map;
+import java.util.List;
 
 public class GetResult<K, V> {
 
 	private K key;
-	private Map<K, V> labels;
+	private List<Label<K, V>> labels;
 	private Sample sample;
 
 	public K getKey() {
@@ -16,11 +16,11 @@ public class GetResult<K, V> {
 		this.key = key;
 	}
 
-	public Map<K, V> getLabels() {
+	public List<Label<K, V>> getLabels() {
 		return labels;
 	}
 
-	public void setLabels(Map<K, V> labels) {
+	public void setLabels(List<Label<K, V>> labels) {
 		this.labels = labels;
 	}
 

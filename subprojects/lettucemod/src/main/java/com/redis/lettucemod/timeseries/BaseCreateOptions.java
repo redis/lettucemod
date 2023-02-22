@@ -8,23 +8,35 @@ import io.lettuce.core.protocol.CommandArgs;
 
 public class BaseCreateOptions<K, V> extends BaseOptions<K, V> {
 
-	private final Optional<Encoding> encoding;
-	private final Optional<DuplicatePolicy> duplicatePolicy;
-	private final TimeSeriesCommandKeyword keyword;
+	private final TimeSeriesCommandKeyword duplicatePolicyKeyword;
+	private Optional<Encoding> encoding = Optional.empty();
+	private Optional<DuplicatePolicy> duplicatePolicy = Optional.empty();
 
-	protected BaseCreateOptions(TimeSeriesCommandKeyword keyword, Builder<K, V, ?> builder) {
+	public BaseCreateOptions(TimeSeriesCommandKeyword duplicatePolicyKeyword) {
+		this.duplicatePolicyKeyword = duplicatePolicyKeyword;
+	}
+
+	protected BaseCreateOptions(TimeSeriesCommandKeyword duplicatePolicyKeyword, Builder<K, V, ?> builder) {
 		super(builder);
-		this.keyword = keyword;
+		this.duplicatePolicyKeyword = duplicatePolicyKeyword;
 		this.encoding = builder.encoding;
 		this.duplicatePolicy = builder.policy;
+	}
+
+	public Optional<Encoding> getEncoding() {
+		return encoding;
+	}
+
+	public void setEncoding(Optional<Encoding> encoding) {
+		this.encoding = encoding;
 	}
 
 	@SuppressWarnings("hiding")
 	@Override
 	public <K, V> void build(CommandArgs<K, V> args) {
-		super.build(args);
-		duplicatePolicy.ifPresent(p -> args.add(keyword).add(p.getKeyword()));
+		duplicatePolicy.ifPresent(p -> args.add(duplicatePolicyKeyword).add(p.getKeyword()));
 		encoding.ifPresent(e -> args.add(TimeSeriesCommandKeyword.ENCODING).add(e.getKeyword()));
+		super.build(args);
 	}
 
 	@SuppressWarnings("unchecked")

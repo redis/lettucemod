@@ -1,5 +1,7 @@
 package com.redis.lettucemod.timeseries;
 
+import java.util.Objects;
+
 public class Label<K, V> {
 
 	private K name;
@@ -26,6 +28,23 @@ public class Label<K, V> {
 		l.setLabel(label);
 		l.setValue(value);
 		return l;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(name, value);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Label<?, ?> other = (Label<?, ?>) obj;
+		return Objects.equals(name, other.name) && Objects.equals(value, other.value);
 	}
 
 }

@@ -31,8 +31,6 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -107,7 +105,6 @@ import reactor.core.publisher.Mono;
 @TestInstance(Lifecycle.PER_CLASS)
 abstract class BaseModulesTests {
 
-	private static final Logger log = LoggerFactory.getLogger(BaseModulesTests.class);
 	protected static final String SUGINDEX = "beersSug";
 
 	protected static StatefulRedisModulesConnection<String, String> connection;
@@ -115,20 +112,22 @@ abstract class BaseModulesTests {
 
 	@BeforeAll
 	void setup() {
-		log.info("Setting up test instance");
 		RedisServer server = getRedisServer();
 		server.start();
 		RedisURI uri = RedisURI.create(server.getRedisURI());
-		client = server.isCluster() ? RedisModulesClusterClient.create(uri) : RedisModulesClient.create(uri);
+		client = ClientBuilder.create(uri).cluster(server.isCluster()).build();
 		connection = RedisModulesUtils.connection(client);
 	}
 
 	@AfterAll
 	void teardown() {
-		log.info("Tearing down test instance");
-		connection.close();
-		client.shutdown();
-		client.getResources().shutdown();
+		if (connection != null) {
+			connection.close();
+		}
+		if (client != null) {
+			client.shutdown();
+			client.getResources().shutdown();
+		}
 		getRedisServer().stop();
 	}
 
@@ -823,17 +822,19 @@ abstract class BaseModulesTests {
 		private static final String AREA_ID_2 = "34";
 		private static final String FILTER = LABEL_SENSOR_ID + "=" + SENSOR_ID;
 
-		@SuppressWarnings("unchecked")
 		@Test
 		void create() {
-			String status = connection.sync().tsCreate(KEY, com.redis.lettucemod.timeseries.CreateOptions
-					.<String, String>builder().retentionPeriod(6000).build());
-			assertEquals("OK", status);
+			assertEquals("OK", connection.sync().tsCreate(KEY, com.redis.lettucemod.timeseries.CreateOptions
+					.<String, String>builder().retentionPeriod(6000).build()));
+			String key = "virag";
+			List<Label<String, String>> labels = Arrays.asList(Label.of("name", "value"));
 			assertEquals("OK",
-					connection.sync().tsCreate("virag",
+					connection.sync().tsCreate(key,
 							com.redis.lettucemod.timeseries.CreateOptions.<String, String>builder()
-									.retentionPeriod(100000L).labels(Label.of("name", "value"))
-									.policy(DuplicatePolicy.LAST).build()));
+									.retentionPeriod(100000L).labels(labels).policy(DuplicatePolicy.LAST).build()));
+			List<GetResult<String, String>> results = connection.sync().tsMgetWithLabels("name=value");
+			Label<String, String> expectedLabel = labels.get(0);
+			assertEquals(expectedLabel, results.get(0).getLabels().get(0));
 		}
 
 		@SuppressWarnings("unchecked")
