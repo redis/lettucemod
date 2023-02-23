@@ -52,7 +52,7 @@ public class IndexDefinitionParser {
 
 	@SuppressWarnings("unchecked")
 	private String[] nextStringArray() {
-		return ((List<Object>) iterator.next()).toArray(String[]::new);
+		return ((List<Object>) iterator.next()).toArray(new String[0]);
 	}
 
 }
