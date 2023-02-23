@@ -112,6 +112,10 @@ subprojects {
         archiveClassifier = ''
     }
     
+    compileJava {
+        options.release = 8
+    }
+    
     configurations {
         all*.exclude module: 'spring-boot-starter-logging'
     }
