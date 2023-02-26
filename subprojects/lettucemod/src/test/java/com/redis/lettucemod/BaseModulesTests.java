@@ -226,6 +226,12 @@ abstract class BaseModulesTests {
 		}
 
 		@Test
+		void ftInfoInexistentIndex() {
+			Assertions.assertThrows(RedisCommandExecutionException.class, () -> connection.sync().ftInfo("sdfsdfs"),
+					RedisModulesUtils.ERROR_UNKNOWN_INDEX_NAME);
+		}
+
+		@Test
 		@SuppressWarnings("unchecked")
 		void create() throws Exception {
 			int count = Beers.populateIndex(connection);
@@ -1145,6 +1151,11 @@ abstract class BaseModulesTests {
 			StatefulRedisModulesConnection<String, String> connection = RedisModulesUtils
 					.connection(ClientBuilder.create(uri).cluster(getRedisServer().isCluster()).build());
 			Assertions.assertEquals("PONG", connection.sync().ping());
+		}
+
+		@Test
+		void indexInfo() {
+			Assertions.assertTrue(RedisModulesUtils.indexInfo(() -> connection.sync().ftInfo("wweriwjer")).isEmpty());
 		}
 	}
 

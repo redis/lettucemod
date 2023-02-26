@@ -9,7 +9,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import com.redis.lettucemod.RedisModulesClient;
@@ -24,6 +26,7 @@ import com.redis.lettucemod.search.TagField;
 import com.redis.lettucemod.search.TextField;
 
 import io.lettuce.core.AbstractRedisClient;
+import io.lettuce.core.RedisCommandExecutionException;
 import io.lettuce.core.codec.RedisCodec;
 import io.lettuce.core.codec.StringCodec;
 import io.lettuce.core.internal.LettuceAssert;
@@ -35,7 +38,20 @@ public class RedisModulesUtils {
 	private static final String FIELD_FIELDS = "fields";
 	private static final String FIELD_ATTRIBUTES = "attributes";
 
+	public static final String ERROR_UNKNOWN_INDEX_NAME = "Unknown Index name";
+
 	private RedisModulesUtils() {
+	}
+
+	public static Optional<IndexInfo> indexInfo(Supplier<List<Object>> infoList) {
+		try {
+			return Optional.of(indexInfo(infoList.get()));
+		} catch (RedisCommandExecutionException e) {
+			if (ERROR_UNKNOWN_INDEX_NAME.equalsIgnoreCase(e.getMessage())) {
+				return Optional.empty();
+			}
+			throw e;
+		}
 	}
 
 	@SuppressWarnings("unchecked")
@@ -226,7 +242,7 @@ public class RedisModulesUtils {
 	public static String toString(InputStream inputStream) {
 		return toString(new InputStreamReader(inputStream));
 	}
-	
+
 	public static StatefulRedisModulesConnection<String, String> connection(AbstractRedisClient client) {
 		return connection(client, StringCodec.UTF8);
 	}
