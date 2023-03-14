@@ -13,7 +13,7 @@ public class RedisURIBuilder {
 
 	private String host = DEFAULT_HOST;
 	private int port;
-	private Optional<String> uri = Optional.empty();
+	private Optional<RedisURI> uri = Optional.empty();
 	private boolean ssl;
 	private boolean startTls;
 	private Optional<SslVerifyMode> sslVerifyMode = Optional.empty();
@@ -35,12 +35,17 @@ public class RedisURIBuilder {
 		return this;
 	}
 
+	public RedisURIBuilder uri(RedisURI uri) {
+		this.uri = Optional.of(uri);
+		return this;
+	}
+
 	public RedisURIBuilder uri(String uri) {
 		return uri(Optional.ofNullable(uri));
 	}
 
 	public RedisURIBuilder uri(Optional<String> uri) {
-		this.uri = uri;
+		this.uri = uri.map(RedisURI::create);
 		return this;
 	}
 
@@ -126,8 +131,7 @@ public class RedisURIBuilder {
 	}
 
 	public RedisURI build() {
-		RedisURI.Builder builder = uri.map(RedisURI::create).map(RedisURI::builder)
-				.orElse(RedisURI.builder().withHost(host));
+		RedisURI.Builder builder = uri.map(RedisURI::builder).orElse(RedisURI.builder().withHost(host));
 		if (port > 0) {
 			builder.withPort(port);
 		}

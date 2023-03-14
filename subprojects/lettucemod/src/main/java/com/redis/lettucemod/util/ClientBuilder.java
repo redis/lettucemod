@@ -28,4 +28,8 @@ public class ClientBuilder extends AbstractClusterClientBuilder<ClientBuilder> {
 		return new ClientBuilder(redisURI);
 	}
 
+	public static ClientBuilder create(String redisURI) {
+		return new ClientBuilder(RedisURI.create(redisURI));
+	}
+
 }

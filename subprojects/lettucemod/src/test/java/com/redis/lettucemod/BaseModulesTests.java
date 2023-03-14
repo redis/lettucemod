@@ -107,8 +107,8 @@ abstract class BaseModulesTests {
 
 	protected static final String SUGINDEX = "beersSug";
 
-	protected static StatefulRedisModulesConnection<String, String> connection;
-	private static AbstractRedisClient client;
+	protected StatefulRedisModulesConnection<String, String> connection;
+	private AbstractRedisClient client;
 
 	@BeforeAll
 	void setup() {
