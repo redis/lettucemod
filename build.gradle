@@ -4,7 +4,7 @@ config {
         inceptionYear = '2020'
         vendor = 'Redis'
         tags = ['redis', 'modules', 'stack', 'java', 'client', 'spring']
-        
+
         links {
             website      = "https://github.com/redis-developer/${project.rootProject.name}"
             issueTracker = "https://github.com/redis-developer/${project.rootProject.name}/issues"
@@ -111,7 +111,7 @@ subprojects {
         enabled = true
         archiveClassifier = ''
     }
-    
+
     compileJava {
         options.release = 8
     }
