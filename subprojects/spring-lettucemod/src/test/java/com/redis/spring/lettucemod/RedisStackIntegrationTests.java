@@ -10,6 +10,7 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.testcontainers.junit.jupiter.Container;
 
+import com.redis.lettucemod.RedisModulesClient;
 import com.redis.testcontainers.RedisStackContainer;
 
 @SpringBootTest(classes = TestApplication.class)
@@ -17,7 +18,7 @@ import com.redis.testcontainers.RedisStackContainer;
 class RedisStackIntegrationTests {
 
 	@Autowired
-	private TestService service;
+	private RedisModulesClient client;
 
 	@Container
 	static final RedisStackContainer container = new RedisStackContainer(
@@ -31,6 +32,6 @@ class RedisStackIntegrationTests {
 
 	@Test
 	void connectionTest() {
-		Assertions.assertEquals("PONG", service.ping());
+		Assertions.assertEquals("PONG", client.connect().sync().ping());
 	}
 }
