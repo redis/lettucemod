@@ -9,14 +9,11 @@ import org.springframework.boot.autoconfigure.data.redis.RedisProperties.Lettuce
 import org.springframework.boot.autoconfigure.data.redis.RedisProperties.Pool;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
 import com.redis.lettucemod.RedisModulesClient;
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
-import com.redis.lettucemod.cluster.RedisModulesClusterClient;
 import com.redis.lettucemod.util.RedisURIBuilder;
 
-import io.lettuce.core.AbstractRedisClient;
 import io.lettuce.core.ClientOptions;
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.SocketOptions;
@@ -27,6 +24,7 @@ import io.lettuce.core.cluster.ClusterTopologyRefreshOptions.Builder;
 import io.lettuce.core.resource.ClientResources;
 import io.lettuce.core.resource.DefaultClientResources;
 import io.lettuce.core.support.ConnectionPoolSupport;
+import org.springframework.context.annotation.Configuration;
 
 @Configuration(proxyBeanMethods = false)
 @EnableConfigurationProperties(RedisProperties.class)
@@ -44,7 +42,7 @@ public class RedisModulesAutoConfiguration {
 		builder.timeout(properties.getTimeout());
 		builder.uri(properties.getUrl());
 		builder.username(properties.getUsername());
-		properties.getConnectTimeout();
+		builder.timeout(properties.getConnectTimeout());
 		return builder.build();
 	}
 
@@ -78,14 +76,13 @@ public class RedisModulesAutoConfiguration {
 	}
 
 	@Bean(destroyMethod = "shutdown")
-	AbstractRedisClient client(RedisURI redisURI, RedisProperties properties, ClientResources clientResources) {
-		if (properties.getCluster() != null) {
-			RedisModulesClusterClient client = RedisModulesClusterClient.create(clientResources, redisURI);
-			client.setOptions(clusterClientOptions(properties));
-			return client;
-		}
+	RedisModulesClient client(RedisURI redisURI, RedisProperties properties, ClientResources clientResources) {
 		RedisModulesClient client = RedisModulesClient.create(clientResources, redisURI);
-		client.setOptions(clientOptions(ClientOptions.builder(), properties).build());
+		if (properties.getCluster() != null) {;
+			client.setOptions(clusterClientOptions(properties));
+		} else {
+			client.setOptions(clientOptions(ClientOptions.builder(), properties).build());
+		}
 		return client;
 	}
 
