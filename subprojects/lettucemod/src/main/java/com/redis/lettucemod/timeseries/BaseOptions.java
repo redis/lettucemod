@@ -25,7 +25,7 @@ public class BaseOptions<K, V> implements CompositeArgument {
 	}
 
 	protected BaseOptions(Builder<K, V, ?> builder) {
-		this.retentionPeriod = builder.retentionTime;
+		this.retentionPeriod = builder.retentionPeriod;
 		this.chunkSize = builder.chunkSize;
 		this.labels = builder.labels;
 	}
@@ -84,7 +84,7 @@ public class BaseOptions<K, V> implements CompositeArgument {
 	@SuppressWarnings("unchecked")
 	public static class Builder<K, V, B extends Builder<K, V, B>> {
 
-		private Optional<Duration> retentionTime = Optional.empty();
+		private Optional<Duration> retentionPeriod = Optional.empty();
 		private OptionalLong chunkSize = OptionalLong.empty();
 		private final List<Label<K, V>> labels = new ArrayList<>();
 
@@ -93,7 +93,7 @@ public class BaseOptions<K, V> implements CompositeArgument {
 		}
 
 		public B retentionPeriod(Duration duration) {
-			this.retentionTime = Optional.of(duration);
+			this.retentionPeriod = Optional.of(duration);
 			return (B) this;
 		}
 
