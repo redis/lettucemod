@@ -10,10 +10,12 @@ import io.lettuce.core.SslVerifyMode;
 public class RedisURIBuilder {
 
 	public static final String DEFAULT_HOST = "localhost";
+	public static final int DEFAULT_PORT = RedisURI.DEFAULT_REDIS_PORT;
+	private static final int DEFAULT_DATABASE = 0;
 
-	private String host = DEFAULT_HOST;
-	private int port;
 	private Optional<RedisURI> uri = Optional.empty();
+	private String host = DEFAULT_HOST;
+	private int port = DEFAULT_PORT;
 	private boolean ssl;
 	private boolean startTls;
 	private Optional<SslVerifyMode> sslVerifyMode = Optional.empty();
@@ -21,7 +23,7 @@ public class RedisURIBuilder {
 	private String username;
 	private char[] password;
 	private Optional<RedisCredentialsProvider> credentialsProvider = Optional.empty();
-	private int database;
+	private int database = DEFAULT_DATABASE;
 	private Optional<Duration> timeout = Optional.empty();
 	private Optional<String> clientName = Optional.empty();
 
@@ -131,11 +133,8 @@ public class RedisURIBuilder {
 	}
 
 	public RedisURI build() {
-		RedisURI.Builder builder = uri.map(RedisURI::builder).orElse(RedisURI.builder().withHost(host));
-		if (port > 0) {
-			builder.withPort(port);
-		}
-		if (database > 0) {
+		RedisURI.Builder builder = uri.map(RedisURI::builder).orElse(RedisURI.builder().withHost(host).withPort(port));
+		if (database != DEFAULT_DATABASE) {
 			builder.withDatabase(database);
 		}
 		if (ssl) {

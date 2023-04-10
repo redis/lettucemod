@@ -38,6 +38,9 @@ class UtilsTests {
 						.clientName(clientName).ssl(true).database(database).sslVerifyMode(verifyPeer).build());
 		assertEquals(RedisURI.builder().withHost(host).withPort(port).withSsl(true).build(),
 				RedisURIBuilder.create("rediss://" + host + ":" + port).ssl(false).build());
+		assertEquals(RedisURI.create("redis://myhost:12345"),
+				RedisURIBuilder.create("redis://myhost:12345").port(12345).build());
+
 	}
 
 	@SuppressWarnings("deprecation")
