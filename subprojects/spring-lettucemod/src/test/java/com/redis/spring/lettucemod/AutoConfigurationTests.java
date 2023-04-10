@@ -22,7 +22,7 @@ import io.lettuce.core.resource.ClientResources;
  * Integration tests for {@link RedisModulesAutoConfiguration}.
  */
 @Testcontainers
-class RedisModulesAutoConfigurationTests {
+class AutoConfigurationTests {
 
 	@Container
 	static final RedisStackContainer redisStackContainer = new RedisStackContainer(
