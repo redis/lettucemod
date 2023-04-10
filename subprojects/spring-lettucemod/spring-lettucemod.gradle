@@ -2,6 +2,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter'
     api project(':lettucemod')
     api 'org.apache.commons:commons-pool2'
+    testImplementation 'org.slf4j:slf4j-simple'
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
     }
