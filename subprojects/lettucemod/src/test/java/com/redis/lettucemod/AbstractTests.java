@@ -43,7 +43,6 @@ import com.redis.lettucemod.api.reactive.RedisModulesReactiveCommands;
 import com.redis.lettucemod.api.sync.RedisJSONCommands;
 import com.redis.lettucemod.api.sync.RedisModulesCommands;
 import com.redis.lettucemod.api.sync.RedisTimeSeriesCommands;
-import com.redis.lettucemod.cluster.RedisModulesClusterClient;
 import com.redis.lettucemod.json.GetOptions;
 import com.redis.lettucemod.json.SetMode;
 import com.redis.lettucemod.json.Slice;
@@ -77,8 +76,6 @@ import com.redis.lettucemod.search.TextField;
 import com.redis.lettucemod.timeseries.AddOptions;
 import com.redis.lettucemod.timeseries.Aggregation;
 import com.redis.lettucemod.timeseries.Aggregator;
-import com.redis.lettucemod.timeseries.DuplicatePolicy;
-import com.redis.lettucemod.timeseries.GetResult;
 import com.redis.lettucemod.timeseries.Label;
 import com.redis.lettucemod.timeseries.MRangeOptions;
 import com.redis.lettucemod.timeseries.RangeOptions;
@@ -96,8 +93,6 @@ import io.lettuce.core.LettuceFutures;
 import io.lettuce.core.RedisCommandExecutionException;
 import io.lettuce.core.RedisFuture;
 import io.lettuce.core.RedisURI;
-import io.lettuce.core.codec.StringCodec;
-import io.lettuce.core.resource.DefaultClientResources;
 import reactor.core.publisher.Mono;
 
 @Testcontainers
@@ -163,26 +158,7 @@ abstract class AbstractTests {
 		}
 	}
 
-	@Test
-	void client() {
-		RedisServer server = getRedisServer();
-		if (server.isCluster()) {
-			ping(RedisModulesClusterClient.create(server.getRedisURI()).connect());
-			ping(RedisModulesClusterClient
-					.create(DefaultClientResources.create(), RedisURI.create(server.getRedisURI())).connect());
-			ping(RedisModulesClusterClient.create(server.getRedisURI()).connect(StringCodec.UTF8));
-		} else {
-			ping(RedisModulesClient.create().connect(RedisURI.create(server.getRedisURI())));
-			ping(RedisModulesClient.create(DefaultClientResources.create())
-					.connect(RedisURI.create(server.getRedisURI())));
-			ping(RedisModulesClient.create(DefaultClientResources.create(), server.getRedisURI()).connect());
-			ping(RedisModulesClient.create(DefaultClientResources.create(), RedisURI.create(server.getRedisURI()))
-					.connect());
-			ping(RedisModulesClient.create().connect(StringCodec.UTF8, RedisURI.create(server.getRedisURI())));
-		}
-	}
-
-	private void ping(StatefulRedisModulesConnection<String, String> connection) {
+	protected void ping(StatefulRedisModulesConnection<String, String> connection) {
 		assertEquals("PONG", connection.reactive().ping().block());
 	}
 
@@ -955,26 +931,12 @@ abstract class AbstractTests {
 	protected static final long TIMESTAMP_2 = 1548149191;
 	protected static final double VALUE_1 = 30;
 	protected static final double VALUE_2 = 42;
-	private static final String KEY = "temperature:3:11";
-	private static final String KEY_2 = "temperature:3:12";
+	protected static final String TS_KEY = "temperature:3:11";
+	protected static final String TS_KEY_2 = "temperature:3:12";
 	private static final String SENSOR_ID = "2";
 	private static final String AREA_ID = "32";
 	private static final String AREA_ID_2 = "34";
 	protected static final String FILTER = LABEL_SENSOR_ID + "=" + SENSOR_ID;
-
-	@Test
-	void tsCreate() {
-		assertEquals("OK", connection.sync().tsCreate(KEY,
-				com.redis.lettucemod.timeseries.CreateOptions.<String, String>builder().retentionPeriod(6000).build()));
-		String key = "virag";
-		List<Label<String, String>> labels = Arrays.asList(Label.of("name", "value"));
-		assertEquals("OK",
-				connection.sync().tsCreate(key, com.redis.lettucemod.timeseries.CreateOptions.<String, String>builder()
-						.retentionPeriod(100000L).labels(labels).policy(DuplicatePolicy.LAST).build()));
-		List<GetResult<String, String>> results = connection.sync().tsMgetWithLabels("name=value");
-		Label<String, String> expectedLabel = labels.get(0);
-		assertEquals(expectedLabel, results.get(0).getLabels().get(0));
-	}
 
 	@SuppressWarnings("unchecked")
 	@Test
@@ -982,15 +944,14 @@ abstract class AbstractTests {
 		RedisTimeSeriesCommands<String, String> ts = connection.sync();
 		// TS.CREATE temperature:3:11 RETENTION 6000 LABELS sensor_id 2 area_id 32
 		// TS.ADD temperature:3:11 1548149181 30
-		Long add1 = ts.tsAdd(KEY, Sample.of(TIMESTAMP_1, VALUE_1),
+		Long add1 = ts.tsAdd(TS_KEY, Sample.of(TIMESTAMP_1, VALUE_1),
 				AddOptions.<String, String>builder().retentionPeriod(6000)
 						.labels(Label.of(LABEL_SENSOR_ID, SENSOR_ID), Label.of(LABEL_AREA_ID, AREA_ID)).build());
 		assertEquals(TIMESTAMP_1, add1);
-		List<GetResult<String, String>> results = ts.tsMget(FILTER);
-		assertEquals(1, results.size());
-		assertEquals(TIMESTAMP_1, results.get(0).getSample().getTimestamp());
+		Sample sample = ts.tsGet(TS_KEY);
+		assertEquals(TIMESTAMP_1, sample.getTimestamp());
 		// TS.ADD temperature:3:11 1548149191 42
-		Long add2 = ts.tsAdd(KEY, Sample.of(TIMESTAMP_2, VALUE_2));
+		Long add2 = ts.tsAdd(TS_KEY, Sample.of(TIMESTAMP_2, VALUE_2));
 		assertEquals(TIMESTAMP_2, add2);
 	}
 
@@ -998,22 +959,22 @@ abstract class AbstractTests {
 	void tsRange() {
 		RedisTimeSeriesCommands<String, String> ts = connection.sync();
 		populate(ts);
-		assertRange(ts.tsRange(KEY, TimeRange.builder().from(TIMESTAMP_1 - 10).to(TIMESTAMP_2 + 10).build(),
+		assertRange(ts.tsRange(TS_KEY, TimeRange.builder().from(TIMESTAMP_1 - 10).to(TIMESTAMP_2 + 10).build(),
 				RangeOptions.builder()
 						.aggregation(
 								Aggregation.aggregator(Aggregator.AVG).bucketDuration(Duration.ofMillis(5)).build())
 						.build()));
-		assertRange(ts.tsRange(KEY, TimeRange.unbounded(),
+		assertRange(ts.tsRange(TS_KEY, TimeRange.unbounded(),
 				RangeOptions.builder()
 						.aggregation(
 								Aggregation.aggregator(Aggregator.AVG).bucketDuration(Duration.ofMillis(5)).build())
 						.build()));
-		assertRange(ts.tsRange(KEY, TimeRange.from(TIMESTAMP_1 - 10).build(),
+		assertRange(ts.tsRange(TS_KEY, TimeRange.from(TIMESTAMP_1 - 10).build(),
 				RangeOptions.builder()
 						.aggregation(
 								Aggregation.aggregator(Aggregator.AVG).bucketDuration(Duration.ofMillis(5)).build())
 						.build()));
-		assertRange(ts.tsRange(KEY, TimeRange.to(TIMESTAMP_2 + 10).build(),
+		assertRange(ts.tsRange(TS_KEY, TimeRange.to(TIMESTAMP_2 + 10).build(),
 				RangeOptions.builder()
 						.aggregation(
 								Aggregation.aggregator(Aggregator.AVG).bucketDuration(Duration.ofMillis(5)).build())
@@ -1032,21 +993,21 @@ abstract class AbstractTests {
 	protected void populate(RedisTimeSeriesCommands<String, String> ts) {
 		// TS.CREATE temperature:3:11 RETENTION 6000 LABELS sensor_id 2 area_id 32
 		// TS.ADD temperature:3:11 1548149181 30
-		ts.tsAdd(KEY, Sample.of(TIMESTAMP_1, VALUE_1), AddOptions.<String, String>builder().retentionPeriod(6000)
+		ts.tsAdd(TS_KEY, Sample.of(TIMESTAMP_1, VALUE_1), AddOptions.<String, String>builder().retentionPeriod(6000)
 				.labels(Label.of(LABEL_SENSOR_ID, SENSOR_ID), Label.of(LABEL_AREA_ID, AREA_ID)).build());
 		// TS.ADD temperature:3:11 1548149191 42
-		ts.tsAdd(KEY, Sample.of(TIMESTAMP_2, VALUE_2));
+		ts.tsAdd(TS_KEY, Sample.of(TIMESTAMP_2, VALUE_2));
 
-		ts.tsAdd(KEY_2, Sample.of(TIMESTAMP_1, VALUE_1), AddOptions.<String, String>builder().retentionPeriod(6000)
+		ts.tsAdd(TS_KEY_2, Sample.of(TIMESTAMP_1, VALUE_1), AddOptions.<String, String>builder().retentionPeriod(6000)
 				.labels(Label.of(LABEL_SENSOR_ID, SENSOR_ID), Label.of(LABEL_AREA_ID, AREA_ID_2)).build());
-		ts.tsAdd(KEY_2, Sample.of(TIMESTAMP_2, VALUE_2));
+		ts.tsAdd(TS_KEY_2, Sample.of(TIMESTAMP_2, VALUE_2));
 	}
 
 	@Test
 	void tsGet() {
 		RedisTimeSeriesCommands<String, String> ts = connection.sync();
 		populate(ts);
-		Sample result = ts.tsGet(KEY);
+		Sample result = ts.tsGet(TS_KEY);
 		Assertions.assertEquals(TIMESTAMP_2, result.getTimestamp());
 		Assertions.assertEquals(VALUE_2, result.getValue());
 		ts.tsCreate("ts:empty", com.redis.lettucemod.timeseries.CreateOptions.<String, String>builder().build());
@@ -1057,7 +1018,7 @@ abstract class AbstractTests {
 	void tsMrange() {
 		RedisTimeSeriesCommands<String, String> ts = connection.sync();
 		populate(ts);
-		List<String> keys = Arrays.asList(KEY, KEY_2);
+		List<String> keys = Arrays.asList(TS_KEY, TS_KEY_2);
 		assertMrange(keys, ts.tsMrange(TimeRange.unbounded(), MRangeOptions.<String, String>filters(FILTER).build()));
 		assertMrange(keys, ts.tsMrange(TimeRange.from(TIMESTAMP_1 - 10).build(),
 				MRangeOptions.<String, String>filters(FILTER).build()));
@@ -1068,14 +1029,14 @@ abstract class AbstractTests {
 		assertEquals(2, results.size());
 		RangeResult<String, String> key1Result;
 		RangeResult<String, String> key2Result;
-		if (results.get(0).getKey().equals(KEY)) {
+		if (results.get(0).getKey().equals(TS_KEY)) {
 			key1Result = results.get(0);
 			key2Result = results.get(1);
 		} else {
 			key1Result = results.get(1);
 			key2Result = results.get(0);
 		}
-		assertEquals(KEY, key1Result.getKey());
+		assertEquals(TS_KEY, key1Result.getKey());
 		assertEquals(2, key1Result.getSamples().size());
 		assertEquals(TIMESTAMP_1, key1Result.getSamples().get(0).getTimestamp());
 		assertEquals(VALUE_1, key1Result.getSamples().get(0).getValue());
@@ -1084,7 +1045,7 @@ abstract class AbstractTests {
 		assertEquals(2, key1Result.getLabels().size());
 		assertEquals(SENSOR_ID, key1Result.getLabels().get(LABEL_SENSOR_ID));
 		assertEquals(AREA_ID, key1Result.getLabels().get(LABEL_AREA_ID));
-		assertEquals(KEY_2, key2Result.getKey());
+		assertEquals(TS_KEY_2, key2Result.getKey());
 		assertEquals(2, key2Result.getSamples().size());
 		assertEquals(TIMESTAMP_1, key2Result.getSamples().get(0).getTimestamp());
 		assertEquals(VALUE_1, key2Result.getSamples().get(0).getValue());
@@ -1109,9 +1070,10 @@ abstract class AbstractTests {
 	void uriBuilder() {
 		RedisURI redisURI = RedisURI.create(getRedisServer().getRedisURI());
 		RedisURI uri = RedisURIBuilder.create().host(redisURI.getHost()).port(redisURI.getPort()).build();
-		StatefulRedisModulesConnection<String, String> connection = RedisModulesUtils
-				.connection(ClientBuilder.create(uri).cluster(getRedisServer().isCluster()).build());
-		Assertions.assertEquals("PONG", connection.sync().ping());
+		try (AbstractRedisClient client = ClientBuilder.create(uri).cluster(getRedisServer().isCluster()).build();
+				StatefulRedisModulesConnection<String, String> connection = RedisModulesUtils.connection(client)) {
+			Assertions.assertEquals("PONG", connection.sync().ping());
+		}
 	}
 
 	@Test
