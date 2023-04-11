@@ -453,26 +453,26 @@ public class RedisModulesAdvancedClusterAsyncCommandsImpl<K, V> extends RedisAdv
 
 	@Override
 	public RedisFuture<List<KeyValue<K, V>>> jsonMget(String path, K... keys) {
-		return mget(path, Arrays.asList(keys));
+		return jsonMget(path, Arrays.asList(keys));
 	}
 
 	@Override
 	public RedisFuture<Long> jsonMget(KeyValueStreamingChannel<K, V> channel, String path, K... keys) {
-		return mget(channel, path, Arrays.asList(keys));
+		return jsonMget(channel, path, Arrays.asList(keys));
 	}
 
-	public RedisFuture<List<KeyValue<K, V>>> mget(String path, Iterable<K> keys) {
+	public RedisFuture<List<KeyValue<K, V>>> jsonMget(String path, Iterable<K> keys) {
 		Map<Integer, List<K>> partitioned = SlotHash.partition(codec, keys);
 
 		if (partitioned.size() < 2) {
-			return delegate.mget(path, keys);
+			return delegate.jsonMget(path, keys);
 		}
 
 		Map<K, Integer> slots = SlotHash.getSlots(partitioned);
 		Map<Integer, RedisFuture<List<KeyValue<K, V>>>> executions = new HashMap<>();
 
 		for (Map.Entry<Integer, List<K>> entry : partitioned.entrySet()) {
-			RedisFuture<List<KeyValue<K, V>>> mget = delegate.mget(path, entry.getValue());
+			RedisFuture<List<KeyValue<K, V>>> mget = delegate.jsonMget(path, entry.getValue());
 			executions.put(entry.getKey(), mget);
 		}
 
@@ -491,17 +491,17 @@ public class RedisModulesAdvancedClusterAsyncCommandsImpl<K, V> extends RedisAdv
 		});
 	}
 
-	public RedisFuture<Long> mget(KeyValueStreamingChannel<K, V> channel, String path, Iterable<K> keys) {
+	public RedisFuture<Long> jsonMget(KeyValueStreamingChannel<K, V> channel, String path, Iterable<K> keys) {
 		Map<Integer, List<K>> partitioned = SlotHash.partition(codec, keys);
 
 		if (partitioned.size() < 2) {
-			return delegate.mget(channel, path, keys);
+			return delegate.jsonMget(channel, path, keys);
 		}
 
 		Map<Integer, RedisFuture<Long>> executions = new HashMap<>();
 
 		for (Map.Entry<Integer, List<K>> entry : partitioned.entrySet()) {
-			RedisFuture<Long> del = delegate.mget(channel, path, entry.getValue());
+			RedisFuture<Long> del = delegate.jsonMget(channel, path, entry.getValue());
 			executions.put(entry.getKey(), del);
 		}
 

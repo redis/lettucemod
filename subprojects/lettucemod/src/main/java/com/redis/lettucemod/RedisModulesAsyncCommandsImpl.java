@@ -436,7 +436,7 @@ public class RedisModulesAsyncCommandsImpl<K, V> extends RedisAsyncCommandsImpl<
 		return dispatch(jsonCommandBuilder.mgetKeyValue(path, keys));
 	}
 
-	public RedisFuture<List<KeyValue<K, V>>> mget(String path, Iterable<K> keys) {
+	public RedisFuture<List<KeyValue<K, V>>> jsonMget(String path, Iterable<K> keys) {
 		return dispatch(jsonCommandBuilder.mgetKeyValue(path, keys));
 	}
 
@@ -445,7 +445,7 @@ public class RedisModulesAsyncCommandsImpl<K, V> extends RedisAsyncCommandsImpl<
 		return dispatch(jsonCommandBuilder.mget(channel, path, keys));
 	}
 
-	public RedisFuture<Long> mget(KeyValueStreamingChannel<K, V> channel, String path, Iterable<K> keys) {
+	public RedisFuture<Long> jsonMget(KeyValueStreamingChannel<K, V> channel, String path, Iterable<K> keys) {
 		return dispatch(jsonCommandBuilder.mget(channel, path, keys));
 	}
 

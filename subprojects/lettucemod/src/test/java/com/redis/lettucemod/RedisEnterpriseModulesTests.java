@@ -33,7 +33,7 @@ import com.redis.testcontainers.RedisServer;
 import io.lettuce.core.RedisCommandExecutionException;
 
 @EnabledOnOs(OS.LINUX)
-public class RedisEnterpriseModulesTests extends BaseModulesTests {
+public class RedisEnterpriseModulesTests extends AbstractTests {
 
 	private static final Logger log = LoggerFactory.getLogger(RedisEnterpriseModulesTests.class);
 

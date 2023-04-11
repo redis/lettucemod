@@ -461,22 +461,22 @@ public class RedisModulesAdvancedClusterReactiveCommandsImpl<K, V> extends
 
 	@Override
 	public Flux<KeyValue<K, V>> jsonMget(String path, K... keys) {
-		return mget(path, Arrays.asList(keys));
+		return jsonMget(path, Arrays.asList(keys));
 	}
 
-	public Flux<KeyValue<K, V>> mget(String path, Iterable<K> keys) {
+	public Flux<KeyValue<K, V>> jsonMget(String path, Iterable<K> keys) {
 
 		List<K> keyList = LettuceLists.newList(keys);
 		Map<Integer, List<K>> partitioned = SlotHash.partition(codec, keyList);
 
 		if (partitioned.size() < 2) {
-			return delegate.mget(path, keyList);
+			return delegate.jsonMget(path, keyList);
 		}
 
 		List<Publisher<KeyValue<K, V>>> publishers = new ArrayList<>();
 
 		for (Map.Entry<Integer, List<K>> entry : partitioned.entrySet()) {
-			publishers.add(delegate.mget(path, entry.getValue()));
+			publishers.add(delegate.jsonMget(path, entry.getValue()));
 		}
 
 		Flux<KeyValue<K, V>> fluxes = Flux.concat(publishers);

@@ -436,7 +436,7 @@ public class RedisModulesReactiveCommandsImpl<K, V> extends RedisReactiveCommand
 		return createDissolvingFlux(() -> jsonCommandBuilder.mget(path, keys));
 	}
 
-	public Flux<KeyValue<K, V>> mget(String path, Iterable<K> keys) {
+	public Flux<KeyValue<K, V>> jsonMget(String path, Iterable<K> keys) {
 		return createDissolvingFlux(() -> jsonCommandBuilder.mgetKeyValue(path, keys));
 	}
 
