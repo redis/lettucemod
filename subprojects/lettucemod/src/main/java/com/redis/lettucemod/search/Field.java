@@ -9,7 +9,7 @@ import com.redis.lettucemod.protocol.SearchCommandKeyword;
 public abstract class Field<K> implements RediSearchArgument {
 
 	public enum Type {
-		TEXT, NUMERIC, GEO, TAG
+		TEXT, NUMERIC, GEO, TAG, VECTOR
 	}
 
 	protected final Type type;
@@ -169,4 +169,7 @@ public abstract class Field<K> implements RediSearchArgument {
 		return NumericField.name(name);
 	}
 
+    public static <K> VectorField.Builder<K> vector(K name) {
+		return VectorField.name(name);
+	}
 }

@@ -81,6 +81,7 @@ public class RedisModulesUtils {
 		indexInfo.setNumRecords(toLong(map, "num_records"));
 		indexInfo.setInvertedSizeMb(getDouble(map.get("inverted_sz_mb")));
 		indexInfo.setTotalInvertedIndexBlocks(toLong(map, "total_inverted_index_blocks"));
+		indexInfo.setVectorIndexSizeMb(getDouble(map.get("vector_index_sz_mb")));
 		indexInfo.setOffsetVectorsSizeMb(getDouble(map.get("offset_vectors_sz_mb")));
 		indexInfo.setDocTableSizeMb(getDouble(map.get("doc_table_size_mb")));
 		indexInfo.setSortableValuesSizeMb(getDouble(map.get("sortable_values_size_mb")));
@@ -207,15 +208,14 @@ public class RedisModulesUtils {
 	private static Field<String> field(String type, String name) {
 		if (type.toUpperCase().equals(SearchCommandKeyword.GEO.name())) {
 			return Field.geo(name).build();
-		}
-		if (type.toUpperCase().equals(SearchCommandKeyword.NUMERIC.name())) {
+		} else if (type.toUpperCase().equals(SearchCommandKeyword.NUMERIC.name())) {
 			return Field.numeric(name).build();
-		}
-		if (type.toUpperCase().equals(SearchCommandKeyword.TAG.name())) {
+		} else if (type.toUpperCase().equals(SearchCommandKeyword.TAG.name())) {
 			return Field.tag(name).build();
-		}
-		if (type.toUpperCase().equals(SearchCommandKeyword.TEXT.name())) {
+		} else if (type.toUpperCase().equals(SearchCommandKeyword.TEXT.name())) {
 			return Field.text(name).build();
+		} else if (type.toUpperCase().equals(SearchCommandKeyword.VECTOR.name())) {
+			return Field.vector(name).build();
 		}
 		throw new IllegalArgumentException("Unknown field type: " + type);
 	}

@@ -14,6 +14,7 @@ public class IndexInfo {
 	private Long numRecords;
 	private Double invertedSizeMb;
 	private Long totalInvertedIndexBlocks;
+	private Double vectorIndexSizeMb;
 	private Double offsetVectorsSizeMb;
 	private Double docTableSizeMb;
 	private Double sortableValuesSizeMb;
@@ -38,6 +39,7 @@ public class IndexInfo {
 		this.numRecords = builder.numRecords;
 		this.invertedSizeMb = builder.invertedSizeMb;
 		this.totalInvertedIndexBlocks = builder.totalInvertedIndexBlocks;
+		this.vectorIndexSizeMb = builder.vectorIndexSizeMb;
 		this.offsetVectorsSizeMb = builder.offsetVectorsSizeMb;
 		this.docTableSizeMb = builder.docTableSizeMb;
 		this.sortableValuesSizeMb = builder.sortableValuesSizeMb;
@@ -202,16 +204,25 @@ public class IndexInfo {
 		this.cursorStats = cursorStats;
 	}
 
+	public Double getVectorIndexSizeMb() {
+		return vectorIndexSizeMb;
+	}
+
+	public void setVectorIndexSizeMb(Double vectorIndexSizeMb) {
+		this.vectorIndexSizeMb = vectorIndexSizeMb;
+	}
+
 	@Override
 	public String toString() {
 		return "IndexInfo [indexName=" + indexName + ", numDocs=" + numDocs + ", indexOptions=" + indexOptions
 				+ ", fields=" + fields + ", maxDocId=" + maxDocId + ", numTerms=" + numTerms + ", numRecords="
 				+ numRecords + ", invertedSizeMb=" + invertedSizeMb + ", totalInvertedIndexBlocks="
-				+ totalInvertedIndexBlocks + ", offsetVectorsSizeMb=" + offsetVectorsSizeMb + ", docTableSizeMb="
-				+ docTableSizeMb + ", sortableValuesSizeMb=" + sortableValuesSizeMb + ", keyTableSizeMb="
-				+ keyTableSizeMb + ", recordsPerDocAvg=" + recordsPerDocAvg + ", bytesPerRecordAvg=" + bytesPerRecordAvg
-				+ ", offsetsPerTermAvg=" + offsetsPerTermAvg + ", offsetBitsPerRecordAvg=" + offsetBitsPerRecordAvg
-				+ ", gcStats=" + gcStats + ", cursorStats=" + cursorStats + "]";
+				+ totalInvertedIndexBlocks + ", vectorIndexSizeMb=" + vectorIndexSizeMb + ", offsetVectorsSizeMb="
+				+ offsetVectorsSizeMb + ", docTableSizeMb=" + docTableSizeMb + ", sortableValuesSizeMb="
+				+ sortableValuesSizeMb + ", keyTableSizeMb=" + keyTableSizeMb + ", recordsPerDocAvg="
+				+ recordsPerDocAvg + ", bytesPerRecordAvg=" + bytesPerRecordAvg + ", offsetsPerTermAvg="
+				+ offsetsPerTermAvg + ", offsetBitsPerRecordAvg=" + offsetBitsPerRecordAvg + ", gcStats=" + gcStats
+				+ ", cursorStats=" + cursorStats + "]";
 	}
 
 	public static Builder builder() {
@@ -228,6 +239,7 @@ public class IndexInfo {
 		private Long numRecords;
 		private Double invertedSizeMb;
 		private Long totalInvertedIndexBlocks;
+		private Double vectorIndexSizeMb;
 		private Double offsetVectorsSizeMb;
 		private Double docTableSizeMb;
 		private Double sortableValuesSizeMb;
@@ -284,6 +296,11 @@ public class IndexInfo {
 
 		public Builder totalInvertedIndexBlocks(Long totalInvertedIndexBlocks) {
 			this.totalInvertedIndexBlocks = totalInvertedIndexBlocks;
+			return this;
+		}
+
+		public Builder vectorIndexSizeMb(Double vectorIndexSizeMb) {
+			this.vectorIndexSizeMb = vectorIndexSizeMb;
 			return this;
 		}
 
