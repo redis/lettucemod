@@ -161,25 +161,25 @@ class RedisStackTests extends AbstractTests {
 		try (RedisModulesClient client = RedisModulesClient.create();
 				StatefulRedisModulesConnection<String, String> connection = client
 						.connect(RedisURI.create(container.getRedisURI()))) {
-			ping(connection);
+			assertEquals(PONG, ping(connection));
 		}
 		try (RedisModulesClient client = RedisModulesClient.create(resources);
 				StatefulRedisModulesConnection<String, String> connection = client
 						.connect(RedisURI.create(container.getRedisURI()))) {
-			ping(connection);
+			assertEquals(PONG, ping(connection));
 		}
 		try (RedisModulesClient client = RedisModulesClient.create(resources, container.getRedisURI());
 				StatefulRedisModulesConnection<String, String> connection = client.connect()) {
-			ping(connection);
+			assertEquals(PONG, ping(connection));
 		}
 		try (RedisModulesClient client = RedisModulesClient.create(resources, RedisURI.create(container.getRedisURI()));
 				StatefulRedisModulesConnection<String, String> connection = client.connect()) {
-			ping(connection);
+			assertEquals(PONG, ping(connection));
 		}
 		try (RedisModulesClient client = RedisModulesClient.create();
 				StatefulRedisModulesConnection<String, String> connection = client.connect(StringCodec.UTF8,
 						RedisURI.create(container.getRedisURI()))) {
-			ping(connection);
+			assertEquals(PONG, ping(connection));
 		}
 		resources.shutdown();
 	}

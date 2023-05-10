@@ -55,18 +55,18 @@ class RedisEnterpriseTests extends AbstractTests {
 	void client() {
 		try (RedisModulesClusterClient client = RedisModulesClusterClient.create(container.getRedisURI());
 				StatefulRedisModulesConnection<String, String> connection = client.connect()) {
-			ping(connection);
+			assertEquals(PONG, ping(connection));
 		}
 		DefaultClientResources resources = DefaultClientResources.create();
 		try (RedisModulesClusterClient client = RedisModulesClusterClient.create(resources,
 				RedisURI.create(container.getRedisURI()));
 				StatefulRedisModulesConnection<String, String> connection = client.connect()) {
-			ping(connection);
+			assertEquals(PONG, ping(connection));
 		}
 		resources.shutdown();
 		try (RedisModulesClusterClient client = RedisModulesClusterClient.create(container.getRedisURI());
 				StatefulRedisModulesConnection<String, String> connection = client.connect(StringCodec.UTF8)) {
-			ping(connection);
+			assertEquals(PONG, ping(connection));
 		}
 	}
 

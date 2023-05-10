@@ -38,6 +38,14 @@ class QueryBuilderTests {
 	}
 
 	@Test
+	void testTagWithSpace() {
+		Value v = tags("foo bar");
+		assertEquals("{foo bar}", v.toString());
+		v = tags("foo bar", "bar");
+		assertEquals("{foo bar | bar}", v.toString());
+	}
+
+	@Test
 	void testEmptyTag() {
 		assertThrows(IllegalArgumentException.class, () -> tags());
 	}

@@ -99,6 +99,8 @@ abstract class AbstractTests {
 
 	protected static final String SUGINDEX = "beersSug";
 
+	protected static final String PONG = "PONG";
+
 	protected StatefulRedisModulesConnection<String, String> connection;
 	private AbstractRedisClient client;
 
@@ -156,8 +158,8 @@ abstract class AbstractTests {
 		}
 	}
 
-	protected void ping(StatefulRedisModulesConnection<String, String> connection) {
-		assertEquals("PONG", connection.reactive().ping().block());
+	protected String ping(StatefulRedisModulesConnection<String, String> connection) {
+		return connection.sync().ping();
 	}
 
 	private static final String JSON = "{\"name\":\"Leonard Cohen\",\"lastSeen\":1478476800,\"loggedOut\": true}";
@@ -857,7 +859,7 @@ abstract class AbstractTests {
 		CreateOptions<String, String> createOptions = CreateOptions.<String, String>builder().on(DataType.JSON)
 				.prefixes("prefix1", "prefix2").filter("@indexName==\"myindexname\"").defaultLanguage(Language.CHINESE)
 				.languageField("languageField").defaultScore(.5).scoreField("scoreField").payloadField("payloadField")
-				.maxTextFields(true).noOffsets(true).noFields(true).noFreqs(true).build();
+				.maxTextFields(true).noOffsets(true).noHL(true).noFields(true).noFreqs(true).build();
 		commands.ftCreate(index, createOptions, Field.tag("id").build(), Field.numeric("scoreField").build());
 		IndexInfo info = RedisModulesUtils.indexInfo(commands.ftInfo(index));
 		Assertions.assertEquals(createOptions, info.getIndexOptions());
