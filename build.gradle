@@ -10,17 +10,17 @@ config {
             issueTracker = "https://github.com/redis-developer/${project.rootProject.name}/issues"
             scm          = "https://github.com/redis-developer/${project.rootProject.name}.git"
         }
-        
+
         scm {
             url                 = "https://github.com/redis-developer/${project.rootProject.name}"
             connection          = "scm:git:https://github.com/redis-developer/${project.rootProject.name}.git"
             developerConnection = "scm:git:git@github.com:redis-developer/${project.rootProject.name}.git"
         }
-        
+
         specification {
             enabled = true
         }
-        
+
         implementation {
             enabled = true
         }
@@ -33,15 +33,12 @@ config {
             }
         }
     }
-    
+
     docs {
         javadoc {
             autoLinks {
                 enabled = false
             }
-        }
-        sourceHtml {
-            enabled = false
         }
     }
     
@@ -53,7 +50,7 @@ config {
             }
         }
     }
-    
+
     coverage {
         jacoco {
             enabled = true
@@ -71,11 +68,11 @@ allprojects {
         mavenLocal()
         gradlePluginPortal()
     }
-    
+
     tasks.withType(GenerateModuleMetadata) {
         enabled = false
     }
-    
+
     tasks.withType(JavaCompile) {
         options.encoding = 'UTF-8'
     }
@@ -86,28 +83,33 @@ subprojects {
         info {
             description = project.project_description
         }
+        coverage {
+            jacoco {
+		        toolVersion = jacocoVersion
+            }
+        }
     }
     
     license {
         exclude('build/**')
     }
-    
+
     dependencies {
         testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+        testImplementation 'org.junit.jupiter:junit-jupiter-api'
+        testImplementation 'org.junit.jupiter:junit-jupiter-params'
         testImplementation group: 'org.testcontainers', name: 'junit-jupiter', version: testcontainersVersion
-        testImplementation(group: 'com.redis.testcontainers', name: 'testcontainers-redis', version: testcontainersRedisVersion) {
-            exclude group: 'com.redis', module: 'lettucemod'
-        }
+        testImplementation group: 'com.redis.testcontainers', name: 'testcontainers-redis', version: testcontainersRedisVersion
     }
-    
+
     test {
         useJUnitPlatform()
     }
-    
+
     bootJar {
         enabled = false
     }
-    
+
     jar {
         enabled = true
         archiveClassifier = ''
@@ -120,7 +122,7 @@ subprojects {
     configurations {
         all*.exclude module: 'spring-boot-starter-logging'
     }
-    
+
     configurations.all {
         resolutionStrategy.eachDependency { DependencyResolveDetails details ->
             if (details.requested.name == 'lettuce-core' ) {
