@@ -1,0 +1,57 @@
+[
+  {
+    "name": "com.redis.lettucemod.RedisModulesAsyncCommandsImpl",
+    "allPublicMethods": true,
+    "allDeclaredConstructors": true
+  },
+  {
+    "name": "com.redis.lettucemod.RedisModulesClient",
+    "allPublicMethods": true,
+    "allDeclaredConstructors": true
+  },
+  {
+    "name": "com.redis.lettucemod.api.sync.RedisModulesCommands",
+    "allPublicMethods": true,
+    "allDeclaredConstructors": true
+  },
+  {
+    "name": "com.redis.lettucemod.api.sync.RediSearchCommands",
+    "allPublicMethods": true,
+    "allDeclaredConstructors": true
+  },
+  {
+    "name": "com.redis.lettucemod.api.sync.RedisGearsCommands",
+    "allPublicMethods": true,
+    "allDeclaredConstructors": true
+  },
+  {
+    "name": "com.redis.lettucemod.api.sync.RedisJSONCommands",
+    "allPublicMethods": true,
+    "allDeclaredConstructors": true
+  },
+  {
+    "name": "com.redis.lettucemod.api.sync.RedisTimeSeriesCommands",
+    "allPublicMethods": true,
+    "allDeclaredConstructors": true
+  },
+  {
+    "name": "com.redis.lettucemod.cluster.api.sync.RedisModulesClusterCommands",
+    "allPublicMethods": true,
+    "allDeclaredConstructors": true
+  },
+  {
+    "name": "com.redis.lettucemod.cluster.api.sync.RedisModulesAdvancedClusterCommands",
+    "allPublicMethods": true,
+    "allDeclaredConstructors": true
+  },
+  {
+    "name": "com.redis.lettucemod.cluster.api.async.RedisModulesAdvancedClusterAsyncCommands",
+    "allPublicMethods": true,
+    "allDeclaredConstructors": true
+  },
+  {
+    "name": "com.redis.lettucemod.cluster.RedisModulesAdvancedClusterAsyncCommandsImpl",
+    "allPublicMethods": true,
+    "allDeclaredConstructors": true
+  }
+]

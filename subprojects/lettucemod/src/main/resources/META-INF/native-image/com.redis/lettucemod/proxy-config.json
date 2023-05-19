@@ -1,0 +1,19 @@
+[
+  [
+    "com.redis.lettucemod.api.sync.RedisModulesCommands",
+    "com.redis.lettucemod.cluster.api.sync.RedisModulesClusterCommands"
+  ],
+  [
+    "com.redis.lettucemod.cluster.api.sync.RedisModulesAdvancedClusterCommands"
+  ],
+  [
+    "com.redis.lettucemod.cluster.api.StatefulRedisModulesClusterConnection"
+  ],
+  [
+    "com.redis.lettucemod.api.StatefulRedisModulesConnection"
+  ],
+  [
+    "com.redis.lettucemod.api.sync.RedisModulesCommands",
+    "com.redis.lettucemod.cluster.api.sync.RedisModulesClusterCommands"
+  ]
+]
