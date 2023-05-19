@@ -173,7 +173,7 @@ class RedisEnterpriseTests extends AbstractTests {
 	}
 
 	@Test
-	@Disabled
+	@Disabled("Flaky test")
 	void rgDropExecution() throws InterruptedException {
 		clearGears();
 		executions();
