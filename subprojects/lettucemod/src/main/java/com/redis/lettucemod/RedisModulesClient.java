@@ -13,6 +13,7 @@ import io.lettuce.core.RedisURI;
 import io.lettuce.core.codec.RedisCodec;
 import io.lettuce.core.internal.LettuceAssert;
 import io.lettuce.core.masterreplica.MasterReplica;
+import io.lettuce.core.protocol.ProtocolVersion;
 import io.lettuce.core.protocol.PushHandler;
 import io.lettuce.core.resource.ClientResources;
 
@@ -47,8 +48,12 @@ import io.lettuce.core.resource.ClientResources;
  */
 public class RedisModulesClient extends RedisClient {
 
+	public static final ClientOptions DEFAULT_CLIENT_OPTIONS = ClientOptions.builder()
+			.protocolVersion(ProtocolVersion.RESP2).build();
+
 	protected RedisModulesClient(ClientResources clientResources, RedisURI redisURI) {
 		super(clientResources, redisURI);
+		setOptions(DEFAULT_CLIENT_OPTIONS);
 	}
 
 	/**
@@ -60,6 +65,7 @@ public class RedisModulesClient extends RedisClient {
 	 */
 	protected RedisModulesClient() {
 		super();
+		setOptions(DEFAULT_CLIENT_OPTIONS);
 	}
 
 	public static RedisModulesClientBuilder builder(RedisURI redisURI) {

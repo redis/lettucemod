@@ -10,18 +10,24 @@ import com.redis.lettucemod.util.RedisModulesClusterClientBuilder;
 
 import io.lettuce.core.RedisChannelWriter;
 import io.lettuce.core.RedisURI;
+import io.lettuce.core.cluster.ClusterClientOptions;
 import io.lettuce.core.cluster.ClusterPushHandler;
 import io.lettuce.core.cluster.RedisClusterClient;
 import io.lettuce.core.cluster.RedisClusterURIUtil;
 import io.lettuce.core.codec.RedisCodec;
 import io.lettuce.core.internal.LettuceAssert;
+import io.lettuce.core.protocol.ProtocolVersion;
 import io.lettuce.core.protocol.PushHandler;
 import io.lettuce.core.resource.ClientResources;
 
 public class RedisModulesClusterClient extends RedisClusterClient {
 
+	public static final ClusterClientOptions DEFAULT_CLIENT_OPTIONS = ClusterClientOptions.builder()
+			.protocolVersion(ProtocolVersion.RESP2).build();
+
 	protected RedisModulesClusterClient(ClientResources clientResources, Iterable<RedisURI> redisURIs) {
 		super(clientResources, redisURIs);
+		setOptions(DEFAULT_CLIENT_OPTIONS);
 	}
 
 	/**
