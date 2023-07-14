@@ -39,6 +39,7 @@ import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
 import com.redis.lettucemod.api.async.RedisModulesAsyncCommands;
+import com.redis.lettucemod.api.reactive.RedisJSONReactiveCommands;
 import com.redis.lettucemod.api.reactive.RedisModulesReactiveCommands;
 import com.redis.lettucemod.api.sync.RedisJSONCommands;
 import com.redis.lettucemod.api.sync.RedisModulesCommands;
@@ -239,6 +240,30 @@ abstract class AbstractTests {
 		assertJSONEquals(JSON, results.get(0).getValue());
 		assertJSONEquals(json2, results.get(1).getValue());
 		assertJSONEquals(json3, results.get(2).getValue());
+	}
+
+	@Test
+	void jsonMgetReactive() throws JsonProcessingException {
+		String key1 = "obj1";
+		String key2 = "obj2";
+		String key3 = "obj3";
+		RedisJSONCommands<String, String> sync = connection.sync();
+		sync.jsonSet(key1, ".", JSON);
+		String json2 = "{\"name\":\"Herbie Hancock\",\"lastSeen\":1478476810,\"loggedOut\": false}";
+		sync.jsonSet(key2, ".", json2);
+		String json3 = "{\"name\":\"Lalo Schifrin\",\"lastSeen\":1478476820,\"loggedOut\": false}";
+		sync.jsonSet(key3, ".", json3);
+
+		RedisJSONReactiveCommands<String, String> reactive = connection.reactive();
+		List<KeyValue<String, String>> values = reactive.jsonMget("$", key1, key2, key3)
+				.filter(keyValue -> !keyValue.isEmpty()).collectList().block();
+		assertJSONEquals(arrayWrap(JSON), values.get(0).getValue());
+		assertJSONEquals(arrayWrap(json2), values.get(1).getValue());
+		assertJSONEquals(arrayWrap(json3), values.get(2).getValue());
+	}
+
+	private String arrayWrap(String json) {
+		return "[" + json + "]";
 	}
 
 	@Test
