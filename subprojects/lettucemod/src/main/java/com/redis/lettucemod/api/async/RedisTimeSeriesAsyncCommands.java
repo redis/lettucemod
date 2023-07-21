@@ -77,4 +77,5 @@ public interface RedisTimeSeriesAsyncCommands<K, V> {
 
 	RedisFuture<List<Object>> tsInfoDebug(K key);
 
+	RedisFuture<List<V>> tsQueryIndex(V... filters);
 }

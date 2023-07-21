@@ -265,6 +265,11 @@ public class RedisModulesAsyncCommandsImpl<K, V> extends RedisAsyncCommandsImpl<
 	}
 
 	@Override
+	public RedisFuture<List<V>> tsQueryIndex(V... filters){
+		return dispatch(timeSeriesCommandBuilder.queryIndex(filters));
+	}
+
+	@Override
 	public RedisFuture<String> ftCreate(K index, Field<K>... fields) {
 		return ftCreate(index, null, fields);
 	}

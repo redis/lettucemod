@@ -440,6 +440,9 @@ public class RedisModulesAdvancedClusterReactiveCommandsImpl<K, V> extends
 	}
 
 	@Override
+	public Flux<V> tsQueryIndex(V... filters){ return delegate.tsQueryIndex(filters);}
+
+	@Override
 	public Mono<Long> jsonDel(K key) {
 		return delegate.jsonDel(key);
 	}
