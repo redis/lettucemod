@@ -212,9 +212,8 @@ public class TimeSeriesCommandBuilder<K, V> extends RedisModulesCommandBuilder<K
 		notNull(filters, "filters");
 		CommandArgs<K,V> args = new CommandArgs<>(codec);
 		for(V filter : filters){
-			args.add(filter.toString());
+			args.addValue(filter);
 		}
-
 		return createCommand(TimeSeriesCommandType.QUERYINDEX, new ValueListOutput<>(codec), args);
 	}
 }
