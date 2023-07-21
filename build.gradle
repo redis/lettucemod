@@ -99,7 +99,9 @@ subprojects {
         testImplementation 'org.junit.jupiter:junit-jupiter-api'
         testImplementation 'org.junit.jupiter:junit-jupiter-params'
         testImplementation group: 'org.testcontainers', name: 'junit-jupiter', version: testcontainersVersion
-        testImplementation group: 'com.redis.testcontainers', name: 'testcontainers-redis', version: testcontainersRedisVersion
+        testImplementation(group: 'com.redis.testcontainers', name: 'testcontainers-redis', version: testcontainersRedisVersion) {
+            exclude group: 'com.redis', module: 'lettucemod'
+        }
     }
 
     test {
