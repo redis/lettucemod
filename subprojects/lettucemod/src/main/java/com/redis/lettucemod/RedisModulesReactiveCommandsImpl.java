@@ -269,6 +269,9 @@ public class RedisModulesReactiveCommandsImpl<K, V> extends RedisReactiveCommand
 	public Flux<V> tsQueryIndex(V... filters){return createDissolvingFlux(()->timeSeriesCommandBuilder.queryIndex(filters));}
 
 	@Override
+	public Mono<Long> tsDel(K key, TimeRange timeRange) { return createMono(()->timeSeriesCommandBuilder.tsDel(key, timeRange));}
+
+	@Override
 	public Mono<String> ftCreate(K index, Field<K>... fields) {
 		return ftCreate(index, null, fields);
 	}

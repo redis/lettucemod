@@ -117,6 +117,24 @@ class RedisStackTests extends AbstractTests {
 	}
 
 	@Test
+	void tsDel(){
+		String key = "tsDel:key";
+		connection.sync().del(key);
+		assertEquals("OK", connection.sync().tsCreate(key, CreateOptions.<String, String>builder().build()));
+		for(int i = 0; i < 5; i ++){
+			connection.sync().tsAdd(key, Sample.of(42));
+
+			try {
+				Thread.sleep(20);
+			} catch (InterruptedException e) {
+				// ignored
+			}
+		}
+
+		assertEquals(5, connection.sync().tsDel(key, TimeRange.from(0).to(Long.MAX_VALUE).build()));
+	}
+
+	@Test
 	void tsMrange() {
 		RedisTimeSeriesCommands<String, String> ts = connection.sync();
 		populate(ts);
