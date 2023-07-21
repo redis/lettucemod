@@ -216,4 +216,13 @@ public class TimeSeriesCommandBuilder<K, V> extends RedisModulesCommandBuilder<K
 		}
 		return createCommand(TimeSeriesCommandType.QUERYINDEX, new ValueListOutput<>(codec), args);
 	}
+
+	public Command<K, V, Long> tsDel(K key, TimeRange timeRange){
+		notNullKey(key);
+		notNull(timeRange, "time range");
+		CommandArgs<K, V> args = args(key);
+		timeRange.build(args);
+
+		return createCommand(TimeSeriesCommandType.DEL, new IntegerOutput<>(codec), args);
+	}
 }

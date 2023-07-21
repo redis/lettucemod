@@ -71,4 +71,6 @@ public interface RedisTimeSeriesReactiveCommands<K, V> {
 	Flux<Object> tsInfoDebug(K key);
 
 	Flux<V> tsQueryIndex(V... filters);
+
+	Mono<Long> tsDel(K key, TimeRange range);
 }

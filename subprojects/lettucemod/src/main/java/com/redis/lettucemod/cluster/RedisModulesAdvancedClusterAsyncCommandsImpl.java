@@ -435,6 +435,9 @@ public class RedisModulesAdvancedClusterAsyncCommandsImpl<K, V> extends RedisAdv
 	public RedisFuture<List<V>> tsQueryIndex(V... filters){return delegate.tsQueryIndex(filters);}
 
 	@Override
+	public RedisFuture<Long> tsDel(K key, TimeRange timeRange){return delegate.tsDel(key, timeRange);}
+
+	@Override
 	public RedisFuture<Long> jsonDel(K key) {
 		return delegate.jsonDel(key);
 	}

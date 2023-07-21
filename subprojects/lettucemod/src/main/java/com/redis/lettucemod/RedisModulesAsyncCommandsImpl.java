@@ -270,6 +270,11 @@ public class RedisModulesAsyncCommandsImpl<K, V> extends RedisAsyncCommandsImpl<
 	}
 
 	@Override
+	public RedisFuture<Long> tsDel(K key, TimeRange timeRange){
+		return dispatch(timeSeriesCommandBuilder.tsDel(key, timeRange));
+	}
+
+	@Override
 	public RedisFuture<String> ftCreate(K index, Field<K>... fields) {
 		return ftCreate(index, null, fields);
 	}

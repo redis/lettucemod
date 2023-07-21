@@ -443,6 +443,8 @@ public class RedisModulesAdvancedClusterReactiveCommandsImpl<K, V> extends
 	public Flux<V> tsQueryIndex(V... filters){ return delegate.tsQueryIndex(filters);}
 
 	@Override
+	public Mono<Long> tsDel(K key, TimeRange timeRange) { return delegate.tsDel(key, timeRange);}
+	@Override
 	public Mono<Long> jsonDel(K key) {
 		return delegate.jsonDel(key);
 	}
