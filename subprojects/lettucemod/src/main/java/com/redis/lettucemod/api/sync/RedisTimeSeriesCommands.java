@@ -74,4 +74,6 @@ public interface RedisTimeSeriesCommands<K, V> {
 	List<Object> tsInfo(K key);
 
 	List<Object> tsInfoDebug(K key);
+
+	List<V> tsQueryIndex(V... filter);
 }

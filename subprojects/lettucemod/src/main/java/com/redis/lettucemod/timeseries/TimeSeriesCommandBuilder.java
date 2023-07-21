@@ -11,11 +11,7 @@ import com.redis.lettucemod.protocol.TimeSeriesCommandKeyword;
 import com.redis.lettucemod.protocol.TimeSeriesCommandType;
 
 import io.lettuce.core.codec.RedisCodec;
-import io.lettuce.core.output.CommandOutput;
-import io.lettuce.core.output.IntegerListOutput;
-import io.lettuce.core.output.IntegerOutput;
-import io.lettuce.core.output.NestedMultiOutput;
-import io.lettuce.core.output.StatusOutput;
+import io.lettuce.core.output.*;
 import io.lettuce.core.protocol.Command;
 import io.lettuce.core.protocol.CommandArgs;
 
@@ -210,5 +206,15 @@ public class TimeSeriesCommandBuilder<K, V> extends RedisModulesCommandBuilder<K
 			args.add(TimeSeriesCommandKeyword.DEBUG);
 		}
 		return createCommand(TimeSeriesCommandType.INFO, new NestedMultiOutput<>(codec), args);
+	}
+
+	public Command<K, V, List<V>> queryIndex(V... filters){
+		notNull(filters, "filters");
+		CommandArgs<K,V> args = new CommandArgs<>(codec);
+		for(V filter : filters){
+			args.add(filter.toString());
+		}
+
+		return createCommand(TimeSeriesCommandType.QUERYINDEX, new ValueListOutput<>(codec), args);
 	}
 }

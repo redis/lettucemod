@@ -1,12 +1,15 @@
 package com.redis.lettucemod;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.redis.lettucemod.timeseries.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -14,12 +17,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
 import com.redis.lettucemod.api.sync.RedisModulesCommands;
 import com.redis.lettucemod.api.sync.RedisTimeSeriesCommands;
-import com.redis.lettucemod.timeseries.DuplicatePolicy;
-import com.redis.lettucemod.timeseries.GetResult;
-import com.redis.lettucemod.timeseries.Label;
-import com.redis.lettucemod.timeseries.MRangeOptions;
-import com.redis.lettucemod.timeseries.RangeResult;
-import com.redis.lettucemod.timeseries.TimeRange;
 import com.redis.lettucemod.util.ClientBuilder;
 import com.redis.lettucemod.util.RedisModulesUtils;
 import com.redis.lettucemod.util.RedisURIBuilder;
@@ -101,6 +98,22 @@ class RedisStackTests extends AbstractTests {
 		List<GetResult<String, String>> results = connection.sync().tsMgetWithLabels("name=value");
 		Label<String, String> expectedLabel = labels.get(0);
 		assertEquals(expectedLabel, results.get(0).getLabels().get(0));
+	}
+
+	@Test
+	void tsQueryIndex(){
+		String key1 = "tsQueryIndex:key1";
+		String key2 = "tsQueryIndex:key2";
+		connection.sync().del(key1, key2);
+		String id = "tsQueryIndex";
+		List<Label<String,String>> labels = Collections.singletonList(Label.of("id", id));
+		assertEquals("OK",
+				connection.sync().tsCreate(key1, CreateOptions.<String, String>builder().labels(labels).build()));
+		assertEquals("OK",
+				connection.sync().tsCreate(key2, CreateOptions.<String, String>builder().labels(labels).build()));
+		List<String> res = connection.sync().tsQueryIndex(String.format("id=%s",id));
+		assertTrue(res.contains(key1));
+		assertTrue(res.contains(key2));
 	}
 
 	@Test

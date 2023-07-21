@@ -17,6 +17,8 @@ import com.redis.lettucemod.timeseries.TimeRange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 @SuppressWarnings("unchecked")
 public interface RedisTimeSeriesReactiveCommands<K, V> {
 
@@ -70,4 +72,5 @@ public interface RedisTimeSeriesReactiveCommands<K, V> {
 
 	Flux<Object> tsInfoDebug(K key);
 
+	Flux<V> tsQueryIndex(V... filters);
 }
