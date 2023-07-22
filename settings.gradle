@@ -37,7 +37,6 @@ projects {
 enforce {
     rule(enforcer.rules.EnforceBytecodeVersion) { r ->
         // search only on compile and runtime classpaths
-        enabled = false
         r.configurations.addAll(['compileClasspath', 'runtimeClasspath'])
         r.maxJdkVersion = '1.8'
     }
