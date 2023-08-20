@@ -25,6 +25,7 @@ import io.lettuce.core.SocketOptions;
 import io.lettuce.core.TimeoutOptions;
 import io.lettuce.core.cluster.ClusterClientOptions;
 import io.lettuce.core.cluster.ClusterTopologyRefreshOptions;
+import io.lettuce.core.protocol.ProtocolVersion;
 import io.lettuce.core.resource.ClientResources;
 import io.lettuce.core.resource.DefaultClientResources;
 import io.lettuce.core.support.ConnectionPoolSupport;
@@ -55,6 +56,7 @@ public class RedisModulesAutoConfiguration {
 			builder.socketOptions(SocketOptions.builder().connectTimeout(connectTimeout).build());
 		}
 		builder.timeoutOptions(TimeoutOptions.enabled());
+		builder.protocolVersion(ProtocolVersion.RESP2);
 		return builder;
 	}
 
