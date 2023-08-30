@@ -33,6 +33,8 @@ public interface RedisJSONAsyncCommands<K, V> {
 
 	RedisFuture<String> jsonSet(K key, String path, V json, SetMode mode);
 
+	RedisFuture<String> jsonMerge(K key, String path, V json);
+
 	RedisFuture<String> jsonType(K key);
 
 	RedisFuture<String> jsonType(K key, String path);

@@ -261,6 +261,15 @@ abstract class ModulesTests {
     }
 
     @Test
+    void jsonMerge() throws JsonProcessingException {
+        String key = "jsonMerge:test";
+        connection.sync().del(key);
+        connection.sync().jsonSet(key, "$", "{\"a\":2, \"b\": 3, \"nested\": {\"a\": 4}}");
+        connection.sync().jsonMerge(key, "$", "{\"a\": 4, \"c\": 5, \"nested\": {\"b\": 6}}");
+        assertJSONEquals("[{\"a\":4,\"b\":3,\"nested\":{\"a\":4,\"b\":6},\"c\":5}]", connection.sync().jsonGet(key, "$"));
+    }
+
+    @Test
     void jsonMgetReactive() throws JsonProcessingException {
         String key1 = "obj1";
         String key2 = "obj2";

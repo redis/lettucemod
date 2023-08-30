@@ -32,6 +32,8 @@ public interface RedisJSONCommands<K, V> {
 
 	String jsonSet(K key, String path, V json, SetMode mode);
 
+	String jsonMerge(K key, String path, V json);
+
 	String jsonType(K key);
 
 	String jsonType(K key, String path);

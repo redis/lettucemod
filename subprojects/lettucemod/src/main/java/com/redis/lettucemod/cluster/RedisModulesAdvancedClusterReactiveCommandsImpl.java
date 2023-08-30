@@ -522,6 +522,11 @@ public class RedisModulesAdvancedClusterReactiveCommandsImpl<K, V> extends
 	}
 
 	@Override
+	public Mono<String> jsonMerge(K key, String path, V json) {
+		return delegate.jsonMerge(key, path, json);
+	}
+
+	@Override
 	public Mono<String> jsonType(K key) {
 		return delegate.jsonType(key);
 	}
