@@ -119,6 +119,15 @@ public class JSONCommandBuilder<K, V> extends RedisModulesCommandBuilder<K, V> {
 		return createCommand(JsonCommandType.SET, new StatusOutput<>(codec), args);
 	}
 
+	public Command<K, V, String> merge(K key, String path, V json) {
+		CommandArgs<K, V> args = args(key);
+		notNullPath(path);
+		args.add(path);
+		notNull(json, "JSON");
+		args.addValue(json);
+		return createCommand(JsonCommandType.MERGE, new StatusOutput<>(codec), args);
+	}
+
 	public Command<K, V, String> type(K key, String path) {
 		CommandArgs<K, V> args = args(key);
 		if (path != null) {

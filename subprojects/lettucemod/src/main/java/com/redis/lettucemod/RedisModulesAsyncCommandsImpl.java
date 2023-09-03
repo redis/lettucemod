@@ -470,6 +470,11 @@ public class RedisModulesAsyncCommandsImpl<K, V> extends RedisAsyncCommandsImpl<
 	}
 
 	@Override
+	public RedisFuture<String> jsonMerge(K key, String path, V json) {
+		return dispatch(jsonCommandBuilder.merge(key, path, json));
+	}
+
+	@Override
 	public RedisFuture<String> jsonType(K key) {
 		return jsonType(key, null);
 	}

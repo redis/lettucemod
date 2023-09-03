@@ -457,6 +457,11 @@ public class RedisModulesReactiveCommandsImpl<K, V> extends RedisReactiveCommand
 	}
 
 	@Override
+	public Mono<String> jsonMerge(K key, String path, V json) {
+		return createMono(() -> jsonCommandBuilder.merge(key, path, json));
+	}
+
+	@Override
 	public Mono<String> jsonType(K key) {
 		return jsonType(key, null);
 	}

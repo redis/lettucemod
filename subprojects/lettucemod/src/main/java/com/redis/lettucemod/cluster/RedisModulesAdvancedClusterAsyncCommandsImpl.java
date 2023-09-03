@@ -525,6 +525,11 @@ public class RedisModulesAdvancedClusterAsyncCommandsImpl<K, V> extends RedisAdv
 	}
 
 	@Override
+	public RedisFuture<String> jsonMerge(K key, String path, V json) {
+		return delegate.jsonMerge(key, path, json);
+	}
+
+	@Override
 	public RedisFuture<String> jsonType(K key) {
 		return delegate.jsonType(key);
 	}
