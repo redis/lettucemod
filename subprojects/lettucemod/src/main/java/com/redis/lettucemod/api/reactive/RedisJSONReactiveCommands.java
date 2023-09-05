@@ -28,6 +28,8 @@ public interface RedisJSONReactiveCommands<K, V> {
 
 	Mono<String> jsonSet(K key, String path, V json, SetMode mode);
 
+	Mono<String> jsonMerge(K key, String path, V json);
+
 	Mono<String> jsonType(K key);
 
 	Mono<String> jsonType(K key, String path);
