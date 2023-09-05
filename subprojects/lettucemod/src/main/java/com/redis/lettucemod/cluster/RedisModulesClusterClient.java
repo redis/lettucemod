@@ -4,6 +4,7 @@ import java.net.URI;
 import java.time.Duration;
 import java.util.Collections;
 
+import com.redis.lettucemod.RedisModulesClient;
 import com.redis.lettucemod.StatefulRedisModulesConnectionImpl;
 import com.redis.lettucemod.cluster.api.StatefulRedisModulesClusterConnection;
 
@@ -15,14 +16,13 @@ import io.lettuce.core.cluster.RedisClusterClient;
 import io.lettuce.core.cluster.RedisClusterURIUtil;
 import io.lettuce.core.codec.RedisCodec;
 import io.lettuce.core.internal.LettuceAssert;
-import io.lettuce.core.protocol.ProtocolVersion;
 import io.lettuce.core.protocol.PushHandler;
 import io.lettuce.core.resource.ClientResources;
 
 public class RedisModulesClusterClient extends RedisClusterClient {
 
-    public static final ClusterClientOptions DEFAULT_CLIENT_OPTIONS = ClusterClientOptions.builder()
-            .protocolVersion(ProtocolVersion.RESP2).build();
+    public static final ClusterClientOptions DEFAULT_CLIENT_OPTIONS = RedisModulesClient
+            .defaultClientOptions(ClusterClientOptions.builder()).build();
 
     protected RedisModulesClusterClient(ClientResources clientResources, Iterable<RedisURI> redisURIs) {
         super(clientResources, redisURIs);

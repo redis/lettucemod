@@ -44,12 +44,18 @@ import io.lettuce.core.resource.ClientResources;
  */
 public class RedisModulesClient extends RedisClient {
 
-    public static final ClientOptions DEFAULT_CLIENT_OPTIONS = ClientOptions.builder().protocolVersion(ProtocolVersion.RESP2)
-            .build();
+    public static final ProtocolVersion DEFAULT_PROTOCOL_VERSION = ProtocolVersion.RESP2;
+
+    public static final ClientOptions DEFAULT_CLIENT_OPTIONS = defaultClientOptions(ClientOptions.builder()).build();
 
     protected RedisModulesClient(ClientResources clientResources, RedisURI redisURI) {
         super(clientResources, redisURI);
         setOptions(DEFAULT_CLIENT_OPTIONS);
+    }
+
+    public static <B extends ClientOptions.Builder> B defaultClientOptions(B builder) {
+        builder.protocolVersion(DEFAULT_PROTOCOL_VERSION);
+        return builder;
     }
 
     /**

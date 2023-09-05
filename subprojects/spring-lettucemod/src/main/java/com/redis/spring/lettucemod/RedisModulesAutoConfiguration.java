@@ -52,6 +52,7 @@ public class RedisModulesAutoConfiguration {
     }
 
     private <B extends ClientOptions.Builder> B clientOptions(B builder, RedisProperties properties) {
+        RedisModulesClient.defaultClientOptions(builder);
         Duration connectTimeout = properties.getConnectTimeout();
         if (connectTimeout != null) {
             builder.socketOptions(SocketOptions.builder().connectTimeout(connectTimeout).build());
