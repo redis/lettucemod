@@ -6,9 +6,6 @@ import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
-import org.springframework.boot.autoconfigure.data.redis.RedisProperties.Lettuce.Cluster.Refresh;
-import org.springframework.boot.autoconfigure.data.redis.RedisProperties.Pool;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,6 +15,8 @@ import com.redis.lettucemod.RedisModulesClient;
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
 import com.redis.lettucemod.cluster.RedisModulesClusterClient;
 import com.redis.lettucemod.cluster.api.StatefulRedisModulesClusterConnection;
+import com.redis.spring.lettucemod.RedisProperties.Lettuce.Cluster.Refresh;
+import com.redis.spring.lettucemod.RedisProperties.Pool;
 
 import io.lettuce.core.ClientOptions;
 import io.lettuce.core.RedisURI;
@@ -30,7 +29,7 @@ import io.lettuce.core.resource.DefaultClientResources;
 import io.lettuce.core.support.ConnectionPoolSupport;
 
 @Configuration(proxyBeanMethods = false)
-@EnableConfigurationProperties({ RedisProperties.class, RedisClusterProperties.class })
+@EnableConfigurationProperties({ RedisProperties.class })
 public class RedisModulesAutoConfiguration {
 
     @SuppressWarnings("deprecation")
