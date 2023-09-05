@@ -37,16 +37,24 @@ public class RedisModulesAutoConfiguration {
     RedisURI redisURI(RedisProperties properties) {
         RedisURI uri = StringUtils.hasLength(properties.getUrl()) ? RedisURI.create(properties.getUrl())
                 : RedisURI.create(properties.getHost(), properties.getPort());
-        uri.setClientName(properties.getClientName());
-        uri.setDatabase(properties.getDatabase());
+        if (StringUtils.hasLength(properties.getClientName())) {
+            uri.setClientName(properties.getClientName());
+        }
+        if (properties.getDatabase() > 0) {
+            uri.setDatabase(properties.getDatabase());
+        }
         if (StringUtils.hasLength(properties.getPassword())) {
             uri.setPassword(properties.getPassword());
         }
-        uri.setSsl(properties.isSsl());
+        if (properties.isSsl()) {
+            uri.setSsl(properties.isSsl());
+        }
         if (properties.getTimeout() != null) {
             uri.setTimeout(properties.getTimeout());
         }
-        uri.setUsername(properties.getUsername());
+        if (StringUtils.hasLength(properties.getUsername())) {
+            uri.setUsername(properties.getUsername());
+        }
         return uri;
     }
 
