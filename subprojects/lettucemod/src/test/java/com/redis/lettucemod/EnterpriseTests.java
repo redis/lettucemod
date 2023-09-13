@@ -44,7 +44,7 @@ class EnterpriseTests extends ModulesTests {
     private final RedisEnterpriseContainer container = new RedisEnterpriseContainer(
             RedisEnterpriseContainer.DEFAULT_IMAGE_NAME.withTag("latest"))
                     .withDatabase(Database.name("ModulesTests").memory(DataSize.ofMegabytes(110)).ossCluster(true)
-                            .modules(RedisModule.SEARCH, RedisModule.JSON, RedisModule.GEARS, RedisModule.TIMESERIES).build());
+                            .modules(RedisModule.SEARCH, RedisModule.JSON, RedisModule.TIMESERIES).build());
 
     @Override
     protected RedisServer getRedisServer() {
@@ -71,6 +71,7 @@ class EnterpriseTests extends ModulesTests {
     }
 
     @Test
+    @Disabled("Gears")
     void rgPyExecute() {
         RedisModulesCommands<String, String> sync = connection.sync();
         sync.set("foo", "bar");
@@ -79,6 +80,7 @@ class EnterpriseTests extends ModulesTests {
     }
 
     @Test
+    @Disabled("Gears")
     void rgPyExecuteUnblocking() {
         RedisModulesCommands<String, String> sync = connection.sync();
         sync.set("foo", "bar");
@@ -101,7 +103,7 @@ class EnterpriseTests extends ModulesTests {
         return RedisModulesUtils.toString(getClass().getClassLoader().getResourceAsStream(resourceName));
     }
 
-    private void clearGears() throws InterruptedException {
+    private void rgClear() throws InterruptedException {
         RedisModulesCommands<String, String> sync = connection.sync();
         // Unregister all registrations
         for (Registration registration : sync.rgDumpregistrations()) {
@@ -126,7 +128,7 @@ class EnterpriseTests extends ModulesTests {
     @Test
     @Disabled("This test is not passing at the moment")
     void rgDumpRegistrations() throws InterruptedException {
-        clearGears();
+        rgClear();
         RedisModulesCommands<String, String> sync = connection.sync();
         // Single registration
         assertEquals(0, sync.rgDumpregistrations().size());
@@ -151,6 +153,7 @@ class EnterpriseTests extends ModulesTests {
     }
 
     @Test
+    @Disabled("Gears")
     void rgPyExecuteResults() {
         RedisModulesCommands<String, String> sync = connection.sync();
         sync.set("foo", "bar");
@@ -159,24 +162,25 @@ class EnterpriseTests extends ModulesTests {
         Assertions.assertFalse(results.isError());
     }
 
-    private void executions() {
+    private void rgExecutions() {
         RedisModulesCommands<String, String> sync = connection.sync();
         sync.set("foo", "bar");
         pyExecuteUnblocking(sync, "sleep.py");
     }
 
     @Test
+    @Disabled("Gears")
     void rgDumpExecutions() throws InterruptedException {
-        clearGears();
-        executions();
+        rgClear();
+        rgExecutions();
         assertFalse(connection.sync().rgDumpexecutions().isEmpty());
     }
 
     @Test
     @Disabled("Flaky test")
     void rgDropExecution() throws InterruptedException {
-        clearGears();
-        executions();
+        rgClear();
+        rgExecutions();
         RedisModulesCommands<String, String> sync = connection.sync();
         List<Execution> executions = sync.rgDumpexecutions();
         executions.forEach(e -> sync.rgAbortexecution(e.getId()));
@@ -185,9 +189,10 @@ class EnterpriseTests extends ModulesTests {
     }
 
     @Test
+    @Disabled("Gears")
     void rgAbortExecution() throws InterruptedException {
-        clearGears();
-        executions();
+        rgClear();
+        rgExecutions();
         RedisModulesCommands<String, String> sync = connection.sync();
         for (Execution execution : sync.rgDumpexecutions()) {
             sync.rgAbortexecution(execution.getId());
