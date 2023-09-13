@@ -59,6 +59,7 @@ import com.redis.lettucemod.cluster.RedisModulesClusterClient;
 import com.redis.lettucemod.json.GetOptions;
 import com.redis.lettucemod.json.SetMode;
 import com.redis.lettucemod.json.Slice;
+import com.redis.lettucemod.protocol.SearchCommandKeyword;
 import com.redis.lettucemod.search.AggregateOptions;
 import com.redis.lettucemod.search.AggregateOptions.Load;
 import com.redis.lettucemod.search.AggregateResults;
@@ -86,6 +87,7 @@ import com.redis.lettucemod.search.Suggestion;
 import com.redis.lettucemod.search.SuggetOptions;
 import com.redis.lettucemod.search.TagField;
 import com.redis.lettucemod.search.TextField;
+import com.redis.lettucemod.search.VectorField;
 import com.redis.lettucemod.timeseries.AddOptions;
 import com.redis.lettucemod.timeseries.Aggregation;
 import com.redis.lettucemod.timeseries.Aggregator;
@@ -93,6 +95,7 @@ import com.redis.lettucemod.timeseries.Label;
 import com.redis.lettucemod.timeseries.RangeOptions;
 import com.redis.lettucemod.timeseries.Sample;
 import com.redis.lettucemod.timeseries.TimeRange;
+import com.redis.lettucemod.util.GeoLocation;
 import com.redis.lettucemod.util.RedisModulesUtils;
 import com.redis.testcontainers.RedisServer;
 
@@ -415,6 +418,23 @@ abstract class ModulesTests {
                 Field.text("title").sortable().build());
         sync.ftCreate("releases", options, fields.toArray(Field[]::new));
         assertEquals(fields.size(), RedisModulesUtils.indexInfo(sync.ftInfo("releases")).getFields().size());
+    }
+    
+    @Test
+    @SuppressWarnings("unchecked")
+    void ftCreateVector() throws Exception {
+        Beers.populateIndex(connection);
+        RedisModulesCommands<String, String> sync = connection.sync();
+        String vectorIndex = "vectorTestIndex";
+        sync.ftCreate(vectorIndex, CreateOptions.<String, String>builder().prefix("vectortest:").build(),
+                VectorField.name("fields1")
+                        .algorithm(SearchCommandKeyword.FLAT)
+                        .vectorType(SearchCommandKeyword.FLOAT32)
+                        .distanceMetric(SearchCommandKeyword.COSINE)
+                        .dim(5)
+                        .build());
+
+        assertEquals(vectorIndex, RedisModulesUtils.indexInfo(sync.ftInfo(vectorIndex)).getIndexName());
     }
 
     @SuppressWarnings("unchecked")
@@ -825,6 +845,17 @@ abstract class ModulesTests {
         assertEquals(STYLE, styleField.getName());
         Assertions.assertTrue(styleField.isSortable());
         assertEquals(',', styleField.getSeparator().get());
+    }
+    
+    @Test
+    void geoLocation() {
+        double longitude = -118.753604;
+        double latitude = 34.027201;
+        String locationString = "-118.753604,34.027201";
+        GeoLocation location = GeoLocation.of(locationString);
+        Assertions.assertEquals(longitude, location.getLongitude());
+        Assertions.assertEquals(latitude, location.getLatitude());
+        Assertions.assertEquals(locationString, GeoLocation.toString(String.valueOf(longitude), String.valueOf(latitude)));
     }
 
     @SuppressWarnings("unchecked")

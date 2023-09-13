@@ -60,10 +60,9 @@ class StackTests extends ModulesTests {
         String username = "alice";
         String password = "ecila";
         connection.sync().aclSetuser(username, AclSetuserArgs.Builder.on().addPassword(password).allCommands().allKeys());
-        RedisURI wrongPasswordURI = RedisURI.create(getRedisServer().getRedisURI());
-        wrongPasswordURI.setUsername(username);
-        wrongPasswordURI.setPassword("wrongpassword");
-        try (RedisModulesClient client = RedisModulesClient.create(wrongPasswordURI)) {
+        RedisURI.Builder wrongPasswordURI = RedisURI.builder(RedisURI.create(getRedisServer().getRedisURI()));
+        wrongPasswordURI.withAuthentication(username, "wrongpassword");
+        try (RedisModulesClient client = RedisModulesClient.create(wrongPasswordURI.build())) {
             RedisModulesUtils.connection(client);
             Assertions.fail("Expected connection failure");
         } catch (Exception e) {
@@ -71,10 +70,9 @@ class StackTests extends ModulesTests {
         }
         String key = "foo";
         String value = "bar";
-        RedisURI uri = RedisURI.create(getRedisServer().getRedisURI());
-        uri.setUsername(username);
-        uri.setPassword(password);
-        try (AbstractRedisClient client = RedisModulesClient.create(uri);
+        RedisURI.Builder uri = RedisURI.builder(RedisURI.create(getRedisServer().getRedisURI()));
+        uri.withAuthentication(username, password);
+        try (AbstractRedisClient client = RedisModulesClient.create(uri.build());
                 StatefulRedisModulesConnection<String, String> connection = RedisModulesUtils.connection(client)) {
             connection.sync().set(key, value);
             Assertions.assertEquals(value, connection.sync().get(key));

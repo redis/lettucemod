@@ -8,165 +8,178 @@ import com.redis.lettucemod.protocol.SearchCommandKeyword;
 @SuppressWarnings("rawtypes")
 public abstract class Field<K> implements RediSearchArgument {
 
-	public enum Type {
-		TEXT, NUMERIC, GEO, TAG
-	}
+    public enum Type {
+        TEXT, NUMERIC, GEO, TAG, VECTOR
+    }
 
-	protected final Type type;
-	protected final K name;
-	protected Optional<K> as = Optional.empty();
-	protected boolean sortable;
-	protected boolean unNormalizedForm;
-	protected boolean noIndex;
+    protected final Type type;
 
-	protected Field(Type type, Builder<K, ?> builder) {
-		this.type = type;
-		this.name = builder.name;
-		this.as = builder.as;
-		this.sortable = builder.sortable;
-		this.unNormalizedForm = builder.unNormalizedForm;
-		this.noIndex = builder.noIndex;
-	}
+    protected final K name;
 
-	public Type getType() {
-		return type;
-	}
+    protected Optional<K> as = Optional.empty();
 
-	public K getName() {
-		return name;
-	}
+    protected boolean sortable;
 
-	public Optional<K> getAs() {
-		return as;
-	}
+    protected boolean unNormalizedForm;
 
-	public void setAs(K as) {
-		this.as = Optional.of(as);
-	}
+    protected boolean noIndex;
 
-	public boolean isSortable() {
-		return sortable;
-	}
+    protected Field(Type type, Builder<K, ?> builder) {
+        this.type = type;
+        this.name = builder.name;
+        this.as = builder.as;
+        this.sortable = builder.sortable;
+        this.unNormalizedForm = builder.unNormalizedForm;
+        this.noIndex = builder.noIndex;
+    }
 
-	public void setSortable(boolean sortable) {
-		this.sortable = sortable;
-	}
+    public Type getType() {
+        return type;
+    }
 
-	public boolean isUnNormalizedForm() {
-		return unNormalizedForm;
-	}
+    public K getName() {
+        return name;
+    }
 
-	public void setUnNormalizedForm(boolean unNormalizedForm) {
-		this.unNormalizedForm = unNormalizedForm;
-	}
+    public Optional<K> getAs() {
+        return as;
+    }
 
-	public boolean isNoIndex() {
-		return noIndex;
-	}
+    public void setAs(K as) {
+        this.as = Optional.of(as);
+    }
 
-	public void setNoIndex(boolean noIndex) {
-		this.noIndex = noIndex;
-	}
+    public boolean isSortable() {
+        return sortable;
+    }
 
-	@Override
-	public int hashCode() {
-		return Objects.hash(as, name, noIndex, sortable, type, unNormalizedForm);
-	}
+    public void setSortable(boolean sortable) {
+        this.sortable = sortable;
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Field<?> other = (Field<?>) obj;
-		return Objects.equals(as, other.as) && Objects.equals(name, other.name) && noIndex == other.noIndex
-				&& sortable == other.sortable && type == other.type && unNormalizedForm == other.unNormalizedForm;
-	}
+    public boolean isUnNormalizedForm() {
+        return unNormalizedForm;
+    }
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public void build(SearchCommandArgs args) {
-		args.addKey(name);
-		as.ifPresent(a -> args.add(SearchCommandKeyword.AS).addKey(a));
-		buildField(args);
-		if (sortable) {
-			args.add(SearchCommandKeyword.SORTABLE);
-			if (unNormalizedForm) {
-				args.add(SearchCommandKeyword.UNF);
-			}
-		}
-		if (noIndex) {
-			args.add(SearchCommandKeyword.NOINDEX);
-		}
-	}
+    public void setUnNormalizedForm(boolean unNormalizedForm) {
+        this.unNormalizedForm = unNormalizedForm;
+    }
 
-	protected abstract void buildField(SearchCommandArgs<K, Object> args);
+    public boolean isNoIndex() {
+        return noIndex;
+    }
 
-	@SuppressWarnings("unchecked")
-	public static class Builder<K, B extends Builder<K, B>> {
+    public void setNoIndex(boolean noIndex) {
+        this.noIndex = noIndex;
+    }
 
-		protected final K name;
-		private Optional<K> as = Optional.empty();
-		private boolean sortable;
-		private boolean unNormalizedForm;
-		private boolean noIndex;
+    @Override
+    public int hashCode() {
+        return Objects.hash(as, name, noIndex, sortable, type, unNormalizedForm);
+    }
 
-		protected Builder(K name) {
-			this.name = name;
-		}
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        Field<?> other = (Field<?>) obj;
+        return Objects.equals(as, other.as) && Objects.equals(name, other.name) && noIndex == other.noIndex
+                && sortable == other.sortable && type == other.type && unNormalizedForm == other.unNormalizedForm;
+    }
 
-		public B as(K as) {
-			this.as = Optional.of(as);
-			return (B) this;
-		}
+    @SuppressWarnings("unchecked")
+    @Override
+    public void build(SearchCommandArgs args) {
+        args.addKey(name);
+        as.ifPresent(a -> args.add(SearchCommandKeyword.AS).addKey(a));
+        buildField(args);
+        if (sortable) {
+            args.add(SearchCommandKeyword.SORTABLE);
+            if (unNormalizedForm) {
+                args.add(SearchCommandKeyword.UNF);
+            }
+        }
+        if (noIndex) {
+            args.add(SearchCommandKeyword.NOINDEX);
+        }
+    }
 
-		public B sortable() {
-			return sortable(true);
-		}
+    protected abstract void buildField(SearchCommandArgs<K, Object> args);
 
-		public B sortable(boolean sortable) {
-			this.sortable = sortable;
-			return (B) this;
-		}
+    @SuppressWarnings("unchecked")
+    public static class Builder<K, B extends Builder<K, B>> {
 
-		public B unNormalizedForm() {
-			return unNormalizedForm(true);
-		}
+        protected final K name;
 
-		public B unNormalizedForm(boolean unf) {
-			this.sortable = unf;
-			this.unNormalizedForm = unf;
-			return (B) this;
-		}
+        private Optional<K> as = Optional.empty();
 
-		public B noIndex() {
-			return noIndex(true);
-		}
+        private boolean sortable;
 
-		public B noIndex(boolean noIndex) {
-			this.noIndex = noIndex;
-			return (B) this;
-		}
+        private boolean unNormalizedForm;
 
-	}
+        private boolean noIndex;
 
-	public static <K> TextField.Builder<K> text(K name) {
-		return TextField.name(name);
-	}
+        protected Builder(K name) {
+            this.name = name;
+        }
 
-	public static <K> GeoField.Builder<K> geo(K name) {
-		return GeoField.name(name);
-	}
+        public B as(K as) {
+            this.as = Optional.of(as);
+            return (B) this;
+        }
 
-	public static <K> TagField.Builder<K> tag(K name) {
-		return TagField.name(name);
-	}
+        public B sortable() {
+            return sortable(true);
+        }
 
-	public static <K> NumericField.Builder<K> numeric(K name) {
-		return NumericField.name(name);
-	}
+        public B sortable(boolean sortable) {
+            this.sortable = sortable;
+            return (B) this;
+        }
+
+        public B unNormalizedForm() {
+            return unNormalizedForm(true);
+        }
+
+        public B unNormalizedForm(boolean unf) {
+            this.sortable = unf;
+            this.unNormalizedForm = unf;
+            return (B) this;
+        }
+
+        public B noIndex() {
+            return noIndex(true);
+        }
+
+        public B noIndex(boolean noIndex) {
+            this.noIndex = noIndex;
+            return (B) this;
+        }
+
+    }
+
+    public static <K> TextField.Builder<K> text(K name) {
+        return TextField.name(name);
+    }
+
+    public static <K> GeoField.Builder<K> geo(K name) {
+        return GeoField.name(name);
+    }
+
+    public static <K> TagField.Builder<K> tag(K name) {
+        return TagField.name(name);
+    }
+
+    public static <K> NumericField.Builder<K> numeric(K name) {
+        return NumericField.name(name);
+    }
+
+    public static <K> VectorField.Builder<K> vector(K name) {
+        return VectorField.name(name);
+    }
 
 }
