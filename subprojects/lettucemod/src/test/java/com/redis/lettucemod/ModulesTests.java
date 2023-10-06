@@ -111,9 +111,43 @@ import reactor.core.publisher.Mono;
 @TestInstance(Lifecycle.PER_CLASS)
 abstract class ModulesTests {
 
+    protected static final String LABEL_SENSOR_ID = "sensor_id";
+
+    protected static final String LABEL_AREA_ID = "area_id";
+
+    protected static final long TIMESTAMP_1 = 1548149181;
+
+    protected static final long TIMESTAMP_2 = 1548149191;
+
+    protected static final double VALUE_1 = 30;
+
+    protected static final double VALUE_2 = 42;
+
+    protected static final String TS_KEY = "temperature:3:11";
+
+    protected static final String TS_KEY_2 = "temperature:3:12";
+
+    protected static final String SENSOR_ID = "2";
+
+    protected static final String AREA_ID = "32";
+
+    protected static final String AREA_ID_2 = "34";
+
+    protected static final String FILTER = LABEL_SENSOR_ID + "=" + SENSOR_ID;
+
     private static final String SUGINDEX = "beersSug";
 
     private static final String PONG = "PONG";
+
+    private static final String JSON = "{\"name\":\"Leonard Cohen\",\"lastSeen\":1478476800,\"loggedOut\": true}";
+
+    protected static Map<String, String> mapOf(String... keyValues) {
+        Map<String, String> map = new HashMap<>();
+        for (int index = 0; index < keyValues.length / 2; index++) {
+            map.put(keyValues[index * 2], keyValues[index * 2 + 1]);
+        }
+        return map;
+    }
 
     protected StatefulRedisModulesConnection<String, String> connection;
 
@@ -153,14 +187,6 @@ abstract class ModulesTests {
 
     protected abstract RedisServer getRedisServer();
 
-    protected static Map<String, String> mapOf(String... keyValues) {
-        Map<String, String> map = new HashMap<>();
-        for (int index = 0; index < keyValues.length / 2; index++) {
-            map.put(keyValues[index * 2], keyValues[index * 2 + 1]);
-        }
-        return map;
-    }
-
     protected void assertPing(StatefulRedisModulesConnection<String, String> connection) {
         assertEquals(PONG, ping(connection));
     }
@@ -185,8 +211,6 @@ abstract class ModulesTests {
     protected String ping(StatefulRedisModulesConnection<String, String> connection) {
         return connection.sync().ping();
     }
-
-    private static final String JSON = "{\"name\":\"Leonard Cohen\",\"lastSeen\":1478476800,\"loggedOut\": true}";
 
     @Test
     void jsonSet() {
@@ -419,20 +443,16 @@ abstract class ModulesTests {
         sync.ftCreate("releases", options, fields.toArray(Field[]::new));
         assertEquals(fields.size(), RedisModulesUtils.indexInfo(sync.ftInfo("releases")).getFields().size());
     }
-    
+
     @Test
     @SuppressWarnings("unchecked")
     void ftCreateVector() throws Exception {
         Beers.populateIndex(connection);
         RedisModulesCommands<String, String> sync = connection.sync();
         String vectorIndex = "vectorTestIndex";
-        sync.ftCreate(vectorIndex, CreateOptions.<String, String>builder().prefix("vectortest:").build(),
-                VectorField.name("fields1")
-                        .algorithm(SearchCommandKeyword.FLAT)
-                        .vectorType(SearchCommandKeyword.FLOAT32)
-                        .distanceMetric(SearchCommandKeyword.COSINE)
-                        .dim(5)
-                        .build());
+        sync.ftCreate(vectorIndex, CreateOptions.<String, String> builder().prefix("vectortest:").build(),
+                VectorField.name("fields1").algorithm(SearchCommandKeyword.FLAT).vectorType(SearchCommandKeyword.FLOAT32)
+                        .distanceMetric(SearchCommandKeyword.COSINE).dim(5).build());
 
         assertEquals(vectorIndex, RedisModulesUtils.indexInfo(sync.ftInfo(vectorIndex)).getIndexName());
     }
@@ -846,7 +866,7 @@ abstract class ModulesTests {
         Assertions.assertTrue(styleField.isSortable());
         assertEquals(',', styleField.getSeparator().get());
     }
-    
+
     @Test
     void geoLocation() {
         double longitude = -118.753604;
@@ -976,30 +996,6 @@ abstract class ModulesTests {
         beerDict.remove("brew");
         assertEquals(new HashSet<>(beerDict), new HashSet<>(reactive.ftDictdump("beers").collectList().block()));
     }
-
-    protected static final String LABEL_SENSOR_ID = "sensor_id";
-
-    protected static final String LABEL_AREA_ID = "area_id";
-
-    protected static final long TIMESTAMP_1 = 1548149181;
-
-    protected static final long TIMESTAMP_2 = 1548149191;
-
-    protected static final double VALUE_1 = 30;
-
-    protected static final double VALUE_2 = 42;
-
-    protected static final String TS_KEY = "temperature:3:11";
-
-    protected static final String TS_KEY_2 = "temperature:3:12";
-
-    protected static final String SENSOR_ID = "2";
-
-    protected static final String AREA_ID = "32";
-
-    protected static final String AREA_ID_2 = "34";
-
-    protected static final String FILTER = LABEL_SENSOR_ID + "=" + SENSOR_ID;
 
     @SuppressWarnings("unchecked")
     @Test
