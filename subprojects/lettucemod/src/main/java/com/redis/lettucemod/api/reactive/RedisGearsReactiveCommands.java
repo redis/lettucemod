@@ -11,6 +11,7 @@ import reactor.core.publisher.Mono;
 import java.util.Map;
 
 @SuppressWarnings("unchecked")
+@Deprecated
 public interface RedisGearsReactiveCommands<K, V> {
 
     Mono<String> rgAbortexecution(String id);

@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 @SuppressWarnings("unchecked")
+@Deprecated
 public interface RedisGearsAsyncCommands<K, V> {
 
     RedisFuture<String> rgAbortexecution(String id);

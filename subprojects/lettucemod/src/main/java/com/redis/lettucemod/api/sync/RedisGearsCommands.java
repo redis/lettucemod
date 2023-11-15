@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 @SuppressWarnings("unchecked")
+@Deprecated
 public interface RedisGearsCommands<K, V> {
 
     String rgAbortexecution(String id);
