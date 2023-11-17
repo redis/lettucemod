@@ -1,6 +1,7 @@
 package com.redis.search.query.impl;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.StringJoiner;
 
@@ -11,10 +12,10 @@ public class Term extends AbstractCondition {
     private final CharSequence delimiter;
     private final List<String> values;
 
-    public Term(CharSequence delimiter, String... values) {
+    public Term(CharSequence delimiter, Collection<String> values) {
 	Assert.notEmpty(values, "Must have at least one value");
 	this.delimiter = delimiter;
-	this.values = Arrays.asList(values);
+	this.values = new ArrayList<>(values);
     }
 
     @Override

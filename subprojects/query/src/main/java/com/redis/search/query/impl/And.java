@@ -1,5 +1,8 @@
 package com.redis.search.query.impl;
 
+import java.util.Arrays;
+import java.util.Collection;
+
 import com.redis.query.Condition;
 import com.redis.query.Query;
 
@@ -10,8 +13,15 @@ import com.redis.query.Query;
  */
 public class And extends CompositeCondition {
 
-    public And(Condition... children) {
+    public And(Collection<Condition> children) {
 	super(Query.AND, children);
+    }
+
+    @Override
+    public Condition and(Condition condition, Condition... conditions) {
+	children.add(condition);
+	children.addAll(Arrays.asList(conditions));
+	return this;
     }
 
 }

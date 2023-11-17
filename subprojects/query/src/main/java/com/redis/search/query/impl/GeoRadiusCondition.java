@@ -4,14 +4,14 @@ import java.text.MessageFormat;
 
 import com.redis.query.Field;
 
-public class GeoFieldCondition extends AbstractFieldCondition {
+public class GeoRadiusCondition extends AbstractFieldCondition {
 
     private static final String FORMAT = "[{0} {1} {2} {3}]";
 
     private final GeoCoordinates coordinates;
     private final Distance radius;
 
-    public GeoFieldCondition(Field field, GeoCoordinates coordinates, Distance radius) {
+    public GeoRadiusCondition(Field field, GeoCoordinates coordinates, Distance radius) {
 	super(field);
 	this.coordinates = coordinates;
 	this.radius = radius;

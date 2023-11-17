@@ -20,6 +20,6 @@ abstract class AbstractFieldCondition extends AbstractCondition {
 	return MessageFormat.format(FORMAT, field.getName(), valueString());
     }
 
-    protected abstract Object valueString();
+    protected abstract String valueString();
 
 }

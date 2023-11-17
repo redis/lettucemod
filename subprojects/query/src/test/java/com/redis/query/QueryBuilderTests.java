@@ -7,6 +7,7 @@ import static com.redis.query.Query.optional;
 import static com.redis.query.Query.tag;
 import static com.redis.query.Query.text;
 import static com.redis.query.Query.or;
+import static com.redis.query.Query.vectorRange;
 import static com.redis.query.Query.term;
 import static org.junit.Assert.assertEquals;
 
@@ -15,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import com.redis.search.query.impl.Distance;
 import com.redis.search.query.impl.GeoCoordinates;
 import com.redis.search.query.impl.NumericField;
+import com.redis.search.query.impl.VectorRangeField;
 
 /**
  * Created by mnunberg on 2/23/18.
@@ -38,7 +40,7 @@ class QueryBuilderTests {
     }
 
     @Test
-    void testRange() {
+    void testNumeric() {
 	NumericField field = numeric("name");
 	Condition condition = field.between(1, 10);
 	assertEquals("@name:[1 10]", condition.getQuery());
@@ -70,6 +72,13 @@ class QueryBuilderTests {
 
 	assertEquals("@name:[(1587058030 inf]", field.gt(1587058030).getQuery());
 
+    }
+    
+    @Test
+    void testVectorRange() {
+	VectorRangeField field = vectorRange("name");
+	Condition condition = field.radius(1.23, "myvec");
+	assertEquals("@name:[VECTOR_RANGE 1.23 $myvec]", condition.getQuery());
     }
 
     @Test

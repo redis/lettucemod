@@ -8,12 +8,12 @@ package com.redis.query;
 public interface Condition {
 
     /**
-     * Create an intersect condition between the given condition and this condition.
+     * Create an intersect condition between the given conditions and this condition.
      * Intersect confitions are true iff <b>all</b> of its children are true.
      * 
      * @return The intersect condition
      */
-    Condition and(Condition condition);
+    Condition and(Condition condition, Condition... conditions);
 
     /**
      * Create a union condition between the given condition and this condition.
@@ -21,7 +21,7 @@ public interface Condition {
      * 
      * @return The union condition
      */
-    Condition or(Condition condition);
+    Condition or(Condition condition, Condition... conditions);
 
     String getQuery();
 

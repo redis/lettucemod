@@ -1,9 +1,6 @@
 package com.redis.search.query.impl;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
 
 import com.redis.query.Condition;
 
@@ -11,15 +8,11 @@ public class CompositeCondition extends AbstractCondition {
 
     private final CharSequence delimiter;
 
-    private final List<Condition> children;
-
-    public CompositeCondition(CharSequence delimiter, Condition... children) {
-	this(delimiter, Arrays.asList(children));
-    }
+    protected final Collection<Condition> children;
 
     public CompositeCondition(CharSequence delimiter, Collection<Condition> children) {
 	this.delimiter = delimiter;
-	this.children = new ArrayList<>(children);
+	this.children = children;
     }
 
     protected boolean shouldUseParens() {

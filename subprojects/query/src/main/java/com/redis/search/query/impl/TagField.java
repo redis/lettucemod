@@ -8,11 +8,11 @@ public class TagField extends AbstractField {
 	super(name);
     }
 
-    public TagFieldCondition in(String... values) {
-	return new TagFieldCondition(this, Query.OR, values);
+    public TagCondition in(String... values) {
+	return new TagCondition(this, Query.OR, values);
     }
 
-    public TagFieldCondition eq(String value) {
+    public TagCondition eq(String value) {
 	return in(value);
     }
 

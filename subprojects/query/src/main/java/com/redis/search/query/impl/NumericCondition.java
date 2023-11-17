@@ -4,7 +4,7 @@ import java.text.MessageFormat;
 
 import com.redis.query.Query;
 
-public class NumericFieldCondition extends AbstractFieldCondition {
+public class NumericCondition extends AbstractFieldCondition {
 
     private static final String FORMAT = "[{0} {1}]";
 
@@ -13,18 +13,18 @@ public class NumericFieldCondition extends AbstractFieldCondition {
     private boolean exclusiveFrom;
     private boolean exclusiveTo;
 
-    public NumericFieldCondition(NumericField field, Number from, Number to) {
+    public NumericCondition(NumericField field, Number from, Number to) {
 	super(field);
 	this.from = from;
 	this.to = to;
     }
 
-    public NumericFieldCondition exclusiveFrom(boolean exclusive) {
+    public NumericCondition exclusiveFrom(boolean exclusive) {
 	this.exclusiveFrom = exclusive;
 	return this;
     }
 
-    public NumericFieldCondition exclusiveTo(boolean exclusive) {
+    public NumericCondition exclusiveTo(boolean exclusive) {
 	this.exclusiveTo = exclusive;
 	return this;
     }

@@ -1,5 +1,7 @@
 package com.redis.search.query.impl;
 
+import java.util.Arrays;
+
 import com.redis.query.Query;
 
 public class TextField extends AbstractField {
@@ -8,15 +10,15 @@ public class TextField extends AbstractField {
 	super(name);
     }
 
-    public TextFieldCondition eq(String value) {
+    public TextCondition eq(String value) {
 	return and(value);
     }
 
-    public TextFieldCondition or(String... values) {
-	return new TextFieldCondition(this, new Term(Query.OR, values));
+    public TextCondition or(String... values) {
+	return new TextCondition(this, new Term(Query.OR, Arrays.asList(values)));
     }
 
-    public TextFieldCondition and(String... values) {
-	return new TextFieldCondition(this, new Term(Query.AND, values));
+    public TextCondition and(String... values) {
+	return new TextCondition(this, new Term(Query.AND, Arrays.asList(values)));
     }
 }

@@ -1,5 +1,10 @@
 package com.redis.query;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+
 import com.redis.search.query.impl.And;
 import com.redis.search.query.impl.CompositeCondition;
 import com.redis.search.query.impl.GeoField;
@@ -9,6 +14,7 @@ import com.redis.search.query.impl.TagField;
 import com.redis.search.query.impl.Term;
 import com.redis.search.query.impl.TextField;
 import com.redis.search.query.impl.UnaryOperatorCondition;
+import com.redis.search.query.impl.VectorRangeField;
 
 public abstract class Query {
 
@@ -27,6 +33,21 @@ public abstract class Query {
     private Query() {
     }
 
+    private static <T> List<T> list(T condition, T[] conditions) {
+	List<T> all = new ArrayList<>();
+	all.add(condition);
+	all.addAll(Arrays.asList(conditions));
+	return all;
+    }
+
+    public static <T> List<T> list(T first, T second, T[] conditions) {
+	List<T> all = new ArrayList<>();
+	all.add(first);
+	all.add(second);
+	all.addAll(Arrays.asList(conditions));
+	return all;
+    }
+
     /**
      * Create a new intersection node with child nodes. An intersection node is true
      * if all its children are also true
@@ -34,7 +55,11 @@ public abstract class Query {
      * @param conditions sub-condition to add
      * @return The node
      */
-    public static CompositeCondition and(Condition... conditions) {
+    public static CompositeCondition and(Condition condition, Condition... conditions) {
+	return and(list(condition, conditions));
+    }
+
+    public static CompositeCondition and(Collection<Condition> conditions) {
 	return new And(conditions);
     }
 
@@ -45,20 +70,12 @@ public abstract class Query {
      * @param conditions Child node
      * @return The union node
      */
-    public static Condition or(Condition... conditions) {
-	return new Or(conditions);
+    public static Condition or(Condition condition, Condition... conditions) {
+	return or(list(condition, conditions));
     }
 
-    /**
-     * Create a disjunct union node. This node evaluates to true if <b>all</b> of
-     * its children are not true. Conversely, this node evaluates as false if
-     * <b>any</b> of its children are true.
-     * 
-     * @param conditions
-     * @return The node
-     */
-    public static Condition notOr(Condition... conditions) {
-	return new UnaryOperatorCondition(NOT, new Or(conditions));
+    public static Condition or(Collection<Condition> conditions) {
+	return new Or(conditions);
     }
 
     public static Condition not(Condition condition) {
@@ -85,16 +102,20 @@ public abstract class Query {
 	return new GeoField(field);
     }
 
+    public static VectorRangeField vectorRange(String field) {
+	return new VectorRangeField(field);
+    }
+
     public static Condition term(String term) {
-	return new Term(AND, term);
+	return new Term(AND, Arrays.asList(term));
     }
 
-    public static Condition and(String... terms) {
-	return new Term(AND, terms);
+    public static Condition and(String term, String... terms) {
+	return new Term(AND, list(term, terms));
     }
 
-    public static Condition or(String... terms) {
-	return new Term(OR, terms);
+    public static Condition or(String term, String... terms) {
+	return new Term(OR, list(term, terms));
     }
 
     public static Condition wildcard() {

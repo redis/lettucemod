@@ -1,5 +1,7 @@
 package com.redis.search.query.impl;
 
+import java.util.Collection;
+
 public abstract class Assert {
 
     private Assert() {
@@ -7,6 +9,12 @@ public abstract class Assert {
 
     public static void notNull(Object object, String message) {
 	if (object == null) {
+	    throw new IllegalArgumentException(message);
+	}
+    }
+
+    public static void notEmpty(Collection<?> iterable, String message) {
+	if (iterable == null || iterable.size() == 0) {
 	    throw new IllegalArgumentException(message);
 	}
     }

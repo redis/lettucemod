@@ -6,8 +6,8 @@ public class GeoField extends AbstractField {
 	super(name);
     }
 
-    public GeoFieldCondition within(GeoCoordinates coordinates, Distance distance) {
-	return new GeoFieldCondition(this, coordinates, distance);
+    public GeoRadiusCondition within(GeoCoordinates coordinates, Distance distance) {
+	return new GeoRadiusCondition(this, coordinates, distance);
     }
 
 }

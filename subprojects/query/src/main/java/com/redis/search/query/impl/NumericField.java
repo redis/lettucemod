@@ -9,27 +9,27 @@ public class NumericField extends AbstractField {
 	super(name);
     }
 
-    public NumericFieldCondition between(Number from, Number to) {
-	return new NumericFieldCondition(this, from, to);
+    public NumericCondition between(Number from, Number to) {
+	return new NumericCondition(this, from, to);
     }
 
-    public NumericFieldCondition eq(Number value) {
-	return new NumericFieldCondition(this, value, value);
+    public NumericCondition eq(Number value) {
+	return new NumericCondition(this, value, value);
     }
 
-    public NumericFieldCondition le(Number value) {
-	return new NumericFieldCondition(this, NEGATIVE_INFINITY, value);
+    public NumericCondition le(Number value) {
+	return new NumericCondition(this, NEGATIVE_INFINITY, value);
     }
 
-    public NumericFieldCondition lt(Number value) {
+    public NumericCondition lt(Number value) {
 	return le(value).exclusiveTo(true);
     }
 
-    public NumericFieldCondition ge(Number value) {
-	return new NumericFieldCondition(this, value, POSITIVE_INFINITY);
+    public NumericCondition ge(Number value) {
+	return new NumericCondition(this, value, POSITIVE_INFINITY);
     }
 
-    public NumericFieldCondition gt(Number value) {
+    public NumericCondition gt(Number value) {
 	return ge(value).exclusiveFrom(true);
     }
 
