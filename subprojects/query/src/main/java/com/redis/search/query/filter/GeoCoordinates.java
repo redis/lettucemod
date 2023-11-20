@@ -1,4 +1,4 @@
-package com.redis.search.query.impl;
+package com.redis.search.query.filter;
 
 public class GeoCoordinates {
 
@@ -6,8 +6,8 @@ public class GeoCoordinates {
     private final Number lat;
 
     public GeoCoordinates(Number lon, Number lat) {
-	Assert.notNull(lon, "Longitude must not be null");
-	Assert.notNull(lat, "Latitude must not be null");
+	Utils.notNull(lon, "Longitude must not be null");
+	Utils.notNull(lat, "Latitude must not be null");
 	this.lon = lon;
 	this.lat = lat;
     }

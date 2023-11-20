@@ -1,10 +1,20 @@
-package com.redis.search.query.impl;
+package com.redis.search.query.filter;
 
 import java.util.Collection;
 
-public abstract class Assert {
+public abstract class Utils {
 
-    private Assert() {
+    private static final String PAREN_FORMAT = "(%s)";
+
+    private Utils() {
+    }
+
+    public static boolean isQuoted(String string) {
+	return string.startsWith("\"") && string.endsWith("\"");
+    }
+
+    public static String parens(String string) {
+	return String.format(PAREN_FORMAT, string);
     }
 
     public static void notNull(Object object, String message) {

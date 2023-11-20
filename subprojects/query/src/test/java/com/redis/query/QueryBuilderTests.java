@@ -1,22 +1,21 @@
 package com.redis.query;
 
-import static com.redis.query.Query.and;
 import static com.redis.query.Query.geo;
 import static com.redis.query.Query.numeric;
-import static com.redis.query.Query.optional;
 import static com.redis.query.Query.tag;
-import static com.redis.query.Query.text;
-import static com.redis.query.Query.or;
-import static com.redis.query.Query.vectorRange;
 import static com.redis.query.Query.term;
+import static com.redis.query.Query.text;
+import static com.redis.query.Query.vector;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-import com.redis.search.query.impl.Distance;
-import com.redis.search.query.impl.GeoCoordinates;
-import com.redis.search.query.impl.NumericField;
-import com.redis.search.query.impl.VectorRangeField;
+import com.redis.search.query.filter.Condition;
+import com.redis.search.query.filter.Distance;
+import com.redis.search.query.filter.GeoCoordinates;
+import com.redis.search.query.filter.NumericBoundary;
+import com.redis.search.query.filter.NumericField;
+import com.redis.search.query.filter.VectorField;
 
 /**
  * Created by mnunberg on 2/23/18.
@@ -25,7 +24,7 @@ class QueryBuilderTests {
 
     @Test
     void testTag() {
-	Condition tagEq = tag("myField").eq("foo");
+	Condition tagEq = tag("myField").in("foo");
 	assertEquals("@myField:{foo}", tagEq.getQuery());
 	Condition tagIn = tag("myField").in("foo", "bar");
 	assertEquals("@myField:{foo|bar}", tagIn.getQuery());
@@ -33,7 +32,7 @@ class QueryBuilderTests {
 
     @Test
     void testTagWithSpace() {
-	Condition condition = tag("myField").eq("foo bar");
+	Condition condition = tag("myField").in("foo bar");
 	assertEquals("@myField:{foo\\ bar}", condition.getQuery());
 	condition = tag("myField").in("foo bar", "bar");
 	assertEquals("@myField:{foo\\ bar|bar}", condition.getQuery());
@@ -44,16 +43,16 @@ class QueryBuilderTests {
 	NumericField field = numeric("name");
 	Condition condition = field.between(1, 10);
 	assertEquals("@name:[1 10]", condition.getQuery());
-	condition = field.between(1, 10).exclusiveTo(true);
+	condition = field.between(1, NumericBoundary.exclusive(10));
 	assertEquals("@name:[1 (10]", condition.getQuery());
-	condition = field.between(1, 10).exclusiveFrom(true);
+	condition = field.between(NumericBoundary.exclusive(1), 10);
 	assertEquals("@name:[(1 10]", condition.getQuery());
 
 	condition = field.between(1.0, 10.1);
 	assertEquals("@name:[1.0 10.1]", condition.getQuery());
-	condition = field.between(-1.0, 10.1).exclusiveTo(true);
+	condition = field.between(-1.0, NumericBoundary.exclusive(10.1));
 	assertEquals("@name:[-1.0 (10.1]", condition.getQuery());
-	condition = field.between(-1.1, 150.61).exclusiveFrom(true);
+	condition = field.between(NumericBoundary.exclusive(-1.1), 150.61);
 	assertEquals("@name:[(-1.1 150.61]", condition.getQuery());
 
 	// le, gt, etc.
@@ -73,12 +72,21 @@ class QueryBuilderTests {
 	assertEquals("@name:[(1587058030 inf]", field.gt(1587058030).getQuery());
 
     }
-    
+
     @Test
     void testVectorRange() {
-	VectorRangeField field = vectorRange("name");
-	Condition condition = field.radius(1.23, "myvec");
+	VectorField field = vector("name");
+	Condition condition = field.range(1.23, "myvec");
 	assertEquals("@name:[VECTOR_RANGE 1.23 $myvec]", condition.getQuery());
+    }
+
+    @Test
+    void testVectorKNN() {
+	VectorField field = vector("name");
+	assertEquals("*=>[KNN 10 @name $myvec]", field.knn(10, "myvec").getQuery());
+	assertEquals("*=>[KNN $mynum @name $myvec]", field.knn("mynum", "myvec").getQuery());
+	assertEquals("@published_year:[2020 2022]=>[KNN 10 @vector_field $query_vec]", vector("vector_field")
+		.knn(10, "query_vec").and(numeric("published_year").between(2020, 2022)).getQuery());
     }
 
     @Test
@@ -90,32 +98,33 @@ class QueryBuilderTests {
 
     @Test
     void testIntersectionBasic() {
-	Condition condition = text("name").eq("mark");
+	Condition condition = text("name").term("mark");
 	assertEquals("@name:mark", condition.getQuery());
-	condition = text("name").and("mark", "dvir");
+	condition = text("name").term("mark").and("dvir");
 	assertEquals("@name:(mark dvir)", condition.getQuery());
 
     }
 
     @Test
     void testIntersectionNested() {
-	Condition condition = and(text("name").or("mark", "dvir"), numeric("time").between(100, 200),
-		numeric("created").lt(1000).not());
+	Condition condition = text("name").term("mark").or("dvir").and(numeric("time").between(100, 200))
+		.and(numeric("created").lt(1000).not());
 	assertEquals("@name:(mark|dvir) @time:[100 200] -@created:[-inf (1000]", condition.getQuery());
     }
 
     @Test
     void testOptional() {
-	Condition condition = optional(tag("name").in("foo", "bar"));
+	Condition condition = tag("name").in("foo", "bar").optional();
 	assertEquals("~@name:{foo|bar}", condition.getQuery());
-	condition = optional(and(condition, condition));
+	condition = condition.and(condition).optional();
 	assertEquals("~(~@name:{foo|bar} ~@name:{foo|bar})", condition.getQuery());
     }
 
     @Test
     void testBasic() {
-	Condition condition = term("hello").and(or("world", "foo")).and(term("\"bar baz\"")).and(term("bbbb"));
-	assertEquals("hello (world|foo) \"bar baz\" bbbb", condition.getQuery());
+	Condition condition = term("hello").and(term("world").or(term("foo"))).and(term("\"bar baz\""))
+		.and(term("bbbb"));
+	assertEquals("hello world|foo \"bar baz\" bbbb", condition.getQuery());
     }
 
     @Test
@@ -123,7 +132,7 @@ class QueryBuilderTests {
 	String tag = "a b c";
 	assertEquals("a\\ b\\ c", Query.escapeTag(tag));
     }
-    
+
     @Test
     void wildcard() {
 	assertEquals("*", Query.wildcard().getQuery());

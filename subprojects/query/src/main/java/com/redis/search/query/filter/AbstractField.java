@@ -1,6 +1,4 @@
-package com.redis.search.query.impl;
-
-import com.redis.query.Field;
+package com.redis.search.query.filter;
 
 public abstract class AbstractField implements Field {
 

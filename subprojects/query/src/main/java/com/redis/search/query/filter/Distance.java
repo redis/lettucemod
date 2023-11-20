@@ -1,4 +1,4 @@
-package com.redis.search.query.impl;
+package com.redis.search.query.filter;
 
 public class Distance {
 

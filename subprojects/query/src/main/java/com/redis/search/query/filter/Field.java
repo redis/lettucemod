@@ -1,4 +1,4 @@
-package com.redis.query;
+package com.redis.search.query.filter;
 
 public interface Field {
 
