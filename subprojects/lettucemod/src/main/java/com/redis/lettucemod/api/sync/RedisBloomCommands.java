@@ -1,0 +1,66 @@
+package com.redis.lettucemod.api.sync;
+
+import com.redis.lettucemod.bloom.*;
+import com.redis.lettucemod.cms.CmsInfo;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+public interface RedisBloomCommands <K,V> {
+    Boolean bfAdd(K key, V item);
+    Long bfCard(K key);
+    Boolean bfExists(K key, V item);
+    BfInfo bfInfo(K key);
+    Long bfInfo(K key, BfInfoType infoType);
+    List<Boolean> bfInsert(K key, V... items);
+    List<Boolean> bfInsert(K key, BfInsertOptions options, V... items);
+    List<Boolean> bfMAdd(K key, V... items);
+    List<Boolean> bfMExists(K key, V... items);
+    String bfReserve(K key, BfConfig config);
+    Boolean cfAdd(K key, V item);
+    Boolean cfAddNx(K key, V item);
+    Long cfCount(K key, V item);
+    Boolean cfDel(K key, V item);
+    Boolean cfExists(K key, V item);
+    CfInfo cfInfo(K key);
+    List<Long> cfInsert(K key, V... items);
+    List<Long> cfInsert(K key, CfInsertOptions options, V... items);
+    List<Long> cfInsertNx(K key, V... items);
+    List<Long> cfInsertNx(K key, CfInsertOptions options, V... items);
+    List<Boolean> cfMExists(K key, V... items);
+    String cfReserve(K key, Long capacity);
+    String cfRserve(K key, CfReserveOptions options);
+    Long cmsIncrBy(K key, V item, long increment);
+    List<Long> cmsIncrBy(K key, Map<V,Long> increments);
+    String cmsInitByProb(K key, double error, double probability);
+    String cmsInitByDim(K key, long width, long depth);
+    List<Long> cmsQuery(K key, V... items);
+    String cmsMerge(K destKey, K... keys);
+    String cmsMerge(K destKey, Map<K,Long> keyWeightMap);
+    CmsInfo cmsInfo(K key);
+    List<Optional<V>> topKAdd(K key, V... items);
+    List<Optional<V>> topKIncrBy(K key, Map<V, Long> increments);
+    TopKInfo topKInfo(K key);
+    List<String> topKList(K key);
+    Map<String, Long> topKListWithScores(K key);
+    List<Boolean> topKQuery(K key, V... items);
+    String topKReserve(K key, long k);
+    String topKReserve(K key, long k, long width, long depth, double decay);
+    String tDigestAdd(K key, double... values);
+    List<Double> tDigestByRank(K key, long... ranks);
+    List<Double> tDigestByRevRank(K key, long... revRanks);
+    List<Double> tDigestCdf(K key, double... values);
+    String tDigestCreate(K key);
+    String tDigestCreate(K key, long compression);
+    TDigestInfo tDigestInfo(K key);
+    Double tDigestMax(K key);
+    String tDigestMerge(K destinationKey, K... sourceKeys);
+    String tDigestMerge(K destinationKey, TDigestMergeOptions options, K... sourceKeys);
+    Double tDigestMin(K key);
+    List<Double> tDigestQuantile(K key, double... quantiles);
+    List<Long> tDigestRank(K key, double... values);
+    String tDigestReset(K key);
+    List<Long>  tDigestRevRank(K key, double... values);
+    Double tDigestTrimmedMean(K key, double lowCutQuantile, double highCutQuantile);
+}
