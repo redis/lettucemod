@@ -15,7 +15,6 @@ image:https://img.shields.io/badge/Forum-Modules-blue["forum",link=https://forum
 LettuceMod is a Java client for https://docs.redis.com/latest/modules/[Redis Modules] based on https://lettuce.io[Lettuce].
 It supports the following modules in standalone or cluster configurations:
 
-* https://oss.redis.com/redisgears/[RedisGears]
 * https://oss.redis.com/redisjson/[RedisJSON]
 * https://oss.redis.com/redisearch/[RediSearch]
 * https://oss.redis.com/redistimeseries/[RedisTimeSeries]
@@ -173,18 +172,6 @@ public class MyComponent {
     // ...
 }
 ----
-
-=== RedisGears
-
-[source,java]
-----
-RedisGearsCommands<String, String> gears = connection.sync(); // <1>
-
-gears.rgPyexecute("GearsBuilder().run('person:*')"); // <2>
-----
-
-<1> Use sync, async, or reactive RedisGears commands
-<2> Execute a RedisGears Python function
 
 === RedisJSON
 
