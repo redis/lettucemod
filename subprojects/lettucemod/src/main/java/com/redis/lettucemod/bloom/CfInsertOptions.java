@@ -2,24 +2,26 @@ package com.redis.lettucemod.bloom;
 
 import io.lettuce.core.CompositeArgument;
 import io.lettuce.core.protocol.CommandArgs;
-import reactor.util.annotation.Nullable;
+
+import java.util.Optional;
 
 public class CfInsertOptions implements CompositeArgument {
-    @Nullable Long capacity;
-    @Nullable Boolean noCreate;
+    Optional<Long> capacity;
+    Optional<Boolean> noCreate;
 
-    private CfInsertOptions(@Nullable Long capacity, @Nullable Boolean noCreate){
+    private CfInsertOptions(Optional<Long> capacity, Optional<Boolean> noCreate){
         this.capacity = capacity;
+        this.noCreate = noCreate;
     }
 
     @Override
     public <K, V> void build(CommandArgs<K, V> commandArgs) {
-        if(capacity != null){
+        capacity.ifPresent(c->{
             commandArgs.add("CAPACITY");
-            commandArgs.add(capacity);
-        }
+            commandArgs.add(c);
+        });
 
-        if(noCreate != null && noCreate){
+        if(noCreate.isPresent() && noCreate.get()){
             commandArgs.add("NOCREATE");
         }
     }
@@ -27,16 +29,16 @@ public class CfInsertOptions implements CompositeArgument {
     public static Builder builder(){return new Builder();}
 
     public static class Builder{
-        @Nullable Long capacity;
-        @Nullable Boolean noCreate;
+        Optional<Long> capacity = Optional.empty();
+        Optional<Boolean> noCreate = Optional.empty();
 
         public Builder capacity(Long capacity){
-            this.capacity = capacity;
+            this.capacity = Optional.of(capacity);
             return this;
         }
 
         public Builder noCreate(Boolean noCreate){
-            this.noCreate = noCreate;
+            this.noCreate = Optional.of(noCreate);
             return this;
         }
 

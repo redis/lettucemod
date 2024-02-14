@@ -2,23 +2,23 @@ package com.redis.lettucemod.bloom;
 
 import io.lettuce.core.CompositeArgument;
 import io.lettuce.core.protocol.CommandArgs;
-import reactor.util.annotation.Nullable;
+import java.util.Optional;
 
 public class TDigestMergeOptions implements CompositeArgument {
-    private final @Nullable Long compression;
+    private final Optional<Long> compression;
     private final boolean override;
 
-    TDigestMergeOptions(@Nullable Long compression, boolean override){
+    private TDigestMergeOptions(Optional<Long> compression, boolean override){
         this.compression = compression;
         this.override = override;
     }
 
     @Override
     public <K, V> void build(CommandArgs<K, V> commandArgs) {
-        if(compression != null){
+        compression.ifPresent(c->{
             commandArgs.add("COMPRESSION");
-            commandArgs.add(compression);
-        }
+            commandArgs.add(c);
+        });
 
         if(override){
             commandArgs.add("OVERRIDE");
@@ -27,10 +27,10 @@ public class TDigestMergeOptions implements CompositeArgument {
 
     public static Builder buidler(){ return new Builder();}
     public static class Builder{
-        private @Nullable Long compression;
+        private Optional<Long> compression = Optional.empty();
         private boolean override = false;
         public Builder compression(long compression){
-            this.compression = compression;
+            this.compression = Optional.of(compression);
             return this;
         }
 

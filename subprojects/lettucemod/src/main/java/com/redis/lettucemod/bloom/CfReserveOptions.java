@@ -2,15 +2,16 @@ package com.redis.lettucemod.bloom;
 
 import io.lettuce.core.CompositeArgument;
 import io.lettuce.core.protocol.CommandArgs;
-import reactor.util.annotation.Nullable;
+
+import java.util.Optional;
 
 public class CfReserveOptions implements CompositeArgument {
     Long capacity;
-    @Nullable Long bucketSize;
-    @Nullable Long maxIterations;
-    @Nullable Long expansion;
+    Optional<Long> bucketSize;
+    Optional<Long> maxIterations;
+    Optional<Long> expansion;
 
-    private CfReserveOptions(Long capacity, @Nullable Long bucketSize, @Nullable Long maxIterations, @Nullable Long expansion) {
+    private CfReserveOptions(Long capacity, Optional<Long> bucketSize, Optional<Long> maxIterations, Optional<Long> expansion) {
         this.capacity = capacity;
         this.bucketSize = bucketSize;
         this.maxIterations = maxIterations;
@@ -20,44 +21,44 @@ public class CfReserveOptions implements CompositeArgument {
     @Override
     public <K, V> void build(CommandArgs<K, V> commandArgs) {
         commandArgs.add(capacity);
-        if(bucketSize != null){
+        bucketSize.ifPresent(b->{
             commandArgs.add("BUCKETSIZE");
-            commandArgs.add(bucketSize);
-        }
+            commandArgs.add(b);
+        });
 
-        if(maxIterations != null){
+        maxIterations.ifPresent(m->{
             commandArgs.add("MAXITERATIONS");
-            commandArgs.add(maxIterations);
-        }
+            commandArgs.add(m);
+        });
 
-        if(expansion != null){
+        expansion.ifPresent(e->{
             commandArgs.add("EXPANSION");
-            commandArgs.add(expansion);
-        }
+            commandArgs.add(e);
+        });
     }
 
     public static class Builder{
         Long capacity;
-        @Nullable Long bucketSize;
-        @Nullable Long maxIterations;
-        @Nullable Long expansion;
+        Optional<Long> bucketSize = Optional.empty();
+        Optional<Long> maxIterations = Optional.empty();
+        Optional<Long> expansion = Optional.empty();
 
         public Builder(Long capacity) {
             this.capacity = capacity;
         }
 
         public Builder bucketSize(Long bucketSize){
-            this.bucketSize = bucketSize;
+            this.bucketSize = Optional.of(bucketSize);
             return this;
         }
 
         public Builder maxIterations(Long maxIterations){
-            this.maxIterations = maxIterations;
+            this.maxIterations = Optional.of(maxIterations);
             return this;
         }
 
         public Builder expansion(Long expansion){
-            this.expansion = expansion;
+            this.expansion = Optional.of(expansion);
             return this;
         }
 

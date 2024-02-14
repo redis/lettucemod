@@ -2,15 +2,16 @@ package com.redis.lettucemod.bloom;
 
 import io.lettuce.core.CompositeArgument;
 import io.lettuce.core.protocol.CommandArgs;
-import reactor.util.annotation.Nullable;
+
+import java.util.Optional;
 
 public class BfConfig implements CompositeArgument {
     Long capacity;
     Double error;
-    Boolean nonScaling = false;
-    @Nullable Integer expansion = null;
+    Boolean nonScaling;
+    Optional<Integer> expansion;
 
-    BfConfig(Long capacity, Double error, Boolean nonScaling, @Nullable Integer expansion){
+    private BfConfig(Long capacity, Double error, Boolean nonScaling, Optional<Integer> expansion){
         this.capacity = capacity;
         this.error = error;
         this.nonScaling = nonScaling;
@@ -21,10 +22,10 @@ public class BfConfig implements CompositeArgument {
     public <K, V> void build(CommandArgs<K, V> commandArgs) {
         commandArgs.add(error);
         commandArgs.add(capacity);
-        if(expansion != null){
+        expansion.ifPresent(e->{
             commandArgs.add("EXPANSION");
-            commandArgs.add(expansion);
-        }
+            commandArgs.add(e);
+        });
 
         if(nonScaling){
             commandArgs.add("NONSCALING");
@@ -41,10 +42,10 @@ public class BfConfig implements CompositeArgument {
             this.error = error;
         }
 
-        private Long capacity;
-        private Double error;
+        private final Long capacity;
+        private final Double error;
         private Boolean nonScaling = false;
-        @Nullable private Integer expansion = null;
+        private Optional<Integer> expansion = Optional.empty();
 
         public Builder nonScaling(Boolean nonScaling) {
             this.nonScaling = nonScaling;
@@ -52,7 +53,7 @@ public class BfConfig implements CompositeArgument {
         }
 
         public Builder expansion(Integer expansion) {
-            this.expansion = expansion;
+            this.expansion = Optional.of(expansion);
             return this;
         }
 

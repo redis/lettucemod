@@ -2,32 +2,34 @@ package com.redis.lettucemod.bloom;
 
 import io.lettuce.core.CompositeArgument;
 import io.lettuce.core.protocol.CommandArgs;
-import reactor.util.annotation.Nullable;
+
+import java.util.Optional;
 
 public class BfInsertOptions implements CompositeArgument {
-    @Nullable BfConfig config;
-    Boolean noCreate = false;
-    public BfInsertOptions(@Nullable BfConfig config, Boolean noCreate) {
+    Optional<BfConfig> config;
+    Boolean noCreate;
+
+    private BfInsertOptions(Optional<BfConfig> config, Boolean noCreate){
         this.config = config;
         this.noCreate = noCreate;
     }
 
     @Override
     public <K, V> void build(CommandArgs<K, V> commandArgs) {
-        if(config != null){
+        config.ifPresent(c->{
             commandArgs.add("CAPACITY");
-            commandArgs.add(config.capacity);
+            commandArgs.add(c.capacity);
             commandArgs.add("ERROR");
-            commandArgs.add(config.error);
-            if(config.nonScaling){
+            commandArgs.add(c.error);
+            if(c.nonScaling){
                 commandArgs.add("NONSCALING");
             }
 
-            if(config.expansion != null){
+            c.expansion.ifPresent(e->{
                 commandArgs.add("EXPANSION");
-                commandArgs.add(config.expansion);
-            }
-        }
+                commandArgs.add(e);
+            });
+        });
 
         if(noCreate){
             commandArgs.add("NOCREATE");
@@ -39,10 +41,10 @@ public class BfInsertOptions implements CompositeArgument {
     }
 
     public static class Builder{
-        @Nullable BfConfig config;
+        Optional<BfConfig> config = Optional.empty();
         Boolean noCreate = false;
         public Builder config(BfConfig config){
-            this.config = config;
+            this.config = Optional.of(config);
             return this;
         }
 
