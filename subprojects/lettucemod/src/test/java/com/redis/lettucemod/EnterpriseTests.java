@@ -22,7 +22,7 @@ class EnterpriseTests extends ModulesTests {
 	private final RedisEnterpriseContainer container = new RedisEnterpriseContainer(
 			RedisEnterpriseContainer.DEFAULT_IMAGE_NAME.withTag("latest"))
 			.withDatabase(Database.name("ModulesTests").memory(DataSize.ofMegabytes(110)).ossCluster(true)
-					.modules(RedisModule.SEARCH, RedisModule.JSON, RedisModule.TIMESERIES).build());
+					.modules(RedisModule.SEARCH, RedisModule.TIMESERIES).build());
 
 	@Override
 	protected AbstractRedisContainer<?> getRedisContainer() {
