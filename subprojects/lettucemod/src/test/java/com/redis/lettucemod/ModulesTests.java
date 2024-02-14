@@ -24,6 +24,8 @@ import com.redis.lettucemod.api.reactive.*;
 import com.redis.lettucemod.api.sync.*;
 import com.redis.lettucemod.bloom.*;
 import com.redis.lettucemod.cms.CmsInfo;
+import io.lettuce.core.*;
+import io.lettuce.core.api.reactive.RedisReactiveCommands;
 import org.awaitility.Awaitility;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
@@ -86,12 +88,6 @@ import com.redis.lettucemod.util.GeoLocation;
 import com.redis.lettucemod.util.RedisModulesUtils;
 import com.redis.testcontainers.RedisServer;
 
-import io.lettuce.core.AbstractRedisClient;
-import io.lettuce.core.KeyValue;
-import io.lettuce.core.LettuceFutures;
-import io.lettuce.core.RedisCommandExecutionException;
-import io.lettuce.core.RedisFuture;
-import io.lettuce.core.RedisURI;
 import reactor.core.publisher.Mono;
 
 @Testcontainers
@@ -1310,19 +1306,19 @@ abstract class ModulesTests {
 		connection.sync().unlink(key1,key2);
 		RedisBloomCommands<String,String> topK = connection.sync();
 		assertEquals("OK", topK.topKReserve(key1, 3));
-		List<Optional<String>> result = topK.topKAdd(key1, "one", "two","three");
-		assertFalse(result.get(0).isPresent());
-		assertFalse(result.get(1).isPresent());
-		assertFalse(result.get(2).isPresent());
+		List<Value<String>> result = topK.topKAdd(key1, "one", "two","three");
+		assertTrue(result.get(0).isEmpty());
+		assertTrue(result.get(1).isEmpty());
+		assertTrue(result.get(2).isEmpty());
 		TopKInfo info = topK.topKInfo(key1);
 		assertEquals(3, info.getK());
 		assertEquals(7, info.getDepth());
 		assertEquals(8, info.getWidth());
 		assertEquals(.9, info.getDecay());
 		result = topK.topKAdd(key1, "four", "four", "four");
-		assertTrue(result.get(0).isPresent());
-		assertFalse(result.get(1).isPresent());
-		assertFalse(result.get(2).isPresent());
+		assertFalse(result.get(0).isEmpty());
+		assertTrue(result.get(1).isEmpty());
+		assertTrue(result.get(2).isEmpty());
 
 		List<String> listResult = topK.topKList(key1);
 		assertEquals("four", listResult.get(0));
@@ -1335,10 +1331,13 @@ abstract class ModulesTests {
 		assertEquals(true, queryResult.get(2));
 		assertEquals(false, queryResult.get(3));
 
-		Map<String, Long> listWithScores = topK.topKListWithScores(key1);
-		assertEquals(3, listWithScores.get("four"));
-		assertEquals(1, listWithScores.get("three"));
-		assertEquals(1, listWithScores.get("two"));
+		List<KeyValue<String, Long>> listWithScores = topK.topKListWithScores(key1);
+		assertEquals(3, listWithScores.get(0).getValue());
+		assertEquals("four", listWithScores.get(0).getKey());
+		assertEquals(1, listWithScores.get(1).getValue());
+		assertEquals("three", listWithScores.get(1).getKey());
+		assertEquals(1, listWithScores.get(2).getValue());
+		assertEquals("two", listWithScores.get(2).getKey());
 	}
 
 	@Test
@@ -1348,11 +1347,11 @@ abstract class ModulesTests {
 		connection.sync().unlink(key1,key2);
 		RedisBloomReactiveCommands<String,String> topK = connection.reactive();
 		assertEquals("OK", topK.topKReserve(key1, 3).block());
-		List<Optional<String>> result = topK.topKAdd(key1, "one", "two","three").collectList().block();
+		List<Value<String>> result = topK.topKAdd(key1, "one", "two","three").collectList().block();
 		assertNotNull(result);
-		assertFalse(result.get(0).isPresent());
-		assertFalse(result.get(1).isPresent());
-		assertFalse(result.get(2).isPresent());
+		assertTrue(result.get(0).isEmpty());
+		assertTrue(result.get(1).isEmpty());
+		assertTrue(result.get(2).isEmpty());
 		TopKInfo info = topK.topKInfo(key1).block();
 		assertNotNull(info);
 		assertEquals(3, info.getK());
@@ -1361,9 +1360,9 @@ abstract class ModulesTests {
 		assertEquals(.9, info.getDecay());
 		result = topK.topKAdd(key1, "four", "four", "four").collectList().block();
 		assertNotNull(result);
-		assertTrue(result.get(0).isPresent());
-		assertFalse(result.get(1).isPresent());
-		assertFalse(result.get(2).isPresent());
+		assertFalse(result.get(0).isEmpty());
+		assertTrue(result.get(1).isEmpty());
+		assertTrue(result.get(2).isEmpty());
 
 		List<String> listResult = topK.topKList(key1).collectList().block();
 		assertNotNull(listResult);
@@ -1378,11 +1377,11 @@ abstract class ModulesTests {
 		assertEquals(true, queryResult.get(2));
 		assertEquals(false, queryResult.get(3));
 
-		Map<String, Long> listWithScores = topK.topKListWithScores(key1).block();
+		List<KeyValue<String, Long>> listWithScores = topK.topKListWithScores(key1).collectList().block();
 		assertNotNull(listWithScores);
-		assertEquals(3, listWithScores.get("four"));
-		assertEquals(1, listWithScores.get("three"));
-		assertEquals(1, listWithScores.get("two"));
+		assertEquals(KeyValue.just("four", 3L), listWithScores.get(0));
+		assertEquals(KeyValue.just("three", 1L), listWithScores.get(1));
+		assertEquals(KeyValue.just("two", 1L), listWithScores.get(2));
 	}
 
 	@Test
@@ -1485,5 +1484,4 @@ abstract class ModulesTests {
 		Double trimmedMean = tDigest.tDigestTrimmedMean(key, .3, .7).block();
 		assertEquals(5.5, trimmedMean);
 	}
-
 }

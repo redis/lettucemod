@@ -4,6 +4,8 @@ import com.redis.lettucemod.RedisModulesCommandBuilder;
 import com.redis.lettucemod.cms.CmsInfo;
 import com.redis.lettucemod.output.*;
 import com.redis.lettucemod.protocol.*;
+import io.lettuce.core.KeyValue;
+import io.lettuce.core.Value;
 import io.lettuce.core.codec.RedisCodec;
 import io.lettuce.core.output.*;
 import io.lettuce.core.protocol.Command;
@@ -254,20 +256,20 @@ public class BloomCommandBuilder <K,V> extends RedisModulesCommandBuilder<K,V> {
         return createCommand(CountMinSketchCommandType.INFO, new CmsInfoOutput<>(codec), args);
     }
 
-    public Command<K,V,List<Optional<V>>> topKAdd(K key, V... items){
+    public Command<K,V,List<Value<V>>> topKAdd(K key, V... items){
         CommandArgs<K,V> args = args(key);
         args.addValues(items);
-        return createCommand(TopKCommandType.ADD, new OptionalValueListOutput<>(codec), args);
+        return createCommand(TopKCommandType.ADD, new ValueValueListOutput<>(codec), args);
     }
 
-    public Command<K,V,List<Optional<V>>> topKIncrBy(K key, Map<V,Long> increments){
+    public Command<K,V,List<Value<V>>> topKIncrBy(K key, Map<V,Long> increments){
         CommandArgs<K,V> args = args(key);
         for(Map.Entry<V,Long> entry : increments.entrySet()){
             args.addValue(entry.getKey());
             args.add(entry.getValue());
         }
 
-        return createCommand(TopKCommandType.ADD, new OptionalValueListOutput<>(codec), args);
+        return createCommand(TopKCommandType.ADD, new ValueValueListOutput<>(codec), args);
     }
 
     public Command<K,V,TopKInfo> topKInfo(K key){
@@ -280,7 +282,7 @@ public class BloomCommandBuilder <K,V> extends RedisModulesCommandBuilder<K,V> {
         return createCommand(TopKCommandType.LIST, new StringListOutput<>(codec), args);
     }
 
-    public Command<K,V,Map<String, Long>> topKListWithScores(K key){
+    public Command<K,V,List<KeyValue<String, Long>>> topKListWithScores(K key){
         CommandArgs<K,V> args = args(key);
         args.add("WITHCOUNT");
         return createCommand(TopKCommandType.LIST, new TopKListWithScoresOutput<>(codec), args);

@@ -2,6 +2,8 @@ package com.redis.lettucemod.api.sync;
 
 import com.redis.lettucemod.bloom.*;
 import com.redis.lettucemod.cms.CmsInfo;
+import io.lettuce.core.KeyValue;
+import io.lettuce.core.Value;
 
 import java.util.List;
 import java.util.Map;
@@ -39,11 +41,11 @@ public interface RedisBloomCommands <K,V> {
     String cmsMerge(K destKey, K... keys);
     String cmsMerge(K destKey, Map<K,Long> keyWeightMap);
     CmsInfo cmsInfo(K key);
-    List<Optional<V>> topKAdd(K key, V... items);
-    List<Optional<V>> topKIncrBy(K key, Map<V, Long> increments);
+    List<Value<V>> topKAdd(K key, V... items);
+    List<Value<V>> topKIncrBy(K key, Map<V, Long> increments);
     TopKInfo topKInfo(K key);
     List<String> topKList(K key);
-    Map<String, Long> topKListWithScores(K key);
+    List<KeyValue<String, Long>> topKListWithScores(K key);
     List<Boolean> topKQuery(K key, V... items);
     String topKReserve(K key, long k);
     String topKReserve(K key, long k, long width, long depth, double decay);

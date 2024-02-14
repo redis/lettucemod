@@ -2,6 +2,8 @@ package com.redis.lettucemod.api.reactive;
 
 import com.redis.lettucemod.bloom.*;
 import com.redis.lettucemod.cms.CmsInfo;
+import io.lettuce.core.KeyValue;
+import io.lettuce.core.Value;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -41,11 +43,11 @@ public interface RedisBloomReactiveCommands<K,V>{
     Mono<String> cmsMerge(K destKey, K... keys);
     Mono<String> cmsMerge(K destKey, Map<K,Long> keyWeightMap);
     Mono<CmsInfo> cmsInfo(K key);
-    Flux<Optional<V>> topKAdd(K key, V... items);
-    Flux<Optional<V>> topKIncrBy(K key, Map<V, Long> increments);
+    Flux<Value<V>> topKAdd(K key, V... items);
+    Flux<Value<V>> topKIncrBy(K key, Map<V, Long> increments);
     Mono<TopKInfo> topKInfo(K key);
     Flux<String> topKList(K key);
-    Mono<Map<String, Long>> topKListWithScores(K key);
+    Flux<KeyValue<String, Long>> topKListWithScores(K key);
     Flux<Boolean> topKQuery(K key, V... items);
     Mono<String> topKReserve(K key, long k);
     Mono<String> topKReserve(K key, long k, long width, long depth, double decay);

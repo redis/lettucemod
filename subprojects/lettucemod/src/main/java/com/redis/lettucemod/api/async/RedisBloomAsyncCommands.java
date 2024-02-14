@@ -2,7 +2,9 @@ package com.redis.lettucemod.api.async;
 
 import com.redis.lettucemod.bloom.*;
 import com.redis.lettucemod.cms.CmsInfo;
+import io.lettuce.core.KeyValue;
 import io.lettuce.core.RedisFuture;
+import io.lettuce.core.Value;
 
 import java.util.List;
 import java.util.Map;
@@ -40,11 +42,11 @@ public interface RedisBloomAsyncCommands <K,V> {
     RedisFuture<String> cmsMerge(K destKey, K... keys);
     RedisFuture<String> cmsMerge(K destKey, Map<K,Long> keyWeightMap);
     RedisFuture<CmsInfo> cmsInfo(K key);
-    RedisFuture<List<Optional<V>>> topKAdd(K key, V... items);
-    RedisFuture<List<Optional<V>>> topKIncrBy(K key, Map<V, Long> increments);
+    RedisFuture<List<Value<V>>> topKAdd(K key, V... items);
+    RedisFuture<List<Value<V>>> topKIncrBy(K key, Map<V, Long> increments);
     RedisFuture<TopKInfo> topKInfo(K key);
     RedisFuture<List<String>> topKList(K key);
-    RedisFuture<Map<String, Long>> topKListWithScores(K key);
+    RedisFuture<List<KeyValue<String, Long>>> topKListWithScores(K key);
     RedisFuture<List<Boolean>> topKQuery(K key, V... items);
     RedisFuture<String> topKReserve(K key, long k);
     RedisFuture<String> topKReserve(K key, long k, long width, long depth, double decay);

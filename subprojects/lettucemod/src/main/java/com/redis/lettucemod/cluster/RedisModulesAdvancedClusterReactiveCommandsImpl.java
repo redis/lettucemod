@@ -5,6 +5,7 @@ import java.util.*;
 import com.redis.lettucemod.bloom.*;
 import com.redis.lettucemod.cms.CmsInfo;
 import io.lettuce.core.RedisFuture;
+import io.lettuce.core.Value;
 import org.reactivestreams.Publisher;
 
 import com.redis.lettucemod.RedisModulesReactiveCommandsImpl;
@@ -315,12 +316,12 @@ public class RedisModulesAdvancedClusterReactiveCommandsImpl<K, V> extends
 	}
 
 	@Override
-	public Flux<Optional<V>> topKAdd(K key, V... items) {
+	public Flux<Value<V>> topKAdd(K key, V... items) {
 		return delegate.topKAdd(key,items);
 	}
 
 	@Override
-	public Flux<Optional<V>> topKIncrBy(K key, Map<V, Long> increments) {
+	public Flux<Value<V>> topKIncrBy(K key, Map<V, Long> increments) {
 		return delegate.topKIncrBy(key,increments);
 	}
 
@@ -335,7 +336,7 @@ public class RedisModulesAdvancedClusterReactiveCommandsImpl<K, V> extends
 	}
 
 	@Override
-	public Mono<Map<String, Long>> topKListWithScores(K key) {
+	public Flux<KeyValue<String, Long>> topKListWithScores(K key) {
 		return delegate.topKListWithScores(key);
 	}
 

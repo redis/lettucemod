@@ -50,6 +50,7 @@ import com.redis.lettucemod.timeseries.TimeSeriesCommandBuilder;
 import io.lettuce.core.KeyValue;
 import io.lettuce.core.RedisAsyncCommandsImpl;
 import io.lettuce.core.RedisFuture;
+import io.lettuce.core.Value;
 import io.lettuce.core.codec.RedisCodec;
 import io.lettuce.core.output.KeyValueStreamingChannel;
 
@@ -680,10 +681,10 @@ public class RedisModulesAsyncCommandsImpl<K, V> extends RedisAsyncCommandsImpl<
 	public RedisFuture<CmsInfo> cmsInfo(K key) { return dispatch(bloomCommandBuilder.cmsInfo(key));	}
 
 	@Override
-	public RedisFuture<List<Optional<V>>> topKAdd(K key, V... items) { return dispatch(bloomCommandBuilder.topKAdd(key,items)); }
+	public RedisFuture<List<Value<V>>> topKAdd(K key, V... items) { return dispatch(bloomCommandBuilder.topKAdd(key,items)); }
 
 	@Override
-	public RedisFuture<List<Optional<V>>> topKIncrBy(K key, Map<V, Long> increments) { return dispatch(bloomCommandBuilder.topKIncrBy(key, increments));	}
+	public RedisFuture<List<Value<V>>> topKIncrBy(K key, Map<V, Long> increments) { return dispatch(bloomCommandBuilder.topKIncrBy(key, increments));	}
 
 	@Override
 	public RedisFuture<TopKInfo> topKInfo(K key) { return dispatch(bloomCommandBuilder.topKInfo(key)); }
@@ -692,7 +693,7 @@ public class RedisModulesAsyncCommandsImpl<K, V> extends RedisAsyncCommandsImpl<
 	public RedisFuture<List<String>> topKList(K key) { return dispatch(bloomCommandBuilder.topKList(key)); }
 
 	@Override
-	public RedisFuture<Map<String, Long>> topKListWithScores(K key) { return dispatch(bloomCommandBuilder.topKListWithScores(key));	}
+	public RedisFuture<List<KeyValue<String, Long>>> topKListWithScores(K key) { return dispatch(bloomCommandBuilder.topKListWithScores(key));	}
 
 	@Override
 	public RedisFuture<List<Boolean>> topKQuery(K key, V... items) { return dispatch(bloomCommandBuilder.topKQuery(key,items)); }

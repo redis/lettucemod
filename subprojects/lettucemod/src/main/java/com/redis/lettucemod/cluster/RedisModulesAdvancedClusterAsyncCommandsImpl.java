@@ -42,6 +42,7 @@ import com.redis.lettucemod.timeseries.TimeRange;
 
 import io.lettuce.core.KeyValue;
 import io.lettuce.core.RedisFuture;
+import io.lettuce.core.Value;
 import io.lettuce.core.cluster.MultiNodeExecution;
 import io.lettuce.core.cluster.PipelinedRedisFuture;
 import io.lettuce.core.cluster.RedisAdvancedClusterAsyncCommandsImpl;
@@ -721,10 +722,10 @@ public class RedisModulesAdvancedClusterAsyncCommandsImpl<K, V> extends RedisAdv
 	public RedisFuture<CmsInfo> cmsInfo(K key) { return delegate.cmsInfo(key); }
 
 	@Override
-	public RedisFuture<List<Optional<V>>> topKAdd(K key, V... items) { return delegate.topKAdd(key, items); }
+	public RedisFuture<List<Value<V>>> topKAdd(K key, V... items) { return delegate.topKAdd(key, items); }
 
 	@Override
-	public RedisFuture<List<Optional<V>>> topKIncrBy(K key, Map<V, Long> increments) { return delegate.topKIncrBy(key, increments);	}
+	public RedisFuture<List<Value<V>>> topKIncrBy(K key, Map<V, Long> increments) { return delegate.topKIncrBy(key, increments);	}
 
 	@Override
 	public RedisFuture<TopKInfo> topKInfo(K key) { return delegate.topKInfo(key); }
@@ -733,7 +734,7 @@ public class RedisModulesAdvancedClusterAsyncCommandsImpl<K, V> extends RedisAdv
 	public RedisFuture<List<String>> topKList(K key) { return delegate.topKList(key); }
 
 	@Override
-	public RedisFuture<Map<String, Long>> topKListWithScores(K key) { return delegate.topKListWithScores(key); }
+	public RedisFuture<List<KeyValue<String, Long>>> topKListWithScores(K key) { return delegate.topKListWithScores(key); }
 
 	@Override
 	public RedisFuture<List<Boolean>> topKQuery(K key, V... items) { return delegate.topKQuery(key, items);	}
