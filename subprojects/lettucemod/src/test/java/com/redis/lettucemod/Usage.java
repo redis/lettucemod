@@ -6,17 +6,16 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.redis.lettucemod.RedisModulesClient;
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
 import com.redis.lettucemod.api.async.RedisModulesAsyncCommands;
 import com.redis.lettucemod.api.sync.RediSearchCommands;
-import com.redis.lettucemod.api.sync.RedisGearsCommands;
 import com.redis.lettucemod.api.sync.RedisJSONCommands;
 import com.redis.lettucemod.api.sync.RedisModulesCommands;
 import com.redis.lettucemod.api.sync.RedisTimeSeriesCommands;
@@ -39,7 +38,7 @@ import io.lettuce.core.support.ConnectionPoolSupport;
 @SuppressWarnings("unused")
 public class Usage {
 
-	private static final Logger log = LoggerFactory.getLogger(Usage.class);
+	private static final Logger log = Logger.getLogger(Usage.class.getName());
 
 	@SuppressWarnings("unchecked")
 	void usage() {
@@ -63,13 +62,6 @@ RediSearchCommands<String, String> search = connection.sync(); // <1>
 search.ftCreate("beers", Field.text("name").build(), Field.numeric("ibu").build()); // <2>
 
 SearchResults<String, String> results = search.ftSearch("beers", "chou*"); // <3>
-
-
-// RedisGears
-
-RedisGearsCommands<String, String> gears = connection.sync(); // <1>
-
-gears.rgPyexecute("GearsBuilder().run('person:*')"); // <2>
 
 
 // RedisJSON
@@ -169,7 +161,7 @@ try (StatefulRedisModulesConnection<String, String> connection = pool.borrowObje
 
 } catch (Exception e) {
 	
-	log.error("Could not get a connection from the pool", e);
+	log.log(Level.SEVERE, "Could not get a connection from the pool", e);
 	
 }
 

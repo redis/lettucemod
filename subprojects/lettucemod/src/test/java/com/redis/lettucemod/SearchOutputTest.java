@@ -6,15 +6,12 @@ import com.redis.lettucemod.output.SearchOutput;
 import com.redis.lettucemod.search.Document;
 import com.redis.lettucemod.search.SearchResults;
 import io.lettuce.core.codec.StringCodec;
+
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.aMapWithSize;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.hasEntry;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.*;
 
 class SearchOutputTest {
 
@@ -28,8 +25,8 @@ class SearchOutputTest {
 		searchOutput.complete(0);
 
 		SearchResults<String, String> result = searchOutput.get();
-		assertThat(result, hasSize(0));
-		assertThat(result.getCount(), is(0L));
+		Assertions.assertTrue(result.isEmpty());
+		Assertions.assertEquals(0, result.getCount());
 	}
 
 	@Test
@@ -52,13 +49,14 @@ class SearchOutputTest {
 		searchOutput.complete(0);
 
 		SearchResults<String, String> result = searchOutput.get();
-		assertThat(result, hasSize(1));
-		assertThat(result.getCount(), is(1L));
+		Assertions.assertEquals(1, result.size());
+		Assertions.assertEquals(1, result.getCount());
 		Document<String, String> firstDocument = result.get(0);
-		assertThat(firstDocument.getId(), is("key1"));
-		assertThat(firstDocument, is(aMapWithSize(2)));
-		assertThat(firstDocument, hasEntry("hashKey1", "hashValue1"));
-		assertThat(firstDocument, hasEntry("hashKey2", "hashValue2"));
+		Assertions.assertEquals("key1", firstDocument.getId());
+		Assertions.assertEquals(2, firstDocument.size());
+		Assertions.assertTrue(firstDocument.containsKey("hashKey1"));
+		Assertions.assertEquals("hashValue1", firstDocument.get("hashKey1"));
+		Assertions.assertEquals("hashValue2", firstDocument.get("hashKey2"));
 	}
 
 	@Test
@@ -73,8 +71,8 @@ class SearchOutputTest {
 		searchOutput.complete(0);
 
 		SearchResults<String, String> result = searchOutput.get();
-		assertThat(result, is(empty()));
-		assertThat(result.getCount(), is(1L));
+		Assertions.assertTrue(result.isEmpty());
+		assertEquals(1, result.getCount());
 	}
 
 	@Test
@@ -101,13 +99,13 @@ class SearchOutputTest {
 		searchOutput.complete(0);
 
 		SearchResults<String, String> result = searchOutput.get();
-		assertThat(result, hasSize(1));
-		assertThat(result.getCount(), is(2L));
+		assertEquals(1, result.size());
+		assertEquals(2, result.getCount());
 		Document<String, String> firstDocument = result.get(0);
-		assertThat(firstDocument.getId(), is("key2"));
-		assertThat(firstDocument, is(aMapWithSize(2)));
-		assertThat(firstDocument, hasEntry("hashKey1", "hashValue1"));
-		assertThat(firstDocument, hasEntry("hashKey2", "hashValue2"));
+		assertEquals("key2", firstDocument.getId());
+		assertEquals(2, firstDocument.size());
+		assertEquals("hashValue1", firstDocument.get("hashKey1"));
+		assertEquals("hashValue2", firstDocument.get("hashKey2"));
 	}
 
 	@Test
@@ -129,13 +127,13 @@ class SearchOutputTest {
 		searchOutput.complete(0);
 
 		SearchResults<String, String> result = searchOutput.get();
-		assertThat(result, hasSize(1));
-		assertThat(result.getCount(), is(1L));
+		assertEquals(1, result.size());
+		assertEquals(1, result.getCount());
 		Document<String, String> firstDocument = result.get(0);
-		assertThat(firstDocument.getId(), is("key"));
-		assertThat(firstDocument.getScore(), is(0.3));
-		assertThat(firstDocument, is(aMapWithSize(1)));
-		assertThat(firstDocument, hasEntry("hashKey", "hashValue"));
+		assertEquals("key", firstDocument.getId());
+		assertEquals(0.3, firstDocument.getScore());
+		assertEquals(1, firstDocument.size());
+		assertEquals("hashValue", firstDocument.get("hashKey"));
 	}
 
 	@Test
@@ -157,13 +155,13 @@ class SearchOutputTest {
 		searchOutput.complete(0);
 
 		SearchResults<String, String> result = searchOutput.get();
-		assertThat(result, hasSize(1));
-		assertThat(result.getCount(), is(1L));
+		assertEquals(1, result.size());
+		assertEquals(1, result.getCount());
 		Document<String, String> firstDocument = result.get(0);
-		assertThat(firstDocument.getId(), is("key"));
-		assertThat(firstDocument.getScore(), is(0.3));
-		assertThat(firstDocument, is(aMapWithSize(1)));
-		assertThat(firstDocument, hasEntry("hashKey", "hashValue"));
+		assertEquals("key", firstDocument.getId());
+		assertEquals(.3, firstDocument.getScore());
+		assertEquals(1, firstDocument.size());
+		assertEquals("hashValue", firstDocument.get("hashKey"));
 	}
 
 	@Test
@@ -185,13 +183,13 @@ class SearchOutputTest {
 		searchOutput.complete(0);
 
 		SearchResults<String, String> result = searchOutput.get();
-		assertThat(result, hasSize(1));
-		assertThat(result.getCount(), is(1L));
+		assertEquals(1, result.size());
+		assertEquals(1, result.getCount());
 		Document<String, String> firstDocument = result.get(0);
-		assertThat(firstDocument.getId(), is("key"));
-		assertThat(firstDocument.getSortKey(), is("sortKey"));
-		assertThat(firstDocument, is(aMapWithSize(1)));
-		assertThat(firstDocument, hasEntry("hashKey", "hashValue"));
+		assertEquals("key", firstDocument.getId());
+		assertEquals("sortKey", firstDocument.getSortKey());
+		assertEquals(1, firstDocument.size());
+		assertEquals("hashValue", firstDocument.get("hashKey"));
 	}
 
 	@Test
@@ -213,13 +211,13 @@ class SearchOutputTest {
 		searchOutput.complete(0);
 
 		SearchResults<String, String> result = searchOutput.get();
-		assertThat(result, hasSize(1));
-		assertThat(result.getCount(), is(1L));
+		assertEquals(1, result.size());
+		assertEquals(1, result.getCount());
 		Document<String, String> firstDocument = result.get(0);
-		assertThat(firstDocument.getId(), is("key"));
-		assertThat(firstDocument.getPayload(), is("payload"));
-		assertThat(firstDocument, is(aMapWithSize(1)));
-		assertThat(firstDocument, hasEntry("hashKey", "hashValue"));
+		assertEquals("key", firstDocument.getId());
+		assertEquals("payload", firstDocument.getPayload());
+		assertEquals(1, firstDocument.size());
+		assertEquals("hashValue", firstDocument.get("hashKey"));
 	}
 
 	@Test
@@ -245,14 +243,14 @@ class SearchOutputTest {
 		searchOutput.complete(0);
 
 		SearchResults<String, String> result = searchOutput.get();
-		assertThat(result, hasSize(1));
-		assertThat(result.getCount(), is(1L));
+		assertEquals(1, result.size());
+		assertEquals(1, result.getCount());
 		Document<String, String> firstDocument = result.get(0);
-		assertThat(firstDocument.getId(), is("key"));
-		assertThat(firstDocument.getScore(), is(0.6d));
-		assertThat(firstDocument.getSortKey(), is("sortKey"));
-		assertThat(firstDocument.getPayload(), is("payload"));
-		assertThat(firstDocument, is(aMapWithSize(1)));
-		assertThat(firstDocument, hasEntry("hashKey", "hashValue"));
+		assertEquals("key", firstDocument.getId());
+		assertEquals(.6, firstDocument.getScore());
+		assertEquals("sortKey", firstDocument.getSortKey());
+		assertEquals("payload", firstDocument.getPayload());
+		assertEquals(1, firstDocument.size());
+		assertEquals("hashValue", firstDocument.get("hashKey"));
 	}
 }
