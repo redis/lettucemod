@@ -8,7 +8,6 @@ buildscript {
         classpath "org.kordamp.gradle:java-project-gradle-plugin:$kordampPluginVersion"
         classpath "org.kordamp.gradle:jacoco-gradle-plugin:$kordampPluginVersion"
         classpath "org.kordamp.gradle:kordamp-parentbuild:$kordampBuildVersion"
-        classpath "org.springframework.boot:spring-boot-gradle-plugin:$bootPluginVersion"
     }
 }
 
@@ -28,8 +27,6 @@ projects {
         }
         dirs(['subprojects']) {
             id 'java-library'
-            id 'org.springframework.boot'
-            id 'io.spring.dependency-management'
         }
     }
 }
@@ -43,6 +40,15 @@ enforce {
         r.configurations.addAll(['compileClasspath', 'runtimeClasspath'])
     }
     rule(enforcer.rules.ForceDependencies) { r ->
-        r.dependencies.addAll "org.testcontainers:testcontainers:$testcontainersVersion"
+        r.dependencies.addAll "org.testcontainers:testcontainers:$testcontainersVersion",
+            "org.slf4j:slf4j-api:$slf4jVersion",
+            "org.junit:junit-bom:$junitVersion",
+            "org.junit.jupiter:junit-jupiter-api:$junitVersion",
+            "org.junit.jupiter:junit-jupiter:$junitVersion",
+            "org.junit.platform:junit-platform-engine:$junitPlatformVersion",
+            "org.junit.platform:junit-platform-launcher:$junitPlatformVersion",
+            "org.junit.platform:junit-platform-commons:$junitPlatformVersion",
+            "org.hamcrest:hamcrest:$hamcrestVersion",
+            "com.fasterxml.jackson.core:jackson-annotations:$jacksonVersion"
     }
 }

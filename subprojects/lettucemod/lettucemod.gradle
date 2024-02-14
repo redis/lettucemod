@@ -1,11 +1,8 @@
 dependencies {
     api group: 'io.lettuce', name: 'lettuce-core', version: lettuceVersion
-    testImplementation 'org.apache.commons:commons-pool2'
-    testImplementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-csv'
-    testImplementation 'org.slf4j:slf4j-simple'
-    testImplementation group: 'org.apache.commons', name: 'commons-collections4', version: commonsCollectionsVersion
-    testImplementation 'org.awaitility:awaitility'
-    testImplementation 'org.hamcrest:hamcrest'
+    testImplementation group: 'org.apache.commons', name: 'commons-pool2', version: commonsPoolVersion
+    testImplementation group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-csv', version: jacksonVersion
+    testImplementation group: 'org.awaitility', name: 'awaitility', version: awaitilityVersion
 }
 
 eclipse {

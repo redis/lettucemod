@@ -1,8 +1,8 @@
 dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter'
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter', version: springBootVersion
     api project(':lettucemod')
-    api 'org.apache.commons:commons-pool2'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    api group: 'org.apache.commons', name: 'commons-pool2', version: commonsPoolVersion
+    testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: springBootVersion
 }
 
 eclipse {
