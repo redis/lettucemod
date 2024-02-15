@@ -6,30 +6,33 @@ import io.lettuce.core.output.CommandOutput;
 
 import java.nio.ByteBuffer;
 
-public class CmsInfoOutput<K,V> extends CommandOutput<K,V, CmsInfo> {
-    public CmsInfoOutput(RedisCodec<K, V> codec) {
-        super(codec, new CmsInfo());
-    }
+public class CmsInfoOutput<K, V> extends CommandOutput<K, V, CmsInfo> {
 
-    String field;
+	private String field;
 
-    @Override
-    public void set(ByteBuffer buffer){
-        field = decodeAscii(buffer);
-    }
+	public CmsInfoOutput(RedisCodec<K, V> codec) {
+		super(codec, new CmsInfo());
+	}
 
-    @Override
-    public void set(long integer){
-        switch (field){
-            case "width":
-                output.setWidth(integer);
-                break;
-            case "depth":
-                output.setDepth(integer);
-                break;
-            case "count":
-                output.setCount(integer);
-                break;
-        }
-    }
+	@Override
+	public void set(ByteBuffer buffer) {
+		field = decodeAscii(buffer);
+	}
+
+	@Override
+	public void set(long integer) {
+		switch (field) {
+		case "width":
+			output.setWidth(integer);
+			break;
+		case "depth":
+			output.setDepth(integer);
+			break;
+		case "count":
+			output.setCount(integer);
+			break;
+		default:
+			break;
+		}
+	}
 }

@@ -1,85 +1,86 @@
 package com.redis.lettucemod.bloom;
 
 public class TDigestInfo {
-    private long compression;
-    private long capacity;
-    private long mergedNodes;
-    private long unmergedNodes;
-    private long mergedWeight;
-    private long unmergedWeight;
-    private long observations;
-    private long totalCompressions;
-    private long memoryUsage;
 
-    public long getCompression() {
-        return compression;
-    }
+	private long compression;
+	private long capacity;
+	private long mergedNodes;
+	private long unmergedNodes;
+	private long mergedWeight;
+	private long unmergedWeight;
+	private long observations;
+	private long totalCompressions;
+	private long memoryUsage;
 
-    public void setCompression(long compression) {
-        this.compression = compression;
-    }
+	public long getCompression() {
+		return compression;
+	}
 
-    public long getCapacity() {
-        return capacity;
-    }
+	public void setCompression(long compression) {
+		this.compression = compression;
+	}
 
-    public void setCapacity(long capacity) {
-        this.capacity = capacity;
-    }
+	public long getCapacity() {
+		return capacity;
+	}
 
-    public long getMergedNodes() {
-        return mergedNodes;
-    }
+	public void setCapacity(long capacity) {
+		this.capacity = capacity;
+	}
 
-    public void setMergedNodes(long mergedNodes) {
-        this.mergedNodes = mergedNodes;
-    }
+	public long getMergedNodes() {
+		return mergedNodes;
+	}
 
-    public long getUnmergedNodes() {
-        return unmergedNodes;
-    }
+	public void setMergedNodes(long mergedNodes) {
+		this.mergedNodes = mergedNodes;
+	}
 
-    public void setUnmergedNodes(long unmergedNodes) {
-        this.unmergedNodes = unmergedNodes;
-    }
+	public long getUnmergedNodes() {
+		return unmergedNodes;
+	}
 
-    public long getMergedWeight() {
-        return mergedWeight;
-    }
+	public void setUnmergedNodes(long unmergedNodes) {
+		this.unmergedNodes = unmergedNodes;
+	}
 
-    public void setMergedWeight(long mergedWeight) {
-        this.mergedWeight = mergedWeight;
-    }
+	public long getMergedWeight() {
+		return mergedWeight;
+	}
 
-    public long getUnmergedWeight() {
-        return unmergedWeight;
-    }
+	public void setMergedWeight(long mergedWeight) {
+		this.mergedWeight = mergedWeight;
+	}
 
-    public void setUnmergedWeight(long unmergedWeight) {
-        this.unmergedWeight = unmergedWeight;
-    }
+	public long getUnmergedWeight() {
+		return unmergedWeight;
+	}
 
-    public long getObservations() {
-        return observations;
-    }
+	public void setUnmergedWeight(long unmergedWeight) {
+		this.unmergedWeight = unmergedWeight;
+	}
 
-    public void setObservations(long observations) {
-        this.observations = observations;
-    }
+	public long getObservations() {
+		return observations;
+	}
 
-    public long getTotalCompressions() {
-        return totalCompressions;
-    }
+	public void setObservations(long observations) {
+		this.observations = observations;
+	}
 
-    public void setTotalCompressions(long totalCompressions) {
-        this.totalCompressions = totalCompressions;
-    }
+	public long getTotalCompressions() {
+		return totalCompressions;
+	}
 
-    public long getMemoryUsage() {
-        return memoryUsage;
-    }
+	public void setTotalCompressions(long totalCompressions) {
+		this.totalCompressions = totalCompressions;
+	}
 
-    public void setMemoryUsage(long memoryUsage) {
-        this.memoryUsage = memoryUsage;
-    }
+	public long getMemoryUsage() {
+		return memoryUsage;
+	}
+
+	public void setMemoryUsage(long memoryUsage) {
+		this.memoryUsage = memoryUsage;
+	}
 }

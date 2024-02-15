@@ -11,21 +11,28 @@ import static com.redis.lettucemod.Beers.STYLE;
 import static com.redis.lettucemod.Beers.jsonNodeIterator;
 import static com.redis.lettucemod.Beers.mapIterator;
 import static com.redis.lettucemod.Beers.populateIndex;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.time.Duration;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import com.redis.lettucemod.api.reactive.*;
-import com.redis.lettucemod.api.sync.*;
-import com.redis.lettucemod.bloom.*;
-import com.redis.lettucemod.cms.CmsInfo;
-import io.lettuce.core.*;
-import io.lettuce.core.api.reactive.RedisReactiveCommands;
 import org.awaitility.Awaitility;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
@@ -44,7 +51,22 @@ import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
 import com.redis.lettucemod.api.async.RedisModulesAsyncCommands;
+import com.redis.lettucemod.api.reactive.RedisBloomReactiveCommands;
+import com.redis.lettucemod.api.reactive.RedisJSONReactiveCommands;
+import com.redis.lettucemod.api.reactive.RedisModulesReactiveCommands;
+import com.redis.lettucemod.api.sync.RedisBloomCommands;
+import com.redis.lettucemod.api.sync.RedisJSONCommands;
+import com.redis.lettucemod.api.sync.RedisModulesCommands;
+import com.redis.lettucemod.api.sync.RedisTimeSeriesCommands;
+import com.redis.lettucemod.bloom.BloomFilterInfo;
+import com.redis.lettucemod.bloom.BloomFilterInfoType;
+import com.redis.lettucemod.bloom.BloomFilterInsertOptions;
+import com.redis.lettucemod.bloom.CuckooFilter;
+import com.redis.lettucemod.bloom.CuckooFilterInsertOptions;
+import com.redis.lettucemod.bloom.TDigestInfo;
+import com.redis.lettucemod.bloom.TopKInfo;
 import com.redis.lettucemod.cluster.RedisModulesClusterClient;
+import com.redis.lettucemod.cms.CmsInfo;
 import com.redis.lettucemod.json.GetOptions;
 import com.redis.lettucemod.json.SetMode;
 import com.redis.lettucemod.json.Slice;
@@ -88,6 +110,13 @@ import com.redis.lettucemod.util.GeoLocation;
 import com.redis.lettucemod.util.RedisModulesUtils;
 import com.redis.testcontainers.AbstractRedisContainer;
 
+import io.lettuce.core.AbstractRedisClient;
+import io.lettuce.core.KeyValue;
+import io.lettuce.core.LettuceFutures;
+import io.lettuce.core.RedisCommandExecutionException;
+import io.lettuce.core.RedisFuture;
+import io.lettuce.core.RedisURI;
+import io.lettuce.core.Value;
 import reactor.core.publisher.Mono;
 
 @Testcontainers
@@ -1071,31 +1100,27 @@ abstract class ModulesTests {
 	}
 
 	@Test
-	void bfBasic(){
+	void bfBasic() {
 		String key = "test:bfBasic";
 		String keyInsert = "test:bfInsert";
 		RedisBloomCommands<String, String> bf = connection.sync();
 		connection.sync().unlink(key, keyInsert);
-		String status = bf.bfReserve(key, BfConfig.builder(1000L, .01).build());
+		String status = bf.bfReserve(key, .01, 1000);
 		assertEquals("OK", status);
 		Boolean added = bf.bfAdd(key, "test");
 		assertTrue(added);
 		assertTrue(bf.bfExists(key, "test"));
 		List<Boolean> res = bf.bfMAdd(key, "test", "one", "two");
 		assertTrue(!res.get(0) && res.get(1) && res.get(2));
-		res = bf.bfMExists(key, "test" ,"one", "two", "three");
+		res = bf.bfMExists(key, "test", "one", "two", "three");
 		assertTrue(res.get(0) && res.get(1) && res.get(2) && !res.get(3));
 		assertEquals(3, bf.bfCard(key));
-		BfInsertOptions options = BfInsertOptions
-				.builder()
-					.config(
-							BfConfig
-									.builder(10000L, .01)
-										.expansion(2).build()).build();
+		BloomFilterInsertOptions options = BloomFilterInsertOptions.builder().capacity(10000).error(.01).expansion(2)
+				.build();
 		List<Boolean> inserted = bf.bfInsert(keyInsert, options, "three", "four", "five");
 		assertTrue(inserted.get(0) && inserted.get(1) && inserted.get(2));
-		BfInfo info = bf.bfInfo(keyInsert);
-		Long capacity = bf.bfInfo(keyInsert, BfInfoType.CAPACITY);
+		BloomFilterInfo info = bf.bfInfo(keyInsert);
+		Long capacity = bf.bfInfo(keyInsert, BloomFilterInfoType.CAPACITY);
 		assertEquals(10000, capacity);
 		assertEquals(10000, info.getCapacity());
 		assertEquals(2, info.getExpansionRate());
@@ -1103,33 +1128,29 @@ abstract class ModulesTests {
 	}
 
 	@Test
-	void bfReactive(){
+	void bfReactive() {
 		String key = "test:reactive:bfBasic";
 		String keyInsert = "test:reactive:bfInsert";
 		connection.sync().unlink(key, keyInsert);
 
 		RedisBloomReactiveCommands<String, String> bf = connection.reactive();
 
-		Mono<String> status = bf.bfReserve(key, BfConfig.builder(1000L, .01).build());
+		Mono<String> status = bf.bfReserve(key, .01, 1000);
 		assertEquals("OK", status.block());
 		Boolean added = bf.bfAdd(key, "test").block();
 		assertTrue(added);
 		assertTrue(bf.bfExists(key, "test").block());
 		List<Boolean> res = bf.bfMAdd(key, "test", "one", "two").collectList().block();
 		assertTrue(!res.get(0) && res.get(1) && res.get(2));
-		res = bf.bfMExists(key, "test" ,"one", "two", "three").collectList().block();
+		res = bf.bfMExists(key, "test", "one", "two", "three").collectList().block();
 		assertTrue(res.get(0) && res.get(1) && res.get(2) && !res.get(3));
 		assertEquals(3, bf.bfCard(key).block());
-		BfInsertOptions options = BfInsertOptions
-				.builder()
-				.config(
-						BfConfig
-								.builder(10000L, .01)
-								.expansion(2).build()).build();
+		BloomFilterInsertOptions options = BloomFilterInsertOptions.builder().capacity(10000).error(.01).expansion(2)
+				.build();
 		List<Boolean> inserted = bf.bfInsert(keyInsert, options, "three", "four", "five").collectList().block();
 		assertTrue(inserted.get(0) && inserted.get(1) && inserted.get(2));
-		BfInfo info = bf.bfInfo(keyInsert).block();
-		Long capacity = bf.bfInfo(keyInsert, BfInfoType.CAPACITY).block();
+		BloomFilterInfo info = bf.bfInfo(keyInsert).block();
+		Long capacity = bf.bfInfo(keyInsert, BloomFilterInfoType.CAPACITY).block();
 		assertEquals(10000, capacity);
 		assertEquals(10000, info.getCapacity());
 		assertEquals(2, info.getExpansionRate());
@@ -1137,78 +1158,79 @@ abstract class ModulesTests {
 	}
 
 	@Test
-	void cfBasic(){
+	void cfBasic() {
 		String key1 = "cf:test:key";
 		String key2 = "cf:test:insert:key";
-		connection.sync().unlink(key1,key2);
+		connection.sync().unlink(key1, key2);
 		RedisBloomCommands<String, String> cf = connection.sync();
 		assertEquals("OK", cf.cfReserve(key1, 1000L));
 		assertTrue(cf.cfAdd(key1, "test"));
 		assertFalse(cf.cfAddNx(key1, "test"));
 		assertEquals(1, cf.cfCount(key1, "test"));
 		assertTrue(cf.cfDel(key1, "test"));
-		CfInsertOptions options = CfInsertOptions.builder().capacity(10000L).noCreate(false).build();
-		List<Long> insertResult = cf.cfInsert(key2, options, "test","one","two");
+		CuckooFilterInsertOptions options = CuckooFilterInsertOptions.builder().capacity(10000L).noCreate(false)
+				.build();
+		List<Long> insertResult = cf.cfInsert(key2, options, "test", "one", "two");
 		assertEquals(1, insertResult.get(0));
 		assertEquals(1, insertResult.get(1));
 		assertEquals(1, insertResult.get(2));
-		insertResult = cf.cfInsertNx(key2, "test","one","three");
-		assertEquals(0,insertResult.get(0));
-		assertEquals(0,insertResult.get(1));
-		assertEquals(1,insertResult.get(2));
-		CfInfo info = cf.cfInfo(key2);
+		insertResult = cf.cfInsertNx(key2, "test", "one", "three");
+		assertEquals(0, insertResult.get(0));
+		assertEquals(0, insertResult.get(1));
+		assertEquals(1, insertResult.get(2));
+		CuckooFilter info = cf.cfInfo(key2);
 		assertEquals(4, info.getNumItemsInserted());
-		List<Boolean> exists = cf.cfMExists(key2, "test","one","two","three");
-		for(Boolean b : exists){
+		List<Boolean> exists = cf.cfMExists(key2, "test", "one", "two", "three");
+		for (Boolean b : exists) {
 			assertTrue(b);
 		}
 	}
 
 	@Test
-	void cfBasicReactive(){
+	void cfBasicReactive() {
 		String key1 = "cf:reactive:test:key";
 		String key2 = "cf:reactive:test:insert:key";
-		connection.sync().unlink(key1,key2);
+		connection.sync().unlink(key1, key2);
 		RedisBloomReactiveCommands<String, String> cf = connection.reactive();
 		assertEquals("OK", cf.cfReserve(key1, 1000L).block());
-        assertEquals(Boolean.TRUE, cf.cfAdd(key1, "test").block());
-        assertNotEquals(Boolean.TRUE, cf.cfAddNx(key1, "test").block());
+		assertEquals(Boolean.TRUE, cf.cfAdd(key1, "test").block());
+		assertNotEquals(Boolean.TRUE, cf.cfAddNx(key1, "test").block());
 		assertEquals(1, cf.cfCount(key1, "test").block());
-        assertEquals(Boolean.TRUE, cf.cfDel(key1, "test").block());
-		CfInsertOptions options = CfInsertOptions.builder().capacity(10000L).noCreate(false).build();
-		List<Long> insertResult = cf.cfInsert(key2, options, "test","one","two").collectList().block();
+		assertEquals(Boolean.TRUE, cf.cfDel(key1, "test").block());
+		CuckooFilterInsertOptions options = CuckooFilterInsertOptions.builder().capacity(10000L).noCreate(false)
+				.build();
+		List<Long> insertResult = cf.cfInsert(key2, options, "test", "one", "two").collectList().block();
 		assertNotNull(insertResult);
-        assertEquals(1, insertResult.get(0));
+		assertEquals(1, insertResult.get(0));
 		assertEquals(1, insertResult.get(1));
 		assertEquals(1, insertResult.get(2));
-		insertResult = cf.cfInsertNx(key2, "test","one","three").collectList().block();
-        assertNotNull(insertResult);
-        assertEquals(0,insertResult.get(0));
-		assertEquals(0,insertResult.get(1));
-		assertEquals(1,insertResult.get(2));
-		CfInfo info = cf.cfInfo(key2).block();
-        assertNotNull(info);
-        assertEquals(4, info.getNumItemsInserted());
-		List<Boolean> exists = cf.cfMExists(key2, "test","one","two","three").collectList().block();
-        assertNotNull(exists);
-        for(Boolean b : exists){
+		insertResult = cf.cfInsertNx(key2, "test", "one", "three").collectList().block();
+		assertNotNull(insertResult);
+		assertEquals(0, insertResult.get(0));
+		assertEquals(0, insertResult.get(1));
+		assertEquals(1, insertResult.get(2));
+		CuckooFilter info = cf.cfInfo(key2).block();
+		assertNotNull(info);
+		assertEquals(4, info.getNumItemsInserted());
+		List<Boolean> exists = cf.cfMExists(key2, "test", "one", "two", "three").collectList().block();
+		assertNotNull(exists);
+		for (Boolean b : exists) {
 			assertTrue(b);
 		}
 	}
 
 	@Test
-	void cms(){
+	void cms() {
 		String key1 = "cms:1";
 		String key2 = "cms:2";
 		String outKey = "cms:out";
 		String key3 = "cms:3";
 
-
 		connection.sync().unlink(key1, key2);
 		RedisBloomCommands<String, String> cms = connection.sync();
 
-		assertEquals("OK",cms.cmsInitByProb(key1, .001, .01));
-		assertEquals(2,cms.cmsIncrBy(key1, "test", 2));
+		assertEquals("OK", cms.cmsInitByProb(key1, .001, .01));
+		assertEquals(2, cms.cmsIncrBy(key1, "test", 2));
 		Map<String, Long> increments = new HashMap<>();
 		increments.put("one", 1L);
 		increments.put("two", 2L);
@@ -1219,7 +1241,7 @@ abstract class ModulesTests {
 		assertEquals(2, result.get(1));
 		assertEquals(3, result.get(2));
 
-		result = cms.cmsQuery(key1, "one","two","three");
+		result = cms.cmsQuery(key1, "one", "two", "three");
 		assertEquals(1, result.get(0));
 		assertEquals(2, result.get(1));
 		assertEquals(3, result.get(2));
@@ -1229,7 +1251,7 @@ abstract class ModulesTests {
 		assertEquals(2000, info.getWidth());
 		assertEquals(7, info.getDepth());
 
-		assertEquals("OK",cms.cmsInitByDim(key2, 10000, 5));
+		assertEquals("OK", cms.cmsInitByDim(key2, 10000, 5));
 		info = cms.cmsInfo(key2);
 		assertEquals(0, info.getCount());
 		assertEquals(10000, info.getWidth());
@@ -1237,22 +1259,21 @@ abstract class ModulesTests {
 
 		cms.cmsInitByProb(key3, .001, .01);
 		cms.cmsInitByProb(outKey, .001, .01);
-		assertEquals("OK", cms.cmsMerge(outKey, key1,key3));
+		assertEquals("OK", cms.cmsMerge(outKey, key1, key3));
 	}
 
 	@Test
-	void cmsReactive(){
+	void cmsReactive() {
 		String key1 = "cms:1";
 		String key2 = "cms:2";
 		String outKey = "cms:out";
 		String key3 = "cms:3";
 
-
 		connection.sync().unlink(key1, key2);
 		RedisBloomReactiveCommands<String, String> cms = connection.reactive();
 
-		assertEquals("OK",cms.cmsInitByProb(key1, .001, .01).block());
-		assertEquals(2,cms.cmsIncrBy(key1, "test", 2).block());
+		assertEquals("OK", cms.cmsInitByProb(key1, .001, .01).block());
+		assertEquals(2, cms.cmsIncrBy(key1, "test", 2).block());
 		Map<String, Long> increments = new HashMap<>();
 		increments.put("one", 1L);
 		increments.put("two", 2L);
@@ -1264,7 +1285,7 @@ abstract class ModulesTests {
 		assertEquals(2, result.get(1));
 		assertEquals(3, result.get(2));
 
-		result = cms.cmsQuery(key1, "one","two","three").collectList().block();
+		result = cms.cmsQuery(key1, "one", "two", "three").collectList().block();
 		assertNotNull(result);
 		assertEquals(1, result.get(0));
 		assertEquals(2, result.get(1));
@@ -1276,7 +1297,7 @@ abstract class ModulesTests {
 		assertEquals(2000, info.getWidth());
 		assertEquals(7, info.getDepth());
 
-		assertEquals("OK",cms.cmsInitByDim(key2, 10000, 5).block());
+		assertEquals("OK", cms.cmsInitByDim(key2, 10000, 5).block());
 		info = cms.cmsInfo(key2).block();
 		assertNotNull(info);
 		assertEquals(0, info.getCount());
@@ -1285,17 +1306,17 @@ abstract class ModulesTests {
 
 		cms.cmsInitByProb(key3, .001, .01).block();
 		cms.cmsInitByProb(outKey, .001, .01).block();
-		assertEquals("OK", cms.cmsMerge(outKey, key1,key3).block());
+		assertEquals("OK", cms.cmsMerge(outKey, key1, key3).block());
 	}
 
 	@Test
-	void topK(){
+	void topK() {
 		String key1 = "topK:1";
 		String key2 = "topK:2";
-		connection.sync().unlink(key1,key2);
-		RedisBloomCommands<String,String> topK = connection.sync();
+		connection.sync().unlink(key1, key2);
+		RedisBloomCommands<String, String> topK = connection.sync();
 		assertEquals("OK", topK.topKReserve(key1, 3));
-		List<Value<String>> result = topK.topKAdd(key1, "one", "two","three");
+		List<Value<String>> result = topK.topKAdd(key1, "one", "two", "three");
 		assertTrue(result.get(0).isEmpty());
 		assertTrue(result.get(1).isEmpty());
 		assertTrue(result.get(2).isEmpty());
@@ -1315,7 +1336,7 @@ abstract class ModulesTests {
 		assertEquals("two", listResult.get(2));
 
 		List<Boolean> queryResult = topK.topKQuery(key1, "four", "three", "two", "foo");
-		assertEquals(true,queryResult.get(0));
+		assertEquals(true, queryResult.get(0));
 		assertEquals(true, queryResult.get(1));
 		assertEquals(true, queryResult.get(2));
 		assertEquals(false, queryResult.get(3));
@@ -1330,13 +1351,13 @@ abstract class ModulesTests {
 	}
 
 	@Test
-	void topKReactive(){
+	void topKReactive() {
 		String key1 = "topK:1";
 		String key2 = "topK:2";
-		connection.sync().unlink(key1,key2);
-		RedisBloomReactiveCommands<String,String> topK = connection.reactive();
+		connection.sync().unlink(key1, key2);
+		RedisBloomReactiveCommands<String, String> topK = connection.reactive();
 		assertEquals("OK", topK.topKReserve(key1, 3).block());
-		List<Value<String>> result = topK.topKAdd(key1, "one", "two","three").collectList().block();
+		List<Value<String>> result = topK.topKAdd(key1, "one", "two", "three").collectList().block();
 		assertNotNull(result);
 		assertTrue(result.get(0).isEmpty());
 		assertTrue(result.get(1).isEmpty());
@@ -1361,7 +1382,7 @@ abstract class ModulesTests {
 
 		List<Boolean> queryResult = topK.topKQuery(key1, "four", "three", "two", "foo").collectList().block();
 		assertNotNull(queryResult);
-		assertEquals(true,queryResult.get(0));
+		assertEquals(true, queryResult.get(0));
 		assertEquals(true, queryResult.get(1));
 		assertEquals(true, queryResult.get(2));
 		assertEquals(false, queryResult.get(3));
@@ -1374,18 +1395,18 @@ abstract class ModulesTests {
 	}
 
 	@Test
-	void tDigest(){
+	void tDigest() {
 		String key = "tdigest:1";
 		connection.sync().unlink(key);
 		RedisBloomCommands<String, String> tDigest = connection.sync();
 		assertEquals("OK", tDigest.tDigestCreate(key, 1000));
-		assertEquals("OK",tDigest.tDigestAdd(key, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10));
-		List<Double> items = tDigest.tDigestByRank(key, 1,5,9);
+		assertEquals("OK", tDigest.tDigestAdd(key, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10));
+		List<Double> items = tDigest.tDigestByRank(key, 1, 5, 9);
 		assertEquals(2, items.get(0));
 		assertEquals(6, items.get(1));
 		assertEquals(10, items.get(2));
 
-		items = tDigest.tDigestByRevRank(key, 1,5,9);
+		items = tDigest.tDigestByRevRank(key, 1, 5, 9);
 		assertEquals(9, items.get(0));
 		assertEquals(5, items.get(1));
 		assertEquals(1, items.get(2));
@@ -1402,8 +1423,8 @@ abstract class ModulesTests {
 		assertEquals(1000, info.getCompression());
 		assertEquals(10, info.getObservations());
 
-		List<Double> quantiles = tDigest.tDigestQuantile(key, 0,0.1);
-		assertEquals(1,quantiles.get(0));
+		List<Double> quantiles = tDigest.tDigestQuantile(key, 0, 0.1);
+		assertEquals(1, quantiles.get(0));
 		assertEquals(2, quantiles.get(1));
 
 		List<Long> ranks = tDigest.tDigestRank(key, -5, 100, 5.3);
@@ -1421,19 +1442,19 @@ abstract class ModulesTests {
 	}
 
 	@Test
-	void tDigestReactive(){
+	void tDigestReactive() {
 		String key = "tdigest:1";
 		connection.sync().unlink(key);
 		RedisBloomReactiveCommands<String, String> tDigest = connection.reactive();
 		assertEquals("OK", tDigest.tDigestCreate(key, 1000).block());
-		assertEquals("OK",tDigest.tDigestAdd(key, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10).block());
-		List<Double> items = tDigest.tDigestByRank(key, 1,5,9).collectList().block();
+		assertEquals("OK", tDigest.tDigestAdd(key, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10).block());
+		List<Double> items = tDigest.tDigestByRank(key, 1, 5, 9).collectList().block();
 		assertNotNull(items);
 		assertEquals(2, items.get(0));
 		assertEquals(6, items.get(1));
 		assertEquals(10, items.get(2));
 
-		items = tDigest.tDigestByRevRank(key, 1,5,9).collectList().block();
+		items = tDigest.tDigestByRevRank(key, 1, 5, 9).collectList().block();
 		assertNotNull(items);
 		assertEquals(9, items.get(0));
 		assertEquals(5, items.get(1));
@@ -1453,9 +1474,9 @@ abstract class ModulesTests {
 		assertEquals(1000, info.getCompression());
 		assertEquals(10, info.getObservations());
 
-		List<Double> quantiles = tDigest.tDigestQuantile(key, 0,0.1).collectList().block();
+		List<Double> quantiles = tDigest.tDigestQuantile(key, 0, 0.1).collectList().block();
 		assertNotNull(quantiles);
-		assertEquals(1,quantiles.get(0));
+		assertEquals(1, quantiles.get(0));
 		assertEquals(2, quantiles.get(1));
 
 		List<Long> ranks = tDigest.tDigestRank(key, -5, 100, 5.3).collectList().block();

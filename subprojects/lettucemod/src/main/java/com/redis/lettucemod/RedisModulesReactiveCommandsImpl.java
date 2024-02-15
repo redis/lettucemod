@@ -1,14 +1,20 @@
 package com.redis.lettucemod;
 
 import java.util.Map;
-import java.util.Optional;
 
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
 import com.redis.lettucemod.api.reactive.RedisModulesReactiveCommands;
-import com.redis.lettucemod.bloom.*;
-import com.redis.lettucemod.bloom.CfInfo;
-import com.redis.lettucemod.bloom.CfInsertOptions;
-import com.redis.lettucemod.bloom.CfReserveOptions;
+import com.redis.lettucemod.bloom.BloomCommandBuilder;
+import com.redis.lettucemod.bloom.BloomFilterInfo;
+import com.redis.lettucemod.bloom.BloomFilterInfoType;
+import com.redis.lettucemod.bloom.BloomFilterInsertOptions;
+import com.redis.lettucemod.bloom.BloomFilterReserveOptions;
+import com.redis.lettucemod.bloom.CuckooFilter;
+import com.redis.lettucemod.bloom.CuckooFilterInsertOptions;
+import com.redis.lettucemod.bloom.CuckooFilterReserveOptions;
+import com.redis.lettucemod.bloom.TDigestInfo;
+import com.redis.lettucemod.bloom.TDigestMergeOptions;
+import com.redis.lettucemod.bloom.TopKInfo;
 import com.redis.lettucemod.cms.CmsInfo;
 import com.redis.lettucemod.gears.Execution;
 import com.redis.lettucemod.gears.ExecutionDetails;
@@ -62,7 +68,7 @@ public class RedisModulesReactiveCommandsImpl<K, V> extends RedisReactiveCommand
 	private final GearsCommandBuilder<K, V> gearsCommandBuilder;
 	private final SearchCommandBuilder<K, V> searchCommandBuilder;
 	private final JSONCommandBuilder<K, V> jsonCommandBuilder;
-	private final BloomCommandBuilder<K,V> bloomCommandBuilder;
+	private final BloomCommandBuilder<K, V> bloomCommandBuilder;
 
 	public RedisModulesReactiveCommandsImpl(StatefulRedisModulesConnection<K, V> connection, RedisCodec<K, V> codec) {
 		super(connection, codec);
@@ -275,10 +281,14 @@ public class RedisModulesReactiveCommandsImpl<K, V> extends RedisReactiveCommand
 	}
 
 	@Override
-	public Flux<V> tsQueryIndex(V... filters){return createDissolvingFlux(()->timeSeriesCommandBuilder.queryIndex(filters));}
+	public Flux<V> tsQueryIndex(V... filters) {
+		return createDissolvingFlux(() -> timeSeriesCommandBuilder.queryIndex(filters));
+	}
 
 	@Override
-	public Mono<Long> tsDel(K key, TimeRange timeRange) { return createMono(()->timeSeriesCommandBuilder.tsDel(key, timeRange));}
+	public Mono<Long> tsDel(K key, TimeRange timeRange) {
+		return createMono(() -> timeSeriesCommandBuilder.tsDel(key, timeRange));
+	}
 
 	@Override
 	public Mono<String> ftCreate(K index, Field<K>... fields) {
@@ -427,76 +437,124 @@ public class RedisModulesReactiveCommandsImpl<K, V> extends RedisReactiveCommand
 	}
 
 	@Override
-	public Flux<Value<V>> topKAdd(K key, V... items) { return createDissolvingFlux(()->bloomCommandBuilder.topKAdd(key, items));	}
+	public Flux<Value<V>> topKAdd(K key, V... items) {
+		return createDissolvingFlux(() -> bloomCommandBuilder.topKAdd(key, items));
+	}
 
 	@Override
-	public Flux<Value<V>> topKIncrBy(K key, Map<V, Long> increments) { return createDissolvingFlux(()->bloomCommandBuilder.topKIncrBy(key, increments)); }
+	public Flux<Value<V>> topKIncrBy(K key, Map<V, Long> increments) {
+		return createDissolvingFlux(() -> bloomCommandBuilder.topKIncrBy(key, increments));
+	}
 
 	@Override
-	public Mono<TopKInfo> topKInfo(K key) { return createMono(()->bloomCommandBuilder.topKInfo(key)); }
+	public Mono<TopKInfo> topKInfo(K key) {
+		return createMono(() -> bloomCommandBuilder.topKInfo(key));
+	}
 
 	@Override
-	public Flux<String> topKList(K key) { return createDissolvingFlux(()->bloomCommandBuilder.topKList(key)); }
+	public Flux<String> topKList(K key) {
+		return createDissolvingFlux(() -> bloomCommandBuilder.topKList(key));
+	}
 
 	@Override
-	public Flux<KeyValue<String, Long>> topKListWithScores(K key) { return createDissolvingFlux(()-> bloomCommandBuilder.topKListWithScores(key));	}
+	public Flux<KeyValue<String, Long>> topKListWithScores(K key) {
+		return createDissolvingFlux(() -> bloomCommandBuilder.topKListWithScores(key));
+	}
 
 	@Override
-	public Flux<Boolean> topKQuery(K key, V... items) { return createDissolvingFlux(()->bloomCommandBuilder.topKQuery(key,items)); }
+	public Flux<Boolean> topKQuery(K key, V... items) {
+		return createDissolvingFlux(() -> bloomCommandBuilder.topKQuery(key, items));
+	}
 
 	@Override
-	public Mono<String> topKReserve(K key, long k) { return createMono(()->bloomCommandBuilder.topKReserve(key,k));	}
+	public Mono<String> topKReserve(K key, long k) {
+		return createMono(() -> bloomCommandBuilder.topKReserve(key, k));
+	}
 
 	@Override
-	public Mono<String> topKReserve(K key, long k, long width, long depth, double decay) { return createMono(()->bloomCommandBuilder.topKReserve(key,k,width,depth,decay));	}
+	public Mono<String> topKReserve(K key, long k, long width, long depth, double decay) {
+		return createMono(() -> bloomCommandBuilder.topKReserve(key, k, width, depth, decay));
+	}
 
 	@Override
-	public Mono<String> tDigestAdd(K key, double... values) { return createMono(()->bloomCommandBuilder.tDigestAdd(key, values)); }
+	public Mono<String> tDigestAdd(K key, double... values) {
+		return createMono(() -> bloomCommandBuilder.tDigestAdd(key, values));
+	}
 
 	@Override
-	public Flux<Double> tDigestByRank(K key, long... ranks) { return createDissolvingFlux(()->bloomCommandBuilder.tDigestByRank(key, ranks)); }
+	public Flux<Double> tDigestByRank(K key, long... ranks) {
+		return createDissolvingFlux(() -> bloomCommandBuilder.tDigestByRank(key, ranks));
+	}
 
 	@Override
-	public Flux<Double> tDigestByRevRank(K key, long... revRanks) { return createDissolvingFlux(()-> bloomCommandBuilder.tDigestByRevRank(key, revRanks)); }
+	public Flux<Double> tDigestByRevRank(K key, long... revRanks) {
+		return createDissolvingFlux(() -> bloomCommandBuilder.tDigestByRevRank(key, revRanks));
+	}
 
 	@Override
-	public Flux<Double> tDigestCdf(K key, double... values) { return createDissolvingFlux(()-> bloomCommandBuilder.tDigestCdf(key, values)); }
+	public Flux<Double> tDigestCdf(K key, double... values) {
+		return createDissolvingFlux(() -> bloomCommandBuilder.tDigestCdf(key, values));
+	}
 
 	@Override
-	public Mono<String> tDigestCreate(K key) { return createMono(()-> bloomCommandBuilder.tDigestCreate(key));	}
+	public Mono<String> tDigestCreate(K key) {
+		return createMono(() -> bloomCommandBuilder.tDigestCreate(key));
+	}
 
 	@Override
-	public Mono<String> tDigestCreate(K key, long compression) { return createMono(()->bloomCommandBuilder.tDigestCreate(key,compression));	}
+	public Mono<String> tDigestCreate(K key, long compression) {
+		return createMono(() -> bloomCommandBuilder.tDigestCreate(key, compression));
+	}
 
 	@Override
-	public Mono<TDigestInfo> tDigestInfo(K key) { return createMono(()->bloomCommandBuilder.tDigestInfo(key));	}
+	public Mono<TDigestInfo> tDigestInfo(K key) {
+		return createMono(() -> bloomCommandBuilder.tDigestInfo(key));
+	}
 
 	@Override
-	public Mono<Double> tDigestMax(K key) { return createMono(()->bloomCommandBuilder.tDigestMax(key));	}
+	public Mono<Double> tDigestMax(K key) {
+		return createMono(() -> bloomCommandBuilder.tDigestMax(key));
+	}
 
 	@Override
-	public Mono<String> tDigestMerge(K destinationKey, K... sourceKeys) { return createMono(()-> bloomCommandBuilder.tDigestMerge(destinationKey, sourceKeys));	}
+	public Mono<String> tDigestMerge(K destinationKey, K... sourceKeys) {
+		return createMono(() -> bloomCommandBuilder.tDigestMerge(destinationKey, sourceKeys));
+	}
 
 	@Override
-	public Mono<String> tDigestMerge(K destinationKey, TDigestMergeOptions options, K... sourceKeys) { return createMono(()->bloomCommandBuilder.tDigestMerge(destinationKey, options, sourceKeys));	}
+	public Mono<String> tDigestMerge(K destinationKey, TDigestMergeOptions options, K... sourceKeys) {
+		return createMono(() -> bloomCommandBuilder.tDigestMerge(destinationKey, options, sourceKeys));
+	}
 
 	@Override
-	public Mono<Double> tDigestMin(K key) { return createMono(()->bloomCommandBuilder.tDigestMin(key));	}
+	public Mono<Double> tDigestMin(K key) {
+		return createMono(() -> bloomCommandBuilder.tDigestMin(key));
+	}
 
 	@Override
-	public Flux<Double> tDigestQuantile(K key, double... quantiles) { return createDissolvingFlux(()->bloomCommandBuilder.tDigestQuantile(key, quantiles));	}
+	public Flux<Double> tDigestQuantile(K key, double... quantiles) {
+		return createDissolvingFlux(() -> bloomCommandBuilder.tDigestQuantile(key, quantiles));
+	}
 
 	@Override
-	public Flux<Long> tDigestRank(K key, double... values) { return createDissolvingFlux(()->bloomCommandBuilder.tDigestRank(key, values));	}
+	public Flux<Long> tDigestRank(K key, double... values) {
+		return createDissolvingFlux(() -> bloomCommandBuilder.tDigestRank(key, values));
+	}
 
 	@Override
-	public Mono<String> tDigestReset(K key) { return createMono(()->bloomCommandBuilder.tDigestReset(key));	}
+	public Mono<String> tDigestReset(K key) {
+		return createMono(() -> bloomCommandBuilder.tDigestReset(key));
+	}
 
 	@Override
-	public Flux<Long> tDigestRevRank(K key, double... values) { return createDissolvingFlux(()->bloomCommandBuilder.tDigestRevRank(key, values)); }
+	public Flux<Long> tDigestRevRank(K key, double... values) {
+		return createDissolvingFlux(() -> bloomCommandBuilder.tDigestRevRank(key, values));
+	}
 
 	@Override
-	public Mono<Double> tDigestTrimmedMean(K key, double lowCutQuantile, double highCutQuantile) { return createMono(()->bloomCommandBuilder.tDigestTrimmedMean(key, lowCutQuantile, highCutQuantile));	}
+	public Mono<Double> tDigestTrimmedMean(K key, double lowCutQuantile, double highCutQuantile) {
+		return createMono(() -> bloomCommandBuilder.tDigestTrimmedMean(key, lowCutQuantile, highCutQuantile));
+	}
 
 	@Override
 	public Mono<Long> jsonDel(K key) {
@@ -658,12 +716,12 @@ public class RedisModulesReactiveCommandsImpl<K, V> extends RedisReactiveCommand
 	}
 
 	@Override
-	public Mono<BfInfo> bfInfo(K key) {
+	public Mono<BloomFilterInfo> bfInfo(K key) {
 		return createMono(() -> bloomCommandBuilder.bfInfo(key));
 	}
 
 	@Override
-	public Mono<Long> bfInfo(K key, BfInfoType infoType) {
+	public Mono<Long> bfInfo(K key, BloomFilterInfoType infoType) {
 		return createMono(() -> bloomCommandBuilder.bfInfo(key, infoType));
 	}
 
@@ -673,8 +731,8 @@ public class RedisModulesReactiveCommandsImpl<K, V> extends RedisReactiveCommand
 	}
 
 	@Override
-	public Flux<Boolean> bfInsert(K key, BfInsertOptions options, V... items) {
-		return createDissolvingFlux(() -> bloomCommandBuilder.bfInsert(key, items, options));
+	public Flux<Boolean> bfInsert(K key, BloomFilterInsertOptions options, V... items) {
+		return createDissolvingFlux(() -> bloomCommandBuilder.bfInsert(key, options, items));
 	}
 
 	@Override
@@ -688,70 +746,117 @@ public class RedisModulesReactiveCommandsImpl<K, V> extends RedisReactiveCommand
 	}
 
 	@Override
-	public Mono<String> bfReserve(K key, BfConfig config) {
-		return createMono(() -> bloomCommandBuilder.bfReserve(key, config));
+	public Mono<String> bfReserve(K key, double errorRate, long capacity) {
+		return bfReserve(key, errorRate, capacity, null);
 	}
 
 	@Override
-	public Mono<Boolean> cfAdd(K key, V item) { return createMono(() -> bloomCommandBuilder.cfAdd(key,item));	}
+	public Mono<String> bfReserve(K key, double errorRate, long capacity, BloomFilterReserveOptions options) {
+		return createMono(() -> bloomCommandBuilder.bfReserve(key, errorRate, capacity, options));
+	}
 
 	@Override
-	public Mono<Boolean> cfAddNx(K key, V item) { return createMono(() -> bloomCommandBuilder.cfAddNx(key,item));	}
+	public Mono<Boolean> cfAdd(K key, V item) {
+		return createMono(() -> bloomCommandBuilder.cfAdd(key, item));
+	}
 
 	@Override
-	public Mono<Long> cfCount(K key, V item) { return createMono(()->bloomCommandBuilder.cfCount(key,item));	}
+	public Mono<Boolean> cfAddNx(K key, V item) {
+		return createMono(() -> bloomCommandBuilder.cfAddNx(key, item));
+	}
 
 	@Override
-	public Mono<Boolean> cfDel(K key, V item) { return createMono(()->bloomCommandBuilder.cfDel(key, item));	}
+	public Mono<Long> cfCount(K key, V item) {
+		return createMono(() -> bloomCommandBuilder.cfCount(key, item));
+	}
 
 	@Override
-	public Mono<Boolean> cfExists(K key, V item) { return createMono(()-> bloomCommandBuilder.cfExists(key,item)); }
+	public Mono<Boolean> cfDel(K key, V item) {
+		return createMono(() -> bloomCommandBuilder.cfDel(key, item));
+	}
 
 	@Override
-	public Mono<CfInfo> cfInfo(K key) { return createMono(()->bloomCommandBuilder.cfInfo(key)); }
+	public Mono<Boolean> cfExists(K key, V item) {
+		return createMono(() -> bloomCommandBuilder.cfExists(key, item));
+	}
 
 	@Override
-	public Flux<Long> cfInsert(K key, V... items) { return createDissolvingFlux(()->bloomCommandBuilder.cfInsert(key, items)); }
+	public Mono<CuckooFilter> cfInfo(K key) {
+		return createMono(() -> bloomCommandBuilder.cfInfo(key));
+	}
 
 	@Override
-	public Flux<Long> cfInsert(K key, CfInsertOptions options, V... items) { return createDissolvingFlux(()->bloomCommandBuilder.cfInsert(key,items,options)); }
+	public Flux<Long> cfInsert(K key, V... items) {
+		return createDissolvingFlux(() -> bloomCommandBuilder.cfInsert(key, items));
+	}
 
 	@Override
-	public Flux<Long> cfInsertNx(K key, V... items) { return createDissolvingFlux(()->bloomCommandBuilder.cfInsertNx(key,items));	}
+	public Flux<Long> cfInsert(K key, CuckooFilterInsertOptions options, V... items) {
+		return createDissolvingFlux(() -> bloomCommandBuilder.cfInsert(key, items, options));
+	}
 
 	@Override
-	public Flux<Long> cfInsertNx(K key, CfInsertOptions options, V... items) { return createDissolvingFlux(()->bloomCommandBuilder.cfInsertNx(key,items,options)); }
+	public Flux<Long> cfInsertNx(K key, V... items) {
+		return createDissolvingFlux(() -> bloomCommandBuilder.cfInsertNx(key, items));
+	}
 
 	@Override
-	public Flux<Boolean> cfMExists(K key, V... items) { return createDissolvingFlux(()->bloomCommandBuilder.cfMExists(key, items)); }
+	public Flux<Long> cfInsertNx(K key, CuckooFilterInsertOptions options, V... items) {
+		return createDissolvingFlux(() -> bloomCommandBuilder.cfInsertNx(key, items, options));
+	}
 
 	@Override
-	public Mono<String> cfReserve(K key, Long capacity) { return createMono(()->bloomCommandBuilder.cfReserve(key,capacity)); }
+	public Flux<Boolean> cfMExists(K key, V... items) {
+		return createDissolvingFlux(() -> bloomCommandBuilder.cfMExists(key, items));
+	}
 
 	@Override
-	public Mono<String> cfReserve(K key, CfReserveOptions options) { return createMono(()->bloomCommandBuilder.cfReserve(key,options)); }
+	public Mono<String> cfReserve(K key, long capacity) {
+		return cfReserve(key, capacity, null);
+	}
 
 	@Override
-	public Mono<Long> cmsIncrBy(K key, V item, long increment) { return createMono(()->bloomCommandBuilder.cmsIncrBy(key,item,increment));	}
+	public Mono<String> cfReserve(K key, long capacity, CuckooFilterReserveOptions options) {
+		return createMono(() -> bloomCommandBuilder.cfReserve(key, capacity, options));
+	}
 
 	@Override
-	public Flux<Long> cmsIncrBy(K key, Map<V, Long> increments) { return createDissolvingFlux(()->bloomCommandBuilder.cmsIncrBy(key, increments));	}
+	public Mono<Long> cmsIncrBy(K key, V item, long increment) {
+		return createMono(() -> bloomCommandBuilder.cmsIncrBy(key, item, increment));
+	}
 
 	@Override
-	public Mono<String> cmsInitByProb(K key, double error, double probability) { return createMono(()->bloomCommandBuilder.cmsInitByProb(key, error, probability));	}
+	public Flux<Long> cmsIncrBy(K key, Map<V, Long> increments) {
+		return createDissolvingFlux(() -> bloomCommandBuilder.cmsIncrBy(key, increments));
+	}
 
 	@Override
-	public Mono<String> cmsInitByDim(K key, long width, long depth) { return createMono(()->bloomCommandBuilder.cmsInitByDim(key, width, depth)); }
+	public Mono<String> cmsInitByProb(K key, double error, double probability) {
+		return createMono(() -> bloomCommandBuilder.cmsInitByProb(key, error, probability));
+	}
 
 	@Override
-	public Flux<Long> cmsQuery(K key, V... items) { return createDissolvingFlux(()->bloomCommandBuilder.cmsQuery(key, items)); }
+	public Mono<String> cmsInitByDim(K key, long width, long depth) {
+		return createMono(() -> bloomCommandBuilder.cmsInitByDim(key, width, depth));
+	}
 
 	@Override
-	public Mono<String> cmsMerge(K destKey, K... keys) { return createMono(()-> bloomCommandBuilder.cmsMerge(destKey, keys)); }
+	public Flux<Long> cmsQuery(K key, V... items) {
+		return createDissolvingFlux(() -> bloomCommandBuilder.cmsQuery(key, items));
+	}
 
 	@Override
-	public Mono<String> cmsMerge(K destKey, Map<K, Long> keyWeightMap) { return createMono(()->bloomCommandBuilder.cmsMerge(destKey, keyWeightMap)); }
+	public Mono<String> cmsMerge(K destKey, K... keys) {
+		return createMono(() -> bloomCommandBuilder.cmsMerge(destKey, keys));
+	}
 
 	@Override
-	public Mono<CmsInfo> cmsInfo(K key) { return createMono(()->bloomCommandBuilder.cmsInfo(key));	}
+	public Mono<String> cmsMerge(K destKey, Map<K, Long> keyWeightMap) {
+		return createMono(() -> bloomCommandBuilder.cmsMerge(destKey, keyWeightMap));
+	}
+
+	@Override
+	public Mono<CmsInfo> cmsInfo(K key) {
+		return createMono(() -> bloomCommandBuilder.cmsInfo(key));
+	}
 }

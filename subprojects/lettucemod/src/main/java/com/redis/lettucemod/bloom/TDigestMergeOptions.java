@@ -1,46 +1,70 @@
 package com.redis.lettucemod.bloom;
 
+import java.util.OptionalLong;
+
+import com.redis.lettucemod.protocol.BloomCommandKeyword;
+
 import io.lettuce.core.CompositeArgument;
 import io.lettuce.core.protocol.CommandArgs;
-import java.util.Optional;
 
 public class TDigestMergeOptions implements CompositeArgument {
-    private final Optional<Long> compression;
-    private final boolean override;
 
-    private TDigestMergeOptions(Optional<Long> compression, boolean override){
-        this.compression = compression;
-        this.override = override;
-    }
+	private OptionalLong compression = OptionalLong.empty();
+	private boolean override;
 
-    @Override
-    public <K, V> void build(CommandArgs<K, V> commandArgs) {
-        compression.ifPresent(c->{
-            commandArgs.add("COMPRESSION");
-            commandArgs.add(c);
-        });
+	public TDigestMergeOptions() {
+	}
 
-        if(override){
-            commandArgs.add("OVERRIDE");
-        }
-    }
+	private TDigestMergeOptions(Builder builder) {
+		this.compression = builder.compression;
+		this.override = builder.override;
+	}
 
-    public static Builder buidler(){ return new Builder();}
-    public static class Builder{
-        private Optional<Long> compression = Optional.empty();
-        private boolean override = false;
-        public Builder compression(long compression){
-            this.compression = Optional.of(compression);
-            return this;
-        }
+	public OptionalLong getCompression() {
+		return compression;
+	}
 
-        public Builder override(boolean override){
-            this.override = override;
-            return this;
-        }
+	public void setCompression(OptionalLong compression) {
+		this.compression = compression;
+	}
 
-        public TDigestMergeOptions Build(){
-            return new TDigestMergeOptions(compression, override);
-        }
-    }
+	public boolean isOverride() {
+		return override;
+	}
+
+	public void setOverride(boolean override) {
+		this.override = override;
+	}
+
+	@Override
+	public <K, V> void build(CommandArgs<K, V> commandArgs) {
+		compression.ifPresent(c -> commandArgs.add(BloomCommandKeyword.COMPRESSION).add(c));
+		if (override) {
+			commandArgs.add(BloomCommandKeyword.OVERRIDE);
+		}
+	}
+
+	public static Builder builder() {
+		return new Builder();
+	}
+
+	public static class Builder {
+
+		private OptionalLong compression = OptionalLong.empty();
+		private boolean override;
+
+		public Builder compression(long compression) {
+			this.compression = OptionalLong.of(compression);
+			return this;
+		}
+
+		public Builder override(boolean override) {
+			this.override = override;
+			return this;
+		}
+
+		public TDigestMergeOptions build() {
+			return new TDigestMergeOptions(this);
+		}
+	}
 }

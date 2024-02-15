@@ -1,10 +1,23 @@
 package com.redis.lettucemod.cluster;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import com.redis.lettucemod.RedisModulesAsyncCommandsImpl;
 import com.redis.lettucemod.api.async.RedisModulesAsyncCommands;
-import com.redis.lettucemod.bloom.*;
+import com.redis.lettucemod.bloom.BloomFilterInfo;
+import com.redis.lettucemod.bloom.BloomFilterInfoType;
+import com.redis.lettucemod.bloom.BloomFilterInsertOptions;
+import com.redis.lettucemod.bloom.BloomFilterReserveOptions;
+import com.redis.lettucemod.bloom.CuckooFilter;
+import com.redis.lettucemod.bloom.CuckooFilterInsertOptions;
+import com.redis.lettucemod.bloom.CuckooFilterReserveOptions;
+import com.redis.lettucemod.bloom.TDigestInfo;
+import com.redis.lettucemod.bloom.TDigestMergeOptions;
+import com.redis.lettucemod.bloom.TopKInfo;
 import com.redis.lettucemod.cluster.api.StatefulRedisModulesClusterConnection;
 import com.redis.lettucemod.cluster.api.async.RedisModulesAdvancedClusterAsyncCommands;
 import com.redis.lettucemod.cms.CmsInfo;
@@ -431,10 +444,14 @@ public class RedisModulesAdvancedClusterAsyncCommandsImpl<K, V> extends RedisAdv
 	}
 
 	@Override
-	public RedisFuture<List<V>> tsQueryIndex(V... filters){return delegate.tsQueryIndex(filters);}
+	public RedisFuture<List<V>> tsQueryIndex(V... filters) {
+		return delegate.tsQueryIndex(filters);
+	}
 
 	@Override
-	public RedisFuture<Long> tsDel(K key, TimeRange timeRange){return delegate.tsDel(key, timeRange);}
+	public RedisFuture<Long> tsDel(K key, TimeRange timeRange) {
+		return delegate.tsDel(key, timeRange);
+	}
 
 	@Override
 	public RedisFuture<Long> jsonDel(K key) {
@@ -629,167 +646,282 @@ public class RedisModulesAdvancedClusterAsyncCommandsImpl<K, V> extends RedisAdv
 	}
 
 	@Override
-	public RedisFuture<Boolean> bfAdd(K key, V item) { return delegate.bfAdd(key, item); }
+	public RedisFuture<Boolean> bfAdd(K key, V item) {
+		return delegate.bfAdd(key, item);
+	}
 
 	@Override
-	public RedisFuture<Long> bfCard(K key) { return delegate.bfCard(key); }
+	public RedisFuture<Long> bfCard(K key) {
+		return delegate.bfCard(key);
+	}
 
 	@Override
-	public RedisFuture<Boolean> bfExists(K key, V item) { return delegate.bfExists(key, item); }
+	public RedisFuture<Boolean> bfExists(K key, V item) {
+		return delegate.bfExists(key, item);
+	}
 
 	@Override
-	public RedisFuture<BfInfo> bfInfo(K key) { return delegate.bfInfo(key);	}
+	public RedisFuture<BloomFilterInfo> bfInfo(K key) {
+		return delegate.bfInfo(key);
+	}
 
 	@Override
-	public RedisFuture<Long> bfInfo(K key, BfInfoType infoType) { return delegate.bfInfo(key, infoType); }
+	public RedisFuture<Long> bfInfo(K key, BloomFilterInfoType infoType) {
+		return delegate.bfInfo(key, infoType);
+	}
 
 	@Override
-	public RedisFuture<List<Boolean>> bfInsert(K key, V... items) { return delegate.bfInsert(key,items);	}
+	public RedisFuture<List<Boolean>> bfInsert(K key, V... items) {
+		return delegate.bfInsert(key, items);
+	}
 
 	@Override
-	public RedisFuture<List<Boolean>> bfInsert(K key, BfInsertOptions options, V... items) { return delegate.bfInsert(key, options, items); }
+	public RedisFuture<List<Boolean>> bfInsert(K key, BloomFilterInsertOptions options, V... items) {
+		return delegate.bfInsert(key, options, items);
+	}
 
 	@Override
-	public RedisFuture<List<Boolean>> bfMAdd(K key, V... items) { return delegate.bfMAdd(key, items); }
+	public RedisFuture<List<Boolean>> bfMAdd(K key, V... items) {
+		return delegate.bfMAdd(key, items);
+	}
 
 	@Override
-	public RedisFuture<List<Boolean>> bfMExists(K key, V... items) { return delegate.bfMExists(key, items); }
+	public RedisFuture<List<Boolean>> bfMExists(K key, V... items) {
+		return delegate.bfMExists(key, items);
+	}
 
 	@Override
-	public RedisFuture<String> bfReserve(K key, BfConfig config) { return delegate.bfReserve(key, config); }
+	public RedisFuture<String> bfReserve(K key, double errorRate, long capacity) {
+		return delegate.bfReserve(key, errorRate, capacity);
+	}
 
 	@Override
-	public RedisFuture<Boolean> cfAdd(K key, V item) { return delegate.cfAdd(key,item);	}
+	public RedisFuture<String> bfReserve(K key, double errorRate, long capacity, BloomFilterReserveOptions options) {
+		return delegate.bfReserve(key, errorRate, capacity, options);
+	}
 
 	@Override
-	public RedisFuture<Boolean> cfAddNx(K key, V item) { return delegate.cfAddNx(key,item);	}
+	public RedisFuture<Boolean> cfAdd(K key, V item) {
+		return delegate.cfAdd(key, item);
+	}
 
 	@Override
-	public RedisFuture<Long> cfCount(K key, V item) { return delegate.cfCount(key,item); }
+	public RedisFuture<Boolean> cfAddNx(K key, V item) {
+		return delegate.cfAddNx(key, item);
+	}
 
 	@Override
-	public RedisFuture<Boolean> cfDel(K key, V item) { return delegate.cfDel(key,item);	}
+	public RedisFuture<Long> cfCount(K key, V item) {
+		return delegate.cfCount(key, item);
+	}
 
 	@Override
-	public RedisFuture<Boolean> cfExists(K key, V item) { return delegate.cfExists(key,item); }
+	public RedisFuture<Boolean> cfDel(K key, V item) {
+		return delegate.cfDel(key, item);
+	}
 
 	@Override
-	public RedisFuture<CfInfo> cfInfo(K key) { return delegate.cfInfo(key);	}
+	public RedisFuture<Boolean> cfExists(K key, V item) {
+		return delegate.cfExists(key, item);
+	}
 
 	@Override
-	public RedisFuture<List<Long>> cfInsert(K key, V[] items) { return delegate.cfInsert(key,items); }
+	public RedisFuture<CuckooFilter> cfInfo(K key) {
+		return delegate.cfInfo(key);
+	}
 
 	@Override
-	public RedisFuture<List<Long>> cfInsert(K key, CfInsertOptions options, V... items) { return delegate.cfInsert(key,options, items); }
+	public RedisFuture<List<Long>> cfInsert(K key, V... items) {
+		return delegate.cfInsert(key, items);
+	}
 
 	@Override
-	public RedisFuture<List<Long>> cfInsertNx(K key, V... items) { return delegate.cfInsertNx(key,items); }
+	public RedisFuture<List<Long>> cfInsert(K key, CuckooFilterInsertOptions options, V... items) {
+		return delegate.cfInsert(key, options, items);
+	}
 
 	@Override
-	public RedisFuture<List<Long>> cfInsertNx(K key, CfInsertOptions options, V... items) { return delegate.cfInsertNx(key,options,items); }
+	public RedisFuture<List<Long>> cfInsertNx(K key, V... items) {
+		return delegate.cfInsertNx(key, items);
+	}
 
 	@Override
-	public RedisFuture<List<Boolean>> cfMExists(K key, V... items) { return delegate.cfMExists(key,items); }
+	public RedisFuture<List<Long>> cfInsertNx(K key, CuckooFilterInsertOptions options, V... items) {
+		return delegate.cfInsertNx(key, options, items);
+	}
 
 	@Override
-	public RedisFuture<String> cfReserve(K key, Long capacity) { return delegate.cfReserve(key,capacity); }
+	public RedisFuture<List<Boolean>> cfMExists(K key, V... items) {
+		return delegate.cfMExists(key, items);
+	}
 
 	@Override
-	public RedisFuture<String> cfReserve(K key, CfReserveOptions options) { return delegate.cfReserve(key, options); }
+	public RedisFuture<String> cfReserve(K key, long capacity) {
+		return delegate.cfReserve(key, capacity);
+	}
 
 	@Override
-	public RedisFuture<Long> cmsIncrBy(K key, V item, long increment) { return delegate.cmsIncrBy(key,item,increment);	}
+	public RedisFuture<String> cfReserve(K key, long capacity, CuckooFilterReserveOptions options) {
+		return delegate.cfReserve(key, capacity, options);
+	}
 
 	@Override
-	public RedisFuture<List<Long>> cmsIncrBy(K key, Map<V, Long> increments) { return delegate.cmsIncrBy(key,increments); }
+	public RedisFuture<Long> cmsIncrBy(K key, V item, long increment) {
+		return delegate.cmsIncrBy(key, item, increment);
+	}
 
 	@Override
-	public RedisFuture<String> cmsInitByProb(K key, double error, double probability) { return delegate.cmsInitByProb(key,error,probability); }
+	public RedisFuture<List<Long>> cmsIncrBy(K key, Map<V, Long> increments) {
+		return delegate.cmsIncrBy(key, increments);
+	}
 
 	@Override
-	public RedisFuture<String> cmsInitByDim(K key, long width, long depth) { return delegate.cmsInitByDim(key, width, depth); }
+	public RedisFuture<String> cmsInitByProb(K key, double error, double probability) {
+		return delegate.cmsInitByProb(key, error, probability);
+	}
 
 	@Override
-	public RedisFuture<List<Long>> cmsQuery(K key, V... items) { return delegate.cmsQuery(key,items); }
+	public RedisFuture<String> cmsInitByDim(K key, long width, long depth) {
+		return delegate.cmsInitByDim(key, width, depth);
+	}
 
 	@Override
-	public RedisFuture<String> cmsMerge(K destKey, K... keys) { return delegate.cmsMerge(destKey,keys);	}
+	public RedisFuture<List<Long>> cmsQuery(K key, V... items) {
+		return delegate.cmsQuery(key, items);
+	}
 
 	@Override
-	public RedisFuture<String> cmsMerge(K destKey, Map<K, Long> keyWeightMap) { return delegate.cmsMerge(destKey,keyWeightMap);	}
+	public RedisFuture<String> cmsMerge(K destKey, K... keys) {
+		return delegate.cmsMerge(destKey, keys);
+	}
 
 	@Override
-	public RedisFuture<CmsInfo> cmsInfo(K key) { return delegate.cmsInfo(key); }
+	public RedisFuture<String> cmsMerge(K destKey, Map<K, Long> keyWeightMap) {
+		return delegate.cmsMerge(destKey, keyWeightMap);
+	}
 
 	@Override
-	public RedisFuture<List<Value<V>>> topKAdd(K key, V... items) { return delegate.topKAdd(key, items); }
+	public RedisFuture<CmsInfo> cmsInfo(K key) {
+		return delegate.cmsInfo(key);
+	}
 
 	@Override
-	public RedisFuture<List<Value<V>>> topKIncrBy(K key, Map<V, Long> increments) { return delegate.topKIncrBy(key, increments);	}
+	public RedisFuture<List<Value<V>>> topKAdd(K key, V... items) {
+		return delegate.topKAdd(key, items);
+	}
 
 	@Override
-	public RedisFuture<TopKInfo> topKInfo(K key) { return delegate.topKInfo(key); }
+	public RedisFuture<List<Value<V>>> topKIncrBy(K key, Map<V, Long> increments) {
+		return delegate.topKIncrBy(key, increments);
+	}
 
 	@Override
-	public RedisFuture<List<String>> topKList(K key) { return delegate.topKList(key); }
+	public RedisFuture<TopKInfo> topKInfo(K key) {
+		return delegate.topKInfo(key);
+	}
 
 	@Override
-	public RedisFuture<List<KeyValue<String, Long>>> topKListWithScores(K key) { return delegate.topKListWithScores(key); }
+	public RedisFuture<List<String>> topKList(K key) {
+		return delegate.topKList(key);
+	}
 
 	@Override
-	public RedisFuture<List<Boolean>> topKQuery(K key, V... items) { return delegate.topKQuery(key, items);	}
+	public RedisFuture<List<KeyValue<String, Long>>> topKListWithScores(K key) {
+		return delegate.topKListWithScores(key);
+	}
 
 	@Override
-	public RedisFuture<String> topKReserve(K key, long k) { return delegate.topKReserve(key, k); }
+	public RedisFuture<List<Boolean>> topKQuery(K key, V... items) {
+		return delegate.topKQuery(key, items);
+	}
 
 	@Override
-	public RedisFuture<String> topKReserve(K key, long k, long width, long depth, double decay) { return delegate.topKReserve(key,k,width,depth,decay);	}
+	public RedisFuture<String> topKReserve(K key, long k) {
+		return delegate.topKReserve(key, k);
+	}
 
 	@Override
-	public RedisFuture<String> tDigestAdd(K key, double... value) { return delegate.tDigestAdd(key,value);	}
+	public RedisFuture<String> topKReserve(K key, long k, long width, long depth, double decay) {
+		return delegate.topKReserve(key, k, width, depth, decay);
+	}
 
 	@Override
-	public RedisFuture<List<Double>> tDigestByRank(K key, long... ranks) { return delegate.tDigestByRank(key, ranks); }
+	public RedisFuture<String> tDigestAdd(K key, double... value) {
+		return delegate.tDigestAdd(key, value);
+	}
 
 	@Override
-	public RedisFuture<List<Double>> tDigestByRevRank(K key, long... revRanks) { return delegate.tDigestByRevRank(key, revRanks); }
+	public RedisFuture<List<Double>> tDigestByRank(K key, long... ranks) {
+		return delegate.tDigestByRank(key, ranks);
+	}
 
 	@Override
-	public RedisFuture<List<Double>> tDigestCdf(K key, double... values) { return delegate.tDigestCdf(key, values);	}
+	public RedisFuture<List<Double>> tDigestByRevRank(K key, long... revRanks) {
+		return delegate.tDigestByRevRank(key, revRanks);
+	}
 
 	@Override
-	public RedisFuture<String> tDigestCreate(K key) { return delegate.tDigestCreate(key); }
+	public RedisFuture<List<Double>> tDigestCdf(K key, double... values) {
+		return delegate.tDigestCdf(key, values);
+	}
 
 	@Override
-	public RedisFuture<String> tDigestCreate(K key, long compression) { return delegate.tDigestCreate(key, compression); }
+	public RedisFuture<String> tDigestCreate(K key) {
+		return delegate.tDigestCreate(key);
+	}
 
 	@Override
-	public RedisFuture<TDigestInfo> tDigestInfo(K key) { return delegate.tDigestInfo(key);	}
+	public RedisFuture<String> tDigestCreate(K key, long compression) {
+		return delegate.tDigestCreate(key, compression);
+	}
 
 	@Override
-	public RedisFuture<Double> tDigestMax(K key) { return delegate.tDigestMax(key);	}
+	public RedisFuture<TDigestInfo> tDigestInfo(K key) {
+		return delegate.tDigestInfo(key);
+	}
 
 	@Override
-	public RedisFuture<String> tDigestMerge(K destinationKey, K... sourceKeys) { return delegate.tDigestMerge(destinationKey, sourceKeys);	}
+	public RedisFuture<Double> tDigestMax(K key) {
+		return delegate.tDigestMax(key);
+	}
 
 	@Override
-	public RedisFuture<String> tDigestMerge(K destinationKey, TDigestMergeOptions options, K... sourceKeys) { return delegate.tDigestMerge(destinationKey, options, sourceKeys); }
+	public RedisFuture<String> tDigestMerge(K destinationKey, K... sourceKeys) {
+		return delegate.tDigestMerge(destinationKey, sourceKeys);
+	}
 
 	@Override
-	public RedisFuture<Double> tDigestMin(K key) { return delegate.tDigestMin(key);	}
+	public RedisFuture<String> tDigestMerge(K destinationKey, TDigestMergeOptions options, K... sourceKeys) {
+		return delegate.tDigestMerge(destinationKey, options, sourceKeys);
+	}
 
 	@Override
-	public RedisFuture<List<Double>> tDigestQuantile(K key, double... quantiles) { return delegate.tDigestQuantile(key, quantiles);	}
+	public RedisFuture<Double> tDigestMin(K key) {
+		return delegate.tDigestMin(key);
+	}
 
 	@Override
-	public RedisFuture<List<Long>> tDigestRank(K key, double... values) { return delegate.tDigestRank(key, values);	}
+	public RedisFuture<List<Double>> tDigestQuantile(K key, double... quantiles) {
+		return delegate.tDigestQuantile(key, quantiles);
+	}
 
 	@Override
-	public RedisFuture<String> tDigestReset(K key) { return delegate.tDigestReset(key);	}
+	public RedisFuture<List<Long>> tDigestRank(K key, double... values) {
+		return delegate.tDigestRank(key, values);
+	}
 
 	@Override
-	public RedisFuture<List<Long>> tDigestRevRank(K key, double... values) { return delegate.tDigestRevRank(key, values);	}
+	public RedisFuture<String> tDigestReset(K key) {
+		return delegate.tDigestReset(key);
+	}
 
 	@Override
-	public RedisFuture<Double> tDigestTrimmedMean(K key, double lowCutQuantile, double highCutQuantile) { return delegate.tDigestTrimmedMean(key,lowCutQuantile,highCutQuantile); }
+	public RedisFuture<List<Long>> tDigestRevRank(K key, double... values) {
+		return delegate.tDigestRevRank(key, values);
+	}
+
+	@Override
+	public RedisFuture<Double> tDigestTrimmedMean(K key, double lowCutQuantile, double highCutQuantile) {
+		return delegate.tDigestTrimmedMean(key, lowCutQuantile, highCutQuantile);
+	}
 }

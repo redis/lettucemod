@@ -2,14 +2,20 @@ package com.redis.lettucemod;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
 import com.redis.lettucemod.api.async.RedisModulesAsyncCommands;
-import com.redis.lettucemod.bloom.*;
-import com.redis.lettucemod.bloom.CfInfo;
-import com.redis.lettucemod.bloom.CfInsertOptions;
-import com.redis.lettucemod.bloom.CfReserveOptions;
+import com.redis.lettucemod.bloom.BloomCommandBuilder;
+import com.redis.lettucemod.bloom.BloomFilterInfo;
+import com.redis.lettucemod.bloom.BloomFilterInfoType;
+import com.redis.lettucemod.bloom.BloomFilterInsertOptions;
+import com.redis.lettucemod.bloom.BloomFilterReserveOptions;
+import com.redis.lettucemod.bloom.CuckooFilter;
+import com.redis.lettucemod.bloom.CuckooFilterInsertOptions;
+import com.redis.lettucemod.bloom.CuckooFilterReserveOptions;
+import com.redis.lettucemod.bloom.TDigestInfo;
+import com.redis.lettucemod.bloom.TDigestMergeOptions;
+import com.redis.lettucemod.bloom.TopKInfo;
 import com.redis.lettucemod.cms.CmsInfo;
 import com.redis.lettucemod.gears.Execution;
 import com.redis.lettucemod.gears.ExecutionDetails;
@@ -62,7 +68,7 @@ public class RedisModulesAsyncCommandsImpl<K, V> extends RedisAsyncCommandsImpl<
 	private final TimeSeriesCommandBuilder<K, V> timeSeriesCommandBuilder;
 	private final SearchCommandBuilder<K, V> searchCommandBuilder;
 	private final JSONCommandBuilder<K, V> jsonCommandBuilder;
-	private final BloomCommandBuilder<K,V> bloomCommandBuilder;
+	private final BloomCommandBuilder<K, V> bloomCommandBuilder;
 
 	public RedisModulesAsyncCommandsImpl(StatefulRedisModulesConnection<K, V> connection, RedisCodec<K, V> codec) {
 		super(connection, codec);
@@ -274,12 +280,12 @@ public class RedisModulesAsyncCommandsImpl<K, V> extends RedisAsyncCommandsImpl<
 	}
 
 	@Override
-	public RedisFuture<List<V>> tsQueryIndex(V... filters){
+	public RedisFuture<List<V>> tsQueryIndex(V... filters) {
 		return dispatch(timeSeriesCommandBuilder.queryIndex(filters));
 	}
 
 	@Override
-	public RedisFuture<Long> tsDel(K key, TimeRange timeRange){
+	public RedisFuture<Long> tsDel(K key, TimeRange timeRange) {
 		return dispatch(timeSeriesCommandBuilder.tsDel(key, timeRange));
 	}
 
@@ -584,7 +590,9 @@ public class RedisModulesAsyncCommandsImpl<K, V> extends RedisAsyncCommandsImpl<
 	}
 
 	@Override
-	public RedisFuture<Boolean> bfAdd(K key, V item) { return dispatch(bloomCommandBuilder.bfAdd(key, item));	}
+	public RedisFuture<Boolean> bfAdd(K key, V item) {
+		return dispatch(bloomCommandBuilder.bfAdd(key, item));
+	}
 
 	@Override
 	public RedisFuture<Long> bfCard(K key) {
@@ -592,163 +600,272 @@ public class RedisModulesAsyncCommandsImpl<K, V> extends RedisAsyncCommandsImpl<
 	}
 
 	@Override
-	public RedisFuture<Boolean> bfExists(K key, V item) { return dispatch(bloomCommandBuilder.bfExists(key, item)); }
+	public RedisFuture<Boolean> bfExists(K key, V item) {
+		return dispatch(bloomCommandBuilder.bfExists(key, item));
+	}
 
 	@Override
-	public RedisFuture<BfInfo> bfInfo(K key) {
+	public RedisFuture<BloomFilterInfo> bfInfo(K key) {
 		return dispatch(bloomCommandBuilder.bfInfo(key));
 	}
 
 	@Override
-	public RedisFuture<Long> bfInfo(K key, BfInfoType infoType) { return dispatch(bloomCommandBuilder.bfInfo(key, infoType)); }
+	public RedisFuture<Long> bfInfo(K key, BloomFilterInfoType type) {
+		return dispatch(bloomCommandBuilder.bfInfo(key, type));
+	}
 
 	@Override
-	public RedisFuture<List<Boolean>> bfInsert(K key, V... items) { return dispatch(bloomCommandBuilder.bfInsert(key, items));	}
+	public RedisFuture<List<Boolean>> bfInsert(K key, V... items) {
+		return dispatch(bloomCommandBuilder.bfInsert(key, items));
+	}
 
 	@Override
-	public RedisFuture<List<Boolean>> bfInsert(K key, BfInsertOptions options, V... items) { return dispatch(bloomCommandBuilder.bfInsert(key, items, options)); }
+	public RedisFuture<List<Boolean>> bfInsert(K key, BloomFilterInsertOptions options, V... items) {
+		return dispatch(bloomCommandBuilder.bfInsert(key, options, items));
+	}
 
 	@Override
-	public RedisFuture<List<Boolean>> bfMAdd(K key, V... items) { return dispatch(bloomCommandBuilder.bfMAdd(key, items));	}
+	public RedisFuture<List<Boolean>> bfMAdd(K key, V... items) {
+		return dispatch(bloomCommandBuilder.bfMAdd(key, items));
+	}
 
 	@Override
-	public RedisFuture<List<Boolean>> bfMExists(K key, V... items) { return dispatch(bloomCommandBuilder.bfMExists(key, items)); }
+	public RedisFuture<List<Boolean>> bfMExists(K key, V... items) {
+		return dispatch(bloomCommandBuilder.bfMExists(key, items));
+	}
 
 	@Override
-	public RedisFuture<String> bfReserve(K key, BfConfig config) { return dispatch(bloomCommandBuilder.bfReserve(key, config)); }
+	public RedisFuture<String> bfReserve(K key, double errorRate, long capacity) {
+		return bfReserve(key, errorRate, capacity, null);
+	}
 
 	@Override
-	public RedisFuture<Boolean> cfAdd(K key, V item) { return dispatch(bloomCommandBuilder.cfAdd(key, item)); }
+	public RedisFuture<String> bfReserve(K key, double errorRate, long capacity, BloomFilterReserveOptions options) {
+		return dispatch(bloomCommandBuilder.bfReserve(key, errorRate, capacity, options));
+	}
 
 	@Override
-	public RedisFuture<Boolean> cfAddNx(K key, V item) { return dispatch(bloomCommandBuilder.cfAddNx(key,item));	}
+	public RedisFuture<Boolean> cfAdd(K key, V item) {
+		return dispatch(bloomCommandBuilder.cfAdd(key, item));
+	}
 
 	@Override
-	public RedisFuture<Long> cfCount(K key, V item) { return dispatch(bloomCommandBuilder.cfCount(key,item)); }
+	public RedisFuture<Boolean> cfAddNx(K key, V item) {
+		return dispatch(bloomCommandBuilder.cfAddNx(key, item));
+	}
 
 	@Override
-	public RedisFuture<Boolean> cfDel(K key, V item) { return dispatch(bloomCommandBuilder.cfDel(key, item)); }
+	public RedisFuture<Long> cfCount(K key, V item) {
+		return dispatch(bloomCommandBuilder.cfCount(key, item));
+	}
 
 	@Override
-	public RedisFuture<Boolean> cfExists(K key, V item) { return dispatch(bloomCommandBuilder.cfExists(key,item)); }
+	public RedisFuture<Boolean> cfDel(K key, V item) {
+		return dispatch(bloomCommandBuilder.cfDel(key, item));
+	}
 
 	@Override
-	public RedisFuture<CfInfo> cfInfo(K key) { return dispatch(bloomCommandBuilder.cfInfo(key));	}
+	public RedisFuture<Boolean> cfExists(K key, V item) {
+		return dispatch(bloomCommandBuilder.cfExists(key, item));
+	}
 
 	@Override
-	public RedisFuture<List<Long>> cfInsert(K key, V... items) { return dispatch(bloomCommandBuilder.cfInsert(key, items)); }
+	public RedisFuture<CuckooFilter> cfInfo(K key) {
+		return dispatch(bloomCommandBuilder.cfInfo(key));
+	}
 
 	@Override
-	public RedisFuture<List<Long>> cfInsert(K key, CfInsertOptions options, V... items) { return dispatch(bloomCommandBuilder.cfInsert(key, items, options));	}
+	public RedisFuture<List<Long>> cfInsert(K key, V... items) {
+		return dispatch(bloomCommandBuilder.cfInsert(key, items));
+	}
 
 	@Override
-	public RedisFuture<List<Long>> cfInsertNx(K key, V... items) { return dispatch(bloomCommandBuilder.cfInsertNx(key, items));	}
+	public RedisFuture<List<Long>> cfInsert(K key, CuckooFilterInsertOptions options, V... items) {
+		return dispatch(bloomCommandBuilder.cfInsert(key, items, options));
+	}
 
 	@Override
-	public RedisFuture<List<Long>> cfInsertNx(K key, CfInsertOptions options, V... items) { return dispatch(bloomCommandBuilder.cfInsertNx(key,items,options)); }
+	public RedisFuture<List<Long>> cfInsertNx(K key, V... items) {
+		return dispatch(bloomCommandBuilder.cfInsertNx(key, items));
+	}
 
 	@Override
-	public RedisFuture<List<Boolean>> cfMExists(K key, V[] items) { return dispatch(bloomCommandBuilder.cfMExists(key,items)); }
+	public RedisFuture<List<Long>> cfInsertNx(K key, CuckooFilterInsertOptions options, V... items) {
+		return dispatch(bloomCommandBuilder.cfInsertNx(key, items, options));
+	}
 
 	@Override
-	public RedisFuture<String> cfReserve(K key, Long capacity) { return dispatch(bloomCommandBuilder.cfReserve(key, capacity)); }
+	public RedisFuture<List<Boolean>> cfMExists(K key, V... items) {
+		return dispatch(bloomCommandBuilder.cfMExists(key, items));
+	}
 
 	@Override
-	public RedisFuture<String> cfReserve(K key, CfReserveOptions options) { return dispatch(bloomCommandBuilder.cfReserve(key, options)); }
+	public RedisFuture<String> cfReserve(K key, long capacity) {
+		return cfReserve(key, capacity, null);
+	}
 
 	@Override
-	public RedisFuture<Long> cmsIncrBy(K key, V item, long increment) { return dispatch(bloomCommandBuilder.cmsIncrBy(key, item, increment)); }
+	public RedisFuture<String> cfReserve(K key, long capacity, CuckooFilterReserveOptions options) {
+		return dispatch(bloomCommandBuilder.cfReserve(key, capacity, options));
+	}
 
 	@Override
-	public RedisFuture<List<Long>> cmsIncrBy(K key, Map<V, Long> increments) { return dispatch(bloomCommandBuilder.cmsIncrBy(key, increments));	}
+	public RedisFuture<Long> cmsIncrBy(K key, V item, long increment) {
+		return dispatch(bloomCommandBuilder.cmsIncrBy(key, item, increment));
+	}
 
 	@Override
-	public RedisFuture<String> cmsInitByProb(K key, double error, double probability) { return dispatch(bloomCommandBuilder.cmsInitByProb(key,error,probability)); }
+	public RedisFuture<List<Long>> cmsIncrBy(K key, Map<V, Long> increments) {
+		return dispatch(bloomCommandBuilder.cmsIncrBy(key, increments));
+	}
 
 	@Override
-	public RedisFuture<String> cmsInitByDim(K key, long width, long depth) { return dispatch(bloomCommandBuilder.cmsInitByDim(key,width,depth)); }
+	public RedisFuture<String> cmsInitByProb(K key, double error, double probability) {
+		return dispatch(bloomCommandBuilder.cmsInitByProb(key, error, probability));
+	}
 
 	@Override
-	public RedisFuture<List<Long>> cmsQuery(K key, V... items) { return dispatch(bloomCommandBuilder.cmsQuery(key, items));	}
+	public RedisFuture<String> cmsInitByDim(K key, long width, long depth) {
+		return dispatch(bloomCommandBuilder.cmsInitByDim(key, width, depth));
+	}
 
 	@Override
-	public RedisFuture<String> cmsMerge(K destKey, K... keys) { return dispatch(bloomCommandBuilder.cmsMerge(destKey,keys)); }
+	public RedisFuture<List<Long>> cmsQuery(K key, V... items) {
+		return dispatch(bloomCommandBuilder.cmsQuery(key, items));
+	}
 
 	@Override
-	public RedisFuture<String> cmsMerge(K destKey, Map<K, Long> keyWeightMap) { return dispatch(bloomCommandBuilder.cmsMerge(destKey, keyWeightMap));	}
+	public RedisFuture<String> cmsMerge(K destKey, K... keys) {
+		return dispatch(bloomCommandBuilder.cmsMerge(destKey, keys));
+	}
 
 	@Override
-	public RedisFuture<CmsInfo> cmsInfo(K key) { return dispatch(bloomCommandBuilder.cmsInfo(key));	}
+	public RedisFuture<String> cmsMerge(K destKey, Map<K, Long> keyWeightMap) {
+		return dispatch(bloomCommandBuilder.cmsMerge(destKey, keyWeightMap));
+	}
 
 	@Override
-	public RedisFuture<List<Value<V>>> topKAdd(K key, V... items) { return dispatch(bloomCommandBuilder.topKAdd(key,items)); }
+	public RedisFuture<CmsInfo> cmsInfo(K key) {
+		return dispatch(bloomCommandBuilder.cmsInfo(key));
+	}
 
 	@Override
-	public RedisFuture<List<Value<V>>> topKIncrBy(K key, Map<V, Long> increments) { return dispatch(bloomCommandBuilder.topKIncrBy(key, increments));	}
+	public RedisFuture<List<Value<V>>> topKAdd(K key, V... items) {
+		return dispatch(bloomCommandBuilder.topKAdd(key, items));
+	}
 
 	@Override
-	public RedisFuture<TopKInfo> topKInfo(K key) { return dispatch(bloomCommandBuilder.topKInfo(key)); }
+	public RedisFuture<List<Value<V>>> topKIncrBy(K key, Map<V, Long> increments) {
+		return dispatch(bloomCommandBuilder.topKIncrBy(key, increments));
+	}
 
 	@Override
-	public RedisFuture<List<String>> topKList(K key) { return dispatch(bloomCommandBuilder.topKList(key)); }
+	public RedisFuture<TopKInfo> topKInfo(K key) {
+		return dispatch(bloomCommandBuilder.topKInfo(key));
+	}
 
 	@Override
-	public RedisFuture<List<KeyValue<String, Long>>> topKListWithScores(K key) { return dispatch(bloomCommandBuilder.topKListWithScores(key));	}
+	public RedisFuture<List<String>> topKList(K key) {
+		return dispatch(bloomCommandBuilder.topKList(key));
+	}
 
 	@Override
-	public RedisFuture<List<Boolean>> topKQuery(K key, V... items) { return dispatch(bloomCommandBuilder.topKQuery(key,items)); }
+	public RedisFuture<List<KeyValue<String, Long>>> topKListWithScores(K key) {
+		return dispatch(bloomCommandBuilder.topKListWithScores(key));
+	}
 
 	@Override
-	public RedisFuture<String> topKReserve(K key, long k) { return dispatch(bloomCommandBuilder.topKReserve(key, k)); }
+	public RedisFuture<List<Boolean>> topKQuery(K key, V... items) {
+		return dispatch(bloomCommandBuilder.topKQuery(key, items));
+	}
 
 	@Override
-	public RedisFuture<String> topKReserve(K key, long k, long width, long depth, double decay) { return dispatch(bloomCommandBuilder.topKReserve(key, k, width,depth,decay));	}
+	public RedisFuture<String> topKReserve(K key, long k) {
+		return dispatch(bloomCommandBuilder.topKReserve(key, k));
+	}
 
 	@Override
-	public RedisFuture<String> tDigestAdd(K key, double... values) { return dispatch(bloomCommandBuilder.tDigestAdd(key,values));	}
+	public RedisFuture<String> topKReserve(K key, long k, long width, long depth, double decay) {
+		return dispatch(bloomCommandBuilder.topKReserve(key, k, width, depth, decay));
+	}
 
 	@Override
-	public RedisFuture<List<Double>> tDigestByRank(K key, long... ranks) { return dispatch(bloomCommandBuilder.tDigestByRank(key, ranks));	}
+	public RedisFuture<String> tDigestAdd(K key, double... values) {
+		return dispatch(bloomCommandBuilder.tDigestAdd(key, values));
+	}
 
 	@Override
-	public RedisFuture<List<Double>> tDigestByRevRank(K key, long... revRanks) { return dispatch(bloomCommandBuilder.tDigestByRevRank(key, revRanks)); }
+	public RedisFuture<List<Double>> tDigestByRank(K key, long... ranks) {
+		return dispatch(bloomCommandBuilder.tDigestByRank(key, ranks));
+	}
 
 	@Override
-	public RedisFuture<List<Double>> tDigestCdf(K key, double... values) { return dispatch(bloomCommandBuilder.tDigestCdf(key,values));	}
+	public RedisFuture<List<Double>> tDigestByRevRank(K key, long... revRanks) {
+		return dispatch(bloomCommandBuilder.tDigestByRevRank(key, revRanks));
+	}
 
 	@Override
-	public RedisFuture<String> tDigestCreate(K key) { return dispatch(bloomCommandBuilder.tDigestCreate(key)); }
+	public RedisFuture<List<Double>> tDigestCdf(K key, double... values) {
+		return dispatch(bloomCommandBuilder.tDigestCdf(key, values));
+	}
 
 	@Override
-	public RedisFuture<String> tDigestCreate(K key, long compression) {return dispatch(bloomCommandBuilder.tDigestCreate(key,compression));	}
+	public RedisFuture<String> tDigestCreate(K key) {
+		return dispatch(bloomCommandBuilder.tDigestCreate(key));
+	}
 
 	@Override
-	public RedisFuture<TDigestInfo> tDigestInfo(K key) { return dispatch(bloomCommandBuilder.tDigestInfo(key)); }
+	public RedisFuture<String> tDigestCreate(K key, long compression) {
+		return dispatch(bloomCommandBuilder.tDigestCreate(key, compression));
+	}
 
 	@Override
-	public RedisFuture<Double> tDigestMax(K key) { return dispatch(bloomCommandBuilder.tDigestMax(key)); }
+	public RedisFuture<TDigestInfo> tDigestInfo(K key) {
+		return dispatch(bloomCommandBuilder.tDigestInfo(key));
+	}
 
 	@Override
-	public RedisFuture<String> tDigestMerge(K destinationKey, K... sourceKeys) { return dispatch(bloomCommandBuilder.tDigestMerge(destinationKey,sourceKeys)); }
+	public RedisFuture<Double> tDigestMax(K key) {
+		return dispatch(bloomCommandBuilder.tDigestMax(key));
+	}
 
 	@Override
-	public RedisFuture<String> tDigestMerge(K destinationKey, TDigestMergeOptions options, K... sourceKeys) { return dispatch(bloomCommandBuilder.tDigestMerge(destinationKey, options, sourceKeys)); }
+	public RedisFuture<String> tDigestMerge(K destinationKey, K... sourceKeys) {
+		return dispatch(bloomCommandBuilder.tDigestMerge(destinationKey, sourceKeys));
+	}
 
 	@Override
-	public RedisFuture<Double> tDigestMin(K key) { return dispatch(bloomCommandBuilder.tDigestMin(key)); }
+	public RedisFuture<String> tDigestMerge(K destinationKey, TDigestMergeOptions options, K... sourceKeys) {
+		return dispatch(bloomCommandBuilder.tDigestMerge(destinationKey, options, sourceKeys));
+	}
 
 	@Override
-	public RedisFuture<List<Double>> tDigestQuantile(K key, double... quantiles) { return dispatch(bloomCommandBuilder.tDigestQuantile(key, quantiles)); }
+	public RedisFuture<Double> tDigestMin(K key) {
+		return dispatch(bloomCommandBuilder.tDigestMin(key));
+	}
 
 	@Override
-	public RedisFuture<List<Long>> tDigestRank(K key, double... values) { return dispatch(bloomCommandBuilder.tDigestRank(key, values)); }
+	public RedisFuture<List<Double>> tDigestQuantile(K key, double... quantiles) {
+		return dispatch(bloomCommandBuilder.tDigestQuantile(key, quantiles));
+	}
 
 	@Override
-	public RedisFuture<String> tDigestReset(K key) { return dispatch(bloomCommandBuilder.tDigestReset(key)); }
+	public RedisFuture<List<Long>> tDigestRank(K key, double... values) {
+		return dispatch(bloomCommandBuilder.tDigestRank(key, values));
+	}
 
 	@Override
-	public RedisFuture<List<Long>> tDigestRevRank(K key, double... values) { return dispatch(bloomCommandBuilder.tDigestRevRank(key, values)); }
+	public RedisFuture<String> tDigestReset(K key) {
+		return dispatch(bloomCommandBuilder.tDigestReset(key));
+	}
 
 	@Override
-	public RedisFuture<Double> tDigestTrimmedMean(K key, double lowCutQuantile, double highCutQuantile) { return dispatch(bloomCommandBuilder.tDigestTrimmedMean(key, lowCutQuantile, highCutQuantile)); }
+	public RedisFuture<List<Long>> tDigestRevRank(K key, double... values) {
+		return dispatch(bloomCommandBuilder.tDigestRevRank(key, values));
+	}
+
+	@Override
+	public RedisFuture<Double> tDigestTrimmedMean(K key, double lowCutQuantile, double highCutQuantile) {
+		return dispatch(bloomCommandBuilder.tDigestTrimmedMean(key, lowCutQuantile, highCutQuantile));
+	}
 }
