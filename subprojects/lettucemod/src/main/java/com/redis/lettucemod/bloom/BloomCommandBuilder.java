@@ -5,7 +5,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.redis.lettucemod.RedisModulesCommandBuilder;
-import com.redis.lettucemod.cms.CmsInfo;
 import com.redis.lettucemod.output.BfInfoOutput;
 import com.redis.lettucemod.output.CfInfoOutput;
 import com.redis.lettucemod.output.CmsInfoOutput;
