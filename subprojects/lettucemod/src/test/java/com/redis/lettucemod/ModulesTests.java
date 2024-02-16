@@ -61,13 +61,13 @@ import com.redis.lettucemod.api.sync.RedisTimeSeriesCommands;
 import com.redis.lettucemod.bloom.BloomFilterInfo;
 import com.redis.lettucemod.bloom.BloomFilterInfoType;
 import com.redis.lettucemod.bloom.BloomFilterInsertOptions;
+import com.redis.lettucemod.bloom.CmsInfo;
 import com.redis.lettucemod.bloom.CuckooFilter;
 import com.redis.lettucemod.bloom.CuckooFilterInsertOptions;
 import com.redis.lettucemod.bloom.LongScoredValue;
 import com.redis.lettucemod.bloom.TDigestInfo;
 import com.redis.lettucemod.bloom.TopKInfo;
 import com.redis.lettucemod.cluster.RedisModulesClusterClient;
-import com.redis.lettucemod.cms.CmsInfo;
 import com.redis.lettucemod.json.GetOptions;
 import com.redis.lettucemod.json.SetMode;
 import com.redis.lettucemod.json.Slice;
@@ -1220,12 +1220,13 @@ abstract class ModulesTests {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	@Test
 	void cms() {
-		String key1 = "cms:1";
-		String key2 = "cms:2";
-		String outKey = "cms:out";
-		String key3 = "cms:3";
+		String key1 = "{cms}:1";
+		String key2 = "{cms}:2";
+		String outKey = "{cms}:out";
+		String key3 = "{cms}:3";
 
 		connection.sync().unlink(key1, key2);
 		RedisBloomCommands<String, String> cms = connection.sync();
@@ -1259,12 +1260,13 @@ abstract class ModulesTests {
 		assertEquals("OK", cms.cmsMerge(outKey, key1, key3));
 	}
 
+	@SuppressWarnings("unchecked")
 	@Test
 	void cmsReactive() {
-		String key1 = "cms:1";
-		String key2 = "cms:2";
-		String outKey = "cms:out";
-		String key3 = "cms:3";
+		String key1 = "{cms}:1";
+		String key2 = "{cms}:2";
+		String outKey = "{cms}:out";
+		String key3 = "{cms}:3";
 
 		connection.sync().unlink(key1, key2);
 		RedisBloomReactiveCommands<String, String> cms = connection.reactive();
