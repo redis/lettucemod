@@ -11,10 +11,6 @@ public enum BloomCommandKeyword implements ProtocolKeyword {
 
 	final byte[] bytes;
 
-	BloomCommandKeyword(String keyword) {
-		bytes = keyword.getBytes(StandardCharsets.US_ASCII);
-	}
-
 	BloomCommandKeyword() {
 		bytes = name().getBytes(StandardCharsets.US_ASCII);
 	}

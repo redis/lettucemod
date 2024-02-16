@@ -1,7 +1,6 @@
 package com.redis.lettucemod.api.async;
 
 import java.util.List;
-import java.util.Map;
 
 import com.redis.lettucemod.bloom.BloomFilterInfo;
 import com.redis.lettucemod.bloom.BloomFilterInfoType;
