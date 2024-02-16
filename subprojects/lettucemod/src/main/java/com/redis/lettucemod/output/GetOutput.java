@@ -6,9 +6,9 @@ import java.util.Collections;
 import java.util.List;
 
 import com.redis.lettucemod.timeseries.GetResult;
-import com.redis.lettucemod.timeseries.Label;
 import com.redis.lettucemod.timeseries.Sample;
 
+import io.lettuce.core.KeyValue;
 import io.lettuce.core.codec.RedisCodec;
 import io.lettuce.core.internal.LettuceAssert;
 import io.lettuce.core.internal.LettuceStrings;
@@ -24,7 +24,7 @@ public class GetOutput<K, V> extends CommandOutput<K, V, List<GetResult<K, V>>>
 	private boolean skipKeyReset;
 	private K key;
 	private K labelKey;
-	private List<Label<K, V>> labels;
+	private List<KeyValue<K, V>> labels;
 	private Sample sample;
 	private boolean labelsComplete;
 
@@ -54,7 +54,7 @@ public class GetOutput<K, V> extends CommandOutput<K, V, List<GetResult<K, V>>>
 			labelKey = codec.decodeKey(bytes);
 			return;
 		}
-		labels.add(Label.of(labelKey, bytes == null ? null : codec.decodeValue(bytes)));
+		labels.add(KeyValue.just(labelKey, bytes == null ? null : codec.decodeValue(bytes)));
 		labelKey = null;
 	}
 

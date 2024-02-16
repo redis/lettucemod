@@ -63,6 +63,7 @@ import com.redis.lettucemod.bloom.BloomFilterInfoType;
 import com.redis.lettucemod.bloom.BloomFilterInsertOptions;
 import com.redis.lettucemod.bloom.CuckooFilter;
 import com.redis.lettucemod.bloom.CuckooFilterInsertOptions;
+import com.redis.lettucemod.bloom.LongScoredValue;
 import com.redis.lettucemod.bloom.TDigestInfo;
 import com.redis.lettucemod.bloom.TopKInfo;
 import com.redis.lettucemod.cluster.RedisModulesClusterClient;
@@ -102,7 +103,6 @@ import com.redis.lettucemod.search.VectorField;
 import com.redis.lettucemod.timeseries.AddOptions;
 import com.redis.lettucemod.timeseries.Aggregation;
 import com.redis.lettucemod.timeseries.Aggregator;
-import com.redis.lettucemod.timeseries.Label;
 import com.redis.lettucemod.timeseries.RangeOptions;
 import com.redis.lettucemod.timeseries.Sample;
 import com.redis.lettucemod.timeseries.TimeRange;
@@ -1020,7 +1020,8 @@ abstract class ModulesTests {
 		// TS.ADD temperature:3:11 1548149181 30
 		Long add1 = ts.tsAdd(TS_KEY, Sample.of(TIMESTAMP_1, VALUE_1),
 				AddOptions.<String, String>builder().retentionPeriod(6000)
-						.labels(Label.of(LABEL_SENSOR_ID, SENSOR_ID), Label.of(LABEL_AREA_ID, AREA_ID)).build());
+						.labels(KeyValue.just(LABEL_SENSOR_ID, SENSOR_ID), KeyValue.just(LABEL_AREA_ID, AREA_ID))
+						.build());
 		assertEquals(TIMESTAMP_1, add1);
 		Sample sample = ts.tsGet(TS_KEY);
 		assertEquals(TIMESTAMP_1, sample.getTimestamp());
@@ -1068,12 +1069,12 @@ abstract class ModulesTests {
 		// TS.CREATE temperature:3:11 RETENTION 6000 LABELS sensor_id 2 area_id 32
 		// TS.ADD temperature:3:11 1548149181 30
 		ts.tsAdd(TS_KEY, Sample.of(TIMESTAMP_1, VALUE_1), AddOptions.<String, String>builder().retentionPeriod(6000)
-				.labels(Label.of(LABEL_SENSOR_ID, SENSOR_ID), Label.of(LABEL_AREA_ID, AREA_ID)).build());
+				.labels(KeyValue.just(LABEL_SENSOR_ID, SENSOR_ID), KeyValue.just(LABEL_AREA_ID, AREA_ID)).build());
 		// TS.ADD temperature:3:11 1548149191 42
 		ts.tsAdd(TS_KEY, Sample.of(TIMESTAMP_2, VALUE_2));
 
 		ts.tsAdd(TS_KEY_2, Sample.of(TIMESTAMP_1, VALUE_1), AddOptions.<String, String>builder().retentionPeriod(6000)
-				.labels(Label.of(LABEL_SENSOR_ID, SENSOR_ID), Label.of(LABEL_AREA_ID, AREA_ID_2)).build());
+				.labels(KeyValue.just(LABEL_SENSOR_ID, SENSOR_ID), KeyValue.just(LABEL_AREA_ID, AREA_ID_2)).build());
 		ts.tsAdd(TS_KEY_2, Sample.of(TIMESTAMP_2, VALUE_2));
 	}
 
@@ -1231,12 +1232,8 @@ abstract class ModulesTests {
 
 		assertEquals("OK", cms.cmsInitByProb(key1, .001, .01));
 		assertEquals(2, cms.cmsIncrBy(key1, "test", 2));
-		Map<String, Long> increments = new HashMap<>();
-		increments.put("one", 1L);
-		increments.put("two", 2L);
-		increments.put("three", 3L);
-
-		List<Long> result = cms.cmsIncrBy(key1, increments);
+		List<Long> result = cms.cmsIncrBy(key1, LongScoredValue.just(1, "one"), LongScoredValue.just(2, "two"),
+				LongScoredValue.just(3, "three"));
 		assertEquals(1, result.get(0));
 		assertEquals(2, result.get(1));
 		assertEquals(3, result.get(2));
@@ -1274,12 +1271,8 @@ abstract class ModulesTests {
 
 		assertEquals("OK", cms.cmsInitByProb(key1, .001, .01).block());
 		assertEquals(2, cms.cmsIncrBy(key1, "test", 2).block());
-		Map<String, Long> increments = new HashMap<>();
-		increments.put("one", 1L);
-		increments.put("two", 2L);
-		increments.put("three", 3L);
-
-		List<Long> result = cms.cmsIncrBy(key1, increments).collectList().block();
+		List<Long> result = cms.cmsIncrBy(key1, LongScoredValue.just(1, "one"), LongScoredValue.just(2, "two"),
+				LongScoredValue.just(3, "three")).collectList().block();
 		assertNotNull(result);
 		assertEquals(1, result.get(0));
 		assertEquals(2, result.get(1));

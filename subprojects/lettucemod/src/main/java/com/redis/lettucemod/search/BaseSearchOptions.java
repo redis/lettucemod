@@ -10,12 +10,14 @@ import java.util.OptionalInt;
 
 import com.redis.lettucemod.protocol.SearchCommandKeyword;
 
+import io.lettuce.core.KeyValue;
+
 public class BaseSearchOptions<K, V> implements RediSearchArgument<K, V> {
 
 	private boolean verbatim;
 	private Optional<Duration> timeout = Optional.empty();
 	private Optional<Limit> limit = Optional.empty();
-	private List<Parameter<K, V>> params = new ArrayList<>();
+	private List<KeyValue<K, V>> params = new ArrayList<>();
 	private OptionalInt dialect = OptionalInt.empty();
 
 	protected BaseSearchOptions() {
@@ -53,11 +55,11 @@ public class BaseSearchOptions<K, V> implements RediSearchArgument<K, V> {
 		this.limit = Optional.of(limit);
 	}
 
-	public List<Parameter<K, V>> getParams() {
+	public List<KeyValue<K, V>> getParams() {
 		return params;
 	}
 
-	public void setParams(List<Parameter<K, V>> params) {
+	public void setParams(List<KeyValue<K, V>> params) {
 		this.params = params;
 	}
 
@@ -79,7 +81,7 @@ public class BaseSearchOptions<K, V> implements RediSearchArgument<K, V> {
 		if (!params.isEmpty()) {
 			args.add(SearchCommandKeyword.PARAMS);
 			args.add(params.size() * 2l);
-			params.forEach(p -> args.addKey(p.getName()).addValue(p.getValue()));
+			params.forEach(p -> args.addKey(p.getKey()).addValue(p.getValue()));
 		}
 		dialect.ifPresent(d -> args.add(SearchCommandKeyword.DIALECT).add(d));
 	}
@@ -88,7 +90,7 @@ public class BaseSearchOptions<K, V> implements RediSearchArgument<K, V> {
 
 		private boolean verbatim;
 		private Optional<Duration> timeout = Optional.empty();
-		private final List<Parameter<K, V>> params = new ArrayList<>();
+		private final List<KeyValue<K, V>> params = new ArrayList<>();
 		private Optional<Limit> limit = Optional.empty();
 		private OptionalInt dialect = OptionalInt.empty();
 
@@ -117,12 +119,12 @@ public class BaseSearchOptions<K, V> implements RediSearchArgument<K, V> {
 
 		@SuppressWarnings("unchecked")
 		public B param(K name, V value) {
-			this.params.add(Parameter.of(name, value));
+			this.params.add(KeyValue.just(name, value));
 			return (B) this;
 		}
 
 		@SuppressWarnings("unchecked")
-		public B params(Parameter<K, V>... params) {
+		public B params(KeyValue<K, V>... params) {
 			this.params.addAll(Arrays.asList(params));
 			return (B) this;
 		}

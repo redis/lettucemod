@@ -13,13 +13,14 @@ import java.util.stream.StreamSupport;
 import com.redis.lettucemod.protocol.TimeSeriesCommandKeyword;
 
 import io.lettuce.core.CompositeArgument;
+import io.lettuce.core.KeyValue;
 import io.lettuce.core.protocol.CommandArgs;
 
 public class BaseOptions<K, V> implements CompositeArgument {
 
 	private Optional<Duration> retentionPeriod = Optional.empty();
 	private OptionalLong chunkSize = OptionalLong.empty();
-	private List<Label<K, V>> labels = new ArrayList<>();
+	private List<KeyValue<K, V>> labels = new ArrayList<>();
 
 	public BaseOptions() {
 	}
@@ -30,11 +31,11 @@ public class BaseOptions<K, V> implements CompositeArgument {
 		this.labels = builder.labels;
 	}
 
-	public List<Label<K, V>> getLabels() {
+	public List<KeyValue<K, V>> getLabels() {
 		return labels;
 	}
 
-	public void setLabels(Iterable<Label<K, V>> labels) {
+	public void setLabels(Iterable<KeyValue<K, V>> labels) {
 		this.labels = StreamSupport.stream(labels.spliterator(), false).collect(Collectors.toList());
 	}
 
@@ -61,7 +62,7 @@ public class BaseOptions<K, V> implements CompositeArgument {
 		chunkSize.ifPresent(s -> args.add(TimeSeriesCommandKeyword.CHUNK_SIZE).add(s));
 		if (!labels.isEmpty()) {
 			args.add(TimeSeriesCommandKeyword.LABELS);
-			labels.forEach(l -> args.addKey((K) l.getLabel()).addValue((V) l.getValue()));
+			labels.forEach(l -> args.addKey((K) l.getKey()).addValue((V) l.getValue()));
 		}
 	}
 
@@ -86,7 +87,7 @@ public class BaseOptions<K, V> implements CompositeArgument {
 
 		private Optional<Duration> retentionPeriod = Optional.empty();
 		private OptionalLong chunkSize = OptionalLong.empty();
-		private final List<Label<K, V>> labels = new ArrayList<>();
+		private final List<KeyValue<K, V>> labels = new ArrayList<>();
 
 		public B retentionPeriod(long millis) {
 			return retentionPeriod(Duration.ofMillis(millis));
@@ -102,8 +103,8 @@ public class BaseOptions<K, V> implements CompositeArgument {
 			return (B) this;
 		}
 
-		public B labels(Iterable<Label<K, V>> labels) {
-			for (Label<K, V> label : labels) {
+		public B labels(Iterable<KeyValue<K, V>> labels) {
+			for (KeyValue<K, V> label : labels) {
 				this.labels.add(label);
 			}
 			return (B) this;
@@ -123,16 +124,16 @@ public class BaseOptions<K, V> implements CompositeArgument {
 				throw new IllegalArgumentException("size must be even, it is a set of key=value pairs");
 			}
 			for (int i = 0; i < keyValues.length; i += 2) {
-				label(Label.of((K) keyValues[i], (V) keyValues[i + 1]));
+				label(KeyValue.just((K) keyValues[i], (V) keyValues[i + 1]));
 			}
 			return (B) this;
 		}
 
-		public B label(Label<K, V> label) {
+		public B label(KeyValue<K, V> label) {
 			return labels(label);
 		}
 
-		public B labels(Label<K, V>... labels) {
+		public B labels(KeyValue<K, V>... labels) {
 			return labels(Arrays.asList(labels));
 		}
 
@@ -142,7 +143,7 @@ public class BaseOptions<K, V> implements CompositeArgument {
 		}
 
 		public B label(K label, V value) {
-			this.labels.add(Label.of(label, value));
+			this.labels.add(KeyValue.just(label, value));
 			return (B) this;
 		}
 

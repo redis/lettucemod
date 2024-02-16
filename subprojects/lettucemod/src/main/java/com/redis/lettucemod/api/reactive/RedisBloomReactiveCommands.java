@@ -1,7 +1,5 @@
 package com.redis.lettucemod.api.reactive;
 
-import java.util.Map;
-
 import com.redis.lettucemod.bloom.BloomFilterInfo;
 import com.redis.lettucemod.bloom.BloomFilterInfoType;
 import com.redis.lettucemod.bloom.BloomFilterInsertOptions;
@@ -9,6 +7,7 @@ import com.redis.lettucemod.bloom.BloomFilterReserveOptions;
 import com.redis.lettucemod.bloom.CuckooFilter;
 import com.redis.lettucemod.bloom.CuckooFilterInsertOptions;
 import com.redis.lettucemod.bloom.CuckooFilterReserveOptions;
+import com.redis.lettucemod.bloom.LongScoredValue;
 import com.redis.lettucemod.bloom.TDigestInfo;
 import com.redis.lettucemod.bloom.TDigestMergeOptions;
 import com.redis.lettucemod.bloom.TopKInfo;
@@ -72,7 +71,7 @@ public interface RedisBloomReactiveCommands<K, V> {
 
 	Mono<Long> cmsIncrBy(K key, V item, long increment);
 
-	Flux<Long> cmsIncrBy(K key, Map<V, Long> increments);
+	Flux<Long> cmsIncrBy(K key, LongScoredValue<V>... itemIncrements);
 
 	Mono<String> cmsInitByProb(K key, double error, double probability);
 
@@ -82,13 +81,13 @@ public interface RedisBloomReactiveCommands<K, V> {
 
 	Mono<String> cmsMerge(K destKey, K... keys);
 
-	Mono<String> cmsMerge(K destKey, Map<K, Long> keyWeightMap);
+	Mono<String> cmsMerge(K destKey, LongScoredValue<K>... sourceKeyWeights);
 
 	Mono<CmsInfo> cmsInfo(K key);
 
 	Flux<Value<V>> topKAdd(K key, V... items);
 
-	Flux<Value<V>> topKIncrBy(K key, Map<V, Long> increments);
+	Flux<Value<V>> topKIncrBy(K key, LongScoredValue<V>... itemIncrements);
 
 	Mono<TopKInfo> topKInfo(K key);
 

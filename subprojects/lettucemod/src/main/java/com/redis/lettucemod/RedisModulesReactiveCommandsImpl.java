@@ -12,6 +12,7 @@ import com.redis.lettucemod.bloom.BloomFilterReserveOptions;
 import com.redis.lettucemod.bloom.CuckooFilter;
 import com.redis.lettucemod.bloom.CuckooFilterInsertOptions;
 import com.redis.lettucemod.bloom.CuckooFilterReserveOptions;
+import com.redis.lettucemod.bloom.LongScoredValue;
 import com.redis.lettucemod.bloom.TDigestInfo;
 import com.redis.lettucemod.bloom.TDigestMergeOptions;
 import com.redis.lettucemod.bloom.TopKInfo;
@@ -440,10 +441,10 @@ public class RedisModulesReactiveCommandsImpl<K, V> extends RedisReactiveCommand
 	public Flux<Value<V>> topKAdd(K key, V... items) {
 		return createDissolvingFlux(() -> bloomCommandBuilder.topKAdd(key, items));
 	}
-
+	
 	@Override
-	public Flux<Value<V>> topKIncrBy(K key, Map<V, Long> increments) {
-		return createDissolvingFlux(() -> bloomCommandBuilder.topKIncrBy(key, increments));
+	public Flux<Value<V>> topKIncrBy(K key, LongScoredValue<V>... itemIncrements) {
+		return createDissolvingFlux(() -> bloomCommandBuilder.topKIncrBy(key, itemIncrements));
 	}
 
 	@Override
@@ -824,10 +825,10 @@ public class RedisModulesReactiveCommandsImpl<K, V> extends RedisReactiveCommand
 	public Mono<Long> cmsIncrBy(K key, V item, long increment) {
 		return createMono(() -> bloomCommandBuilder.cmsIncrBy(key, item, increment));
 	}
-
+	
 	@Override
-	public Flux<Long> cmsIncrBy(K key, Map<V, Long> increments) {
-		return createDissolvingFlux(() -> bloomCommandBuilder.cmsIncrBy(key, increments));
+	public Flux<Long> cmsIncrBy(K key, LongScoredValue<V>... itemIncrements) {
+		return createDissolvingFlux(() -> bloomCommandBuilder.cmsIncrBy(key, itemIncrements));
 	}
 
 	@Override
@@ -849,10 +850,10 @@ public class RedisModulesReactiveCommandsImpl<K, V> extends RedisReactiveCommand
 	public Mono<String> cmsMerge(K destKey, K... keys) {
 		return createMono(() -> bloomCommandBuilder.cmsMerge(destKey, keys));
 	}
-
+	
 	@Override
-	public Mono<String> cmsMerge(K destKey, Map<K, Long> keyWeightMap) {
-		return createMono(() -> bloomCommandBuilder.cmsMerge(destKey, keyWeightMap));
+	public Mono<String> cmsMerge(K destKey, LongScoredValue<K>... sourceKeyWeights) {
+		return createMono(() -> bloomCommandBuilder.cmsMerge(destKey, sourceKeyWeights));
 	}
 
 	@Override

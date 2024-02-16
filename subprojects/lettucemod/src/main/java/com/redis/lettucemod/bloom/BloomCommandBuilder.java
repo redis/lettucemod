@@ -1,7 +1,8 @@
 package com.redis.lettucemod.bloom;
 
 import java.util.List;
-import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.redis.lettucemod.RedisModulesCommandBuilder;
 import com.redis.lettucemod.cms.CmsInfo;
@@ -234,11 +235,12 @@ public class BloomCommandBuilder<K, V> extends RedisModulesCommandBuilder<K, V> 
 		return createCommand(CountMinSketchCommandType.INCRBY, new IntegerOutput<>(codec), args);
 	}
 
-	public Command<K, V, List<Long>> cmsIncrBy(K key, Map<V, Long> increments) {
+	@SuppressWarnings("unchecked")
+	public Command<K, V, List<Long>> cmsIncrBy(K key, LongScoredValue<V>... increments) {
 		CommandArgs<K, V> args = args(key);
-		for (Map.Entry<V, Long> entry : increments.entrySet()) {
-			args.addValue(entry.getKey());
-			args.add(entry.getValue());
+		for (LongScoredValue<V> increment : increments) {
+			args.addValue(increment.getValue());
+			args.add(increment.getScore());
 		}
 		return createCommand(CountMinSketchCommandType.INCRBY, new IntegerListOutput<>(codec), args);
 	}
@@ -265,22 +267,22 @@ public class BloomCommandBuilder<K, V> extends RedisModulesCommandBuilder<K, V> 
 	}
 
 	@SuppressWarnings("unchecked")
-	public Command<K, V, String> cmsMerge(K desKey, K... keys) {
+	public Command<K, V, String> cmsMerge(K desKey, K... sourceKeys) {
+		LettuceAssert.isTrue(sourceKeys.length > 0, "At least one source is required");
 		CommandArgs<K, V> args = args(desKey);
-		args.add(keys.length);
-		args.addKeys(keys);
+		args.add(sourceKeys.length);
+		args.addKeys(sourceKeys);
 		return createCommand(CountMinSketchCommandType.MERGE, new StatusOutput<>(codec), args);
 	}
 
-	public Command<K, V, String> cmsMerge(K destKey, Map<K, Long> keyWeightMap) {
+	@SuppressWarnings("unchecked")
+	public Command<K, V, String> cmsMerge(K destKey, LongScoredValue<K>... weights) {
+		LettuceAssert.isTrue(weights.length > 0, "At least one weight is required");
 		CommandArgs<K, V> args = args(destKey);
-		args.add(keyWeightMap.size());
-		args.addKeys(keyWeightMap.keySet());
+		args.add(weights.length);
+		args.addKeys(Stream.of(weights).map(LongScoredValue::getValue).collect(Collectors.toList()));
 		args.add(BloomCommandKeyword.WEIGHTS);
-		for (Long weight : keyWeightMap.values()) {
-			args.add(weight);
-		}
-
+		Stream.of(weights).map(LongScoredValue::getScore).forEach(args::add);
 		return createCommand(CountMinSketchCommandType.MERGE, new StatusOutput<>(codec), args);
 	}
 
@@ -296,11 +298,13 @@ public class BloomCommandBuilder<K, V> extends RedisModulesCommandBuilder<K, V> 
 		return createCommand(TopKCommandType.ADD, new ValueValueListOutput<>(codec), args);
 	}
 
-	public Command<K, V, List<Value<V>>> topKIncrBy(K key, Map<V, Long> increments) {
+	@SuppressWarnings("unchecked")
+	public Command<K, V, List<Value<V>>> topKIncrBy(K key, LongScoredValue<V>... increments) {
+		LettuceAssert.isTrue(increments.length > 0, "At least one increment is required");
 		CommandArgs<K, V> args = args(key);
-		for (Map.Entry<V, Long> entry : increments.entrySet()) {
-			args.addValue(entry.getKey());
-			args.add(entry.getValue());
+		for (LongScoredValue<V> entry : increments) {
+			args.addValue(entry.getValue());
+			args.add(entry.getScore());
 		}
 
 		return createCommand(TopKCommandType.ADD, new ValueValueListOutput<>(codec), args);

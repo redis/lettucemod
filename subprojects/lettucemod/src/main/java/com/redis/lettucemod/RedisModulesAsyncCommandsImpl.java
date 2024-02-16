@@ -13,6 +13,7 @@ import com.redis.lettucemod.bloom.BloomFilterReserveOptions;
 import com.redis.lettucemod.bloom.CuckooFilter;
 import com.redis.lettucemod.bloom.CuckooFilterInsertOptions;
 import com.redis.lettucemod.bloom.CuckooFilterReserveOptions;
+import com.redis.lettucemod.bloom.LongScoredValue;
 import com.redis.lettucemod.bloom.TDigestInfo;
 import com.redis.lettucemod.bloom.TDigestMergeOptions;
 import com.redis.lettucemod.bloom.TopKInfo;
@@ -713,10 +714,10 @@ public class RedisModulesAsyncCommandsImpl<K, V> extends RedisAsyncCommandsImpl<
 	public RedisFuture<Long> cmsIncrBy(K key, V item, long increment) {
 		return dispatch(bloomCommandBuilder.cmsIncrBy(key, item, increment));
 	}
-
+	
 	@Override
-	public RedisFuture<List<Long>> cmsIncrBy(K key, Map<V, Long> increments) {
-		return dispatch(bloomCommandBuilder.cmsIncrBy(key, increments));
+	public RedisFuture<List<Long>> cmsIncrBy(K key, LongScoredValue<V>... itemIncrements) {
+		return dispatch(bloomCommandBuilder.cmsIncrBy(key, itemIncrements));
 	}
 
 	@Override
@@ -738,10 +739,10 @@ public class RedisModulesAsyncCommandsImpl<K, V> extends RedisAsyncCommandsImpl<
 	public RedisFuture<String> cmsMerge(K destKey, K... keys) {
 		return dispatch(bloomCommandBuilder.cmsMerge(destKey, keys));
 	}
-
+	
 	@Override
-	public RedisFuture<String> cmsMerge(K destKey, Map<K, Long> keyWeightMap) {
-		return dispatch(bloomCommandBuilder.cmsMerge(destKey, keyWeightMap));
+	public RedisFuture<String> cmsMerge(K destKey, LongScoredValue<K>... sourceKeyWeights) {
+		return dispatch(bloomCommandBuilder.cmsMerge(destKey, sourceKeyWeights));
 	}
 
 	@Override
@@ -753,10 +754,10 @@ public class RedisModulesAsyncCommandsImpl<K, V> extends RedisAsyncCommandsImpl<
 	public RedisFuture<List<Value<V>>> topKAdd(K key, V... items) {
 		return dispatch(bloomCommandBuilder.topKAdd(key, items));
 	}
-
+	
 	@Override
-	public RedisFuture<List<Value<V>>> topKIncrBy(K key, Map<V, Long> increments) {
-		return dispatch(bloomCommandBuilder.topKIncrBy(key, increments));
+	public RedisFuture<List<Value<V>>> topKIncrBy(K key, LongScoredValue<V>... itemIncrements) {
+		return dispatch(bloomCommandBuilder.topKIncrBy(key, itemIncrements));
 	}
 
 	@Override

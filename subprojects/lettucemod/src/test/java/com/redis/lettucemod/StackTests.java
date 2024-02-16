@@ -20,7 +20,6 @@ import com.redis.lettucemod.api.sync.RedisTimeSeriesCommands;
 import com.redis.lettucemod.timeseries.CreateOptions;
 import com.redis.lettucemod.timeseries.DuplicatePolicy;
 import com.redis.lettucemod.timeseries.GetResult;
-import com.redis.lettucemod.timeseries.Label;
 import com.redis.lettucemod.timeseries.MRangeOptions;
 import com.redis.lettucemod.timeseries.RangeResult;
 import com.redis.lettucemod.timeseries.Sample;
@@ -31,6 +30,7 @@ import com.redis.testcontainers.RedisStackContainer;
 
 import io.lettuce.core.AbstractRedisClient;
 import io.lettuce.core.AclSetuserArgs;
+import io.lettuce.core.KeyValue;
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.codec.StringCodec;
 import io.lettuce.core.resource.DefaultClientResources;
@@ -45,7 +45,7 @@ class StackTests extends ModulesTests {
 	protected AbstractRedisContainer<?> getRedisContainer() {
 		return container;
 	}
-	
+
 	@Test
 	void jsonMerge() throws JsonProcessingException {
 		String key = "jsonMerge:test";
@@ -107,12 +107,12 @@ class StackTests extends ModulesTests {
 		assertEquals("OK", connection.sync().tsCreate(TS_KEY,
 				com.redis.lettucemod.timeseries.CreateOptions.<String, String>builder().retentionPeriod(6000).build()));
 		String key = "virag";
-		List<Label<String, String>> labels = Arrays.asList(Label.of("name", "value"));
+		List<KeyValue<String, String>> labels = Arrays.asList(KeyValue.just("name", "value"));
 		assertEquals("OK",
 				connection.sync().tsCreate(key, com.redis.lettucemod.timeseries.CreateOptions.<String, String>builder()
 						.retentionPeriod(100000L).labels(labels).policy(DuplicatePolicy.LAST).build()));
 		List<GetResult<String, String>> results = connection.sync().tsMgetWithLabels("name=value");
-		Label<String, String> expectedLabel = labels.get(0);
+		KeyValue<String, String> expectedLabel = labels.get(0);
 		assertEquals(expectedLabel, results.get(0).getLabels().get(0));
 	}
 
@@ -122,7 +122,7 @@ class StackTests extends ModulesTests {
 		String key2 = "tsQueryIndex:key2";
 		connection.sync().del(key1, key2);
 		String id = "tsQueryIndex";
-		List<Label<String, String>> labels = Collections.singletonList(Label.of("id", id));
+		List<KeyValue<String, String>> labels = Collections.singletonList(KeyValue.just("id", id));
 		assertEquals("OK",
 				connection.sync().tsCreate(key1, CreateOptions.<String, String>builder().labels(labels).build()));
 		assertEquals("OK",

@@ -2,10 +2,12 @@ package com.redis.lettucemod.timeseries;
 
 import java.util.List;
 
+import io.lettuce.core.KeyValue;
+
 public class GetResult<K, V> {
 
 	private K key;
-	private List<Label<K, V>> labels;
+	private List<KeyValue<K, V>> labels;
 	private Sample sample;
 
 	public K getKey() {
@@ -16,11 +18,11 @@ public class GetResult<K, V> {
 		this.key = key;
 	}
 
-	public List<Label<K, V>> getLabels() {
+	public List<KeyValue<K, V>> getLabels() {
 		return labels;
 	}
 
-	public void setLabels(List<Label<K, V>> labels) {
+	public void setLabels(List<KeyValue<K, V>> labels) {
 		this.labels = labels;
 	}
 

@@ -15,6 +15,7 @@ import com.redis.lettucemod.bloom.BloomFilterReserveOptions;
 import com.redis.lettucemod.bloom.CuckooFilter;
 import com.redis.lettucemod.bloom.CuckooFilterInsertOptions;
 import com.redis.lettucemod.bloom.CuckooFilterReserveOptions;
+import com.redis.lettucemod.bloom.LongScoredValue;
 import com.redis.lettucemod.bloom.TDigestInfo;
 import com.redis.lettucemod.bloom.TDigestMergeOptions;
 import com.redis.lettucemod.bloom.TopKInfo;
@@ -771,8 +772,8 @@ public class RedisModulesAdvancedClusterAsyncCommandsImpl<K, V> extends RedisAdv
 	}
 
 	@Override
-	public RedisFuture<List<Long>> cmsIncrBy(K key, Map<V, Long> increments) {
-		return delegate.cmsIncrBy(key, increments);
+	public RedisFuture<List<Long>> cmsIncrBy(K key, LongScoredValue<V>... itemIncrements) {
+		return delegate.cmsIncrBy(key, itemIncrements);
 	}
 
 	@Override
@@ -796,8 +797,8 @@ public class RedisModulesAdvancedClusterAsyncCommandsImpl<K, V> extends RedisAdv
 	}
 
 	@Override
-	public RedisFuture<String> cmsMerge(K destKey, Map<K, Long> keyWeightMap) {
-		return delegate.cmsMerge(destKey, keyWeightMap);
+	public RedisFuture<String> cmsMerge(K destKey, LongScoredValue<K>... sourceKeyWeights) {
+		return delegate.cmsMerge(destKey, sourceKeyWeights);
 	}
 
 	@Override
@@ -811,8 +812,8 @@ public class RedisModulesAdvancedClusterAsyncCommandsImpl<K, V> extends RedisAdv
 	}
 
 	@Override
-	public RedisFuture<List<Value<V>>> topKIncrBy(K key, Map<V, Long> increments) {
-		return delegate.topKIncrBy(key, increments);
+	public RedisFuture<List<Value<V>>> topKIncrBy(K key, LongScoredValue<V>... itemIncrements) {
+		return delegate.topKIncrBy(key, itemIncrements);
 	}
 
 	@Override

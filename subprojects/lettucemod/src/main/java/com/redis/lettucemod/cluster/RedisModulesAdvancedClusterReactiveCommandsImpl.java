@@ -16,6 +16,7 @@ import com.redis.lettucemod.bloom.BloomFilterReserveOptions;
 import com.redis.lettucemod.bloom.CuckooFilter;
 import com.redis.lettucemod.bloom.CuckooFilterInsertOptions;
 import com.redis.lettucemod.bloom.CuckooFilterReserveOptions;
+import com.redis.lettucemod.bloom.LongScoredValue;
 import com.redis.lettucemod.bloom.TDigestInfo;
 import com.redis.lettucemod.bloom.TDigestMergeOptions;
 import com.redis.lettucemod.bloom.TopKInfo;
@@ -332,8 +333,8 @@ public class RedisModulesAdvancedClusterReactiveCommandsImpl<K, V> extends
 	}
 
 	@Override
-	public Flux<Value<V>> topKIncrBy(K key, Map<V, Long> increments) {
-		return delegate.topKIncrBy(key, increments);
+	public Flux<Value<V>> topKIncrBy(K key, LongScoredValue<V>... itemIncrements) {
+		return delegate.topKIncrBy(key, itemIncrements);
 	}
 
 	@Override
@@ -887,10 +888,10 @@ public class RedisModulesAdvancedClusterReactiveCommandsImpl<K, V> extends
 	public Mono<Long> cmsIncrBy(K key, V item, long increment) {
 		return delegate.cmsIncrBy(key, item, increment);
 	}
-
+	
 	@Override
-	public Flux<Long> cmsIncrBy(K key, Map<V, Long> increments) {
-		return delegate.cmsIncrBy(key, increments);
+	public Flux<Long> cmsIncrBy(K key, LongScoredValue<V>... itemIncrements) {
+		return delegate.cmsIncrBy(key, itemIncrements);
 	}
 
 	@Override
@@ -912,10 +913,10 @@ public class RedisModulesAdvancedClusterReactiveCommandsImpl<K, V> extends
 	public Mono<String> cmsMerge(K destKey, K... keys) {
 		return delegate.cmsMerge(destKey, keys);
 	}
-
+	
 	@Override
-	public Mono<String> cmsMerge(K destKey, Map<K, Long> keyWeightMap) {
-		return delegate.cmsMerge(destKey, keyWeightMap);
+	public Mono<String> cmsMerge(K destKey, LongScoredValue<K>... sourceKeyWeights) {
+		return delegate.cmsMerge(destKey, sourceKeyWeights);
 	}
 
 	@Override
