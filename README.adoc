@@ -12,12 +12,18 @@ image:https://img.shields.io/github/license/{project-owner}/{project-name}["Lice
 image:https://codecov.io/gh/{project-owner}/{project-name}/branch/master/graph/badge.svg?token=A5IX98M8JT["Coverage",link="https://codecov.io/gh/{project-owner}/{project-name}"]
 image:https://img.shields.io/badge/Forum-Modules-blue["forum",link=https://forum.redis.com/c/modules/]
 
-LettuceMod is a Java client for https://docs.redis.com/latest/modules/[Redis Modules] based on https://lettuce.io[Lettuce].
-It supports the following modules in standalone or cluster configurations:
+LettuceMod is a Java client for https://redis.io/docs/about/about-stack/[Redis Stack] based on https://lettuce.io[Lettuce].
+It supports the following Redis Stack features:
 
-* https://oss.redis.com/redisjson/[RedisJSON]
-* https://oss.redis.com/redisearch/[RediSearch]
-* https://oss.redis.com/redistimeseries/[RedisTimeSeries]
+* https://redis.io/docs/data-types/json/[JSON data type] (storing, updating, and fetching)
+* https://redis.io/docs/interact/search-and-query/[Search and query] of hashes and JSON documents
+* https://redis.io/docs/data-types/timeseries/[Time series] data support
+* https://redis.io/docs/data-types/probabilistic/[Probabilistic data structures]
+** https://redis.io/docs/data-types/probabilistic/bloom-filter/[Bloom filter]
+** https://redis.io/docs/data-types/probabilistic/cuckoo-filter/[Cuckoo filter]
+** https://redis.io/docs/data-types/probabilistic/t-digest/[t-digest]
+** https://redis.io/docs/data-types/probabilistic/top-k/[Top-K]
+** https://redis.io/docs/data-types/probabilistic/count-min-sketch/[Count-min sketch]
 
 == Getting Started
 
@@ -173,44 +179,40 @@ public class MyComponent {
 }
 ----
 
-=== RedisJSON
+=== Commands
 
 [source,java]
 ----
-RedisJSONCommands<String, String> json = connection.sync(); // <1>
+RedisModulesCommands<String, String> commands = connection.sync();
 
-json.jsonSet("arr", ".", "[1,2,3]"); // <2>
+// JSON.SET
+commands.jsonSet("arr", ".", "[1,2,3]");
+
+// FT.CREATE
+commands.ftCreate("beers", Field.text("name").build(), Field.numeric("ibu").build());
+
+// FT.SEARCH
+commands.ftSearch("beers", "chou*");
+
+// TS.ADD
+commands.tsAdd("temp:3:11", Sample.of(1548149181, 30));
+
+// BF.EXISTS
+commands.bfExists("bloom:1", "test");
+
+// CF.EXISTS
+commands.cfExists("cuckoo:1", "one");
+
+// CMS.QUERY
+commands.cmsQuery("cms:1", "one", "two", "three");
+
+// TDIGEST.RANK
+commands.tDigestRank("tdigest:1", -5, 100, 5.3);
+
+// TOPK.QUERY
+commands.topKQuery("topk:1", "four", "three", "two", "foo");
 ----
 
-<1> Use sync, async, or reactive RedisJSON commands
-<2> Set a JSON value
-
-=== RediSearch
-
-[source,java]
-----
-RediSearchCommands<String, String> search = connection.sync(); // <1>
-
-search.ftCreate("beers", Field.text("name").build(), Field.numeric("ibu").build()); // <2>
-
-SearchResults<String, String> results = search.ftSearch("beers", "chou*"); // <3>
-----
-
-<1> Use sync, async, or reactive RediSearch commands
-<2> Create an index
-<3> Search the index
-
-=== RedisTimeSeries
-
-[source,java]
-----
-RedisTimeSeriesCommands<String, String> ts = connection.sync(); // <1>
-
-ts.tsAdd("temp:3:11", Sample.of(1548149181, 30)); // <2>
-----
-
-<1> Use sync, async, or reactive RedisTimeSeries commands
-<2> Append a new sample to the series
 
 === Pipelining
 
@@ -252,15 +254,15 @@ config.setMaxTotal(16);
 GenericObjectPool<StatefulRedisModulesConnection<String, String>> pool = ConnectionPoolSupport.createGenericObjectPool(client::connect, config); // <2>
 
 try (StatefulRedisModulesConnection<String, String> connection = pool.borrowObject()) { // <3>
-	
-	RedisModulesAsyncCommands<String, String> commands = connection.async(); // <4>
+    
+    RedisModulesAsyncCommands<String, String> commands = connection.async(); // <4>
 
-	// ...
+    // ...
 
 } catch (Exception e) {
-	
-	log.error("Could not get a connection from the pool", e);
-	
+    
+    log.error("Could not get a connection from the pool", e);
+    
 }
 ----
 
