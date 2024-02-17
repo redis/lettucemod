@@ -109,9 +109,7 @@ repositories {
 [source,java]
 ----
 RedisModulesClient client = RedisModulesClient.create("redis://localhost:6379"); // <1>
-
 StatefulRedisModulesConnection<String, String> connection = client.connect(); // <2>
-
 RedisModulesCommands<String, String> commands = connection.sync(); // <3>
 ----
 
@@ -123,11 +121,8 @@ RedisModulesCommands<String, String> commands = connection.sync(); // <3>
 [source,java]
 ----
 List<RedisURI> uris = Arrays.asList(RedisURI.create("node1", 6379), RedisURI.create("node2", 6379)); // <1>
-
 RedisModulesClusterClient client = RedisModulesClusterClient.create(uris); // <2>
-
 StatefulRedisModulesClusterConnection<String, String> connection = client.connect(); // <3>
-
 RedisModulesAdvancedClusterCommands<String, String> commands = connection.sync(); // <4>
 ----
 
@@ -219,19 +214,14 @@ commands.topKQuery("topk:1", "four", "three", "two", "foo");
 [source,java]
 ----
 RedisModulesAsyncCommands<String, String> commands = connection.async();
-
 commands.setAutoFlushCommands(false); // <1>
-
 List<RedisFuture<?>> futures = new ArrayList<>(); // <2>
 for (MyEntity element : entities()) {
     futures.add(commands.ftSugadd("names",  Suggestion.of(element.getName(), element.getScore())));
 }
-
 commands.flushCommands(); // <3>
-
 boolean result = LettuceFutures.awaitAll(5, TimeUnit.SECONDS,
         futures.toArray(new RedisFuture[0])); // <4>
-
 connection.close(); // <5>
 ----
 
@@ -246,23 +236,14 @@ connection.close(); // <5>
 [source,java]
 ----
 GenericObjectPoolConfig<StatefulRedisModulesConnection<String, String>> config = new GenericObjectPoolConfig<>(); // <1>
-
 config.setMaxTotal(16);
-
 // ...
-
 GenericObjectPool<StatefulRedisModulesConnection<String, String>> pool = ConnectionPoolSupport.createGenericObjectPool(client::connect, config); // <2>
-
 try (StatefulRedisModulesConnection<String, String> connection = pool.borrowObject()) { // <3>
-    
     RedisModulesAsyncCommands<String, String> commands = connection.async(); // <4>
-
     // ...
-
 } catch (Exception e) {
-    
     log.error("Could not get a connection from the pool", e);
-    
 }
 ----
 
