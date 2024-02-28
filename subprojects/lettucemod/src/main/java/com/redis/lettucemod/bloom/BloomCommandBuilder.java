@@ -5,12 +5,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.redis.lettucemod.RedisModulesCommandBuilder;
-import com.redis.lettucemod.output.BfInfoOutput;
-import com.redis.lettucemod.output.CfInfoOutput;
-import com.redis.lettucemod.output.CmsInfoOutput;
-import com.redis.lettucemod.output.TDigestInfoOutput;
-import com.redis.lettucemod.output.TopKInfoOutput;
-import com.redis.lettucemod.output.TopKListWithScoresOutput;
+import com.redis.lettucemod.output.*;
 import com.redis.lettucemod.protocol.BloomCommandKeyword;
 import com.redis.lettucemod.protocol.BloomFilterCommandType;
 import com.redis.lettucemod.protocol.CountMinSketchCommandType;
@@ -25,8 +20,6 @@ import io.lettuce.core.internal.LettuceAssert;
 import io.lettuce.core.output.BooleanListOutput;
 import io.lettuce.core.output.BooleanOutput;
 import io.lettuce.core.output.CommandOutput;
-import io.lettuce.core.output.DoubleListOutput;
-import io.lettuce.core.output.DoubleOutput;
 import io.lettuce.core.output.IntegerListOutput;
 import io.lettuce.core.output.IntegerOutput;
 import io.lettuce.core.output.StatusOutput;
@@ -362,7 +355,7 @@ public class BloomCommandBuilder<K, V> extends RedisModulesCommandBuilder<K, V> 
 			args.add(rank);
 		}
 
-		return createCommand(TDigestCommandType.BYRANK, new DoubleListOutput<>(codec), args);
+		return createCommand(TDigestCommandType.BYRANK, new TDigestDoubleListOutput<>(codec), args);
 	}
 
 	public Command<K, V, List<Double>> tDigestByRevRank(K key, long... ranks) {
@@ -371,7 +364,7 @@ public class BloomCommandBuilder<K, V> extends RedisModulesCommandBuilder<K, V> 
 			args.add(rank);
 		}
 
-		return createCommand(TDigestCommandType.BYREVRANK, new DoubleListOutput<>(codec), args);
+		return createCommand(TDigestCommandType.BYREVRANK, new TDigestDoubleListOutput<>(codec), args);
 	}
 
 	public Command<K, V, List<Double>> tDigestCdf(K key, double... values) {
@@ -380,7 +373,7 @@ public class BloomCommandBuilder<K, V> extends RedisModulesCommandBuilder<K, V> 
 			args.add(value);
 		}
 
-		return createCommand(TDigestCommandType.CDF, new DoubleListOutput<>(codec), args);
+		return createCommand(TDigestCommandType.CDF, new TDigestDoubleListOutput<>(codec), args);
 	}
 
 	public Command<K, V, String> tDigestCreate(K key) {
@@ -402,7 +395,7 @@ public class BloomCommandBuilder<K, V> extends RedisModulesCommandBuilder<K, V> 
 
 	public Command<K, V, Double> tDigestMax(K key) {
 		CommandArgs<K, V> args = args(key);
-		return createCommand(TDigestCommandType.MAX, new DoubleOutput<>(codec), args);
+		return createCommand(TDigestCommandType.MAX, new TDigestDoubleOutput<>(codec), args);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -422,7 +415,7 @@ public class BloomCommandBuilder<K, V> extends RedisModulesCommandBuilder<K, V> 
 
 	public Command<K, V, Double> tDigestMin(K key) {
 		CommandArgs<K, V> args = args(key);
-		return createCommand(TDigestCommandType.MIN, new DoubleOutput<>(codec), args);
+		return createCommand(TDigestCommandType.MIN, new TDigestDoubleOutput<>(codec), args);
 	}
 
 	public Command<K, V, List<Double>> tDigestQuantile(K key, double... quantiles) {
@@ -431,7 +424,7 @@ public class BloomCommandBuilder<K, V> extends RedisModulesCommandBuilder<K, V> 
 			args.add(quantile);
 		}
 
-		return createCommand(TDigestCommandType.QUANTILE, new DoubleListOutput<>(codec), args);
+		return createCommand(TDigestCommandType.QUANTILE, new TDigestDoubleListOutput<>(codec), args);
 	}
 
 	public Command<K, V, List<Long>> tDigestRank(K key, double... values) {
@@ -461,6 +454,6 @@ public class BloomCommandBuilder<K, V> extends RedisModulesCommandBuilder<K, V> 
 		CommandArgs<K, V> args = args(key);
 		args.add(lowCutQuantile);
 		args.add(highCutQuantile);
-		return createCommand(TDigestCommandType.TRIMMED_MEAN, new DoubleOutput<>(codec), args);
+		return createCommand(TDigestCommandType.TRIMMED_MEAN, new TDigestDoubleOutput<>(codec), args);
 	}
 }
