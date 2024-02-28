@@ -1390,6 +1390,52 @@ abstract class ModulesTests {
 	}
 
 	@Test
+	void tDigestEmpty(){
+		String key = "tdigest:empty";
+		connection.sync().unlink(key);
+		assertEquals("OK", connection.sync().tDigestCreate(key));
+		double[] quantiles = {0.1,0.2,0.3};
+		List<Double> res = connection.sync().tDigestQuantile(key, quantiles);
+		assertEquals(Double.NaN, res.get(0));
+		assertEquals(Double.NaN, res.get(1));
+		assertEquals(Double.NaN, res.get(2));
+
+		res = connection.sync().tDigestByRank(key, 4, 5, 6);
+		assertEquals(Double.NaN, res.get(0));
+		assertEquals(Double.NaN, res.get(1));
+		assertEquals(Double.NaN, res.get(2));
+
+		res = connection.sync().tDigestByRevRank(key, 4, 5, 6);
+		assertEquals(Double.NaN, res.get(0));
+		assertEquals(Double.NaN, res.get(1));
+		assertEquals(Double.NaN, res.get(2));
+
+		res = connection.sync().tDigestCdf(key, .4,.5);
+		assertEquals(Double.NaN, res.get(0));
+		assertEquals(Double.NaN, res.get(1));
+
+		double singleResult = connection.sync().tDigestMin(key);
+		assertEquals(Double.NaN, singleResult);
+
+		singleResult = connection.sync().tDigestMax(key);
+		assertEquals(Double.NaN, singleResult);
+
+		singleResult = connection.sync().tDigestTrimmedMean(key, 0, 1);
+		assertEquals(Double.NaN, singleResult);
+	}
+
+	@Test
+	void tDigestInf(){
+		String key = "tdigest:inf";
+		connection.sync().unlink(key);
+		RedisBloomCommands<String, String> tDigest = connection.sync();
+		assertEquals("OK", tDigest.tDigestCreate(key, 1000));
+		assertEquals("OK", tDigest.tDigestAdd(key, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10));
+		assertEquals(Double.POSITIVE_INFINITY, tDigest.tDigestByRank(key, 25).get(0));
+		assertEquals(Double.NEGATIVE_INFINITY, tDigest.tDigestByRevRank(key, 25).get(0));
+	}
+
+	@Test
 	void tDigest() {
 		String key = "tdigest:1";
 		connection.sync().unlink(key);
