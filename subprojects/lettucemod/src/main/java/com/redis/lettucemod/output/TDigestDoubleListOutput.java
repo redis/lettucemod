@@ -1,12 +1,12 @@
 package com.redis.lettucemod.output;
 
 import io.lettuce.core.codec.RedisCodec;
+import io.lettuce.core.internal.LettuceStrings;
 import io.lettuce.core.output.CommandOutput;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class TDigestDoubleListOutput<K,V> extends CommandOutput<K, V, List<Double>> {
     private boolean initialized;
@@ -19,16 +19,7 @@ public class TDigestDoubleListOutput<K,V> extends CommandOutput<K, V, List<Doubl
         if(bytes == null){
             output.add(null);
         } else{
-            String byteStr = decodeAscii(bytes);
-            if(Objects.equals(byteStr, "nan")){
-                output.add(Double.NaN);
-            } else if (Objects.equals(byteStr, "inf")){
-                output.add(Double.POSITIVE_INFINITY);
-            } else if (Objects.equals(byteStr, "-inf")){
-                output.add(Double.NEGATIVE_INFINITY);
-            } else{
-                output.add(Double.parseDouble(byteStr));
-            }
+            output.add(LettuceStrings.toDouble(decodeAscii(bytes)));
         }
     }
 
