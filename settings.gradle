@@ -8,12 +8,14 @@ buildscript {
         classpath "org.kordamp.gradle:java-project-gradle-plugin:$kordampPluginVersion"
         classpath "org.kordamp.gradle:jacoco-gradle-plugin:$kordampPluginVersion"
         classpath "org.kordamp.gradle:kordamp-parentbuild:$kordampBuildVersion"
+        classpath "org.springframework.boot:spring-boot-gradle-plugin:$bootPluginVersion"
+        classpath "io.spring.gradle:dependency-management-plugin:$dependencyPluginVersion"
     }
 }
 
 apply plugin: 'org.kordamp.gradle.kordamp-parentbuild'
 
-rootProject.name = 'lettucemod'
+rootProject.name = 'lettucemod-root'
 
 projects {
     directories = ['subprojects']
@@ -27,28 +29,14 @@ projects {
         }
         dirs(['subprojects']) {
             id 'java-library'
+            id 'org.springframework.boot'
+            id 'io.spring.dependency-management'
         }
     }
 }
 
 enforce {
-    rule(enforcer.rules.EnforceBytecodeVersion) { 
-        enabled = false
-    }
-    rule(enforcer.rules.BanDuplicateClasses) { r ->
-        // search only on compile and runtime classpaths
-        r.configurations.addAll(['compileClasspath', 'runtimeClasspath'])
-    }
-    rule(enforcer.rules.ForceDependencies) { r ->
-        r.dependencies.addAll "org.testcontainers:testcontainers:$testcontainersVersion",
-            "org.slf4j:slf4j-api:$slf4jVersion",
-            "org.junit:junit-bom:$junitVersion",
-            "org.junit.jupiter:junit-jupiter-api:$junitVersion",
-            "org.junit.jupiter:junit-jupiter:$junitVersion",
-            "org.junit.platform:junit-platform-engine:$junitPlatformVersion",
-            "org.junit.platform:junit-platform-launcher:$junitPlatformVersion",
-            "org.junit.platform:junit-platform-commons:$junitPlatformVersion",
-            "org.hamcrest:hamcrest:$hamcrestVersion",
-            "com.fasterxml.jackson.core:jackson-annotations:$jacksonVersion"
+    rule(enforcer.rules.EnforceBytecodeVersion) { r ->
+        r.enabled = false
     }
 }

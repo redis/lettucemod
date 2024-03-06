@@ -43,6 +43,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.lifecycle.Startable;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -108,7 +109,7 @@ import com.redis.lettucemod.timeseries.Sample;
 import com.redis.lettucemod.timeseries.TimeRange;
 import com.redis.lettucemod.util.GeoLocation;
 import com.redis.lettucemod.util.RedisModulesUtils;
-import com.redis.testcontainers.AbstractRedisContainer;
+import com.redis.testcontainers.RedisServer;
 
 import io.lettuce.core.AbstractRedisClient;
 import io.lettuce.core.KeyValue;
@@ -167,13 +168,16 @@ abstract class ModulesTests {
 
 	@BeforeAll
 	void setup() {
-		getRedisContainer().start();
-		client = redisClient(getRedisContainer());
+		RedisServer server = getRedisServer();
+		if (server instanceof Startable) {
+			((Startable) server).start();
+		}
+		client = redisClient(getRedisServer());
 		connection = RedisModulesUtils.connection(client);
 	}
 
-	private AbstractRedisClient redisClient(AbstractRedisContainer<?> server) {
-		if (server.isCluster()) {
+	private AbstractRedisClient redisClient(RedisServer server) {
+		if (server.isRedisCluster()) {
 			return RedisModulesClusterClient.create(server.getRedisURI());
 		}
 		return RedisModulesClient.create(server.getRedisURI());
@@ -188,7 +192,10 @@ abstract class ModulesTests {
 			client.shutdown();
 			client.getResources().shutdown();
 		}
-		getRedisContainer().stop();
+		RedisServer server = getRedisServer();
+		if (server instanceof Startable) {
+			((Startable) server).stop();
+		}
 	}
 
 	@BeforeEach
@@ -196,7 +203,7 @@ abstract class ModulesTests {
 		connection.sync().flushall();
 	}
 
-	protected abstract AbstractRedisContainer<?> getRedisContainer();
+	protected abstract RedisServer getRedisServer();
 
 	protected void assertPing(StatefulRedisModulesConnection<String, String> connection) {
 		assertEquals(PONG, ping(connection));
@@ -1390,11 +1397,11 @@ abstract class ModulesTests {
 	}
 
 	@Test
-	void tDigestEmpty(){
+	void tDigestEmpty() {
 		String key = "tdigest:empty";
 		connection.sync().unlink(key);
 		assertEquals("OK", connection.sync().tDigestCreate(key));
-		double[] quantiles = {0.1,0.2,0.3};
+		double[] quantiles = { 0.1, 0.2, 0.3 };
 		List<Double> res = connection.sync().tDigestQuantile(key, quantiles);
 		assertEquals(Double.NaN, res.get(0));
 		assertEquals(Double.NaN, res.get(1));
@@ -1410,7 +1417,7 @@ abstract class ModulesTests {
 		assertEquals(Double.NaN, res.get(1));
 		assertEquals(Double.NaN, res.get(2));
 
-		res = connection.sync().tDigestCdf(key, .4,.5);
+		res = connection.sync().tDigestCdf(key, .4, .5);
 		assertEquals(Double.NaN, res.get(0));
 		assertEquals(Double.NaN, res.get(1));
 
@@ -1425,7 +1432,7 @@ abstract class ModulesTests {
 	}
 
 	@Test
-	void tDigestInf(){
+	void tDigestInf() {
 		String key = "tdigest:inf";
 		connection.sync().unlink(key);
 		RedisBloomCommands<String, String> tDigest = connection.sync();

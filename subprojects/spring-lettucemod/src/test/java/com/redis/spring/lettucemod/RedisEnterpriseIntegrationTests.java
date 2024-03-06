@@ -10,7 +10,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.util.unit.DataSize;
 import org.testcontainers.junit.jupiter.Container;
 
 import com.redis.enterprise.Database;
@@ -29,7 +28,7 @@ class RedisEnterpriseIntegrationTests {
 	@Container
 	private static final RedisEnterpriseContainer container = new RedisEnterpriseContainer(
 			RedisEnterpriseContainer.DEFAULT_IMAGE_NAME.withTag("latest"))
-			.withDatabase(Database.name("ModulesTests").memory(DataSize.ofMegabytes(110)).ossCluster(true)
+			.withDatabase(Database.builder().name("ModulesTests").memoryMB(110).ossCluster(true)
 					.modules(RedisModule.SEARCH, RedisModule.JSON, RedisModule.TIMESERIES).build());
 
 	@DynamicPropertySource

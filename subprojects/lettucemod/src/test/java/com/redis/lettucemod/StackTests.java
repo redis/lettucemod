@@ -42,7 +42,7 @@ class StackTests extends ModulesTests {
 	private final RedisStackContainer container = new RedisStackContainer(imageName);
 
 	@Override
-	protected AbstractRedisContainer<?> getRedisContainer() {
+	protected AbstractRedisContainer<?> getRedisServer() {
 		return container;
 	}
 
@@ -71,7 +71,7 @@ class StackTests extends ModulesTests {
 		String password = "ecila";
 		connection.sync().aclSetuser(username,
 				AclSetuserArgs.Builder.on().addPassword(password).allCommands().allKeys());
-		RedisURI.Builder wrongPasswordURI = RedisURI.builder(RedisURI.create(getRedisContainer().getRedisURI()));
+		RedisURI.Builder wrongPasswordURI = RedisURI.builder(RedisURI.create(getRedisServer().getRedisURI()));
 		wrongPasswordURI.withAuthentication(username, "wrongpassword");
 		try (RedisModulesClient client = RedisModulesClient.create(wrongPasswordURI.build())) {
 			RedisModulesUtils.connection(client);
@@ -81,7 +81,7 @@ class StackTests extends ModulesTests {
 		}
 		String key = "foo";
 		String value = "bar";
-		RedisURI.Builder uri = RedisURI.builder(RedisURI.create(getRedisContainer().getRedisURI()));
+		RedisURI.Builder uri = RedisURI.builder(RedisURI.create(getRedisServer().getRedisURI()));
 		uri.withAuthentication(username, password);
 		try (AbstractRedisClient client = RedisModulesClient.create(uri.build());
 				StatefulRedisModulesConnection<String, String> connection = RedisModulesUtils.connection(client)) {
