@@ -15,7 +15,7 @@ buildscript {
 
 apply plugin: 'org.kordamp.gradle.kordamp-parentbuild'
 
-rootProject.name = 'lettucemod-root'
+rootProject.name = 'lettucemod'
 
 projects {
     directories = ['subprojects']

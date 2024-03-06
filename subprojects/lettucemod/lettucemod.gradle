@@ -5,3 +5,9 @@ dependencies {
     testImplementation 'org.awaitility:awaitility'
     testImplementation 'org.slf4j:slf4j-simple'
 }
+
+eclipse {
+    project {
+        name = 'lettucemod-core'
+    }
+}
