@@ -6,15 +6,15 @@ config {
         tags = ['redis', 'modules', 'stack', 'java', 'client', 'spring']
 
         links {
-            website      = "https://github.com/redis-developer/${project.rootProject.name}"
-            issueTracker = "https://github.com/redis-developer/${project.rootProject.name}/issues"
-            scm          = "https://github.com/redis-developer/${project.rootProject.name}.git"
+            website      = "https://github.com/redis/${project.rootProject.name}"
+            issueTracker = "https://github.com/redis/${project.rootProject.name}/issues"
+            scm          = "https://github.com/redis/${project.rootProject.name}.git"
         }
 
         scm {
-            url                 = "https://github.com/redis-developer/${project.rootProject.name}"
-            connection          = "scm:git:https://github.com/redis-developer/${project.rootProject.name}.git"
-            developerConnection = "scm:git:git@github.com:redis-developer/${project.rootProject.name}.git"
+            url                 = "https://github.com/redis/${project.rootProject.name}"
+            connection          = "scm:git:https://github.com/redis/${project.rootProject.name}.git"
+            developerConnection = "scm:git:git@github.com:redis/${project.rootProject.name}.git"
         }
 
         specification {
