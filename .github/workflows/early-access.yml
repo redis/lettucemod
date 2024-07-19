@@ -7,7 +7,7 @@ on:
 jobs:
   earlyaccess:
     name: 'Early Access'
-    if: github.repository == 'redis-developer/lettucemod' && startsWith(github.event.head_commit.message, 'Releasing version') != true
+    if: github.repository == 'redis/lettucemod' && startsWith(github.event.head_commit.message, 'Releasing version') != true
     uses: redis-field-engineering/redis-github-workflows/.github/workflows/early-access.yml@main
     with:
       jreleaser-arguments: full-release
