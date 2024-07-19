@@ -18,7 +18,7 @@ jobs:
       gpg-public-key: ${{ secrets.GPG_PUBLIC_KEY }}
       gpg-secret-key: ${{ secrets.GPG_SECRET_KEY }}
       sonatype-username: ${{ secrets.SONATYPE_USERNAME }}
-      sonatype-password: ${{ secrets.SONATYPE_PASSWORD }}      
+      sonatype-password: ${{ secrets.SONATYPE_PASSWORD }}
       docker-username: ${{ secrets.DOCKER_USERNAME }}
       docker-password: ${{ secrets.DOCKER_PASSWORD }}
-      slack-webhook: ${{ secrets.SLACK_WEBHOOK }}
+      codecov-token: ${{ secrets.CODECOV_TOKEN }}
