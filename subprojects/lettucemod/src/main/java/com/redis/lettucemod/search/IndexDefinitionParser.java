@@ -1,11 +1,10 @@
-package com.redis.lettucemod.util;
+package com.redis.lettucemod.search;
 
 import java.util.Iterator;
 import java.util.List;
 
-import com.redis.lettucemod.search.CreateOptions;
+import com.redis.lettucemod.RedisModulesUtils;
 import com.redis.lettucemod.search.CreateOptions.DataType;
-import com.redis.lettucemod.search.Language;
 
 public class IndexDefinitionParser {
 

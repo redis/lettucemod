@@ -1,4 +1,4 @@
-package com.redis.lettucemod.util;
+package com.redis.lettucemod.search;
 
 import io.lettuce.core.internal.LettuceAssert;
 

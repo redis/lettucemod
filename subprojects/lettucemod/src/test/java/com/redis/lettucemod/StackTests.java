@@ -24,8 +24,7 @@ import com.redis.lettucemod.timeseries.MRangeOptions;
 import com.redis.lettucemod.timeseries.RangeResult;
 import com.redis.lettucemod.timeseries.Sample;
 import com.redis.lettucemod.timeseries.TimeRange;
-import com.redis.lettucemod.util.RedisModulesUtils;
-import com.redis.testcontainers.AbstractRedisContainer;
+import com.redis.testcontainers.RedisServer;
 import com.redis.testcontainers.RedisStackContainer;
 
 import io.lettuce.core.AbstractRedisClient;
@@ -42,7 +41,7 @@ class StackTests extends ModulesTests {
 	private final RedisStackContainer container = new RedisStackContainer(imageName);
 
 	@Override
-	protected AbstractRedisContainer<?> getRedisServer() {
+	protected RedisServer getRedisServer() {
 		return container;
 	}
 

@@ -6,11 +6,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.redis.lettucemod.RedisModulesClient;
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
@@ -38,7 +38,7 @@ import io.lettuce.core.support.ConnectionPoolSupport;
 @SuppressWarnings("unused")
 public class Usage {
 
-	private static final Logger log = Logger.getLogger(Usage.class.getName());
+	private final Logger log = LoggerFactory.getLogger(Usage.class);
 
 	@SuppressWarnings("unchecked")
 	void usage() {
@@ -161,7 +161,7 @@ try (StatefulRedisModulesConnection<String, String> connection = pool.borrowObje
 
 } catch (Exception e) {
 	
-	log.log(Level.SEVERE, "Could not get a connection from the pool", e);
+	log.error("Could not get a connection from the pool", e);
 	
 }
 

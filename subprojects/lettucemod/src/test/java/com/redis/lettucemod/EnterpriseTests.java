@@ -8,7 +8,7 @@ import com.redis.enterprise.Database;
 import com.redis.enterprise.RedisModule;
 import com.redis.lettucemod.cluster.RedisModulesClusterClient;
 import com.redis.lettucemod.cluster.api.StatefulRedisModulesClusterConnection;
-import com.redis.testcontainers.RedisEnterpriseContainer;
+import com.redis.enterprise.testcontainers.RedisEnterpriseContainer;
 import com.redis.testcontainers.RedisServer;
 
 import io.lettuce.core.RedisURI;
@@ -18,10 +18,12 @@ import io.lettuce.core.resource.DefaultClientResources;
 @EnabledOnOs(OS.LINUX)
 class EnterpriseTests extends ModulesTests {
 
+	private final Database database = Database.builder().name("ModulesTests").memoryMB(110).ossCluster(true)
+			.modules(RedisModule.SEARCH, RedisModule.JSON, RedisModule.BLOOM, RedisModule.TIMESERIES).build();
+
 	private final RedisEnterpriseContainer container = new RedisEnterpriseContainer(
-			RedisEnterpriseContainer.DEFAULT_IMAGE_NAME.withTag("latest"))
-			.withDatabase(Database.builder().name("ModulesTests").memoryMB(110).ossCluster(true)
-					.modules(RedisModule.SEARCH, RedisModule.JSON, RedisModule.BLOOM, RedisModule.TIMESERIES).build());
+			RedisEnterpriseContainer.DEFAULT_IMAGE_NAME.withTag(RedisEnterpriseContainer.DEFAULT_TAG))
+			.withDatabase(database);
 
 	@Override
 	protected RedisServer getRedisServer() {

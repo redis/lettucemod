@@ -82,6 +82,7 @@ import com.redis.lettucemod.search.CreateOptions.DataType;
 import com.redis.lettucemod.search.CursorOptions;
 import com.redis.lettucemod.search.Document;
 import com.redis.lettucemod.search.Field;
+import com.redis.lettucemod.search.GeoLocation;
 import com.redis.lettucemod.search.Group;
 import com.redis.lettucemod.search.IndexInfo;
 import com.redis.lettucemod.search.Language;
@@ -107,8 +108,6 @@ import com.redis.lettucemod.timeseries.Aggregator;
 import com.redis.lettucemod.timeseries.RangeOptions;
 import com.redis.lettucemod.timeseries.Sample;
 import com.redis.lettucemod.timeseries.TimeRange;
-import com.redis.lettucemod.util.GeoLocation;
-import com.redis.lettucemod.util.RedisModulesUtils;
 import com.redis.testcontainers.RedisServer;
 
 import io.lettuce.core.AbstractRedisClient;
