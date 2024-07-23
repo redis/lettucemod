@@ -101,6 +101,7 @@ subprojects {
         testImplementation 'org.junit.platform:junit-platform-launcher'
         testImplementation 'org.testcontainers:junit-jupiter'
         testImplementation group: 'com.redis', name: 'testcontainers-redis', version: testcontainersRedisVersion
+        testImplementation group: 'com.redis', name: 'testcontainers-redis-enterprise', version: testcontainersRedisVersion
     }
 
     test {
