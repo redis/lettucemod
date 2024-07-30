@@ -27,7 +27,7 @@ class RedisStackIntegrationTests {
 	@DynamicPropertySource
 	static void redisProperties(DynamicPropertyRegistry registry) {
 		container.start();
-		registry.add("spring.redis.url", container::getRedisURI);
+		registry.add("spring.data.redis.url", container::getRedisURI);
 	}
 
 	@Test

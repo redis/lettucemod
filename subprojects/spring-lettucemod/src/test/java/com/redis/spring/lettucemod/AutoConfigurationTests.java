@@ -30,8 +30,9 @@ class AutoConfigurationTests {
 
 	private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
 			.withConfiguration(AutoConfigurations.of(RedisModulesAutoConfiguration.class))
-			.withPropertyValues("spring.redis.host: " + redisStackContainer.getHost(),
-					"spring.redis.port:" + redisStackContainer.getFirstMappedPort(), "spring.redis.ssl:false");
+			.withPropertyValues("spring.data.redis.host: " + redisStackContainer.getHost(),
+					"spring.data.redis.port:" + redisStackContainer.getFirstMappedPort(),
+					"spring.data.redis.ssl.enabled:false");
 
 	@Test
 	void defaultConfiguration() {
