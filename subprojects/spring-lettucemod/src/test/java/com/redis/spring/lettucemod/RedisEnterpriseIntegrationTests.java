@@ -25,12 +25,14 @@ class RedisEnterpriseIntegrationTests {
 	private static final Database database = Database.builder().name("ModulesTests").memoryMB(110).ossCluster(true)
 			.modules(RedisModule.SEARCH, RedisModule.JSON, RedisModule.TIMESERIES).build();
 
+	public static final String TAG = "7.2.4";
+
 	@Autowired
 	private RedisModulesClusterClient client;
 
 	@Container
 	private static final RedisEnterpriseContainer container = new RedisEnterpriseContainer(
-			RedisEnterpriseContainer.DEFAULT_IMAGE_NAME.withTag("latest")).withDatabase(database);
+			RedisEnterpriseContainer.DEFAULT_IMAGE_NAME.withTag(TAG)).withDatabase(database);
 
 	@DynamicPropertySource
 	static void redisProperties(DynamicPropertyRegistry registry) {
