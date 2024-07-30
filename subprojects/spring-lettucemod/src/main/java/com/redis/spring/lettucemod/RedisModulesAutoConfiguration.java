@@ -5,21 +5,21 @@ import java.time.Duration;
 import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
 import org.springframework.boot.autoconfigure.data.redis.RedisProperties.Lettuce.Cluster.Refresh;
 import org.springframework.boot.autoconfigure.data.redis.RedisProperties.Pool;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import com.redis.lettucemod.RedisModulesClient;
 import com.redis.lettucemod.RedisURIBuilder;
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
 import com.redis.lettucemod.cluster.RedisModulesClusterClient;
-import com.redis.lettucemod.cluster.api.StatefulRedisModulesClusterConnection;
 
+import io.lettuce.core.AbstractRedisClient;
 import io.lettuce.core.ClientOptions;
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.SocketOptions;
@@ -71,17 +71,12 @@ public class RedisModulesAutoConfiguration {
 	}
 
 	@Bean(destroyMethod = "shutdown")
-	@ConditionalOnProperty(name = "spring.redis.cluster.enabled", havingValue = "false", matchIfMissing = true)
-	RedisModulesClient client(RedisURI redisURI, RedisProperties properties, ClientResources clientResources) {
-		RedisModulesClient client = RedisModulesClient.create(clientResources, redisURI);
-		client.setOptions(clientOptions(ClientOptions.builder(), properties).build());
-		return client;
-	}
-
-	@Bean(destroyMethod = "shutdown")
-	@ConditionalOnProperty(name = "spring.redis.cluster.enabled", havingValue = "true", matchIfMissing = false)
-	RedisModulesClusterClient clusterClient(RedisURI redisURI, RedisProperties properties,
-			ClientResources clientResources) {
+	AbstractRedisClient client(RedisURI redisURI, RedisProperties properties, ClientResources clientResources) {
+		if (properties.getCluster() == null || CollectionUtils.isEmpty(properties.getCluster().getNodes())) {
+			RedisModulesClient client = RedisModulesClient.create(clientResources, redisURI);
+			client.setOptions(clientOptions(ClientOptions.builder(), properties).build());
+			return client;
+		}
 		RedisModulesClusterClient client = RedisModulesClusterClient.create(clientResources, redisURI);
 		ClusterClientOptions.Builder builder = ClusterClientOptions.builder();
 		Refresh refreshProperties = properties.getLettuce().getCluster().getRefresh();
@@ -96,19 +91,15 @@ public class RedisModulesAutoConfiguration {
 		builder.topologyRefreshOptions(refreshBuilder.build());
 		client.setOptions(clientOptions(builder, properties).build());
 		return client;
-
 	}
 
 	@Bean(name = "redisConnection", destroyMethod = "close")
-	@ConditionalOnBean(RedisModulesClient.class)
-	StatefulRedisModulesConnection<String, String> redisConnection(RedisModulesClient client) {
-		return client.connect();
-	}
-
-	@Bean(name = "redisClusterConnection", destroyMethod = "close")
-	@ConditionalOnBean(RedisModulesClusterClient.class)
-	StatefulRedisModulesClusterConnection<String, String> redisClusterConnection(RedisModulesClusterClient client) {
-		return client.connect();
+	@ConditionalOnBean(AbstractRedisClient.class)
+	StatefulRedisModulesConnection<String, String> redisConnection(AbstractRedisClient client) {
+		if (client instanceof RedisModulesClusterClient) {
+			return ((RedisModulesClusterClient) client).connect();
+		}
+		return ((RedisModulesClient) client).connect();
 	}
 
 	private <K, V, C extends StatefulRedisModulesConnection<K, V>> GenericObjectPoolConfig<C> poolConfig(
@@ -131,17 +122,16 @@ public class RedisModulesAutoConfiguration {
 	}
 
 	@Bean(name = "redisConnectionPool", destroyMethod = "close")
-	@ConditionalOnBean(RedisModulesClient.class)
+	@ConditionalOnBean(AbstractRedisClient.class)
 	GenericObjectPool<StatefulRedisModulesConnection<String, String>> redisConnectionPool(RedisProperties properties,
-			RedisModulesClient client) {
-		return ConnectionPoolSupport.createGenericObjectPool(client::connect, poolConfig(properties));
-	}
-
-	@Bean(name = "redisClusterConnectionPool", destroyMethod = "close")
-	@ConditionalOnBean(RedisModulesClusterClient.class)
-	GenericObjectPool<StatefulRedisModulesClusterConnection<String, String>> redisClusterConnectionPool(
-			RedisProperties properties, RedisModulesClusterClient client) {
-		return ConnectionPoolSupport.createGenericObjectPool(client::connect, poolConfig(properties));
+			AbstractRedisClient client) {
+		GenericObjectPoolConfig<StatefulRedisModulesConnection<String, String>> poolConfig = poolConfig(properties);
+		if (client instanceof RedisModulesClusterClient) {
+			RedisModulesClusterClient clusterClient = (RedisModulesClusterClient) client;
+			return ConnectionPoolSupport.createGenericObjectPool(clusterClient::connect, poolConfig);
+		}
+		RedisModulesClient redisClient = (RedisModulesClient) client;
+		return ConnectionPoolSupport.createGenericObjectPool(redisClient::connect, poolConfig);
 	}
 
 }
