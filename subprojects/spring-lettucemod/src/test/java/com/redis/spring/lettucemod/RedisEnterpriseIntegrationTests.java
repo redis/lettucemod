@@ -25,7 +25,7 @@ class RedisEnterpriseIntegrationTests {
 	private static final Database database = Database.builder().name("ModulesTests").memoryMB(110).ossCluster(true)
 			.modules(RedisModule.SEARCH, RedisModule.JSON, RedisModule.TIMESERIES).build();
 
-	public static final String TAG = "7.2.4";
+	public static final String TAG = "7.2.4-92";
 
 	@Autowired
 	private RedisModulesClusterClient client;
