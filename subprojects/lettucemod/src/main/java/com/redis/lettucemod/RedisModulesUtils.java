@@ -4,9 +4,11 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Array;
 import java.nio.charset.Charset;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -50,6 +52,32 @@ public class RedisModulesUtils {
 	public static final String ERROR_UNKNOWN_INDEX_NAME = "Unknown Index name";
 
 	private RedisModulesUtils() {
+	}
+
+	public static boolean hasLength(CharSequence s) {
+		return s != null && !s.isEmpty();
+	}
+
+	public static boolean isEmpty(Object obj) {
+		if (obj == null) {
+			return true;
+		}
+		if (obj instanceof Optional) {
+			return ((Optional<?>) obj).isEmpty();
+		}
+		if (obj instanceof CharSequence) {
+			return ((CharSequence) obj).isEmpty();
+		}
+		if (obj.getClass().isArray()) {
+			return Array.getLength(obj) == 0;
+		}
+		if (obj instanceof Collection) {
+			return ((Collection<?>) obj).isEmpty();
+		}
+		if (obj instanceof Map) {
+			return ((Map<?, ?>) obj).isEmpty();
+		}
+		return false;
 	}
 
 	public static Optional<IndexInfo> indexInfo(Supplier<List<Object>> infoList) {
