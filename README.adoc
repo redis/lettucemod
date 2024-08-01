@@ -53,7 +53,7 @@ dependencies {
 ----
 <dependency>
     <groupId>{project-group}</groupId>
-    <artifactId>spring-lettucemod</artifactId>
+    <artifactId>lettucemod-spring</artifactId>
     <version>{project-version}</version>
 </dependency>
 ----
@@ -62,7 +62,7 @@ dependencies {
 [source,groovy,subs="verbatim,attributes"]
 ----
 dependencies {
-    implementation '{project-group}:spring-lettucemod:{project-version}'
+    implementation '{project-group}:lettucemod-spring:{project-version}'
 }
 ----
 
