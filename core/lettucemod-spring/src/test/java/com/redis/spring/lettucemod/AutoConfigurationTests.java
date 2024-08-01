@@ -12,10 +12,14 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import com.redis.lettucemod.RedisModulesClient;
+import com.redis.lettucemod.RedisModulesUtils;
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
+import com.redis.lettucemod.cluster.RedisModulesClusterClient;
 import com.redis.lettucemod.search.Suggestion;
+import com.redis.lettucemod.spring.RedisModulesAutoConfiguration;
 import com.redis.testcontainers.RedisStackContainer;
 
+import io.lettuce.core.AbstractRedisClient;
 import io.lettuce.core.resource.ClientResources;
 
 /**
@@ -37,12 +41,17 @@ class AutoConfigurationTests {
 	@Test
 	void defaultConfiguration() {
 		this.contextRunner.run((context) -> {
-			assertThat(context.getBean("client")).isInstanceOf(RedisModulesClient.class);
-			assertThat(context).hasSingleBean(RedisModulesClient.class);
+			assertThat(context).hasSingleBean(AbstractRedisClient.class);
+			if (context.containsBean("redisModulesClient")) {
+				assertThat(context.getBean("redisModulesClient")).isInstanceOf(RedisModulesClient.class);
+			}
+			if (context.containsBean("redisModulesClusterClient")) {
+				assertThat(context.getBean("redisModulesClusterClient")).isInstanceOf(RedisModulesClusterClient.class);
+			}
 			assertThat(context).hasSingleBean(StatefulRedisModulesConnection.class);
 			assertThat(context).hasSingleBean(ClientResources.class);
-			RedisModulesClient client = context.getBean(RedisModulesClient.class);
-			StatefulRedisModulesConnection<String, String> connection = client.connect();
+			AbstractRedisClient client = context.getBean(AbstractRedisClient.class);
+			StatefulRedisModulesConnection<String, String> connection = RedisModulesUtils.connection(client);
 			String key = "suggestIdx";
 			connection.sync().ftSugadd(key, Suggestion.of("rome", 1));
 			connection.sync().ftSugadd(key, Suggestion.of("romarin", 1));

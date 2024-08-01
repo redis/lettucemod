@@ -1,17 +1,18 @@
-package com.redis.spring.lettucemod;
+package com.redis.lettucemod.spring;
 
 import java.time.Duration;
 
 import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
 import org.springframework.boot.autoconfigure.data.redis.RedisProperties.Lettuce.Cluster.Refresh;
 import org.springframework.boot.autoconfigure.data.redis.RedisProperties.Pool;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import com.redis.lettucemod.RedisModulesClient;
@@ -31,7 +32,7 @@ import io.lettuce.core.resource.DefaultClientResources;
 import io.lettuce.core.support.ConnectionPoolSupport;
 
 @Configuration(proxyBeanMethods = false)
-@EnableConfigurationProperties({ RedisProperties.class })
+@EnableConfigurationProperties(RedisProperties.class)
 public class RedisModulesAutoConfiguration {
 
 	@Bean
@@ -70,13 +71,10 @@ public class RedisModulesAutoConfiguration {
 		return DefaultClientResources.create();
 	}
 
-	@Bean(destroyMethod = "shutdown")
-	AbstractRedisClient client(RedisURI redisURI, RedisProperties properties, ClientResources clientResources) {
-		if (properties.getCluster() == null || CollectionUtils.isEmpty(properties.getCluster().getNodes())) {
-			RedisModulesClient client = RedisModulesClient.create(clientResources, redisURI);
-			client.setOptions(clientOptions(ClientOptions.builder(), properties).build());
-			return client;
-		}
+	@Bean(destroyMethod = "shutdown", name = "redisModulesClusterClient")
+	@ConditionalOnProperty(name = "spring.data.redis.cluster.nodes[0]")
+	RedisModulesClusterClient clusterClient(RedisURI redisURI, RedisProperties properties,
+			ClientResources clientResources) {
 		RedisModulesClusterClient client = RedisModulesClusterClient.create(clientResources, redisURI);
 		ClusterClientOptions.Builder builder = ClusterClientOptions.builder();
 		Refresh refreshProperties = properties.getLettuce().getCluster().getRefresh();
@@ -90,6 +88,15 @@ public class RedisModulesAutoConfiguration {
 		}
 		builder.topologyRefreshOptions(refreshBuilder.build());
 		client.setOptions(clientOptions(builder, properties).build());
+		return client;
+	}
+
+	@Bean(destroyMethod = "shutdown", name = "redisModulesClient")
+	@ConditionalOnMissingBean(name = "redisModulesClusterClient")
+	RedisModulesClient redisModulesClient(RedisURI redisURI, RedisProperties properties,
+			ClientResources clientResources) {
+		RedisModulesClient client = RedisModulesClient.create(clientResources, redisURI);
+		client.setOptions(clientOptions(ClientOptions.builder(), properties).build());
 		return client;
 	}
 
