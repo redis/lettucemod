@@ -38,7 +38,7 @@ class RedisEnterpriseIntegrationTests {
 	static void redisProperties(DynamicPropertyRegistry registry) {
 		container.start();
 		registry.add("spring.data.redis.url", container::getRedisURI);
-		registry.add("spring.data.redis.cluster.nodes",
+		registry.add("spring.data.redis.cluster.nodes[0]",
 				() -> container.getRedisHost() + ":" + container.getRedisPort());
 	}
 
