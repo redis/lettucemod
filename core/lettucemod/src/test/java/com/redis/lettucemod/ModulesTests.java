@@ -920,6 +920,22 @@ abstract class ModulesTests {
 		Assertions.assertEquals(1, results.getCount());
 	}
 
+	@SuppressWarnings("unchecked")
+	@Test
+	void ftSearchJSONWithNullValues() throws Exception {
+		String index = "accounts";
+		TagField<String> idField = Field.tag(jsonField(ID)).as(ID).build();
+		TagField<String> nameField = Field.tag(jsonField(NAME)).as(NAME).build();
+		TagField<String> styleField = Field.tag(jsonField(STYLE)).as(STYLE).build();
+		connection.sync().ftCreate(index,
+				CreateOptions.<String, String>builder().on(DataType.JSON).prefix("account:").build(), idField,
+				nameField, styleField);
+		connection.sync().jsonSet("account:1", "$", "{\"id\": \"1\", \"name\": null, \"style_name\": \"123\"}");
+		SearchResults<String, String> results = connection.sync().ftSearch(index, "*",
+				SearchOptions.<String, String>builder().returnFields("id", "name", "style_name").build());
+		Assertions.assertEquals(1, results.getCount());
+	}
+
 	private String jsonField(String name) {
 		return "$." + name;
 	}

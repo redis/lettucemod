@@ -63,9 +63,7 @@ public class SearchOutput<K, V> extends CommandOutput<K, V, SearchResults<K, V>>
 			return;
 		}
 		if (contentOutput != null) {
-			if (bytes != null) {
-				contentOutput.set(bytes);
-			}
+			contentOutput.set(bytes);
 			return;
 		}
 		if (bytes == null) {
