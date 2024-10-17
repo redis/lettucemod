@@ -4,7 +4,7 @@
 :project-owner:   redis
 :project-name:    lettucemod
 :project-group:   com.redis
-:project-version: 4.1.1
+:project-version: 4.1.2
 
 image:https://github.com/{project-owner}/{project-name}/actions/workflows/early-access.yml/badge.svg["Build Status",link="https://github.com/{project-owner}/{project-name}/actions/workflows/early-access.yml"]
 image:https://img.shields.io/maven-central/v/{project-group}/{project-name}[Download,link="https://search.maven.org/#search|ga|1|{project-name}"]
