@@ -6,33 +6,30 @@ import io.lettuce.core.AbstractRedisClient;
 import io.lettuce.core.ClientOptions;
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.cluster.ClusterClientOptions;
-import io.lettuce.core.internal.LettuceAssert;
+import io.lettuce.core.resource.ClientResources;
 
 public class RedisModulesClientBuilder {
 
 	private RedisURI uri = RedisURI.create(RedisURIBuilder.DEFAULT_HOST, RedisURI.DEFAULT_REDIS_PORT);
 	private boolean cluster;
-	private ClientOptions clientOptions;
+	private ClientOptions options;
+	private ClientResources resources;
 
 	public AbstractRedisClient build() {
 		if (cluster) {
-			RedisModulesClusterClient client = RedisModulesClusterClient.create(uri);
-			if (clientOptions != null) {
-				client.setOptions(clusterClientOptions());
+			RedisModulesClusterClient client = resources == null ? RedisModulesClusterClient.create(uri)
+					: RedisModulesClusterClient.create(resources, uri);
+			if (options != null) {
+				client.setOptions((ClusterClientOptions) options);
 			}
 			return client;
 		}
-		RedisModulesClient client = RedisModulesClient.create(uri);
-		if (clientOptions != null) {
-			client.setOptions(clientOptions);
+		RedisModulesClient client = resources == null ? RedisModulesClient.create(uri)
+				: RedisModulesClient.create(resources, uri);
+		if (options != null) {
+			client.setOptions(options);
 		}
 		return client;
-	}
-
-	private ClusterClientOptions clusterClientOptions() {
-		LettuceAssert.isTrue(clientOptions instanceof ClusterClientOptions,
-				"Client options must be an instance of ClusterClientOptions");
-		return (ClusterClientOptions) clientOptions;
 	}
 
 	public RedisModulesClientBuilder uri(RedisURI uri) {
@@ -45,8 +42,13 @@ public class RedisModulesClientBuilder {
 		return this;
 	}
 
-	public RedisModulesClientBuilder clientOptions(ClientOptions options) {
-		this.clientOptions = options;
+	public RedisModulesClientBuilder resources(ClientResources resources) {
+		this.resources = resources;
+		return this;
+	}
+
+	public RedisModulesClientBuilder options(ClientOptions options) {
+		this.options = options;
 		return this;
 	}
 
