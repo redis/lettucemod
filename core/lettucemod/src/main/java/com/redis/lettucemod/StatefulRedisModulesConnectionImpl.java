@@ -16,7 +16,7 @@ import io.lettuce.core.protocol.ConnectionWatchdog;
 import io.lettuce.core.protocol.PushHandler;
 
 /**
- * A thread-safe connection to a RedisTimeSeries server. Multiple threads may share
+ * A thread-safe connection to a RedisStack server. Multiple threads may share
  * one {@link StatefulRedisModulesConnectionImpl}
  * A {@link ConnectionWatchdog} monitors each connection and reconnects
  * automatically until {@link #close} is called. All pending commands will be
@@ -43,7 +43,7 @@ public class StatefulRedisModulesConnectionImpl<K, V> extends StatefulRedisConne
 
     /**
      * Create a new instance of {@link RedisModulesAsyncCommandsImpl}. Can be
-     * overriden to extend.
+     * overridden to extend.
      */
     @Override
     protected RedisModulesAsyncCommandsImpl<K, V> newRedisAsyncCommandsImpl() {
@@ -52,7 +52,7 @@ public class StatefulRedisModulesConnectionImpl<K, V> extends StatefulRedisConne
 
     /**
      * Create a new instance of {@link RedisModulesReactiveCommandsImpl}. Can be
-     * overriden to extend.
+     * overridden to extend.
      */
     @Override
     protected RedisReactiveCommandsImpl<K, V> newRedisReactiveCommandsImpl() {
@@ -60,7 +60,7 @@ public class StatefulRedisModulesConnectionImpl<K, V> extends StatefulRedisConne
     }
 
     /**
-     * Create a new instance of {@link RedisModulesCommands}. Can be overriden to
+     * Create a new instance of {@link RedisModulesCommands}. Can be overridden to
      * extend.
      *
      * @return a new instance
