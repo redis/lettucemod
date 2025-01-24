@@ -13,9 +13,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.utility.DockerImageName;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
-import com.redis.lettucemod.api.sync.RedisModulesCommands;
 import com.redis.lettucemod.api.sync.RedisTimeSeriesCommands;
 import com.redis.lettucemod.timeseries.CreateOptions;
 import com.redis.lettucemod.timeseries.DuplicatePolicy;
@@ -43,25 +41,6 @@ class StackTests extends ModulesTests {
 	@Override
 	protected RedisServer getRedisServer() {
 		return container;
-	}
-
-	@Test
-	void jsonMerge() throws JsonProcessingException {
-		String key = "jsonMerge:test";
-		connection.sync().del(key);
-		connection.sync().jsonSet(key, "$", "{\"a\":2, \"b\": 3, \"nested\": {\"a\": 4}}");
-		connection.sync().jsonMerge(key, "$", "{\"a\": 4, \"c\": 5, \"nested\": {\"b\": 6}}");
-		assertJSONEquals("[{\"a\":4,\"b\":3,\"nested\":{\"a\":4,\"b\":6},\"c\":5}]",
-				connection.sync().jsonGet(key, "$"));
-	}
-
-	@Test
-	void getPath() throws JsonProcessingException {
-		String json = "{\"a\":2, \"b\": 3, \"nested\": {\"a\": 4, \"b\": null}}";
-		RedisModulesCommands<String, String> sync = connection.sync();
-		sync.jsonSet("doc", "$", json);
-		assertEquals("[3,null]", sync.jsonGet("doc", "$..b"));
-		assertJSONEquals("{\"$..b\":[3,null],\"..a\":[2,4]}", sync.jsonGet("doc", "..a", "$..b"));
 	}
 
 	@Test

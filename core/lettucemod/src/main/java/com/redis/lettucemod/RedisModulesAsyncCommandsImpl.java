@@ -1,7 +1,6 @@
 package com.redis.lettucemod;
 
 import java.util.List;
-import java.util.Map;
 
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
 import com.redis.lettucemod.api.async.RedisModulesAsyncCommands;
@@ -18,17 +17,6 @@ import com.redis.lettucemod.bloom.LongScoredValue;
 import com.redis.lettucemod.bloom.TDigestInfo;
 import com.redis.lettucemod.bloom.TDigestMergeOptions;
 import com.redis.lettucemod.bloom.TopKInfo;
-import com.redis.lettucemod.gears.Execution;
-import com.redis.lettucemod.gears.ExecutionDetails;
-import com.redis.lettucemod.gears.ExecutionMode;
-import com.redis.lettucemod.gears.GearsCommandBuilder;
-import com.redis.lettucemod.gears.Registration;
-import com.redis.lettucemod.json.ArrpopOptions;
-import com.redis.lettucemod.json.GetOptions;
-import com.redis.lettucemod.json.JSONCommandBuilder;
-import com.redis.lettucemod.json.SetMode;
-import com.redis.lettucemod.json.Slice;
-import com.redis.lettucemod.output.ExecutionResults;
 import com.redis.lettucemod.search.AggregateOptions;
 import com.redis.lettucemod.search.AggregateResults;
 import com.redis.lettucemod.search.AggregateWithCursorResults;
@@ -59,100 +47,25 @@ import io.lettuce.core.RedisAsyncCommandsImpl;
 import io.lettuce.core.RedisFuture;
 import io.lettuce.core.Value;
 import io.lettuce.core.codec.RedisCodec;
-import io.lettuce.core.output.KeyValueStreamingChannel;
 
 @SuppressWarnings("unchecked")
 public class RedisModulesAsyncCommandsImpl<K, V> extends RedisAsyncCommandsImpl<K, V>
 		implements RedisModulesAsyncCommands<K, V> {
 
-	private final GearsCommandBuilder<K, V> gearsCommandBuilder;
 	private final TimeSeriesCommandBuilder<K, V> timeSeriesCommandBuilder;
 	private final SearchCommandBuilder<K, V> searchCommandBuilder;
-	private final JSONCommandBuilder<K, V> jsonCommandBuilder;
 	private final BloomCommandBuilder<K, V> bloomCommandBuilder;
 
 	public RedisModulesAsyncCommandsImpl(StatefulRedisModulesConnection<K, V> connection, RedisCodec<K, V> codec) {
 		super(connection, codec);
-		this.gearsCommandBuilder = new GearsCommandBuilder<>(codec);
 		this.timeSeriesCommandBuilder = new TimeSeriesCommandBuilder<>(codec);
 		this.searchCommandBuilder = new SearchCommandBuilder<>(codec);
-		this.jsonCommandBuilder = new JSONCommandBuilder<>(codec);
 		this.bloomCommandBuilder = new BloomCommandBuilder<>(codec);
 	}
 
 	@Override
 	public StatefulRedisModulesConnection<K, V> getStatefulConnection() {
 		return (StatefulRedisModulesConnection<K, V>) super.getStatefulConnection();
-	}
-
-	@Override
-	public RedisFuture<String> rgAbortexecution(String id) {
-		return dispatch(gearsCommandBuilder.abortExecution(id));
-	}
-
-	@Override
-	public RedisFuture<List<V>> rgConfigget(K... keys) {
-		return dispatch(gearsCommandBuilder.configGet(keys));
-	}
-
-	@Override
-	public RedisFuture<List<V>> rgConfigset(Map<K, V> map) {
-		return dispatch(gearsCommandBuilder.configSet(map));
-	}
-
-	@Override
-	public RedisFuture<String> rgDropexecution(String id) {
-		return dispatch(gearsCommandBuilder.dropExecution(id));
-	}
-
-	@Override
-	public RedisFuture<List<Execution>> rgDumpexecutions() {
-		return dispatch(gearsCommandBuilder.dumpExecutions());
-	}
-
-	@Override
-	public RedisFuture<ExecutionResults> rgPyexecute(String function, V... requirements) {
-		return dispatch(gearsCommandBuilder.pyExecute(function, requirements));
-	}
-
-	@Override
-	public RedisFuture<String> rgPyexecuteUnblocking(String function, V... requirements) {
-		return dispatch(gearsCommandBuilder.pyExecuteUnblocking(function, requirements));
-	}
-
-	@Override
-	public RedisFuture<List<Object>> rgTrigger(String trigger, V... args) {
-		return dispatch(gearsCommandBuilder.trigger(trigger, args));
-	}
-
-	@Override
-	public RedisFuture<String> rgUnregister(String id) {
-		return dispatch(gearsCommandBuilder.unregister(id));
-	}
-
-	@Override
-	public RedisFuture<List<Registration>> rgDumpregistrations() {
-		return dispatch(gearsCommandBuilder.dumpRegistrations());
-	}
-
-	@Override
-	public RedisFuture<ExecutionDetails> rgGetexecution(String id) {
-		return dispatch(gearsCommandBuilder.getExecution(id));
-	}
-
-	@Override
-	public RedisFuture<ExecutionDetails> rgGetexecution(String id, ExecutionMode mode) {
-		return dispatch(gearsCommandBuilder.getExecution(id, mode));
-	}
-
-	@Override
-	public RedisFuture<ExecutionResults> rgGetresults(String id) {
-		return dispatch(gearsCommandBuilder.getResults(id));
-	}
-
-	@Override
-	public RedisFuture<ExecutionResults> rgGetresultsblocking(String id) {
-		return dispatch(gearsCommandBuilder.getResultsBlocking(id));
 	}
 
 	@Override
@@ -438,159 +351,6 @@ public class RedisModulesAsyncCommandsImpl<K, V> extends RedisAsyncCommandsImpl<
 	}
 
 	@Override
-	public RedisFuture<Long> jsonDel(K key) {
-		return jsonDel(key, null);
-	}
-
-	@Override
-	public RedisFuture<Long> jsonDel(K key, String path) {
-		return dispatch(jsonCommandBuilder.del(key, path));
-	}
-
-	@Override
-	public RedisFuture<V> jsonGet(K key, K... paths) {
-		return jsonGet(key, null, paths);
-	}
-
-	@Override
-	public RedisFuture<V> jsonGet(K key, GetOptions options, K... paths) {
-		return dispatch(jsonCommandBuilder.get(key, options, paths));
-	}
-
-	@Override
-	public RedisFuture<List<KeyValue<K, V>>> jsonMget(String path, K... keys) {
-		return dispatch(jsonCommandBuilder.mgetKeyValue(path, keys));
-	}
-
-	public RedisFuture<List<KeyValue<K, V>>> jsonMget(String path, Iterable<K> keys) {
-		return dispatch(jsonCommandBuilder.mgetKeyValue(path, keys));
-	}
-
-	@Override
-	public RedisFuture<Long> jsonMget(KeyValueStreamingChannel<K, V> channel, String path, K... keys) {
-		return dispatch(jsonCommandBuilder.mget(channel, path, keys));
-	}
-
-	public RedisFuture<Long> jsonMget(KeyValueStreamingChannel<K, V> channel, String path, Iterable<K> keys) {
-		return dispatch(jsonCommandBuilder.mget(channel, path, keys));
-	}
-
-	@Override
-	public RedisFuture<String> jsonSet(K key, String path, V json) {
-		return jsonSet(key, path, json, null);
-	}
-
-	@Override
-	public RedisFuture<String> jsonSet(K key, String path, V json, SetMode options) {
-		return dispatch(jsonCommandBuilder.set(key, path, json, options));
-	}
-
-	@Override
-	public RedisFuture<String> jsonMerge(K key, String path, V json) {
-		return dispatch(jsonCommandBuilder.merge(key, path, json));
-	}
-
-	@Override
-	public RedisFuture<String> jsonType(K key) {
-		return jsonType(key, null);
-	}
-
-	@Override
-	public RedisFuture<String> jsonType(K key, String path) {
-		return dispatch(jsonCommandBuilder.type(key, path));
-	}
-
-	@Override
-	public RedisFuture<V> jsonNumincrby(K key, String path, double number) {
-		return dispatch(jsonCommandBuilder.numIncrBy(key, path, number));
-	}
-
-	@Override
-	public RedisFuture<V> jsonNummultby(K key, String path, double number) {
-		return dispatch(jsonCommandBuilder.numMultBy(key, path, number));
-	}
-
-	@Override
-	public RedisFuture<Long> jsonStrappend(K key, V json) {
-		return jsonStrappend(key, null, json);
-	}
-
-	@Override
-	public RedisFuture<Long> jsonStrappend(K key, String path, V json) {
-		return dispatch(jsonCommandBuilder.strAppend(key, path, json));
-	}
-
-	@Override
-	public RedisFuture<Long> jsonStrlen(K key, String path) {
-		return dispatch(jsonCommandBuilder.strLen(key, path));
-	}
-
-	@Override
-	public RedisFuture<Long> jsonArrappend(K key, String path, V... jsons) {
-		return dispatch(jsonCommandBuilder.arrAppend(key, path, jsons));
-	}
-
-	@Override
-	public RedisFuture<Long> jsonArrindex(K key, String path, V scalar) {
-		return jsonArrindex(key, path, scalar, null);
-	}
-
-	@Override
-	public RedisFuture<Long> jsonArrindex(K key, String path, V scalar, Slice slice) {
-		return dispatch(jsonCommandBuilder.arrIndex(key, path, scalar, slice));
-	}
-
-	@Override
-	public RedisFuture<Long> jsonArrinsert(K key, String path, long index, V... jsons) {
-		return dispatch(jsonCommandBuilder.arrInsert(key, path, index, jsons));
-	}
-
-	@Override
-	public RedisFuture<Long> jsonArrlen(K key) {
-		return jsonArrlen(key, null);
-	}
-
-	@Override
-	public RedisFuture<Long> jsonArrlen(K key, String path) {
-		return dispatch(jsonCommandBuilder.arrLen(key, path));
-	}
-
-	@Override
-	public RedisFuture<V> jsonArrpop(K key) {
-		return jsonArrpop(key, null);
-	}
-
-	@Override
-	public RedisFuture<V> jsonArrpop(K key, ArrpopOptions<K> options) {
-		return dispatch(jsonCommandBuilder.arrPop(key, options));
-	}
-
-	@Override
-	public RedisFuture<Long> jsonArrtrim(K key, String path, long start, long stop) {
-		return dispatch(jsonCommandBuilder.arrTrim(key, path, start, stop));
-	}
-
-	@Override
-	public RedisFuture<List<K>> jsonObjkeys(K key) {
-		return jsonObjkeys(key, null);
-	}
-
-	@Override
-	public RedisFuture<List<K>> jsonObjkeys(K key, String path) {
-		return dispatch(jsonCommandBuilder.objKeys(key, path));
-	}
-
-	@Override
-	public RedisFuture<Long> jsonObjlen(K key) {
-		return jsonObjlen(key, null);
-	}
-
-	@Override
-	public RedisFuture<Long> jsonObjlen(K key, String path) {
-		return dispatch(jsonCommandBuilder.objLen(key, path));
-	}
-
-	@Override
 	public RedisFuture<Boolean> bfAdd(K key, V item) {
 		return dispatch(bloomCommandBuilder.bfAdd(key, item));
 	}
@@ -714,7 +474,7 @@ public class RedisModulesAsyncCommandsImpl<K, V> extends RedisAsyncCommandsImpl<
 	public RedisFuture<Long> cmsIncrBy(K key, V item, long increment) {
 		return dispatch(bloomCommandBuilder.cmsIncrBy(key, item, increment));
 	}
-	
+
 	@Override
 	public RedisFuture<List<Long>> cmsIncrBy(K key, LongScoredValue<V>... itemIncrements) {
 		return dispatch(bloomCommandBuilder.cmsIncrBy(key, itemIncrements));
@@ -739,7 +499,7 @@ public class RedisModulesAsyncCommandsImpl<K, V> extends RedisAsyncCommandsImpl<
 	public RedisFuture<String> cmsMerge(K destKey, K... keys) {
 		return dispatch(bloomCommandBuilder.cmsMerge(destKey, keys));
 	}
-	
+
 	@Override
 	public RedisFuture<String> cmsMerge(K destKey, LongScoredValue<K>... sourceKeyWeights) {
 		return dispatch(bloomCommandBuilder.cmsMerge(destKey, sourceKeyWeights));
@@ -754,7 +514,7 @@ public class RedisModulesAsyncCommandsImpl<K, V> extends RedisAsyncCommandsImpl<
 	public RedisFuture<List<Value<V>>> topKAdd(K key, V... items) {
 		return dispatch(bloomCommandBuilder.topKAdd(key, items));
 	}
-	
+
 	@Override
 	public RedisFuture<List<Value<V>>> topKIncrBy(K key, LongScoredValue<V>... itemIncrements) {
 		return dispatch(bloomCommandBuilder.topKIncrBy(key, itemIncrements));

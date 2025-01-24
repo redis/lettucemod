@@ -1,7 +1,5 @@
 package com.redis.lettucemod;
 
-import java.util.Map;
-
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
 import com.redis.lettucemod.api.reactive.RedisModulesReactiveCommands;
 import com.redis.lettucemod.bloom.BloomCommandBuilder;
@@ -17,17 +15,6 @@ import com.redis.lettucemod.bloom.LongScoredValue;
 import com.redis.lettucemod.bloom.TDigestInfo;
 import com.redis.lettucemod.bloom.TDigestMergeOptions;
 import com.redis.lettucemod.bloom.TopKInfo;
-import com.redis.lettucemod.gears.Execution;
-import com.redis.lettucemod.gears.ExecutionDetails;
-import com.redis.lettucemod.gears.ExecutionMode;
-import com.redis.lettucemod.gears.GearsCommandBuilder;
-import com.redis.lettucemod.gears.Registration;
-import com.redis.lettucemod.json.ArrpopOptions;
-import com.redis.lettucemod.json.GetOptions;
-import com.redis.lettucemod.json.JSONCommandBuilder;
-import com.redis.lettucemod.json.SetMode;
-import com.redis.lettucemod.json.Slice;
-import com.redis.lettucemod.output.ExecutionResults;
 import com.redis.lettucemod.search.AggregateOptions;
 import com.redis.lettucemod.search.AggregateResults;
 import com.redis.lettucemod.search.AggregateWithCursorResults;
@@ -66,94 +53,20 @@ public class RedisModulesReactiveCommandsImpl<K, V> extends RedisReactiveCommand
 
 	private final StatefulRedisModulesConnection<K, V> connection;
 	private final TimeSeriesCommandBuilder<K, V> timeSeriesCommandBuilder;
-	private final GearsCommandBuilder<K, V> gearsCommandBuilder;
 	private final SearchCommandBuilder<K, V> searchCommandBuilder;
-	private final JSONCommandBuilder<K, V> jsonCommandBuilder;
 	private final BloomCommandBuilder<K, V> bloomCommandBuilder;
 
 	public RedisModulesReactiveCommandsImpl(StatefulRedisModulesConnection<K, V> connection, RedisCodec<K, V> codec) {
 		super(connection, codec);
 		this.connection = connection;
-		this.gearsCommandBuilder = new GearsCommandBuilder<>(codec);
 		this.timeSeriesCommandBuilder = new TimeSeriesCommandBuilder<>(codec);
 		this.searchCommandBuilder = new SearchCommandBuilder<>(codec);
-		this.jsonCommandBuilder = new JSONCommandBuilder<>(codec);
 		this.bloomCommandBuilder = new BloomCommandBuilder<>(codec);
 	}
 
 	@Override
 	public StatefulRedisModulesConnection<K, V> getStatefulConnection() {
 		return connection;
-	}
-
-	@Override
-	public Mono<ExecutionResults> rgPyexecute(String function, V... requirements) {
-		return createMono(() -> gearsCommandBuilder.pyExecute(function, requirements));
-	}
-
-	@Override
-	public Mono<String> rgPyexecuteUnblocking(String function, V... requirements) {
-		return createMono(() -> gearsCommandBuilder.pyExecuteUnblocking(function, requirements));
-	}
-
-	@Override
-	public Flux<Object> rgTrigger(String trigger, V... args) {
-		return createDissolvingFlux(() -> gearsCommandBuilder.trigger(trigger, args));
-	}
-
-	@Override
-	public Mono<String> rgUnregister(String id) {
-		return createMono(() -> gearsCommandBuilder.unregister(id));
-	}
-
-	@Override
-	public Mono<String> rgAbortexecution(String id) {
-		return createMono(() -> gearsCommandBuilder.abortExecution(id));
-	}
-
-	@Override
-	public Flux<V> rgConfigget(K... keys) {
-		return createDissolvingFlux(() -> gearsCommandBuilder.configGet(keys));
-	}
-
-	@Override
-	public Flux<V> rgConfigset(Map<K, V> map) {
-		return createDissolvingFlux(() -> gearsCommandBuilder.configSet(map));
-	}
-
-	@Override
-	public Mono<String> rgDropexecution(String id) {
-		return createMono(() -> gearsCommandBuilder.dropExecution(id));
-	}
-
-	@Override
-	public Flux<Execution> rgDumpexecutions() {
-		return createDissolvingFlux(gearsCommandBuilder::dumpExecutions);
-	}
-
-	@Override
-	public Flux<Registration> rgDumpregistrations() {
-		return createDissolvingFlux(gearsCommandBuilder::dumpRegistrations);
-	}
-
-	@Override
-	public Mono<ExecutionDetails> rgGetexecution(String id) {
-		return createMono(() -> gearsCommandBuilder.getExecution(id));
-	}
-
-	@Override
-	public Mono<ExecutionDetails> rgGetexecution(String id, ExecutionMode mode) {
-		return createMono(() -> gearsCommandBuilder.getExecution(id, mode));
-	}
-
-	@Override
-	public Mono<ExecutionResults> rgGetresults(String id) {
-		return createMono(() -> gearsCommandBuilder.getResults(id));
-	}
-
-	@Override
-	public Mono<ExecutionResults> rgGetresultsblocking(String id) {
-		return createMono(() -> gearsCommandBuilder.getResultsBlocking(id));
 	}
 
 	@Override
@@ -441,7 +354,7 @@ public class RedisModulesReactiveCommandsImpl<K, V> extends RedisReactiveCommand
 	public Flux<Value<V>> topKAdd(K key, V... items) {
 		return createDissolvingFlux(() -> bloomCommandBuilder.topKAdd(key, items));
 	}
-	
+
 	@Override
 	public Flux<Value<V>> topKIncrBy(K key, LongScoredValue<V>... itemIncrements) {
 		return createDissolvingFlux(() -> bloomCommandBuilder.topKIncrBy(key, itemIncrements));
@@ -555,150 +468,6 @@ public class RedisModulesReactiveCommandsImpl<K, V> extends RedisReactiveCommand
 	@Override
 	public Mono<Double> tDigestTrimmedMean(K key, double lowCutQuantile, double highCutQuantile) {
 		return createMono(() -> bloomCommandBuilder.tDigestTrimmedMean(key, lowCutQuantile, highCutQuantile));
-	}
-
-	@Override
-	public Mono<Long> jsonDel(K key) {
-		return jsonDel(key, null);
-	}
-
-	@Override
-	public Mono<Long> jsonDel(K key, String path) {
-		return createMono(() -> jsonCommandBuilder.del(key, path));
-	}
-
-	@Override
-	public Mono<V> jsonGet(K key, K... paths) {
-		return jsonGet(key, null, paths);
-	}
-
-	@Override
-	public Mono<V> jsonGet(K key, GetOptions options, K... paths) {
-		return createMono(() -> jsonCommandBuilder.get(key, options, paths));
-	}
-
-	@Override
-	public Flux<KeyValue<K, V>> jsonMget(String path, K... keys) {
-		return createDissolvingFlux(() -> jsonCommandBuilder.mgetKeyValue(path, keys));
-	}
-
-	public Flux<KeyValue<K, V>> jsonMget(String path, Iterable<K> keys) {
-		return createDissolvingFlux(() -> jsonCommandBuilder.mgetKeyValue(path, keys));
-	}
-
-	@Override
-	public Mono<String> jsonSet(K key, String path, V json) {
-		return jsonSet(key, path, json, null);
-	}
-
-	@Override
-	public Mono<String> jsonSet(K key, String path, V json, SetMode mode) {
-		return createMono(() -> jsonCommandBuilder.set(key, path, json, mode));
-	}
-
-	@Override
-	public Mono<String> jsonMerge(K key, String path, V json) {
-		return createMono(() -> jsonCommandBuilder.merge(key, path, json));
-	}
-
-	@Override
-	public Mono<String> jsonType(K key) {
-		return jsonType(key, null);
-	}
-
-	@Override
-	public Mono<String> jsonType(K key, String path) {
-		return createMono(() -> jsonCommandBuilder.type(key, path));
-	}
-
-	@Override
-	public Mono<V> jsonNumincrby(K key, String path, double number) {
-		return createMono(() -> jsonCommandBuilder.numIncrBy(key, path, number));
-	}
-
-	@Override
-	public Mono<V> jsonNummultby(K key, String path, double number) {
-		return createMono(() -> jsonCommandBuilder.numMultBy(key, path, number));
-	}
-
-	@Override
-	public Mono<Long> jsonStrappend(K key, V json) {
-		return jsonStrappend(key, null, json);
-	}
-
-	@Override
-	public Mono<Long> jsonStrappend(K key, String path, V json) {
-		return createMono(() -> jsonCommandBuilder.strAppend(key, path, json));
-	}
-
-	@Override
-	public Mono<Long> jsonStrlen(K key, String path) {
-		return createMono(() -> jsonCommandBuilder.strLen(key, path));
-	}
-
-	@Override
-	public Mono<Long> jsonArrappend(K key, String path, V... jsons) {
-		return createMono(() -> jsonCommandBuilder.arrAppend(key, path, jsons));
-	}
-
-	@Override
-	public Mono<Long> jsonArrindex(K key, String path, V scalar) {
-		return jsonArrindex(key, path, scalar, null);
-	}
-
-	@Override
-	public Mono<Long> jsonArrindex(K key, String path, V scalar, Slice slice) {
-		return createMono(() -> jsonCommandBuilder.arrIndex(key, path, scalar, slice));
-	}
-
-	@Override
-	public Mono<Long> jsonArrinsert(K key, String path, long index, V... jsons) {
-		return createMono(() -> jsonCommandBuilder.arrInsert(key, path, index, jsons));
-	}
-
-	@Override
-	public Mono<Long> jsonArrlen(K key) {
-		return jsonArrlen(key, null);
-	}
-
-	@Override
-	public Mono<Long> jsonArrlen(K key, String path) {
-		return createMono(() -> jsonCommandBuilder.arrLen(key, path));
-	}
-
-	@Override
-	public Mono<V> jsonArrpop(K key) {
-		return jsonArrpop(key, null);
-	}
-
-	@Override
-	public Mono<V> jsonArrpop(K key, ArrpopOptions<K> options) {
-		return createMono(() -> jsonCommandBuilder.arrPop(key, options));
-	}
-
-	@Override
-	public Mono<Long> jsonArrtrim(K key, String path, long start, long stop) {
-		return createMono(() -> jsonCommandBuilder.arrTrim(key, path, start, stop));
-	}
-
-	@Override
-	public Flux<K> jsonObjkeys(K key) {
-		return jsonObjkeys(key, null);
-	}
-
-	@Override
-	public Flux<K> jsonObjkeys(K key, String path) {
-		return createDissolvingFlux(() -> jsonCommandBuilder.objKeys(key, path));
-	}
-
-	@Override
-	public Mono<Long> jsonObjlen(K key) {
-		return jsonObjlen(key, null);
-	}
-
-	@Override
-	public Mono<Long> jsonObjlen(K key, String path) {
-		return createMono(() -> jsonCommandBuilder.objLen(key, path));
 	}
 
 	@Override
@@ -825,7 +594,7 @@ public class RedisModulesReactiveCommandsImpl<K, V> extends RedisReactiveCommand
 	public Mono<Long> cmsIncrBy(K key, V item, long increment) {
 		return createMono(() -> bloomCommandBuilder.cmsIncrBy(key, item, increment));
 	}
-	
+
 	@Override
 	public Flux<Long> cmsIncrBy(K key, LongScoredValue<V>... itemIncrements) {
 		return createDissolvingFlux(() -> bloomCommandBuilder.cmsIncrBy(key, itemIncrements));
@@ -850,7 +619,7 @@ public class RedisModulesReactiveCommandsImpl<K, V> extends RedisReactiveCommand
 	public Mono<String> cmsMerge(K destKey, K... keys) {
 		return createMono(() -> bloomCommandBuilder.cmsMerge(destKey, keys));
 	}
-	
+
 	@Override
 	public Mono<String> cmsMerge(K destKey, LongScoredValue<K>... sourceKeyWeights) {
 		return createMono(() -> bloomCommandBuilder.cmsMerge(destKey, sourceKeyWeights));

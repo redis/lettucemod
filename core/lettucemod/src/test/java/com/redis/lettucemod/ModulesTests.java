@@ -53,10 +53,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
 import com.redis.lettucemod.api.async.RedisModulesAsyncCommands;
 import com.redis.lettucemod.api.reactive.RedisBloomReactiveCommands;
-import com.redis.lettucemod.api.reactive.RedisJSONReactiveCommands;
 import com.redis.lettucemod.api.reactive.RedisModulesReactiveCommands;
 import com.redis.lettucemod.api.sync.RedisBloomCommands;
-import com.redis.lettucemod.api.sync.RedisJSONCommands;
 import com.redis.lettucemod.api.sync.RedisModulesCommands;
 import com.redis.lettucemod.api.sync.RedisTimeSeriesCommands;
 import com.redis.lettucemod.bloom.BloomFilterInfo;
@@ -69,9 +67,6 @@ import com.redis.lettucemod.bloom.LongScoredValue;
 import com.redis.lettucemod.bloom.TDigestInfo;
 import com.redis.lettucemod.bloom.TopKInfo;
 import com.redis.lettucemod.cluster.RedisModulesClusterClient;
-import com.redis.lettucemod.json.GetOptions;
-import com.redis.lettucemod.json.SetMode;
-import com.redis.lettucemod.json.Slice;
 import com.redis.lettucemod.protocol.SearchCommandKeyword;
 import com.redis.lettucemod.search.AggregateOptions;
 import com.redis.lettucemod.search.AggregateOptions.Load;
@@ -117,6 +112,7 @@ import io.lettuce.core.RedisCommandExecutionException;
 import io.lettuce.core.RedisFuture;
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.Value;
+import io.lettuce.core.json.JsonPath;
 import reactor.core.publisher.Mono;
 
 @Testcontainers
@@ -150,8 +146,6 @@ abstract class ModulesTests {
 	private static final String SUGINDEX = "beersSug";
 
 	private static final String PONG = "PONG";
-
-	private static final String JSON = "{\"name\":\"Leonard Cohen\",\"lastSeen\":1478476800,\"loggedOut\": true}";
 
 	protected static Map<String, String> mapOf(String... keyValues) {
 		Map<String, String> map = new HashMap<>();
@@ -227,178 +221,6 @@ abstract class ModulesTests {
 
 	protected String ping(StatefulRedisModulesConnection<String, String> connection) {
 		return connection.sync().ping();
-	}
-
-	@Test
-	void jsonSet() {
-		RedisJSONCommands<String, String> sync = connection.sync();
-		String result = sync.jsonSet("obj", ".", JSON);
-		assertEquals("OK", result);
-	}
-
-	@Test
-	void jsonSetNX() {
-		RedisJSONCommands<String, String> sync = connection.sync();
-		sync.jsonSet("obj", ".", JSON);
-		String result = sync.jsonSet("obj", ".", JSON, SetMode.NX);
-		Assertions.assertNull(result);
-	}
-
-	@Test
-	void jsonSetXX() {
-		RedisJSONCommands<String, String> sync = connection.sync();
-		String result = sync.jsonSet("obj", ".", "true", SetMode.XX);
-		Assertions.assertNull(result);
-	}
-
-	@Test
-	void jsonGet() throws JsonProcessingException {
-		RedisJSONCommands<String, String> sync = connection.sync();
-		sync.jsonSet("obj", ".", JSON);
-		String result = sync.jsonGet("obj");
-		assertJSONEquals(JSON, result);
-	}
-
-	@Test
-	void jsonGetPaths() throws JsonProcessingException {
-		RedisJSONCommands<String, String> sync = connection.sync();
-		sync.jsonSet("obj", ".", JSON);
-		String result = sync.jsonGet("obj", ".name", ".loggedOut");
-		assertJSONEquals("{\".name\":\"Leonard Cohen\",\".loggedOut\": true}", result);
-	}
-
-	@Test
-	void jsonGetOptions() {
-		RedisJSONCommands<String, String> sync = connection.sync();
-		sync.jsonSet("obj", ".", JSON);
-		String result = sync.jsonGet("obj",
-				GetOptions.builder().indent("___").newline("#").noEscape(true).space("_").build());
-		assertEquals("{#___\"name\":_\"Leonard Cohen\",#___\"lastSeen\":_1478476800,#___\"loggedOut\":_true#}", result);
-	}
-
-	@Test
-	void jsonGetOptionsPath() throws JsonMappingException, JsonProcessingException {
-		RedisJSONCommands<String, String> sync = connection.sync();
-		sync.jsonSet("obj", ".", JSON);
-		String result = sync.jsonGet("obj",
-				GetOptions.builder().indent("  ").newline("\n").noEscape(true).space("   ").build(), ".name",
-				".loggedOut");
-		JsonNode resultNode = new ObjectMapper().readTree(result);
-		assertEquals("Leonard Cohen", resultNode.get(".name").asText());
-	}
-
-	@Test
-	void jsonMget() throws JsonProcessingException {
-		RedisJSONCommands<String, String> sync = connection.sync();
-		sync.jsonSet("obj1", ".", JSON);
-		String json2 = "{\"name\":\"Herbie Hancock\",\"lastSeen\":1478476810,\"loggedOut\": false}";
-		sync.jsonSet("obj2", ".", json2);
-		String json3 = "{\"name\":\"Lalo Schifrin\",\"lastSeen\":1478476820,\"loggedOut\": false}";
-		sync.jsonSet("obj3", ".", json3);
-
-		List<KeyValue<String, String>> results = sync.jsonMget(".", "obj1", "obj2", "obj3");
-		assertEquals(3, results.size());
-		assertEquals("obj1", results.get(0).getKey());
-		assertEquals("obj2", results.get(1).getKey());
-		assertEquals("obj3", results.get(2).getKey());
-		assertJSONEquals(JSON, results.get(0).getValue());
-		assertJSONEquals(json2, results.get(1).getValue());
-		assertJSONEquals(json3, results.get(2).getValue());
-	}
-
-	@Test
-	void jsonMgetReactive() throws JsonProcessingException {
-		String key1 = "obj1";
-		String key2 = "obj2";
-		String key3 = "obj3";
-		RedisJSONCommands<String, String> sync = connection.sync();
-		sync.jsonSet(key1, ".", JSON);
-		String json2 = "{\"name\":\"Herbie Hancock\",\"lastSeen\":1478476810,\"loggedOut\": false}";
-		sync.jsonSet(key2, ".", json2);
-		String json3 = "{\"name\":\"Lalo Schifrin\",\"lastSeen\":1478476820,\"loggedOut\": false}";
-		sync.jsonSet(key3, ".", json3);
-
-		RedisJSONReactiveCommands<String, String> reactive = connection.reactive();
-		List<KeyValue<String, String>> values = reactive.jsonMget("$", key1, key2, key3)
-				.filter(keyValue -> !keyValue.isEmpty()).collectList().block();
-		assertJSONEquals(arrayWrap(JSON), values.get(0).getValue());
-		assertJSONEquals(arrayWrap(json2), values.get(1).getValue());
-		assertJSONEquals(arrayWrap(json3), values.get(2).getValue());
-	}
-
-	private String arrayWrap(String json) {
-		return "[" + json + "]";
-	}
-
-	@Test
-	void jsonDel() {
-		RedisJSONCommands<String, String> sync = connection.sync();
-		sync.jsonSet("obj", ".", JSON);
-		sync.jsonDel("obj");
-		String result = sync.jsonGet("obj");
-		Assertions.assertNull(result);
-	}
-
-	@Test
-	void jsonType() {
-		RedisJSONCommands<String, String> sync = connection.sync();
-		sync.jsonSet("obj", ".", JSON);
-		assertEquals("object", sync.jsonType("obj"));
-		assertEquals("string", sync.jsonType("obj", ".name"));
-		assertEquals("boolean", sync.jsonType("obj", ".loggedOut"));
-		assertEquals("integer", sync.jsonType("obj", ".lastSeen"));
-	}
-
-	@Test
-	void jsonNumincrBy() {
-		RedisJSONCommands<String, String> sync = connection.sync();
-		sync.jsonSet("obj", ".", JSON);
-		long lastSeen = 1478476800;
-		double increment = 123.456;
-		String result = sync.jsonNumincrby("obj", ".lastSeen", increment);
-		assertEquals(lastSeen + increment, Double.parseDouble(result));
-	}
-
-	@Test
-	void jsonNummultBy() {
-		RedisJSONCommands<String, String> sync = connection.sync();
-		sync.jsonSet("obj", ".", JSON);
-		long lastSeen = 1478476800;
-		double factor = 123.456;
-		String result = sync.jsonNummultby("obj", ".lastSeen", factor);
-		assertEquals(lastSeen * factor, Double.parseDouble(result));
-	}
-
-	@Test
-	void jsonStr() {
-		RedisJSONCommands<String, String> sync = connection.sync();
-		sync.jsonSet("foo", ".", "\"bar\"");
-		assertEquals(3, sync.jsonStrlen("foo", "."));
-		assertEquals("barbaz".length(), sync.jsonStrappend("foo", ".", "\"baz\""));
-	}
-
-	@Test
-	void jsonArr() {
-		RedisJSONCommands<String, String> sync = connection.sync();
-		String key = "arr";
-		sync.jsonSet(key, ".", "[]");
-		assertEquals(1, sync.jsonArrappend(key, ".", "0"));
-		assertEquals("[0]", sync.jsonGet(key));
-		assertEquals(3, sync.jsonArrinsert(key, ".", 0, "-2", "-1"));
-		assertEquals("[-2,-1,0]", sync.jsonGet(key));
-		assertEquals(1, sync.jsonArrindex(key, ".", "-1"));
-		assertEquals(1, sync.jsonArrindex(key, ".", "-1", Slice.start(0).stop(3)));
-		assertEquals(1, sync.jsonArrtrim(key, ".", 1, 1));
-		assertEquals("[-1]", sync.jsonGet(key));
-		assertEquals("-1", sync.jsonArrpop(key));
-	}
-
-	@Test
-	void jsonObj() {
-		RedisJSONCommands<String, String> sync = connection.sync();
-		sync.jsonSet("obj", ".", JSON);
-		assertEquals(3, sync.jsonObjlen("obj", "."));
-		assertEquals(Arrays.asList("name", "lastSeen", "loggedOut"), sync.jsonObjkeys("obj", "."));
 	}
 
 	@Test
@@ -914,7 +736,8 @@ abstract class ModulesTests {
 		Assertions.assertEquals(styleField.getName(), info.getFields().get(2).getAs().get());
 		while (iterator.hasNext()) {
 			JsonNode beer = iterator.next();
-			connection.sync().jsonSet("beer:" + beer.get(ID).asText(), "$", beer.toString());
+			connection.sync().jsonSet("beer:" + beer.get(ID).asText(), JsonPath.ROOT_PATH,
+					connection.sync().getJsonParser().createJsonValue(beer.toString()));
 		}
 		SearchResults<String, String> results = connection.sync().ftSearch(index, "@" + NAME + ":Creek");
 		Assertions.assertEquals(1, results.getCount());
@@ -930,7 +753,8 @@ abstract class ModulesTests {
 		connection.sync().ftCreate(index,
 				CreateOptions.<String, String>builder().on(DataType.JSON).prefix("account:").build(), idField,
 				nameField, styleField);
-		connection.sync().jsonSet("account:1", "$", "{\"id\": \"1\", \"name\": null, \"style_name\": \"123\"}");
+		connection.sync().jsonSet("account:1", JsonPath.ROOT_PATH, connection.sync().getJsonParser()
+				.createJsonValue("{\"id\": \"1\", \"name\": null, \"style_name\": \"123\"}"));
 		SearchResults<String, String> results = connection.sync().ftSearch(index, "*",
 				SearchOptions.<String, String>builder().returnFields("id", "name", "style_name").build());
 		Assertions.assertEquals(1, results.getCount());

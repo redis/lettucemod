@@ -24,6 +24,8 @@ public class RedisURIBuilder {
 	private Duration timeout = DEFAULT_TIMEOUT_DURATION;
 	private int database;
 	private String clientName;
+	private String libraryName;
+	private String libraryVersion;
 	private boolean tls;
 	private SslVerifyMode verifyMode = DEFAULT_VERIFY_MODE;
 
@@ -47,6 +49,8 @@ public class RedisURIBuilder {
 			builder.withTimeout(timeout);
 		}
 		RedisURI redisURI = builder.build();
+		redisURI.setLibraryName(libraryName);
+		redisURI.setLibraryVersion(libraryVersion);
 		if (RedisModulesUtils.hasLength(clientName) && !RedisModulesUtils.hasLength(redisURI.getClientName())) {
 			redisURI.setClientName(clientName);
 		}

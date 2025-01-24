@@ -12,11 +12,9 @@ import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.redis.lettucemod.RedisModulesClient;
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
 import com.redis.lettucemod.api.async.RedisModulesAsyncCommands;
 import com.redis.lettucemod.api.sync.RediSearchCommands;
-import com.redis.lettucemod.api.sync.RedisJSONCommands;
 import com.redis.lettucemod.api.sync.RedisModulesCommands;
 import com.redis.lettucemod.api.sync.RedisTimeSeriesCommands;
 import com.redis.lettucemod.cluster.RedisModulesClusterClient;
@@ -62,13 +60,6 @@ RediSearchCommands<String, String> search = connection.sync(); // <1>
 search.ftCreate("beers", Field.text("name").build(), Field.numeric("ibu").build()); // <2>
 
 SearchResults<String, String> results = search.ftSearch("beers", "chou*"); // <3>
-
-
-// RedisJSON
-
-RedisJSONCommands<String, String> json = connection.sync(); // <1>
-
-json.jsonSet("arr", ".", "[1,2,3]"); // <2>
 
 
 // RedisTimeSeries
