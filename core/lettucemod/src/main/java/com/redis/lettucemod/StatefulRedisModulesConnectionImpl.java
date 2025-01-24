@@ -16,7 +16,7 @@ import io.lettuce.core.protocol.ConnectionWatchdog;
 import io.lettuce.core.protocol.PushHandler;
 
 /**
- * A thread-safe connection to a RedisTimeSeries server. Multiple threads may share
+ * A thread-safe connection to a Redis server. Multiple threads may share
  * one {@link StatefulRedisModulesConnectionImpl}
  * A {@link ConnectionWatchdog} monitors each connection and reconnects
  * automatically until {@link #close} is called. All pending commands will be
