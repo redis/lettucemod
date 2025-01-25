@@ -10,22 +10,17 @@
     "allDeclaredConstructors": true
   },
   {
+    "name": "com.redis.lettucemod.cluster.RedisModulesClusterClient",
+    "allPublicMethods": true,
+    "allDeclaredConstructors": true
+  },
+  {
     "name": "com.redis.lettucemod.api.sync.RedisModulesCommands",
     "allPublicMethods": true,
     "allDeclaredConstructors": true
   },
   {
     "name": "com.redis.lettucemod.api.sync.RediSearchCommands",
-    "allPublicMethods": true,
-    "allDeclaredConstructors": true
-  },
-  {
-    "name": "com.redis.lettucemod.api.sync.RedisGearsCommands",
-    "allPublicMethods": true,
-    "allDeclaredConstructors": true
-  },
-  {
-    "name": "com.redis.lettucemod.api.sync.RedisJSONCommands",
     "allPublicMethods": true,
     "allDeclaredConstructors": true
   },
