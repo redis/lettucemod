@@ -7,6 +7,9 @@ import java.util.OptionalLong;
 
 import com.redis.lettucemod.protocol.SearchCommandKeyword;
 
+import lombok.ToString;
+
+@ToString
 public class CursorOptions {
 
 	private OptionalLong count = OptionalLong.empty();
@@ -50,11 +53,6 @@ public class CursorOptions {
 	@Override
 	public int hashCode() {
 		return Objects.hash(count, maxIdle);
-	}
-
-	@Override
-	public String toString() {
-		return "CursorOptions [count=" + count + ", maxIdle=" + maxIdle + "]";
 	}
 
 	@Override

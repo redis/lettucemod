@@ -3,399 +3,390 @@ package com.redis.lettucemod.search;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.ToString;
+
+@ToString
 public class IndexInfo {
 
-    private String indexName;
+	private String indexName;
 
-    private Double numDocs;
+	private Double numDocs;
 
-    private CreateOptions<String, String> indexOptions;
+	private CreateOptions<String, String> indexOptions;
 
-    private List<Field<String>> fields;
+	private List<Field<String>> fields;
 
-    private String maxDocId;
+	private String maxDocId;
 
-    private Long numTerms;
+	private Long numTerms;
 
-    private Long numRecords;
+	private Long numRecords;
 
-    private Double invertedSizeMb;
+	private Double invertedSizeMb;
 
-    private Long totalInvertedIndexBlocks;
+	private Long totalInvertedIndexBlocks;
 
-    private Double vectorIndexSizeMb;
+	private Double vectorIndexSizeMb;
 
-    private Double offsetVectorsSizeMb;
+	private Double offsetVectorsSizeMb;
 
-    private Double docTableSizeMb;
+	private Double docTableSizeMb;
 
-    private Double sortableValuesSizeMb;
+	private Double sortableValuesSizeMb;
 
-    private Double keyTableSizeMb;
+	private Double keyTableSizeMb;
 
-    private Double recordsPerDocAvg;
+	private Double recordsPerDocAvg;
 
-    private Double bytesPerRecordAvg;
+	private Double bytesPerRecordAvg;
 
-    private Double offsetsPerTermAvg;
+	private Double offsetsPerTermAvg;
 
-    private Double offsetBitsPerRecordAvg;
+	private Double offsetBitsPerRecordAvg;
 
-    private List<Object> gcStats;
+	private List<Object> gcStats;
 
-    private List<Object> cursorStats;
+	private List<Object> cursorStats;
 
-    public IndexInfo() {
-    }
+	public IndexInfo() {
+	}
 
-    private IndexInfo(Builder builder) {
-        this.indexName = builder.indexName;
-        this.numDocs = builder.numDocs;
-        this.indexOptions = builder.indexOptions;
-        this.fields = builder.fields;
-        this.maxDocId = builder.maxDocId;
-        this.numTerms = builder.numTerms;
-        this.numRecords = builder.numRecords;
-        this.invertedSizeMb = builder.invertedSizeMb;
-        this.totalInvertedIndexBlocks = builder.totalInvertedIndexBlocks;
-        this.vectorIndexSizeMb = builder.vectorIndexSizeMb;
-        this.offsetVectorsSizeMb = builder.offsetVectorsSizeMb;
-        this.docTableSizeMb = builder.docTableSizeMb;
-        this.sortableValuesSizeMb = builder.sortableValuesSizeMb;
-        this.keyTableSizeMb = builder.keyTableSizeMb;
-        this.recordsPerDocAvg = builder.recordsPerDocAvg;
-        this.bytesPerRecordAvg = builder.bytesPerRecordAvg;
-        this.offsetsPerTermAvg = builder.offsetsPerTermAvg;
-        this.offsetBitsPerRecordAvg = builder.offsetBitsPerRecordAvg;
-        this.gcStats = builder.gcStats;
-        this.cursorStats = builder.cursorStats;
-    }
+	private IndexInfo(Builder builder) {
+		this.indexName = builder.indexName;
+		this.numDocs = builder.numDocs;
+		this.indexOptions = builder.indexOptions;
+		this.fields = builder.fields;
+		this.maxDocId = builder.maxDocId;
+		this.numTerms = builder.numTerms;
+		this.numRecords = builder.numRecords;
+		this.invertedSizeMb = builder.invertedSizeMb;
+		this.totalInvertedIndexBlocks = builder.totalInvertedIndexBlocks;
+		this.vectorIndexSizeMb = builder.vectorIndexSizeMb;
+		this.offsetVectorsSizeMb = builder.offsetVectorsSizeMb;
+		this.docTableSizeMb = builder.docTableSizeMb;
+		this.sortableValuesSizeMb = builder.sortableValuesSizeMb;
+		this.keyTableSizeMb = builder.keyTableSizeMb;
+		this.recordsPerDocAvg = builder.recordsPerDocAvg;
+		this.bytesPerRecordAvg = builder.bytesPerRecordAvg;
+		this.offsetsPerTermAvg = builder.offsetsPerTermAvg;
+		this.offsetBitsPerRecordAvg = builder.offsetBitsPerRecordAvg;
+		this.gcStats = builder.gcStats;
+		this.cursorStats = builder.cursorStats;
+	}
 
-    public String getIndexName() {
-        return indexName;
-    }
+	public String getIndexName() {
+		return indexName;
+	}
 
-    public void setIndexName(String indexName) {
-        this.indexName = indexName;
-    }
+	public void setIndexName(String indexName) {
+		this.indexName = indexName;
+	}
 
-    public Double getNumDocs() {
-        return numDocs;
-    }
+	public Double getNumDocs() {
+		return numDocs;
+	}
 
-    public void setNumDocs(Double numDocs) {
-        this.numDocs = numDocs;
-    }
+	public void setNumDocs(Double numDocs) {
+		this.numDocs = numDocs;
+	}
 
-    public CreateOptions<String, String> getIndexOptions() {
-        return indexOptions;
-    }
+	public CreateOptions<String, String> getIndexOptions() {
+		return indexOptions;
+	}
 
-    public void setIndexOptions(CreateOptions<String, String> indexOptions) {
-        this.indexOptions = indexOptions;
-    }
+	public void setIndexOptions(CreateOptions<String, String> indexOptions) {
+		this.indexOptions = indexOptions;
+	}
 
-    public List<Field<String>> getFields() {
-        return fields;
-    }
+	public List<Field<String>> getFields() {
+		return fields;
+	}
 
-    public void setFields(List<Field<String>> fields) {
-        this.fields = fields;
-    }
+	public void setFields(List<Field<String>> fields) {
+		this.fields = fields;
+	}
 
-    public String getMaxDocId() {
-        return maxDocId;
-    }
-
-    public void setMaxDocId(String maxDocId) {
-        this.maxDocId = maxDocId;
-    }
-
-    public Long getNumTerms() {
-        return numTerms;
-    }
-
-    public void setNumTerms(Long numTerms) {
-        this.numTerms = numTerms;
-    }
-
-    public Long getNumRecords() {
-        return numRecords;
-    }
-
-    public void setNumRecords(Long numRecords) {
-        this.numRecords = numRecords;
-    }
-
-    public Double getInvertedSizeMb() {
-        return invertedSizeMb;
-    }
-
-    public void setInvertedSizeMb(Double invertedSizeMb) {
-        this.invertedSizeMb = invertedSizeMb;
-    }
-
-    public Long getTotalInvertedIndexBlocks() {
-        return totalInvertedIndexBlocks;
-    }
-
-    public void setTotalInvertedIndexBlocks(Long totalInvertedIndexBlocks) {
-        this.totalInvertedIndexBlocks = totalInvertedIndexBlocks;
-    }
-
-    public Double getVectorIndexSizeMb() {
-        return vectorIndexSizeMb;
-    }
-
-    public void setVectorIndexSizeMb(Double vectorIndexSizeMb) {
-        this.vectorIndexSizeMb = vectorIndexSizeMb;
-    }
-
-    public Double getOffsetVectorsSizeMb() {
-        return offsetVectorsSizeMb;
-    }
-
-    public void setOffsetVectorsSizeMb(Double offsetVectorsSizeMb) {
-        this.offsetVectorsSizeMb = offsetVectorsSizeMb;
-    }
+	public String getMaxDocId() {
+		return maxDocId;
+	}
+
+	public void setMaxDocId(String maxDocId) {
+		this.maxDocId = maxDocId;
+	}
+
+	public Long getNumTerms() {
+		return numTerms;
+	}
+
+	public void setNumTerms(Long numTerms) {
+		this.numTerms = numTerms;
+	}
+
+	public Long getNumRecords() {
+		return numRecords;
+	}
+
+	public void setNumRecords(Long numRecords) {
+		this.numRecords = numRecords;
+	}
+
+	public Double getInvertedSizeMb() {
+		return invertedSizeMb;
+	}
+
+	public void setInvertedSizeMb(Double invertedSizeMb) {
+		this.invertedSizeMb = invertedSizeMb;
+	}
+
+	public Long getTotalInvertedIndexBlocks() {
+		return totalInvertedIndexBlocks;
+	}
 
-    public Double getDocTableSizeMb() {
-        return docTableSizeMb;
-    }
+	public void setTotalInvertedIndexBlocks(Long totalInvertedIndexBlocks) {
+		this.totalInvertedIndexBlocks = totalInvertedIndexBlocks;
+	}
 
-    public void setDocTableSizeMb(Double docTableSizeMb) {
-        this.docTableSizeMb = docTableSizeMb;
-    }
+	public Double getVectorIndexSizeMb() {
+		return vectorIndexSizeMb;
+	}
 
-    public Double getSortableValuesSizeMb() {
-        return sortableValuesSizeMb;
-    }
+	public void setVectorIndexSizeMb(Double vectorIndexSizeMb) {
+		this.vectorIndexSizeMb = vectorIndexSizeMb;
+	}
 
-    public void setSortableValuesSizeMb(Double sortableValuesSizeMb) {
-        this.sortableValuesSizeMb = sortableValuesSizeMb;
-    }
+	public Double getOffsetVectorsSizeMb() {
+		return offsetVectorsSizeMb;
+	}
 
-    public Double getKeyTableSizeMb() {
-        return keyTableSizeMb;
-    }
+	public void setOffsetVectorsSizeMb(Double offsetVectorsSizeMb) {
+		this.offsetVectorsSizeMb = offsetVectorsSizeMb;
+	}
 
-    public void setKeyTableSizeMb(Double keyTableSizeMb) {
-        this.keyTableSizeMb = keyTableSizeMb;
-    }
+	public Double getDocTableSizeMb() {
+		return docTableSizeMb;
+	}
 
-    public Double getRecordsPerDocAvg() {
-        return recordsPerDocAvg;
-    }
+	public void setDocTableSizeMb(Double docTableSizeMb) {
+		this.docTableSizeMb = docTableSizeMb;
+	}
 
-    public void setRecordsPerDocAvg(Double recordsPerDocAvg) {
-        this.recordsPerDocAvg = recordsPerDocAvg;
-    }
+	public Double getSortableValuesSizeMb() {
+		return sortableValuesSizeMb;
+	}
 
-    public Double getBytesPerRecordAvg() {
-        return bytesPerRecordAvg;
-    }
+	public void setSortableValuesSizeMb(Double sortableValuesSizeMb) {
+		this.sortableValuesSizeMb = sortableValuesSizeMb;
+	}
 
-    public void setBytesPerRecordAvg(Double bytesPerRecordAvg) {
-        this.bytesPerRecordAvg = bytesPerRecordAvg;
-    }
+	public Double getKeyTableSizeMb() {
+		return keyTableSizeMb;
+	}
 
-    public Double getOffsetsPerTermAvg() {
-        return offsetsPerTermAvg;
-    }
+	public void setKeyTableSizeMb(Double keyTableSizeMb) {
+		this.keyTableSizeMb = keyTableSizeMb;
+	}
 
-    public void setOffsetsPerTermAvg(Double offsetsPerTermAvg) {
-        this.offsetsPerTermAvg = offsetsPerTermAvg;
-    }
+	public Double getRecordsPerDocAvg() {
+		return recordsPerDocAvg;
+	}
 
-    public Double getOffsetBitsPerRecordAvg() {
-        return offsetBitsPerRecordAvg;
-    }
+	public void setRecordsPerDocAvg(Double recordsPerDocAvg) {
+		this.recordsPerDocAvg = recordsPerDocAvg;
+	}
 
-    public void setOffsetBitsPerRecordAvg(Double offsetBitsPerRecordAvg) {
-        this.offsetBitsPerRecordAvg = offsetBitsPerRecordAvg;
-    }
+	public Double getBytesPerRecordAvg() {
+		return bytesPerRecordAvg;
+	}
 
-    public List<Object> getGcStats() {
-        return gcStats;
-    }
+	public void setBytesPerRecordAvg(Double bytesPerRecordAvg) {
+		this.bytesPerRecordAvg = bytesPerRecordAvg;
+	}
 
-    public void setGcStats(List<Object> gcStats) {
-        this.gcStats = gcStats;
-    }
+	public Double getOffsetsPerTermAvg() {
+		return offsetsPerTermAvg;
+	}
 
-    public List<Object> getCursorStats() {
-        return cursorStats;
-    }
+	public void setOffsetsPerTermAvg(Double offsetsPerTermAvg) {
+		this.offsetsPerTermAvg = offsetsPerTermAvg;
+	}
 
-    public void setCursorStats(List<Object> cursorStats) {
-        this.cursorStats = cursorStats;
-    }
+	public Double getOffsetBitsPerRecordAvg() {
+		return offsetBitsPerRecordAvg;
+	}
 
-    @Override
-    public String toString() {
-        return "IndexInfo [indexName=" + indexName + ", numDocs=" + numDocs + ", indexOptions=" + indexOptions + ", fields="
-                + fields + ", maxDocId=" + maxDocId + ", numTerms=" + numTerms + ", numRecords=" + numRecords
-                + ", invertedSizeMb=" + invertedSizeMb + ", totalInvertedIndexBlocks=" + totalInvertedIndexBlocks
-                + ", vectorIndexSizeMb=" + vectorIndexSizeMb + ", offsetVectorsSizeMb=" + offsetVectorsSizeMb
-                + ", docTableSizeMb=" + docTableSizeMb + ", sortableValuesSizeMb=" + sortableValuesSizeMb + ", keyTableSizeMb="
-                + keyTableSizeMb + ", recordsPerDocAvg=" + recordsPerDocAvg + ", bytesPerRecordAvg=" + bytesPerRecordAvg
-                + ", offsetsPerTermAvg=" + offsetsPerTermAvg + ", offsetBitsPerRecordAvg=" + offsetBitsPerRecordAvg
-                + ", gcStats=" + gcStats + ", cursorStats=" + cursorStats + "]";
-    }
+	public void setOffsetBitsPerRecordAvg(Double offsetBitsPerRecordAvg) {
+		this.offsetBitsPerRecordAvg = offsetBitsPerRecordAvg;
+	}
 
-    public static Builder builder() {
-        return new Builder();
-    }
+	public List<Object> getGcStats() {
+		return gcStats;
+	}
 
-    public static final class Builder {
+	public void setGcStats(List<Object> gcStats) {
+		this.gcStats = gcStats;
+	}
 
-        private String indexName;
+	public List<Object> getCursorStats() {
+		return cursorStats;
+	}
 
-        private Double numDocs;
+	public void setCursorStats(List<Object> cursorStats) {
+		this.cursorStats = cursorStats;
+	}
 
-        private CreateOptions<String, String> indexOptions;
+	public static Builder builder() {
+		return new Builder();
+	}
 
-        private List<Field<String>> fields = new ArrayList<>();
+	public static final class Builder {
 
-        private String maxDocId;
+		private String indexName;
 
-        private Long numTerms;
+		private Double numDocs;
 
-        private Long numRecords;
+		private CreateOptions<String, String> indexOptions;
 
-        private Double invertedSizeMb;
+		private List<Field<String>> fields = new ArrayList<>();
 
-        private Long totalInvertedIndexBlocks;
-        
-        private Double vectorIndexSizeMb;
+		private String maxDocId;
 
-        private Double offsetVectorsSizeMb;
+		private Long numTerms;
 
-        private Double docTableSizeMb;
+		private Long numRecords;
 
-        private Double sortableValuesSizeMb;
+		private Double invertedSizeMb;
 
-        private Double keyTableSizeMb;
+		private Long totalInvertedIndexBlocks;
 
-        private Double recordsPerDocAvg;
+		private Double vectorIndexSizeMb;
 
-        private Double bytesPerRecordAvg;
+		private Double offsetVectorsSizeMb;
 
-        private Double offsetsPerTermAvg;
+		private Double docTableSizeMb;
 
-        private Double offsetBitsPerRecordAvg;
+		private Double sortableValuesSizeMb;
 
-        private List<Object> gcStats = new ArrayList<>();
+		private Double keyTableSizeMb;
 
-        private List<Object> cursorStats = new ArrayList<>();
+		private Double recordsPerDocAvg;
 
-        private Builder() {
-        }
+		private Double bytesPerRecordAvg;
 
-        public Builder indexName(String indexName) {
-            this.indexName = indexName;
-            return this;
-        }
+		private Double offsetsPerTermAvg;
 
-        public Builder numDocs(Double numDocs) {
-            this.numDocs = numDocs;
-            return this;
-        }
+		private Double offsetBitsPerRecordAvg;
 
-        public Builder indexOptions(CreateOptions<String, String> indexOptions) {
-            this.indexOptions = indexOptions;
-            return this;
-        }
+		private List<Object> gcStats = new ArrayList<>();
 
-        public Builder fields(List<Field<String>> fields) {
-            this.fields = fields;
-            return this;
-        }
+		private List<Object> cursorStats = new ArrayList<>();
 
-        public Builder maxDocId(String maxDocId) {
-            this.maxDocId = maxDocId;
-            return this;
-        }
+		private Builder() {
+		}
 
-        public Builder numTerms(Long numTerms) {
-            this.numTerms = numTerms;
-            return this;
-        }
+		public Builder indexName(String indexName) {
+			this.indexName = indexName;
+			return this;
+		}
 
-        public Builder numRecords(Long numRecords) {
-            this.numRecords = numRecords;
-            return this;
-        }
+		public Builder numDocs(Double numDocs) {
+			this.numDocs = numDocs;
+			return this;
+		}
 
-        public Builder invertedSizeMb(Double invertedSizeMb) {
-            this.invertedSizeMb = invertedSizeMb;
-            return this;
-        }
+		public Builder indexOptions(CreateOptions<String, String> indexOptions) {
+			this.indexOptions = indexOptions;
+			return this;
+		}
 
-        public Builder totalInvertedIndexBlocks(Long totalInvertedIndexBlocks) {
-            this.totalInvertedIndexBlocks = totalInvertedIndexBlocks;
-            return this;
-        }
-        
-        public Builder vectorIndexSizeMb(Double vectorIndexSizeMb) {
-            this.vectorIndexSizeMb = vectorIndexSizeMb;
-            return this;
-        }
+		public Builder fields(List<Field<String>> fields) {
+			this.fields = fields;
+			return this;
+		}
 
-        public Builder offsetVectorsSizeMb(Double offsetVectorsSizeMb) {
-            this.offsetVectorsSizeMb = offsetVectorsSizeMb;
-            return this;
-        }
+		public Builder maxDocId(String maxDocId) {
+			this.maxDocId = maxDocId;
+			return this;
+		}
 
-        public Builder docTableSizeMb(Double docTableSizeMb) {
-            this.docTableSizeMb = docTableSizeMb;
-            return this;
-        }
+		public Builder numTerms(Long numTerms) {
+			this.numTerms = numTerms;
+			return this;
+		}
 
-        public Builder sortableValuesSizeMb(Double sortableValuesSizeMb) {
-            this.sortableValuesSizeMb = sortableValuesSizeMb;
-            return this;
-        }
+		public Builder numRecords(Long numRecords) {
+			this.numRecords = numRecords;
+			return this;
+		}
 
-        public Builder keyTableSizeMb(Double keyTableSizeMb) {
-            this.keyTableSizeMb = keyTableSizeMb;
-            return this;
-        }
+		public Builder invertedSizeMb(Double invertedSizeMb) {
+			this.invertedSizeMb = invertedSizeMb;
+			return this;
+		}
 
-        public Builder recordsPerDocAvg(Double recordsPerDocAvg) {
-            this.recordsPerDocAvg = recordsPerDocAvg;
-            return this;
-        }
+		public Builder totalInvertedIndexBlocks(Long totalInvertedIndexBlocks) {
+			this.totalInvertedIndexBlocks = totalInvertedIndexBlocks;
+			return this;
+		}
 
-        public Builder bytesPerRecordAvg(Double bytesPerRecordAvg) {
-            this.bytesPerRecordAvg = bytesPerRecordAvg;
-            return this;
-        }
+		public Builder vectorIndexSizeMb(Double vectorIndexSizeMb) {
+			this.vectorIndexSizeMb = vectorIndexSizeMb;
+			return this;
+		}
 
-        public Builder offsetsPerTermAvg(Double offsetsPerTermAvg) {
-            this.offsetsPerTermAvg = offsetsPerTermAvg;
-            return this;
-        }
+		public Builder offsetVectorsSizeMb(Double offsetVectorsSizeMb) {
+			this.offsetVectorsSizeMb = offsetVectorsSizeMb;
+			return this;
+		}
 
-        public Builder offsetBitsPerRecordAvg(Double offsetBitsPerRecordAvg) {
-            this.offsetBitsPerRecordAvg = offsetBitsPerRecordAvg;
-            return this;
-        }
+		public Builder docTableSizeMb(Double docTableSizeMb) {
+			this.docTableSizeMb = docTableSizeMb;
+			return this;
+		}
 
-        public Builder gcStats(List<Object> gcStats) {
-            this.gcStats = gcStats;
-            return this;
-        }
+		public Builder sortableValuesSizeMb(Double sortableValuesSizeMb) {
+			this.sortableValuesSizeMb = sortableValuesSizeMb;
+			return this;
+		}
 
-        public Builder cursorStats(List<Object> cursorStats) {
-            this.cursorStats = cursorStats;
-            return this;
-        }
+		public Builder keyTableSizeMb(Double keyTableSizeMb) {
+			this.keyTableSizeMb = keyTableSizeMb;
+			return this;
+		}
 
-        public IndexInfo build() {
-            return new IndexInfo(this);
-        }
+		public Builder recordsPerDocAvg(Double recordsPerDocAvg) {
+			this.recordsPerDocAvg = recordsPerDocAvg;
+			return this;
+		}
 
-    }
+		public Builder bytesPerRecordAvg(Double bytesPerRecordAvg) {
+			this.bytesPerRecordAvg = bytesPerRecordAvg;
+			return this;
+		}
+
+		public Builder offsetsPerTermAvg(Double offsetsPerTermAvg) {
+			this.offsetsPerTermAvg = offsetsPerTermAvg;
+			return this;
+		}
+
+		public Builder offsetBitsPerRecordAvg(Double offsetBitsPerRecordAvg) {
+			this.offsetBitsPerRecordAvg = offsetBitsPerRecordAvg;
+			return this;
+		}
+
+		public Builder gcStats(List<Object> gcStats) {
+			this.gcStats = gcStats;
+			return this;
+		}
+
+		public Builder cursorStats(List<Object> cursorStats) {
+			this.cursorStats = cursorStats;
+			return this;
+		}
+
+		public IndexInfo build() {
+			return new IndexInfo(this);
+		}
+
+	}
 
 }

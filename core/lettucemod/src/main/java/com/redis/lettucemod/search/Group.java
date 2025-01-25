@@ -1,7 +1,6 @@
 package com.redis.lettucemod.search;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -20,8 +19,10 @@ import com.redis.lettucemod.search.Reducers.Sum;
 import com.redis.lettucemod.search.Reducers.ToList;
 
 import io.lettuce.core.internal.LettuceAssert;
+import lombok.ToString;
 
 @SuppressWarnings("rawtypes")
+@ToString
 public class Group implements AggregateOperation {
 
 	private final String[] properties;
@@ -59,11 +60,6 @@ public class Group implements AggregateOperation {
 		for (Reducer reducer : reducers) {
 			reducer.build(args);
 		}
-	}
-
-	@Override
-	public String toString() {
-		return "GROUP [properties=" + Arrays.toString(properties) + ", reducers=" + Arrays.toString(reducers) + "]";
 	}
 
 	public static Builder by(String... properties) {

@@ -2,7 +2,10 @@ package com.redis.lettucemod.search;
 
 import com.redis.lettucemod.protocol.SearchCommandKeyword;
 
+import lombok.ToString;
+
 @SuppressWarnings("rawtypes")
+@ToString
 public class Filter<V> implements AggregateOperation {
 
 	private final V expression;
@@ -18,11 +21,6 @@ public class Filter<V> implements AggregateOperation {
 
 	public V getExpression() {
 		return expression;
-	}
-
-	@Override
-	public String toString() {
-		return "FILTER " + expression;
 	}
 
 	public static <V> Filter<V> expression(V expression) {

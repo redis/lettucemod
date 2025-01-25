@@ -1,9 +1,13 @@
 package com.redis.lettucemod.search;
-import com.redis.lettucemod.protocol.SearchCommandKeyword;
 
 import java.util.Objects;
 import java.util.Optional;
 
+import com.redis.lettucemod.protocol.SearchCommandKeyword;
+
+import lombok.ToString;
+
+@ToString
 public class VectorField<K> extends Field<K> {
 
 	private final SearchCommandKeyword algorithm;
@@ -12,15 +16,15 @@ public class VectorField<K> extends Field<K> {
 	private final SearchCommandKeyword distanceMetric;
 
 	private final Optional<Integer> initialCap;
-	private final Optional<Integer> blockSize; //1024
+	private final Optional<Integer> blockSize; // 1024
 
-	private final Optional<Integer> m; //16
+	private final Optional<Integer> m; // 16
 
-	private final Optional<Integer> efConstruction; //200
+	private final Optional<Integer> efConstruction; // 200
 
-	private final Optional<Integer> efRuntime; //10
+	private final Optional<Integer> efRuntime; // 10
 
-	private final Optional<Float> epsilon; //0.01
+	private final Optional<Float> epsilon; // 0.01
 
 	private VectorField(Builder<K> builder) {
 		super(Type.VECTOR, builder);
@@ -42,15 +46,9 @@ public class VectorField<K> extends Field<K> {
 
 	@Override
 	protected void buildField(SearchCommandArgs<K, Object> args) {
-		args.add(SearchCommandKeyword.VECTOR)
-				.add(algorithm)
-				.add(getOptionSize())
-				.add(SearchCommandKeyword.TYPE)
-				.add(vectorType)
-				.add(SearchCommandKeyword.DIM)
-				.addValue(String.valueOf(dim))
-				.add(SearchCommandKeyword.DISTANCE_METRIC)
-				.add(distanceMetric);
+		args.add(SearchCommandKeyword.VECTOR).add(algorithm).add(getOptionSize()).add(SearchCommandKeyword.TYPE)
+				.add(vectorType).add(SearchCommandKeyword.DIM).addValue(String.valueOf(dim))
+				.add(SearchCommandKeyword.DISTANCE_METRIC).add(distanceMetric);
 
 		initialCap.ifPresent(i -> args.add(SearchCommandKeyword.INITIAL_CAP).add(i));
 
@@ -66,32 +64,24 @@ public class VectorField<K> extends Field<K> {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-		if (!super.equals(o)) return false;
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
+		if (!super.equals(o))
+			return false;
 		VectorField<?> that = (VectorField<?>) o;
-		return dim == that.dim && algorithm == that.algorithm && vectorType == that.vectorType && distanceMetric == that.distanceMetric && Objects.equals(initialCap, that.initialCap) && Objects.equals(blockSize, that.blockSize) && Objects.equals(m, that.m) && Objects.equals(efConstruction, that.efConstruction) && Objects.equals(efRuntime, that.efRuntime) && Objects.equals(epsilon, that.epsilon);
+		return dim == that.dim && algorithm == that.algorithm && vectorType == that.vectorType
+				&& distanceMetric == that.distanceMetric && Objects.equals(initialCap, that.initialCap)
+				&& Objects.equals(blockSize, that.blockSize) && Objects.equals(m, that.m)
+				&& Objects.equals(efConstruction, that.efConstruction) && Objects.equals(efRuntime, that.efRuntime)
+				&& Objects.equals(epsilon, that.epsilon);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(super.hashCode(), algorithm, vectorType, dim, distanceMetric, initialCap, blockSize, m, efConstruction, efRuntime, epsilon);
-	}
-
-	@Override
-	public String toString() {
-		return "VectorField[" +
-				"algorithm=" + algorithm +
-				", vectorType=" + vectorType +
-				", dim=" + dim +
-				", distanceMetric=" + distanceMetric +
-				", initialCap=" + initialCap +
-				", blockSize=" + blockSize +
-				", m=" + m +
-				", efConstruction=" + efConstruction +
-				", efRuntime=" + efRuntime +
-				", epsilon=" + epsilon +
-				']';
+		return Objects.hash(super.hashCode(), algorithm, vectorType, dim, distanceMetric, initialCap, blockSize, m,
+				efConstruction, efRuntime, epsilon);
 	}
 
 	private int getOptionSize() {

@@ -6,6 +6,9 @@ import java.util.OptionalDouble;
 
 import com.redis.lettucemod.protocol.SearchCommandKeyword;
 
+import lombok.ToString;
+
+@ToString
 public class TextField<K> extends Field<K> {
 
 	private OptionalDouble weight = OptionalDouble.empty();
@@ -51,13 +54,6 @@ public class TextField<K> extends Field<K> {
 
 	public void setWithSuffixTrie(boolean withSuffixTrie) {
 		this.withSuffixTrie = withSuffixTrie;
-	}
-
-	@Override
-	public String toString() {
-		return "TextField [weight=" + weight + ", noStem=" + noStem + ", matcher=" + matcher + ", withSuffixTrie="
-				+ withSuffixTrie + ", type=" + type + ", name=" + name + ", as=" + as + ", sortable=" + sortable
-				+ ", unNormalizedForm=" + unNormalizedForm + ", noIndex=" + noIndex + "]";
 	}
 
 	@Override

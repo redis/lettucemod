@@ -2,6 +2,9 @@ package com.redis.lettucemod.search;
 
 import com.redis.lettucemod.protocol.SearchCommandKeyword;
 
+import lombok.ToString;
+
+@ToString
 public class NumericField<K> extends Field<K> {
 
 	private NumericField(Builder<K> builder) {
@@ -11,12 +14,6 @@ public class NumericField<K> extends Field<K> {
 	@Override
 	protected void buildField(SearchCommandArgs<K, Object> args) {
 		args.add(SearchCommandKeyword.NUMERIC);
-	}
-
-	@Override
-	public String toString() {
-		return "NumericField [type=" + type + ", name=" + name + ", as=" + as + ", sortable=" + sortable
-				+ ", unNormalizedForm=" + unNormalizedForm + ", noIndex=" + noIndex + "]";
 	}
 
 	public static <K> Builder<K> name(K name) {

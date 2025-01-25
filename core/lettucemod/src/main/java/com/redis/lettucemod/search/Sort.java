@@ -9,8 +9,10 @@ import java.util.Optional;
 import com.redis.lettucemod.protocol.SearchCommandKeyword;
 
 import io.lettuce.core.internal.LettuceAssert;
+import lombok.ToString;
 
 @SuppressWarnings("rawtypes")
+@ToString
 public class Sort implements AggregateOperation {
 
 	private List<Property> properties;
@@ -50,14 +52,6 @@ public class Sort implements AggregateOperation {
 			property.build(args);
 		}
 		max.ifPresent(m -> m.build(args));
-	}
-
-	@Override
-	public String toString() {
-		final StringBuilder string = new StringBuilder("SORT [properties=").append(properties);
-		max.ifPresent(m -> string.append(", max=").append(m));
-		string.append("]");
-		return string.toString();
 	}
 
 	public static Builder by(Property... properties) {
@@ -105,6 +99,7 @@ public class Sort implements AggregateOperation {
 
 	}
 
+	@ToString
 	public static class Property implements RediSearchArgument {
 
 		private String name;
@@ -131,11 +126,6 @@ public class Sort implements AggregateOperation {
 
 		public void setOrder(Order order) {
 			this.order = order;
-		}
-
-		@Override
-		public String toString() {
-			return "Property [name=" + name + ", order=" + order + "]";
 		}
 
 		public static Property of(String name, Order order) {

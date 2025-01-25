@@ -2,7 +2,10 @@ package com.redis.lettucemod.search;
 
 import com.redis.lettucemod.protocol.SearchCommandKeyword;
 
+import lombok.ToString;
+
 @SuppressWarnings("rawtypes")
+@ToString
 public class Max implements RediSearchArgument {
 
 	private final long value;
@@ -13,11 +16,6 @@ public class Max implements RediSearchArgument {
 
 	public long getValue() {
 		return value;
-	}
-
-	@Override
-	public String toString() {
-		return "Max [value=" + value + "]";
 	}
 
 	@Override

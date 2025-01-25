@@ -2,7 +2,10 @@ package com.redis.lettucemod.search;
 
 import com.redis.lettucemod.protocol.SearchCommandKeyword;
 
+import lombok.ToString;
+
 @SuppressWarnings("rawtypes")
+@ToString
 public class Limit implements AggregateOperation {
 
 	private final long offset;
@@ -31,11 +34,6 @@ public class Limit implements AggregateOperation {
 		args.add(SearchCommandKeyword.LIMIT);
 		args.add(offset);
 		args.add(num);
-	}
-
-	@Override
-	public String toString() {
-		return "LIMIT [offset=" + offset + ", num=" + num + "]";
 	}
 
 	public static NumBuilder offset(long offset) {

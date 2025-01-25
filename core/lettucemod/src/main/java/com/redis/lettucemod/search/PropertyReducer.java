@@ -1,7 +1,9 @@
 package com.redis.lettucemod.search;
 
 import io.lettuce.core.internal.LettuceAssert;
+import lombok.ToString;
 
+@ToString
 public abstract class PropertyReducer extends Reducer {
 
 	private final String name;
@@ -29,11 +31,6 @@ public abstract class PropertyReducer extends Reducer {
 			LettuceAssert.notNull(property, "Property is required");
 			this.property = property;
 		}
-	}
-
-	@Override
-	public String toString() {
-		return toString(name + "(" + property + ")");
 	}
 
 }

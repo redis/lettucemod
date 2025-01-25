@@ -4,6 +4,8 @@ import java.util.Optional;
 
 import com.redis.lettucemod.protocol.SearchCommandKeyword;
 
+import lombok.ToString;
+
 @SuppressWarnings("rawtypes")
 public class Reducers {
 
@@ -40,6 +42,7 @@ public class Reducers {
 
 	}
 
+	@ToString
 	public static class FirstValue extends PropertyReducer {
 
 		private final Optional<By> by;
@@ -55,13 +58,6 @@ public class Reducers {
 			args.add(getNumberOfArgs());
 			args.addProperty(property);
 			by.ifPresent(b -> b.build(args));
-		}
-
-		@Override
-		public String toString() {
-			StringBuilder builder = new StringBuilder(super.toString());
-			by.ifPresent(b -> builder.append(" by=").append(by));
-			return builder.toString();
 		}
 
 		private int getNumberOfArgs() {
@@ -97,6 +93,7 @@ public class Reducers {
 			}
 		}
 
+		@ToString
 		public static class By implements RediSearchArgument {
 
 			private final String property;
@@ -117,16 +114,6 @@ public class Reducers {
 			}
 
 			@Override
-			public String toString() {
-				String string = "By [property=" + property;
-				if (order.isPresent()) {
-					string += " " + order.get();
-				}
-				string += "]";
-				return string;
-			}
-
-			@Override
 			public void build(SearchCommandArgs args) {
 				args.add(SearchCommandKeyword.BY).addProperty(property);
 				order.ifPresent(o -> args.add(o.getKeyword()));
@@ -143,6 +130,7 @@ public class Reducers {
 		}
 	}
 
+	@ToString
 	public static class Count extends Reducer {
 
 		private Count(Optional<String> as) {
@@ -153,11 +141,6 @@ public class Reducers {
 		protected void buildFunction(SearchCommandArgs args) {
 			args.add(SearchCommandKeyword.COUNT);
 			args.add(0);
-		}
-
-		@Override
-		public String toString() {
-			return toString("count");
 		}
 
 		public static Count create() {
@@ -200,6 +183,7 @@ public class Reducers {
 
 	}
 
+	@ToString
 	public static class RandomSample extends PropertyReducer {
 
 		private final int size;
@@ -207,11 +191,6 @@ public class Reducers {
 		private RandomSample(Builder builder) {
 			super("RandomSample", builder);
 			this.size = builder.size;
-		}
-
-		@Override
-		public String toString() {
-			return super.toString() + " size=" + size;
 		}
 
 		@Override
@@ -436,6 +415,7 @@ public class Reducers {
 
 	}
 
+	@ToString
 	public static class Quantile extends PropertyReducer {
 
 		private final double quantileValue;
@@ -443,11 +423,6 @@ public class Reducers {
 		private Quantile(Builder builder) {
 			super("Quantile", builder);
 			this.quantileValue = builder.quantile;
-		}
-
-		@Override
-		public String toString() {
-			return super.toString() + " quantile=" + quantileValue;
 		}
 
 		@Override

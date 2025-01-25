@@ -5,6 +5,9 @@ import java.util.Optional;
 
 import com.redis.lettucemod.protocol.SearchCommandKeyword;
 
+import lombok.ToString;
+
+@ToString
 public class TagField<K> extends Field<K> {
 
 	private Optional<Character> separator = Optional.empty();
@@ -40,13 +43,6 @@ public class TagField<K> extends Field<K> {
 
 	public void setWithSuffixTrie(boolean withSuffixTrie) {
 		this.withSuffixTrie = withSuffixTrie;
-	}
-
-	@Override
-	public String toString() {
-		return "TagField [separator=" + separator + ", caseSensitive=" + caseSensitive + ", withSuffixTrie="
-				+ withSuffixTrie + ", type=" + type + ", name=" + name + ", as=" + as + ", sortable=" + sortable
-				+ ", unNormalizedForm=" + unNormalizedForm + ", noIndex=" + noIndex + "]";
 	}
 
 	@Override

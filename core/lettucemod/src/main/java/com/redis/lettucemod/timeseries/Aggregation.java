@@ -8,7 +8,9 @@ import com.redis.lettucemod.protocol.TimeSeriesCommandKeyword;
 import io.lettuce.core.CompositeArgument;
 import io.lettuce.core.internal.LettuceAssert;
 import io.lettuce.core.protocol.CommandArgs;
+import lombok.ToString;
 
+@ToString
 public class Aggregation implements CompositeArgument {
 
 	private final Aggregator aggregator;
@@ -71,12 +73,6 @@ public class Aggregation implements CompositeArgument {
 		if (empty) {
 			args.add(TimeSeriesCommandKeyword.EMPTY);
 		}
-	}
-
-	@Override
-	public String toString() {
-		return "Aggregation [aggregator=" + aggregator + ", bucketDuration=" + bucketDuration + ", align=" + align
-				+ ", bucketTimestamp=" + bucketTimestamp + ", empty=" + empty + "]";
 	}
 
 	public static class Align implements CompositeArgument {

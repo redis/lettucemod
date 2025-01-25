@@ -10,6 +10,9 @@ import java.util.OptionalLong;
 
 import com.redis.lettucemod.protocol.SearchCommandKeyword;
 
+import lombok.ToString;
+
+@ToString
 public class CreateOptions<K, V> implements RediSearchArgument<K, V> {
 
 	public enum DataType {
@@ -222,15 +225,6 @@ public class CreateOptions<K, V> implements RediSearchArgument<K, V> {
 		});
 	}
 
-	@Override
-	public String toString() {
-		return "CreateOptions [on=" + on + ", prefixes=" + prefixes + ", filter=" + filter + ", defaultLanguage="
-				+ defaultLanguage + ", languageField=" + languageField + ", defaultScore=" + defaultScore
-				+ ", scoreField=" + scoreField + ", payloadField=" + payloadField + ", maxTextFields=" + maxTextFields
-				+ ", temporary=" + temporary + ", noOffsets=" + noOffsets + ", noHL=" + noHL + ", noFields=" + noFields
-				+ ", noFreqs=" + noFreqs + ", skipInitialScan=" + skipInitialScan + ", stopWords=" + stopWords + "]";
-	}
-
 	public static <K, V> Builder<K, V> builder() {
 		return new Builder<>();
 	}
@@ -299,7 +293,7 @@ public class CreateOptions<K, V> implements RediSearchArgument<K, V> {
 			this.payloadField = Optional.of(payloadField);
 			return this;
 		}
-		
+
 		public Builder<K, V> maxTextFields() {
 			return maxTextFields(true);
 		}
@@ -313,7 +307,7 @@ public class CreateOptions<K, V> implements RediSearchArgument<K, V> {
 			this.temporary = OptionalLong.of(temporary);
 			return this;
 		}
-		
+
 		public Builder<K, V> noOffsets() {
 			return noOffsets(true);
 		}
@@ -322,7 +316,7 @@ public class CreateOptions<K, V> implements RediSearchArgument<K, V> {
 			this.noOffsets = noOffsets;
 			return this;
 		}
-		
+
 		public Builder<K, V> noHL() {
 			return noHL(true);
 		}
@@ -331,7 +325,7 @@ public class CreateOptions<K, V> implements RediSearchArgument<K, V> {
 			this.noHL = noHL;
 			return this;
 		}
-		
+
 		public Builder<K, V> noFields() {
 			return noFields(true);
 		}
@@ -340,7 +334,7 @@ public class CreateOptions<K, V> implements RediSearchArgument<K, V> {
 			this.noFields = noFields;
 			return this;
 		}
-		
+
 		public Builder<K, V> noFreqs() {
 			return noFreqs(true);
 		}
@@ -349,7 +343,7 @@ public class CreateOptions<K, V> implements RediSearchArgument<K, V> {
 			this.noFreqs = noFreqs;
 			return this;
 		}
-		
+
 		public Builder<K, V> skipInitialScan() {
 			return skipInitialScan(true);
 		}

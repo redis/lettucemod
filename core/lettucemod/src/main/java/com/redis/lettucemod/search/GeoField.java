@@ -2,6 +2,9 @@ package com.redis.lettucemod.search;
 
 import com.redis.lettucemod.protocol.SearchCommandKeyword;
 
+import lombok.ToString;
+
+@ToString
 public class GeoField<K> extends Field<K> {
 
 	private GeoField(Builder<K> builder) {
@@ -11,12 +14,6 @@ public class GeoField<K> extends Field<K> {
 	@Override
 	protected void buildField(SearchCommandArgs<K, Object> args) {
 		args.add(SearchCommandKeyword.GEO);
-	}
-
-	@Override
-	public String toString() {
-		return "GeoField [type=" + type + ", name=" + name + ", as=" + as + ", sortable=" + sortable
-				+ ", unNormalizedForm=" + unNormalizedForm + ", noIndex=" + noIndex + "]";
 	}
 
 	public static <K> Builder<K> name(K name) {

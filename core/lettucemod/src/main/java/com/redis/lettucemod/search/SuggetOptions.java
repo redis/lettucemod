@@ -4,7 +4,10 @@ import java.util.Optional;
 
 import com.redis.lettucemod.protocol.SearchCommandKeyword;
 
+import lombok.ToString;
+
 @SuppressWarnings("rawtypes")
+@ToString
 public class SuggetOptions implements RediSearchArgument {
 
 	private boolean fuzzy;
@@ -52,12 +55,6 @@ public class SuggetOptions implements RediSearchArgument {
 	}
 
 	@Override
-	public String toString() {
-		return "SuggetOptions [fuzzy=" + fuzzy + ", withScores=" + withScores + ", withPayloads=" + withPayloads
-				+ ", max=" + max + "]";
-	}
-
-	@Override
 	public void build(SearchCommandArgs args) {
 		if (fuzzy) {
 			args.add(SearchCommandKeyword.FUZZY);
@@ -83,7 +80,7 @@ public class SuggetOptions implements RediSearchArgument {
 
 		private Builder() {
 		}
-		
+
 		public Builder fuzzy() {
 			return fuzzy(true);
 		}
@@ -92,7 +89,7 @@ public class SuggetOptions implements RediSearchArgument {
 			this.fuzzy = fuzzy;
 			return this;
 		}
-		
+
 		public Builder withScores() {
 			return withScores(true);
 		}
@@ -101,7 +98,7 @@ public class SuggetOptions implements RediSearchArgument {
 			this.withScores = withScores;
 			return this;
 		}
-		
+
 		public Builder withPayloads() {
 			return withPayloads(true);
 		}

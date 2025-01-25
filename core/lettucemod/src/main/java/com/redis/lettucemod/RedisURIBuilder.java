@@ -1,12 +1,13 @@
 package com.redis.lettucemod;
 
 import java.time.Duration;
-import java.util.Arrays;
 
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.SslVerifyMode;
 import io.lettuce.core.internal.LettuceAssert;
+import lombok.ToString;
 
+@ToString
 public class RedisURIBuilder {
 
 	public static final String DEFAULT_HOST = "127.0.0.1";
@@ -49,8 +50,12 @@ public class RedisURIBuilder {
 			builder.withTimeout(timeout);
 		}
 		RedisURI redisURI = builder.build();
-		redisURI.setLibraryName(libraryName);
-		redisURI.setLibraryVersion(libraryVersion);
+		if (RedisModulesUtils.hasLength(libraryName) && !RedisModulesUtils.hasLength(redisURI.getLibraryName())) {
+			redisURI.setLibraryName(libraryName);
+		}
+		if (RedisModulesUtils.hasLength(libraryVersion) && !RedisModulesUtils.hasLength(redisURI.getLibraryVersion())) {
+			redisURI.setLibraryVersion(libraryVersion);
+		}
 		if (RedisModulesUtils.hasLength(clientName) && !RedisModulesUtils.hasLength(redisURI.getClientName())) {
 			redisURI.setClientName(clientName);
 		}
@@ -117,6 +122,16 @@ public class RedisURIBuilder {
 		return this;
 	}
 
+	public RedisURIBuilder libraryName(String libraryName) {
+		this.libraryName = libraryName;
+		return this;
+	}
+
+	public RedisURIBuilder libraryVersion(String libraryVersion) {
+		this.libraryVersion = libraryVersion;
+		return this;
+	}
+
 	public RedisURIBuilder tls(boolean tls) {
 		this.tls = tls;
 		return this;
@@ -125,14 +140,6 @@ public class RedisURIBuilder {
 	public RedisURIBuilder verifyMode(SslVerifyMode verifyMode) {
 		this.verifyMode = verifyMode;
 		return this;
-	}
-
-	@Override
-	public String toString() {
-		return "RedisURIBuilder [uri=" + uri + ", host=" + host + ", port=" + port + ", socket=" + socket
-				+ ", username=" + username + ", password=" + Arrays.toString(password) + ", timeout=" + timeout
-				+ ", database=" + database + ", clientName=" + clientName + ", tls=" + tls + ", verifyMode="
-				+ verifyMode + "]";
 	}
 
 }

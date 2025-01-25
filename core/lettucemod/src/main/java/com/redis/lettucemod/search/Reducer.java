@@ -24,12 +24,6 @@ public abstract class Reducer implements RediSearchArgument {
 		as.ifPresent(a -> args.add(SearchCommandKeyword.AS).add(a));
 	}
 
-	protected String toString(String string) {
-		StringBuilder builder = new StringBuilder(string);
-		as.ifPresent(a -> builder.append(" AS ").append(a));
-		return builder.toString();
-	}
-
 	protected abstract void buildFunction(SearchCommandArgs args);
 
 	@SuppressWarnings("unchecked")

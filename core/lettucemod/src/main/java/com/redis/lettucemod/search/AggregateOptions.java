@@ -8,6 +8,9 @@ import java.util.stream.Stream;
 
 import com.redis.lettucemod.protocol.SearchCommandKeyword;
 
+import lombok.ToString;
+
+@ToString
 public class AggregateOptions<K, V> extends BaseSearchOptions<K, V> {
 
 	private static final Load LOAD_ALL = Load.identifier("*").build();
@@ -52,13 +55,6 @@ public class AggregateOptions<K, V> extends BaseSearchOptions<K, V> {
 			}
 		}
 		operations.forEach(op -> op.build(args));
-	}
-
-	@Override
-	public String toString() {
-		return "AggregateOptions [operations=" + operations + ", loads=" + loads + ", getTimeout()=" + getTimeout()
-				+ ", isVerbatim()=" + isVerbatim() + ", getLimit()=" + getLimit() + ", getParams()=" + getParams()
-				+ ", getDialect()=" + getDialect() + "]";
 	}
 
 	@SuppressWarnings("rawtypes")

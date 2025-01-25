@@ -2,6 +2,9 @@ package com.redis.lettucemod.search;
 
 import com.redis.lettucemod.protocol.SearchCommandKeyword;
 
+import lombok.ToString;
+
+@ToString
 public class Apply<K, V> implements AggregateOperation<K, V> {
 
 	private final V expression;
@@ -30,11 +33,6 @@ public class Apply<K, V> implements AggregateOperation<K, V> {
 		args.add(SearchCommandKeyword.APPLY);
 		args.addValue(expression);
 		args.add(SearchCommandKeyword.AS).addKey(as);
-	}
-
-	@Override
-	public String toString() {
-		return "APPLY " + expression + " " + as;
 	}
 
 	public static <K, V> Builder<K, V> expression(V expression) {
