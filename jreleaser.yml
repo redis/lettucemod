@@ -20,8 +20,6 @@ project:
     - 'java'
     - 'stack'
     - 'timeseries'
-    - 'gears'
-    - 'json'
     - 'search'
 
 release:
