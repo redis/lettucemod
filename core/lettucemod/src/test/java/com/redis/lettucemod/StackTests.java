@@ -208,5 +208,4 @@ class StackTests extends ModulesTests {
 		}
 		resources.shutdown();
 	}
-
 }
