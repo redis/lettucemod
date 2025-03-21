@@ -1,6 +1,7 @@
 package com.redis.lettucemod;
 
 import java.time.Duration;
+import java.util.function.Supplier;
 
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
 import com.redis.lettucemod.api.async.RedisModulesAsyncCommands;
@@ -15,7 +16,6 @@ import io.lettuce.core.codec.RedisCodec;
 import io.lettuce.core.json.JsonParser;
 import io.lettuce.core.protocol.ConnectionWatchdog;
 import io.lettuce.core.protocol.PushHandler;
-import reactor.core.publisher.Mono;
 
 /**
  * A thread-safe connection to a Redis server. Multiple threads may share one
@@ -54,7 +54,7 @@ public class StatefulRedisModulesConnectionImpl<K, V> extends StatefulRedisConne
 	 * @param parser      the parser to use for JSON commands.
 	 */
 	public StatefulRedisModulesConnectionImpl(RedisChannelWriter writer, PushHandler pushHandler,
-			RedisCodec<K, V> codec, Duration timeout, Mono<JsonParser> parser) {
+			RedisCodec<K, V> codec, Duration timeout, Supplier<JsonParser> parser) {
 		super(writer, pushHandler, codec, timeout, parser);
 	}
 

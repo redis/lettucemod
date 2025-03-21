@@ -16,7 +16,7 @@ public class TDigestInfoOutput<K, V> extends CommandOutput<K, V, TDigestInfo> {
 
 	@Override
 	public void set(ByteBuffer buffer) {
-		field = decodeAscii(buffer);
+		field = decodeString(buffer);
 	}
 
 	@Override

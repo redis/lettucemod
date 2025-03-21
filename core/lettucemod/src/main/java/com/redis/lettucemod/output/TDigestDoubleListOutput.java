@@ -19,7 +19,7 @@ public class TDigestDoubleListOutput<K,V> extends CommandOutput<K, V, List<Doubl
         if(bytes == null){
             output.add(null);
         } else{
-            output.add(LettuceStrings.toDouble(decodeAscii(bytes)));
+            output.add(LettuceStrings.toDouble(decodeString(bytes)));
         }
     }
 

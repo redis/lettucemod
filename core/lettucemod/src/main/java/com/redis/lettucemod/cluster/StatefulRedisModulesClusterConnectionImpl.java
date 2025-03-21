@@ -1,6 +1,7 @@
 package com.redis.lettucemod.cluster;
 
 import java.time.Duration;
+import java.util.function.Supplier;
 
 import com.redis.lettucemod.cluster.api.StatefulRedisModulesClusterConnection;
 import com.redis.lettucemod.cluster.api.async.RedisModulesAdvancedClusterAsyncCommands;
@@ -13,7 +14,6 @@ import io.lettuce.core.cluster.ClusterPushHandler;
 import io.lettuce.core.cluster.StatefulRedisClusterConnectionImpl;
 import io.lettuce.core.codec.RedisCodec;
 import io.lettuce.core.json.JsonParser;
-import reactor.core.publisher.Mono;
 
 public class StatefulRedisModulesClusterConnectionImpl<K, V> extends StatefulRedisClusterConnectionImpl<K, V>
 		implements StatefulRedisModulesClusterConnection<K, V> {
@@ -32,7 +32,7 @@ public class StatefulRedisModulesClusterConnectionImpl<K, V> extends StatefulRed
 	}
 
 	public StatefulRedisModulesClusterConnectionImpl(RedisChannelWriter writer, ClusterPushHandler pushHandler,
-			RedisCodec<K, V> codec, Duration timeout, Mono<JsonParser> parser) {
+			RedisCodec<K, V> codec, Duration timeout, Supplier<JsonParser> parser) {
 		super(writer, pushHandler, codec, timeout, parser);
 	}
 

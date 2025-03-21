@@ -16,7 +16,7 @@ public class TDigestDoubleOutput<K,V> extends CommandOutput<K,V,Double> {
         if(bytes == null){
             output = null;
         } else{
-            output = LettuceStrings.toDouble(decodeAscii(bytes));
+            output = LettuceStrings.toDouble(decodeString(bytes));
         }
     }
 

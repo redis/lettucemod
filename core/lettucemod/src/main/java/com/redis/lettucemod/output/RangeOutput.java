@@ -49,7 +49,7 @@ public class RangeOutput<K, V> extends CommandOutput<K, V, List<RangeResult<K, V
 		}
 
 		if (labelsComplete) {
-			sampleValue(bytes == null ? null : LettuceStrings.toDouble(decodeAscii(bytes)));
+			sampleValue(bytes == null ? null : LettuceStrings.toDouble(decodeString(bytes)));
 			return;
 		}
 

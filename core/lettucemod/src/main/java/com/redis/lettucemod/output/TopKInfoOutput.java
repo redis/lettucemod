@@ -17,7 +17,7 @@ public class TopKInfoOutput<K, V> extends CommandOutput<K, V, TopKInfo> {
 
 	@Override
 	public void set(ByteBuffer buffer) {
-		String str = decodeAscii(buffer);
+		String str = decodeString(buffer);
 		if (field != null && field.equals("decay") && !decaySet) {
 			output.setDecay(Double.parseDouble(str));
 		} else {

@@ -44,7 +44,7 @@ public class GetOutput<K, V> extends CommandOutput<K, V, List<GetResult<K, V>>>
 			return;
 		}
 		if (labelsComplete) {
-			sampleValue(bytes == null ? null : LettuceStrings.toDouble(decodeAscii(bytes)));
+			sampleValue(bytes == null ? null : LettuceStrings.toDouble(decodeString(bytes)));
 			return;
 		}
 		if (labelKey == null) {

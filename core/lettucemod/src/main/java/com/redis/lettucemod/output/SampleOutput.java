@@ -16,7 +16,7 @@ public class SampleOutput<K, V> extends CommandOutput<K, V, Sample> {
 
 	@Override
 	public void set(ByteBuffer bytes) {
-		output.setValue(LettuceStrings.toDouble(decodeAscii(bytes)));
+		output.setValue(LettuceStrings.toDouble(decodeString(bytes)));
 	}
 
 	@Override

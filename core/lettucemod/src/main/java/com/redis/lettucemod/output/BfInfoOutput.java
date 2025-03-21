@@ -16,7 +16,7 @@ public class BfInfoOutput<K, V> extends CommandOutput<K, V, BloomFilterInfo> {
 
 	@Override
 	public void set(ByteBuffer buffer) {
-		field = decodeAscii(buffer);
+		field = decodeString(buffer);
 	}
 
 	private boolean fieldEquals(String name) {

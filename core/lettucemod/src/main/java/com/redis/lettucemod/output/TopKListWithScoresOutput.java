@@ -25,7 +25,7 @@ public class TopKListWithScoresOutput<K, V> extends CommandOutput<K, V, List<Key
 
 	@Override
 	public void set(ByteBuffer buffer) {
-		field = decodeAscii(buffer);
+		field = decodeString(buffer);
 	}
 
 	@Override

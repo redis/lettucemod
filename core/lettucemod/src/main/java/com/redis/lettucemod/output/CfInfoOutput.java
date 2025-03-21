@@ -16,7 +16,7 @@ public class CfInfoOutput<K, V> extends CommandOutput<K, V, CuckooFilter> {
 
 	@Override
 	public void set(ByteBuffer buffer) {
-		field = decodeAscii(buffer);
+		field = decodeString(buffer);
 	}
 
 	@Override

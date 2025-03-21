@@ -28,7 +28,7 @@ public class SampleListOutput<K, V> extends CommandOutput<K, V, List<Sample>> im
 
     @Override
     public void set(ByteBuffer bytes) {
-        double value = LettuceStrings.toDouble(decodeAscii(bytes));
+        double value = LettuceStrings.toDouble(decodeString(bytes));
         set(value);
     }
 

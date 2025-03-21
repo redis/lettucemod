@@ -33,7 +33,7 @@ public class ExecutionResultsOutput<K, V> extends CommandOutput<K, V, ExecutionR
             if (OK.equals(bytes)) {
                 output.setOk(true);
             } else {
-                output.setErrors(Collections.singletonList(decodeAscii(bytes)));
+                output.setErrors(Collections.singletonList(decodeString(bytes)));
             }
             return;
         }

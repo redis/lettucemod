@@ -43,7 +43,7 @@ public class SearchOutput<K, V> extends CommandOutput<K, V, SearchResults<K, V>>
 		}
 		if (withScores && !scoreSet) {
 			if (bytes != null) {
-				currentDocument.setScore(LettuceStrings.toDouble(decodeAscii(bytes)));
+				currentDocument.setScore(LettuceStrings.toDouble(decodeString(bytes)));
 			}
 			scoreSet = true;
 			return;

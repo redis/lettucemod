@@ -17,7 +17,7 @@ public class CmsInfoOutput<K, V> extends CommandOutput<K, V, CmsInfo> {
 
 	@Override
 	public void set(ByteBuffer buffer) {
-		field = decodeAscii(buffer);
+		field = decodeString(buffer);
 	}
 
 	@Override

@@ -3,6 +3,7 @@ package com.redis.lettucemod.cluster;
 import java.net.URI;
 import java.time.Duration;
 import java.util.Collections;
+import java.util.function.Supplier;
 
 import com.redis.lettucemod.RedisModulesClient;
 import com.redis.lettucemod.StatefulRedisModulesConnectionImpl;
@@ -22,7 +23,6 @@ import io.lettuce.core.internal.LettuceAssert;
 import io.lettuce.core.json.JsonParser;
 import io.lettuce.core.protocol.PushHandler;
 import io.lettuce.core.resource.ClientResources;
-import reactor.core.publisher.Mono;
 
 public class RedisModulesClusterClient extends RedisClusterClient {
 
@@ -195,7 +195,7 @@ public class RedisModulesClusterClient extends RedisClusterClient {
 
 	@Override
 	protected <K, V> StatefulRedisConnectionImpl<K, V> newStatefulRedisConnection(RedisChannelWriter channelWriter,
-			PushHandler pushHandler, RedisCodec<K, V> codec, Duration timeout, Mono<JsonParser> parser) {
+			PushHandler pushHandler, RedisCodec<K, V> codec, Duration timeout, Supplier<JsonParser> parser) {
 		return new StatefulRedisModulesConnectionImpl<>(channelWriter, pushHandler, codec, timeout, parser);
 	}
 
@@ -205,11 +205,11 @@ public class RedisModulesClusterClient extends RedisClusterClient {
 			Duration timeout) {
 		return new StatefulRedisModulesClusterConnectionImpl<>(channelWriter, pushHandler, codec, timeout);
 	}
-	
+
 	@Override
 	protected <V, K> StatefulRedisClusterConnectionImpl<K, V> newStatefulRedisClusterConnection(
 			RedisChannelWriter channelWriter, ClusterPushHandler pushHandler, RedisCodec<K, V> codec, Duration timeout,
-			Mono<JsonParser> parser) {
+			Supplier<JsonParser> parser) {
 		return new StatefulRedisModulesClusterConnectionImpl<>(channelWriter, pushHandler, codec, timeout, parser);
 	}
 

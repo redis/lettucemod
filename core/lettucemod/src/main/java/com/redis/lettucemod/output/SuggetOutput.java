@@ -44,7 +44,7 @@ public class SuggetOutput<K, V> extends CommandOutput<K, V, List<Suggestion<V>>>
 			return;
 		}
 		if (withScores && !scoreSet) {
-			current.setScore(LettuceStrings.toDouble(decodeAscii(bytes)));
+			current.setScore(LettuceStrings.toDouble(decodeString(bytes)));
 			scoreSet = true;
 			if (!withPayloads) {
 				current = null;
