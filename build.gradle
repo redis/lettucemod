@@ -55,7 +55,7 @@ config {
     coverage {
         jacoco {
             enabled = true
-            toolVersion = jacocoVersion
+            toolVersion = jacocoPluginVersion
         }
     }
     
@@ -86,7 +86,7 @@ subprojects {
         }
         coverage {
             jacoco {
-		        toolVersion = jacocoVersion
+		        toolVersion = jacocoPluginVersion
             }
         }
     }
