@@ -100,15 +100,6 @@ public class RedisModulesAutoConfiguration {
 		return client;
 	}
 
-	@Bean(name = "redisConnection", destroyMethod = "close")
-	@ConditionalOnBean(AbstractRedisClient.class)
-	StatefulRedisModulesConnection<String, String> redisConnection(AbstractRedisClient client) {
-		if (client instanceof RedisModulesClusterClient) {
-			return ((RedisModulesClusterClient) client).connect();
-		}
-		return ((RedisModulesClient) client).connect();
-	}
-
 	private <K, V, C extends StatefulRedisModulesConnection<K, V>> GenericObjectPoolConfig<C> poolConfig(
 			RedisProperties redisProperties) {
 		GenericObjectPoolConfig<C> config = new GenericObjectPoolConfig<>();

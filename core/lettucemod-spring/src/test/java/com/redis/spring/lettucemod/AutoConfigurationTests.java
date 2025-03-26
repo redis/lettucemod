@@ -48,7 +48,6 @@ class AutoConfigurationTests {
 			if (context.containsBean("redisModulesClusterClient")) {
 				assertThat(context.getBean("redisModulesClusterClient")).isInstanceOf(RedisModulesClusterClient.class);
 			}
-			assertThat(context).hasSingleBean(StatefulRedisModulesConnection.class);
 			assertThat(context).hasSingleBean(ClientResources.class);
 			AbstractRedisClient client = context.getBean(AbstractRedisClient.class);
 			StatefulRedisModulesConnection<String, String> connection = RedisModulesUtils.connection(client);
