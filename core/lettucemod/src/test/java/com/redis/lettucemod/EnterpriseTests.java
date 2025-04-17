@@ -23,7 +23,8 @@ class EnterpriseTests extends ModulesTests {
 	private final Database database = Database.builder().name("ModulesTests").memoryMB(110).ossCluster(true)
 			.modules(RedisModule.SEARCH, RedisModule.JSON, RedisModule.BLOOM, RedisModule.TIMESERIES).build();
 
-	private final RedisEnterpriseContainer container = new RedisEnterpriseContainer(
+	@SuppressWarnings("resource")
+    private final RedisEnterpriseContainer container = new RedisEnterpriseContainer(
 			RedisEnterpriseContainer.DEFAULT_IMAGE_NAME.withTag(TAG)).withDatabase(database);
 
 	@Override
