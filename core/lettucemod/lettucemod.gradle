@@ -1,5 +1,5 @@
 dependencies {
-    api group: 'io.lettuce', name: 'lettuce-core', version: lettuceVersion
+    api 'io.lettuce:lettuce-core'
     testImplementation 'org.apache.commons:commons-pool2'
     testImplementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-csv'
     testImplementation 'org.awaitility:awaitility'

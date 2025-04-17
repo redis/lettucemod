@@ -77,6 +77,8 @@ allprojects {
     tasks.withType(JavaCompile) {
         options.encoding = 'UTF-8'
     }
+    
+    ext['lettuce.version'] = '6.5.5.RELEASE'
 }
 
 subprojects {
@@ -119,14 +121,6 @@ subprojects {
     jar {
         enabled = true
         archiveClassifier = ''
-    }
-
-    configurations.all {
-        resolutionStrategy.eachDependency { DependencyResolveDetails details ->
-            if (details.requested.name == 'lettuce-core' ) {
-                details.useVersion lettuceVersion
-            }
-        }
     }
 
 }
