@@ -78,7 +78,7 @@ allprojects {
         options.encoding = 'UTF-8'
     }
     
-    ext['lettuce.version'] = '6.5.5.RELEASE'
+    ext['lettuce.version'] = lettuceVersion
 }
 
 subprojects {
