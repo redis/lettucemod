@@ -9,7 +9,7 @@
 image:https://github.com/{project-owner}/{project-name}/actions/workflows/early-access.yml/badge.svg["Build Status",link="https://github.com/{project-owner}/{project-name}/actions/workflows/early-access.yml"]
 image:https://img.shields.io/maven-central/v/{project-group}/{project-name}[Download,link="https://search.maven.org/#search|ga|1|{project-name}"]
 image:https://img.shields.io/github/license/{project-owner}/{project-name}["License",link="https://github.com/{project-owner}/{project-name}"]
-image:https://codecov.io/gh/{project-owner}/{project-name}/branch/master/graph/badge.svg["Coverage", link="https://codecov.io/gh/{project-owner}/{project-name}"]
+image:https://codecov.io/gh/{project-owner}/{project-name}/branch/main/graph/badge.svg["Coverage", link="https://codecov.io/gh/{project-owner}/{project-name}"]
 
 LettuceMod is a Java client for https://redis.io/docs/about/about-stack/[Redis Stack] based on https://lettuce.io[Lettuce].
 It supports the following Redis Stack features:
