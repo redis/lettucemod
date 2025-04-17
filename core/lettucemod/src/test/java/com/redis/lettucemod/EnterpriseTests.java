@@ -18,37 +18,37 @@ import io.lettuce.core.resource.DefaultClientResources;
 @EnabledOnOs(OS.LINUX)
 class EnterpriseTests extends ModulesTests {
 
-	public static final String TAG = "7.2.4-92";
+    public static final String TAG = "7.2.4-92";
 
-	private final Database database = Database.builder().name("ModulesTests").memoryMB(110).ossCluster(true)
-			.modules(RedisModule.SEARCH, RedisModule.JSON, RedisModule.BLOOM, RedisModule.TIMESERIES).build();
+    private final Database database = Database.builder().name("ModulesTests").memoryMB(110).ossCluster(true)
+            .modules(RedisModule.SEARCH, RedisModule.JSON, RedisModule.PROBABILISTIC, RedisModule.TIMESERIES).build();
 
-	@SuppressWarnings("resource")
+    @SuppressWarnings("resource")
     private final RedisEnterpriseContainer container = new RedisEnterpriseContainer(
-			RedisEnterpriseContainer.DEFAULT_IMAGE_NAME.withTag(TAG)).withDatabase(database);
+            RedisEnterpriseContainer.DEFAULT_IMAGE_NAME.withTag(TAG)).withDatabase(database);
 
-	@Override
-	protected RedisServer getRedisServer() {
-		return container;
-	}
+    @Override
+    protected RedisServer getRedisServer() {
+        return container;
+    }
 
-	@Test
-	void client() {
-		try (RedisModulesClusterClient client = RedisModulesClusterClient.create(container.getRedisURI());
-				StatefulRedisModulesClusterConnection<String, String> connection = client.connect();) {
-			assertPing(connection);
-		}
-		DefaultClientResources resources = DefaultClientResources.create();
-		try (RedisModulesClusterClient client = RedisModulesClusterClient.create(resources,
-				RedisURI.create(container.getRedisURI()));
-				StatefulRedisModulesClusterConnection<String, String> connection = client.connect();) {
-			assertPing(connection);
-		}
-		resources.shutdown();
-		try (RedisModulesClusterClient client = RedisModulesClusterClient.create(container.getRedisURI());
-				StatefulRedisModulesClusterConnection<String, String> connection = client.connect(StringCodec.UTF8);) {
-			assertPing(connection);
-		}
-	}
+    @Test
+    void client() {
+        try (RedisModulesClusterClient client = RedisModulesClusterClient.create(container.getRedisURI());
+                StatefulRedisModulesClusterConnection<String, String> connection = client.connect();) {
+            assertPing(connection);
+        }
+        DefaultClientResources resources = DefaultClientResources.create();
+        try (RedisModulesClusterClient client = RedisModulesClusterClient.create(resources,
+                RedisURI.create(container.getRedisURI()));
+                StatefulRedisModulesClusterConnection<String, String> connection = client.connect();) {
+            assertPing(connection);
+        }
+        resources.shutdown();
+        try (RedisModulesClusterClient client = RedisModulesClusterClient.create(container.getRedisURI());
+                StatefulRedisModulesClusterConnection<String, String> connection = client.connect(StringCodec.UTF8);) {
+            assertPing(connection);
+        }
+    }
 
 }
