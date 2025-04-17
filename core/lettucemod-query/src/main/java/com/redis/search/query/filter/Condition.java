@@ -1,5 +1,7 @@
 package com.redis.search.query.filter;
 
+import java.util.List;
+
 public interface Condition {
 
     String getQuery();
@@ -10,6 +12,10 @@ public interface Condition {
 
     default Condition or(Condition condition) {
 	return new Or(this, condition);
+    }
+
+    public static Condition orList(final Condition...conditions) {
+        return new OrList(conditions);
     }
 
     default Condition not() {
