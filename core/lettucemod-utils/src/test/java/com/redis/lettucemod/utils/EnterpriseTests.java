@@ -10,7 +10,7 @@ import com.redis.testcontainers.RedisServer;
 @EnabledOnOs(OS.LINUX)
 class EnterpriseTests extends AbstractConnectionBuilderTests {
 
-    private final Database database = Database.builder().name("ModulesTests").memoryMB(50).ossCluster(true).build();
+    private final Database database = Database.builder().name("ModulesTests").memoryMB(50).ossCluster(true).port(12001).build();
 
     @SuppressWarnings("resource")
     private final RedisEnterpriseContainer container = new RedisEnterpriseContainer(
