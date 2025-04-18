@@ -18,7 +18,7 @@ import io.lettuce.core.resource.DefaultClientResources;
 @EnabledOnOs(OS.LINUX)
 class EnterpriseTests extends ModulesTests {
 
-    private final Database database = Database.builder().name("ModulesTests").memoryMB(110).ossCluster(true)
+    private final Database database = Database.builder().name("ModulesTests").memoryMB(50).ossCluster(true)
             .modules(RedisModule.SEARCH, RedisModule.JSON, RedisModule.PROBABILISTIC, RedisModule.TIMESERIES).build();
 
     @SuppressWarnings("resource")
