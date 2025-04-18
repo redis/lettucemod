@@ -2,7 +2,6 @@ dependencies {
     api 'io.lettuce:lettuce-core'
     testImplementation 'org.apache.commons:commons-pool2'
     testImplementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-csv'
-    testImplementation 'org.awaitility:awaitility'
     testImplementation 'org.slf4j:slf4j-simple'
 }
 
