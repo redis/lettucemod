@@ -5,8 +5,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Component;
 
-import com.redis.lettucemod.RedisModulesConnectionBuilder;
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
+import com.redis.lettucemod.utils.ConnectionBuilder;
 
 import io.lettuce.core.AbstractRedisClient;
 
@@ -24,7 +24,7 @@ public class RedisService implements InitializingBean {
     @Override
     public void afterPropertiesSet() throws Exception {
         log.info("Pinging Redis");
-        StatefulRedisModulesConnection<String, String> connection = RedisModulesConnectionBuilder.client(client).connection();
+        StatefulRedisModulesConnection<String, String> connection = ConnectionBuilder.client(client).connection();
         String reply = connection.sync().ping();
         if ("PONG".equalsIgnoreCase(reply)) {
             log.info("Successfully pinged Redis (response: {})", reply);
