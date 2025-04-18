@@ -1,4 +1,4 @@
-package com.redis.spring.lettucemod;
+package com.redis.lettucemod.spring;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -12,12 +12,10 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import com.redis.lettucemod.RedisModulesClient;
-import com.redis.lettucemod.RedisModulesConnectionBuilder;
-import com.redis.lettucemod.RedisModulesUtils;
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
 import com.redis.lettucemod.cluster.RedisModulesClusterClient;
 import com.redis.lettucemod.search.Suggestion;
-import com.redis.lettucemod.spring.RedisModulesAutoConfiguration;
+import com.redis.lettucemod.utils.ConnectionBuilder;
 import com.redis.testcontainers.RedisStackContainer;
 
 import io.lettuce.core.AbstractRedisClient;
@@ -51,8 +49,7 @@ class AutoConfigurationTests {
             }
             assertThat(context).hasSingleBean(ClientResources.class);
             AbstractRedisClient client = context.getBean(AbstractRedisClient.class);
-            StatefulRedisModulesConnection<String, String> connection = RedisModulesConnectionBuilder.client(client)
-                    .connection();
+            StatefulRedisModulesConnection<String, String> connection = ConnectionBuilder.client(client).connection();
             String key = "suggestIdx";
             connection.sync().ftSugadd(key, Suggestion.of("rome", 1));
             connection.sync().ftSugadd(key, Suggestion.of("romarin", 1));
