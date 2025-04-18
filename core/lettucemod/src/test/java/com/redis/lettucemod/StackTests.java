@@ -1,12 +1,15 @@
 package com.redis.lettucemod;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Assertions;
@@ -14,7 +17,9 @@ import org.junit.jupiter.api.Test;
 import org.testcontainers.utility.DockerImageName;
 
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
-import com.redis.lettucemod.api.sync.RedisTimeSeriesCommands;
+import com.redis.lettucemod.api.reactive.RedisModulesReactiveCommands;
+import com.redis.lettucemod.search.Suggestion;
+import com.redis.lettucemod.search.SuggetOptions;
 import com.redis.lettucemod.timeseries.CreateOptions;
 import com.redis.lettucemod.timeseries.DuplicatePolicy;
 import com.redis.lettucemod.timeseries.GetResult;
@@ -46,7 +51,7 @@ class StackTests extends ModulesTests {
     void credentials() {
         String username = "alice";
         String password = "ecila";
-        connection.sync().aclSetuser(username, AclSetuserArgs.Builder.on().addPassword(password).allCommands().allKeys());
+        commands.aclSetuser(username, AclSetuserArgs.Builder.on().addPassword(password).allCommands().allKeys());
         RedisURI.Builder wrongPasswordURI = RedisURI.builder(RedisURI.create(getRedisServer().getRedisURI()));
         wrongPasswordURI.withAuthentication(username, "wrongpassword");
         try (RedisModulesClient client = RedisModulesClient.create(wrongPasswordURI.build())) {
@@ -61,16 +66,15 @@ class StackTests extends ModulesTests {
         uri.withAuthentication(username, password);
         try (RedisModulesClient client = RedisModulesClient.create(uri.build());
                 StatefulRedisModulesConnection<String, String> connection = client.connect()) {
-            connection.sync().set(key, value);
-            Assertions.assertEquals(value, connection.sync().get(key));
+            commands.set(key, value);
+            Assertions.assertEquals(value, commands.get(key));
         }
     }
 
     @Test
     void tsMget() {
-        RedisTimeSeriesCommands<String, String> ts = connection.sync();
-        populate(ts);
-        List<GetResult<String, String>> results = ts.tsMget(FILTER);
+        populate();
+        List<GetResult<String, String>> results = commands.tsMget(FILTER);
         Assertions.assertEquals(2, results.size());
         Assertions.assertEquals(TIMESTAMP_2, results.get(0).getSample().getTimestamp());
         Assertions.assertEquals(VALUE_2, results.get(0).getSample().getValue());
@@ -80,13 +84,13 @@ class StackTests extends ModulesTests {
 
     @Test
     void tsCreate() {
-        assertEquals("OK", connection.sync().tsCreate(TS_KEY,
+        assertEquals("OK", commands.tsCreate(TS_KEY,
                 com.redis.lettucemod.timeseries.CreateOptions.<String, String> builder().retentionPeriod(6000).build()));
         String key = "virag";
         List<KeyValue<String, String>> labels = Arrays.asList(KeyValue.just("name", "value"));
-        assertEquals("OK", connection.sync().tsCreate(key, com.redis.lettucemod.timeseries.CreateOptions
-                .<String, String> builder().retentionPeriod(100000L).labels(labels).policy(DuplicatePolicy.LAST).build()));
-        List<GetResult<String, String>> results = connection.sync().tsMgetWithLabels("name=value");
+        assertEquals("OK", commands.tsCreate(key, com.redis.lettucemod.timeseries.CreateOptions.<String, String> builder()
+                .retentionPeriod(100000L).labels(labels).policy(DuplicatePolicy.LAST).build()));
+        List<GetResult<String, String>> results = commands.tsMgetWithLabels("name=value");
         KeyValue<String, String> expectedLabel = labels.get(0);
         assertEquals(expectedLabel, results.get(0).getLabels().get(0));
     }
@@ -95,12 +99,12 @@ class StackTests extends ModulesTests {
     void tsQueryIndex() {
         String key1 = "tsQueryIndex:key1";
         String key2 = "tsQueryIndex:key2";
-        connection.sync().del(key1, key2);
+        commands.del(key1, key2);
         String id = "tsQueryIndex";
         List<KeyValue<String, String>> labels = Collections.singletonList(KeyValue.just("id", id));
-        assertEquals("OK", connection.sync().tsCreate(key1, CreateOptions.<String, String> builder().labels(labels).build()));
-        assertEquals("OK", connection.sync().tsCreate(key2, CreateOptions.<String, String> builder().labels(labels).build()));
-        List<String> res = connection.sync().tsQueryIndex(String.format("id=%s", id));
+        assertEquals("OK", commands.tsCreate(key1, CreateOptions.<String, String> builder().labels(labels).build()));
+        assertEquals("OK", commands.tsCreate(key2, CreateOptions.<String, String> builder().labels(labels).build()));
+        List<String> res = commands.tsQueryIndex(String.format("id=%s", id));
         assertTrue(res.contains(key1));
         assertTrue(res.contains(key2));
     }
@@ -108,10 +112,10 @@ class StackTests extends ModulesTests {
     @Test
     void tsDel() {
         String key = "tsDel:key";
-        connection.sync().del(key);
-        assertEquals("OK", connection.sync().tsCreate(key, CreateOptions.<String, String> builder().build()));
+        commands.del(key);
+        assertEquals("OK", commands.tsCreate(key, CreateOptions.<String, String> builder().build()));
         for (int i = 0; i < 5; i++) {
-            connection.sync().tsAdd(key, Sample.of(42));
+            commands.tsAdd(key, Sample.of(42));
 
             try {
                 Thread.sleep(20);
@@ -120,20 +124,19 @@ class StackTests extends ModulesTests {
             }
         }
 
-        assertEquals(5, connection.sync().tsDel(key, TimeRange.from(0).to(Long.MAX_VALUE).build()));
+        assertEquals(5, commands.tsDel(key, TimeRange.from(0).to(Long.MAX_VALUE).build()));
     }
 
     @Test
     void tsMrange() {
-        RedisTimeSeriesCommands<String, String> ts = connection.sync();
-        populate(ts);
+        populate();
         List<String> keys = Arrays.asList(TS_KEY, TS_KEY_2);
-        assertMrange(keys, ts.tsMrange(TimeRange.unbounded(), MRangeOptions.<String, String> filters(FILTER).build()));
-        assertMrange(keys,
-                ts.tsMrange(TimeRange.from(TIMESTAMP_1 - 10).build(), MRangeOptions.<String, String> filters(FILTER).build()));
-        assertMrange(keys,
-                ts.tsMrange(TimeRange.to(TIMESTAMP_2 + 10).build(), MRangeOptions.<String, String> filters(FILTER).build()));
-        List<RangeResult<String, String>> results = ts.tsMrange(TimeRange.unbounded(),
+        assertMrange(keys, commands.tsMrange(TimeRange.unbounded(), MRangeOptions.<String, String> filters(FILTER).build()));
+        assertMrange(keys, commands.tsMrange(TimeRange.from(TIMESTAMP_1 - 10).build(),
+                MRangeOptions.<String, String> filters(FILTER).build()));
+        assertMrange(keys, commands.tsMrange(TimeRange.to(TIMESTAMP_2 + 10).build(),
+                MRangeOptions.<String, String> filters(FILTER).build()));
+        List<RangeResult<String, String>> results = commands.tsMrange(TimeRange.unbounded(),
                 MRangeOptions.<String, String> filters(FILTER).withLabels().build());
         assertEquals(2, results.size());
         RangeResult<String, String> key1Result;
@@ -202,6 +205,60 @@ class StackTests extends ModulesTests {
             assertPing(connection);
         }
         resources.shutdown();
+    }
+
+    @Test
+    void sugaddIncr() {
+        String key = "testSugadd";
+        commands.ftSugadd(key, Suggestion.of("value1", 1));
+        commands.ftSugaddIncr(key, Suggestion.of("value1", 1));
+        List<Suggestion<String>> suggestions = commands.ftSugget(key, "value",
+                SuggetOptions.builder().withScores(true).build());
+        assertEquals(1, suggestions.size());
+        assertEquals(1.4142135381698608, suggestions.get(0).getScore());
+    }
+
+    @Test
+    void sugaddPayload() {
+        String key = "testSugadd";
+        commands.ftSugadd(key, Suggestion.string("value1").score(1).payload("somepayload").build());
+        List<Suggestion<String>> suggestions = commands.ftSugget(key, "value",
+                SuggetOptions.builder().withPayloads(true).build());
+        assertEquals(1, suggestions.size());
+        assertEquals("somepayload", suggestions.get(0).getPayload());
+    }
+
+    @Test
+    void sugaddScorePayload() throws InterruptedException {
+        String key = "testSugadd";
+        commands.ftSugadd(key, Suggestion.string("value1").score(2).payload("somepayload").build());
+        List<Suggestion<String>> suggestions = commands.ftSugget(key, "value",
+                SuggetOptions.builder().withScores(true).withPayloads(true).build());
+        assertEquals(1, suggestions.size());
+        assertEquals(1.4142135381698608, suggestions.get(0).getScore());
+        assertEquals("somepayload", suggestions.get(0).getPayload());
+    }
+
+    @Test
+    void sugget() throws IOException, InterruptedException {
+        createBeerSuggestions();
+        RedisModulesReactiveCommands<String, String> reactive = connection.reactive();
+        assertEquals(1, commands.ftSugget(SUGINDEX, "Ame").size());
+        assertEquals(1, reactive.ftSugget(SUGINDEX, "Ame").collectList().block().size());
+        SuggetOptions options = SuggetOptions.builder().max(1000L).build();
+        assertEquals(1, commands.ftSugget(SUGINDEX, "Ame", options).size());
+        assertEquals(1, reactive.ftSugget(SUGINDEX, "Ame", options).collectList().block().size());
+        Consumer<List<Suggestion<String>>> withScores = results -> {
+            assertEquals(1, results.size());
+            assertEquals("American Pale Ale", results.get(0).getString());
+            assertEquals(0.2773500978946686, results.get(0).getScore(), .01);
+        };
+        SuggetOptions withScoresOptions = SuggetOptions.builder().max(1000L).withScores(true).build();
+        withScores.accept(commands.ftSugget(SUGINDEX, "Ameri", withScoresOptions));
+        withScores.accept(reactive.ftSugget(SUGINDEX, "Ameri", withScoresOptions).collectList().block());
+        assertEquals(410, commands.ftSuglen(SUGINDEX));
+        assertTrue(commands.ftSugdel(SUGINDEX, "American Pale Ale"));
+        assertFalse(reactive.ftSugdel(SUGINDEX, "Thunderstorm").block());
     }
 
 }

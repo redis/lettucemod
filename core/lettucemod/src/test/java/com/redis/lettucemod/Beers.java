@@ -11,7 +11,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
-import com.redis.lettucemod.api.async.RedisModulesAsyncCommands;
 import com.redis.lettucemod.search.CreateOptions;
 import com.redis.lettucemod.search.Field;
 import com.redis.lettucemod.search.TextField.PhoneticMatcher;
@@ -90,14 +89,13 @@ public class Beers {
     public static int populateIndex(StatefulRedisModulesConnection<String, String> connection) throws IOException {
         createIndex(connection);
         connection.setAutoFlushCommands(false);
-        RedisModulesAsyncCommands<String, String> async = connection.async();
         List<RedisFuture<?>> futures = new ArrayList<>();
         try {
             MappingIterator<Map<String, Object>> iterator = mapIterator();
             while (iterator.hasNext()) {
                 Map<String, Object> beer = iterator.next();
                 beer.put(PAYLOAD, beer.get(DESCRIPTION));
-                futures.add(async.hset(PREFIX + beer.get(ID), (Map) beer));
+                futures.add(connection.async().hset(PREFIX + beer.get(ID), (Map) beer));
             }
             connection.flushCommands();
             LettuceFutures.awaitAll(connection.getTimeout(), futures.toArray(new RedisFuture[0]));

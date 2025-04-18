@@ -10,7 +10,6 @@ import static com.redis.lettucemod.Beers.PREFIX;
 import static com.redis.lettucemod.Beers.STYLE;
 import static com.redis.lettucemod.Beers.jsonNodeIterator;
 import static com.redis.lettucemod.Beers.mapIterator;
-import static com.redis.lettucemod.Beers.populateIndex;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -93,7 +92,6 @@ import com.redis.lettucemod.search.SearchResults;
 import com.redis.lettucemod.search.Sort;
 import com.redis.lettucemod.search.Sort.Property;
 import com.redis.lettucemod.search.Suggestion;
-import com.redis.lettucemod.search.SuggetOptions;
 import com.redis.lettucemod.search.TagField;
 import com.redis.lettucemod.search.TextField;
 import com.redis.lettucemod.search.VectorField;
@@ -143,7 +141,7 @@ abstract class ModulesTests {
 
     protected static final String FILTER = LABEL_SENSOR_ID + "=" + SENSOR_ID;
 
-    private static final String SUGINDEX = "beersSug";
+    protected static final String SUGINDEX = "beersSug";
 
     private static final String PONG = "PONG";
 
@@ -160,6 +158,8 @@ abstract class ModulesTests {
     protected StatefulRedisModulesConnection<String, String> connection;
 
     private StatefulRedisModulesConnection<String, String> asyncConnection;
+
+    protected RedisModulesCommands<String, String> commands;
 
     @BeforeAll
     void setup() {
@@ -179,6 +179,7 @@ abstract class ModulesTests {
             connection = redisClient.connect();
             asyncConnection = redisClient.connect();
         }
+        commands = connection.sync();
     }
 
     @AfterAll
@@ -198,8 +199,7 @@ abstract class ModulesTests {
 
     @BeforeEach
     void setupRedis() throws InterruptedException {
-        connection.sync().flushall();
-        Awaitility.await().until(() -> connection.sync().ping().equals("PONG") && connection.sync().dbsize() == 0);
+        commands.flushall();
     }
 
     protected abstract RedisServer getRedisServer();
@@ -208,7 +208,11 @@ abstract class ModulesTests {
         assertEquals(PONG, ping(connection));
     }
 
-    private void createBeerSuggestions() throws IOException, InterruptedException {
+    protected String ping(StatefulRedisModulesConnection<String, String> connection) {
+        return commands.ping();
+    }
+
+    protected void createBeerSuggestions() throws IOException, InterruptedException {
         MappingIterator<Map<String, Object>> beers = mapIterator();
         try {
             asyncConnection.setAutoFlushCommands(false);
@@ -220,71 +224,31 @@ abstract class ModulesTests {
             }
             asyncConnection.flushCommands();
             LettuceFutures.awaitAll(RedisURI.DEFAULT_TIMEOUT_DURATION, futures.toArray(new RedisFuture[0]));
-            Awaitility.await().until(() -> {
-                long count = connection.sync().ftSuglen(SUGINDEX);
-                return count == 410;
-            });
         } finally {
             asyncConnection.setAutoFlushCommands(true);
         }
     }
 
-    protected String ping(StatefulRedisModulesConnection<String, String> connection) {
-        return connection.sync().ping();
-    }
-
-    @Test
-    void sugaddIncr() {
-        RedisModulesCommands<String, String> sync = connection.sync();
-        String key = "testSugadd";
-        sync.ftSugadd(key, Suggestion.of("value1", 1));
-        sync.ftSugaddIncr(key, Suggestion.of("value1", 1));
-        List<Suggestion<String>> suggestions = sync.ftSugget(key, "value", SuggetOptions.builder().withScores(true).build());
-        assertEquals(1, suggestions.size());
-        assertEquals(1.4142135381698608, suggestions.get(0).getScore());
-    }
-
-    @Test
-    void sugaddPayload() {
-        RedisModulesCommands<String, String> sync = connection.sync();
-        String key = "testSugadd";
-        sync.ftSugadd(key, Suggestion.string("value1").score(1).payload("somepayload").build());
-        List<Suggestion<String>> suggestions = sync.ftSugget(key, "value", SuggetOptions.builder().withPayloads(true).build());
-        assertEquals(1, suggestions.size());
-        assertEquals("somepayload", suggestions.get(0).getPayload());
-    }
-
-    @Test
-    void sugaddScorePayload() throws InterruptedException {
-        RedisModulesCommands<String, String> sync = connection.sync();
-        String key = "testSugadd";
-        sync.ftSugadd(key, Suggestion.string("value1").score(2).payload("somepayload").build());
-        Thread.sleep(100); // Allow time for indexing
-        List<Suggestion<String>> suggestions = sync.ftSugget(key, "value",
-                SuggetOptions.builder().withScores(true).withPayloads(true).build());
-        assertEquals(1, suggestions.size());
-        assertEquals(1.4142135381698608, suggestions.get(0).getScore());
-        assertEquals("somepayload", suggestions.get(0).getPayload());
-    }
-
     @Test
     void ftInfoInexistentIndex() {
-        Assertions.assertThrows(RedisCommandExecutionException.class, () -> connection.sync().ftInfo("sdfsdfs"),
-                "Unknown Index name");
+        Assertions.assertThrows(RedisCommandExecutionException.class, () -> commands.ftInfo("sdfsdfs"), "Unknown Index name");
+    }
+
+    private int populateIndex() throws IOException {
+        return Beers.populateIndex(asyncConnection);
     }
 
     @Test
     @SuppressWarnings("unchecked")
     void ftCreate() throws Exception {
         String index = "releases";
-        int count = populateIndex(connection);
-        RedisModulesCommands<String, String> sync = connection.sync();
+        int count = populateIndex();
         assertEquals(count, indexInfo(INDEX).getNumDocs());
         CreateOptions<String, String> options = CreateOptions.<String, String> builder().prefix("release:").payloadField("xml")
                 .build();
         List<Field<String>> fields = Arrays.asList(Field.text("artist").sortable().build(), Field.tag("id").sortable().build(),
                 Field.text("title").sortable().build());
-        sync.ftCreate(index, options, fields.toArray(Field[]::new));
+        commands.ftCreate(index, options, fields.toArray(Field[]::new));
         IndexInfo indexInfo = indexInfo(index);
         assertEquals(fields.size(), indexInfo.getFields().size());
     }
@@ -292,10 +256,9 @@ abstract class ModulesTests {
     @Test
     @SuppressWarnings("unchecked")
     void ftCreateVector() throws Exception {
-        Beers.populateIndex(connection);
-        RedisModulesCommands<String, String> sync = connection.sync();
+        populateIndex();
         String vectorIndex = "vectorTestIndex";
-        sync.ftCreate(vectorIndex, CreateOptions.<String, String> builder().prefix("vectortest:").build(),
+        commands.ftCreate(vectorIndex, CreateOptions.<String, String> builder().prefix("vectortest:").build(),
                 VectorField.name("fields1").algorithm(SearchCommandKeyword.FLAT).vectorType(SearchCommandKeyword.FLOAT32)
                         .distanceMetric(SearchCommandKeyword.COSINE).dim(5).build());
 
@@ -305,35 +268,33 @@ abstract class ModulesTests {
     @SuppressWarnings("unchecked")
     @Test
     void ftCreateTemporaryIndex() throws Exception {
-        populateIndex(connection);
-        RedisModulesCommands<String, String> sync = connection.sync();
+        populateIndex();
         String tempIndex = "temporaryIndex";
-        sync.ftCreate(tempIndex, CreateOptions.<String, String> builder().temporary(1L).build(), Field.text("field1").build());
+        commands.ftCreate(tempIndex, CreateOptions.<String, String> builder().temporary(1L).build(),
+                Field.text("field1").build());
         assertEquals(tempIndex, indexInfo(tempIndex).getIndexName());
-        Awaitility.await().until(() -> !sync.ftList().contains(tempIndex));
+        Awaitility.await().until(() -> !commands.ftList().contains(tempIndex));
     }
 
     @Test
     void ftAlterIndex() throws Exception {
-        populateIndex(connection);
-        RedisModulesCommands<String, String> sync = connection.sync();
-        Map<String, Object> indexInfo = toMap(sync.ftInfo(INDEX));
+        populateIndex();
+        Map<String, Object> indexInfo = toMap(commands.ftInfo(INDEX));
         assertEquals(INDEX, indexInfo.get("index_name"));
-        sync.ftAlter(INDEX, Field.tag("newField").build());
+        commands.ftAlter(INDEX, Field.tag("newField").build());
         Map<String, String> doc = mapOf("newField", "value1");
-        sync.hmset("beer:newDoc", doc);
-        SearchResults<String, String> results = sync.ftSearch(INDEX, "@newField:{value1}");
+        commands.hmset("beer:newDoc", doc);
+        SearchResults<String, String> results = commands.ftSearch(INDEX, "@newField:{value1}");
         assertEquals(1, results.getCount());
         assertEquals(doc.get("newField"), results.get(0).get("newField"));
     }
 
     @Test
     void ftDropindexDeleteDocs() throws Exception {
-        populateIndex(connection);
-        RedisModulesCommands<String, String> sync = connection.sync();
-        sync.ftDropindexDeleteDocs(INDEX);
-        Awaitility.await().until(() -> sync.ftList().isEmpty());
-        Assertions.assertThrows(RedisCommandExecutionException.class, () -> sync.ftInfo(INDEX));
+        populateIndex();
+        commands.ftDropindexDeleteDocs(INDEX);
+        Awaitility.await().until(() -> commands.ftList().isEmpty());
+        Assertions.assertThrows(RedisCommandExecutionException.class, () -> commands.ftInfo(INDEX));
     }
 
     private Map<String, Object> toMap(List<Object> indexInfo) {
@@ -349,28 +310,26 @@ abstract class ModulesTests {
     @SuppressWarnings("unchecked")
     @Test
     void ftList() throws ExecutionException, InterruptedException {
-        RedisModulesCommands<String, String> sync = connection.sync();
-        sync.flushall();
+        commands.flushall();
         Set<String> indexNames = new HashSet<>(Arrays.asList("index1", "index2", "index3"));
         for (String indexName : indexNames) {
-            sync.ftCreate(indexName, Field.text("field1").sortable().build());
+            commands.ftCreate(indexName, Field.text("field1").sortable().build());
         }
-        assertEquals(indexNames, new HashSet<>(sync.ftList()));
+        assertEquals(indexNames, new HashSet<>(commands.ftList()));
         assertEquals(indexNames, new HashSet<>(connection.async().ftList().get()));
         assertEquals(indexNames, new HashSet<>(connection.reactive().ftList().collectList().block()));
     }
 
     @Test
     void ftSearchOptions() throws IOException {
-        populateIndex(connection);
-        RedisModulesCommands<String, String> sync = connection.sync();
+        populateIndex();
         SearchOptions<String, String> options = SearchOptions.<String, String> builder().withPayloads(true).noStopWords(true)
                 .limit(10, 100).withScores(true)
                 .highlight(Highlight.<String, String> builder().field(NAME).tags("<TAG>", "</TAG>").build())
                 .language(Language.ENGLISH).noContent(false).timeout(Duration.ofSeconds(10)).param("param1", "value").dialect(2)
                 .sortBy(SearchOptions.SortBy.asc(NAME)).verbatim(false).withSortKeys().returnField(NAME).returnField(STYLE)
                 .build();
-        SearchResults<String, String> results = sync.ftSearch(INDEX, "pale", options);
+        SearchResults<String, String> results = commands.ftSearch(INDEX, "pale", options);
         assertEquals(74, results.getCount());
         Document<String, String> doc1 = results.get(0);
         assertNotNull(doc1.get(NAME));
@@ -380,7 +339,7 @@ abstract class ModulesTests {
     }
 
     private void assertSearch(String query, SearchOptions<String, String> options, long expectedCount, String... expectedAbv) {
-        SearchResults<String, String> results = connection.sync().ftSearch(INDEX, query, options);
+        SearchResults<String, String> results = commands.ftSearch(INDEX, query, options);
         assertEquals(expectedCount, results.getCount());
         Document<String, String> doc1 = results.get(0);
         assertNotNull(doc1.get(NAME));
@@ -392,29 +351,28 @@ abstract class ModulesTests {
 
     @Test
     void ftSearch() throws Exception {
-        populateIndex(connection);
-        RedisModulesCommands<String, String> sync = connection.sync();
-        SearchResults<String, String> results = sync.ftSearch(INDEX, "German");
+        populateIndex();
+        SearchResults<String, String> results = commands.ftSearch(INDEX, "German");
         assertEquals(3, results.getCount());
-        results = sync.ftSearch(INDEX, "Hefeweizen", SearchOptions.<String, String> builder().noContent(true).build());
+        results = commands.ftSearch(INDEX, "Hefeweizen", SearchOptions.<String, String> builder().noContent(true).build());
         assertEquals(10, results.size());
         assertTrue(results.get(0).getId().startsWith("beer:"));
-        results = sync.ftSearch(INDEX, "Hefeweizen", SearchOptions.<String, String> builder().withScores(true).build());
+        results = commands.ftSearch(INDEX, "Hefeweizen", SearchOptions.<String, String> builder().withScores(true).build());
         assertEquals(10, results.size());
         assertTrue(results.get(0).getScore() > 0);
-        results = sync.ftSearch(INDEX, "Hefeweizen",
+        results = commands.ftSearch(INDEX, "Hefeweizen",
                 SearchOptions.<String, String> builder().withScores(true).noContent(true).limit(new Limit(0, 100)).build());
         assertEquals(14, results.getCount());
         assertEquals(14, results.size());
         assertTrue(results.get(0).getId().startsWith(PREFIX));
         assertTrue(results.get(0).getScore() > 0);
 
-        results = sync.ftSearch(INDEX, "pale", SearchOptions.<String, String> builder().withPayloads(true).build());
+        results = commands.ftSearch(INDEX, "pale", SearchOptions.<String, String> builder().withPayloads(true).build());
         assertEquals(74, results.getCount());
         Document<String, String> result1 = results.get(0);
         assertNotNull(result1.get(NAME));
         assertEquals(result1.get(DESCRIPTION), result1.getPayload());
-        assertEquals(sync.hget(result1.getId(), DESCRIPTION), result1.getPayload());
+        assertEquals(commands.hget(result1.getId(), DESCRIPTION), result1.getPayload());
 
         assertSearch("pale", SearchOptions.<String, String> builder().returnField(NAME).returnField(STYLE).build(), 74);
         assertSearch("pale",
@@ -427,23 +385,22 @@ abstract class ModulesTests {
     @SuppressWarnings("unchecked")
     @Test
     void ftSearchTags() throws InterruptedException, ExecutionException, IOException {
-        int count = populateIndex(connection);
-        RedisModulesCommands<String, String> sync = connection.sync();
+        int count = populateIndex();
         String term = "pale";
         String query = "@style:" + term;
         Tags<String> tags = new Tags<>("<b>", "</b>");
-        SearchResults<String, String> results = sync.ftSearch(INDEX, query, SearchOptions.<String, String> builder()
+        SearchResults<String, String> results = commands.ftSearch(INDEX, query, SearchOptions.<String, String> builder()
                 .highlight(SearchOptions.Highlight.<String, String> builder().build()).build());
         for (Document<String, String> result : results) {
             assertTrue(isHighlighted(result, STYLE, tags, term));
         }
-        results = sync.ftSearch(INDEX, query, SearchOptions.<String, String> builder()
+        results = commands.ftSearch(INDEX, query, SearchOptions.<String, String> builder()
                 .highlight(SearchOptions.Highlight.<String, String> builder().field(NAME).build()).build());
         for (Document<String, String> result : results) {
             assertFalse(isHighlighted(result, STYLE, tags, term));
         }
         tags = new Tags<>("[start]", "[end]");
-        results = sync.ftSearch(INDEX, query, SearchOptions.<String, String> builder()
+        results = commands.ftSearch(INDEX, query, SearchOptions.<String, String> builder()
                 .highlight(SearchOptions.Highlight.<String, String> builder().field(STYLE).tags(tags).build()).build());
         for (Document<String, String> result : results) {
             assertTrue(isHighlighted(result, STYLE, tags, term));
@@ -458,10 +415,10 @@ abstract class ModulesTests {
         assertNotNull(result1.get(STYLE));
         assertNotNull(abv(result1));
 
-        results = sync.ftSearch(INDEX, "pail");
+        results = commands.ftSearch(INDEX, "pail");
         assertEquals(17, results.getCount());
 
-        results = sync.ftSearch(INDEX, "*", SearchOptions.<String, String> builder().limit(new Limit(0, 0)).build());
+        results = commands.ftSearch(INDEX, "*", SearchOptions.<String, String> builder().limit(new Limit(0, 0)).build());
         assertEquals(count, results.getCount());
 
         String index = "escapeTagTestIdx";
@@ -474,7 +431,7 @@ abstract class ModulesTests {
         assertEquals(1, results.size());
         double minABV = .18;
         double maxABV = 10;
-        SearchResults<String, String> filterResults = sync.ftSearch(INDEX, "*", SearchOptions.<String, String> builder()
+        SearchResults<String, String> filterResults = commands.ftSearch(INDEX, "*", SearchOptions.<String, String> builder()
                 .filter(SearchOptions.NumericFilter.<String, String> field(ABV).min(minABV).max(maxABV)).build());
         assertEquals(10, filterResults.size());
         for (Document<String, String> document : filterResults) {
@@ -492,31 +449,8 @@ abstract class ModulesTests {
         return result.get(fieldName).toLowerCase().contains(tags.getOpen() + string + tags.getClose());
     }
 
-    @Test
-    void sugget() throws IOException, InterruptedException {
-        createBeerSuggestions();
-        RedisModulesCommands<String, String> sync = connection.sync();
-        RedisModulesReactiveCommands<String, String> reactive = connection.reactive();
-        assertEquals(1, sync.ftSugget(SUGINDEX, "Ame").size());
-        assertEquals(1, reactive.ftSugget(SUGINDEX, "Ame").collectList().block().size());
-        SuggetOptions options = SuggetOptions.builder().max(1000L).build();
-        assertEquals(1, sync.ftSugget(SUGINDEX, "Ame", options).size());
-        assertEquals(1, reactive.ftSugget(SUGINDEX, "Ame", options).collectList().block().size());
-        Consumer<List<Suggestion<String>>> withScores = results -> {
-            assertEquals(1, results.size());
-            assertEquals("American Pale Ale", results.get(0).getString());
-            assertEquals(0.2773500978946686, results.get(0).getScore(), .01);
-        };
-        SuggetOptions withScoresOptions = SuggetOptions.builder().max(1000L).withScores(true).build();
-        withScores.accept(sync.ftSugget(SUGINDEX, "Ameri", withScoresOptions));
-        withScores.accept(reactive.ftSugget(SUGINDEX, "Ameri", withScoresOptions).collectList().block());
-        assertEquals(410, sync.ftSuglen(SUGINDEX));
-        assertTrue(sync.ftSugdel(SUGINDEX, "American Pale Ale"));
-        assertFalse(reactive.ftSugdel(SUGINDEX, "Thunderstorm").block());
-    }
-
     private Map<String, Map<String, Object>> populateBeers() throws IOException {
-        int count = populateIndex(connection);
+        int count = populateIndex();
         MappingIterator<Map<String, Object>> beers = mapIterator();
         Map<String, Map<String, Object>> beerMap = new HashMap<>();
         while (beers.hasNext()) {
@@ -543,11 +477,10 @@ abstract class ModulesTests {
                 }
             }
         };
-        RedisModulesCommands<String, String> sync = connection.sync();
         RedisModulesReactiveCommands<String, String> reactive = connection.reactive();
         AggregateOptions<String, String> options = AggregateOptions.<String, String> builder().load(ID)
                 .load(Load.identifier(NAME).build()).load(Load.identifier(STYLE).as("style").build()).build();
-        loadAsserts.accept(sync.ftAggregate(INDEX, "*", options));
+        loadAsserts.accept(commands.ftAggregate(INDEX, "*", options));
         loadAsserts.accept(reactive.ftAggregate(INDEX, "*", options).block());
     }
 
@@ -563,7 +496,7 @@ abstract class ModulesTests {
         AggregateOptions<String, String> options = AggregateOptions
                 .<String, String> operation(Group.by(STYLE).reducer(Avg.property(ABV).as(ABV).build()).build())
                 .operation(Sort.by(Sort.Property.desc(ABV)).build()).operation(Limit.offset(0).num(20)).build();
-        asserts.accept(connection.sync().ftAggregate(INDEX, "*", options));
+        asserts.accept(commands.ftAggregate(INDEX, "*", options));
         asserts.accept(connection.reactive().ftAggregate(INDEX, "*", options).block());
     }
 
@@ -578,7 +511,7 @@ abstract class ModulesTests {
         };
         AggregateOptions<String, String> options = AggregateOptions
                 .<String, String> operation(Sort.by(Sort.Property.desc(ABV)).by(Property.asc(IBU)).build()).build();
-        asserts.accept(connection.sync().ftAggregate(INDEX, "*", options));
+        asserts.accept(commands.ftAggregate(INDEX, "*", options));
         asserts.accept(connection.reactive().ftAggregate(INDEX, "*", options).block());
     }
 
@@ -602,7 +535,7 @@ abstract class ModulesTests {
 
         AggregateOptions<String, String> options = AggregateOptions
                 .<String, String> operation(Group.by().reducer(Max.property(ABV).as(ABV).build()).build()).build();
-        asserts.accept(connection.sync().ftAggregate(INDEX, "*", options));
+        asserts.accept(commands.ftAggregate(INDEX, "*", options));
         asserts.accept(connection.reactive().ftAggregate(INDEX, "*", options).block());
 
     }
@@ -624,7 +557,7 @@ abstract class ModulesTests {
         Group group = Group.by(STYLE).reducer(ToList.property(NAME).as("names").build()).reducer(Count.as("count")).build();
         AggregateOptions<String, String> options = AggregateOptions.<String, String> operation(group)
                 .operation(Limit.offset(0).num(2)).build();
-        asserts.accept(connection.sync().ftAggregate(INDEX, "*", options));
+        asserts.accept(commands.ftAggregate(INDEX, "*", options));
         asserts.accept(connection.reactive().ftAggregate(INDEX, "*", options).block());
     }
 
@@ -638,38 +571,37 @@ abstract class ModulesTests {
         };
         AggregateOptions<String, String> cursorOptions = AggregateOptions.<String, String> builder().load(ID).load(NAME)
                 .load(ABV).build();
-        AggregateWithCursorResults<String> cursorResults = connection.sync().ftAggregate(INDEX, "*",
+        AggregateWithCursorResults<String> cursorResults = commands.ftAggregate(INDEX, "*",
                 CursorOptions.builder().count(10).build(), cursorOptions);
         cursorTests.accept(cursorResults);
         cursorTests.accept(connection.reactive()
                 .ftAggregate(INDEX, "*", CursorOptions.builder().count(10).build(), cursorOptions).block());
-        cursorResults = connection.sync().ftCursorRead(INDEX, cursorResults.getCursor(), 400);
+        cursorResults = commands.ftCursorRead(INDEX, cursorResults.getCursor(), 400);
         assertEquals(400, cursorResults.size());
-        String deleteStatus = connection.sync().ftCursorDelete(INDEX, cursorResults.getCursor());
+        String deleteStatus = commands.ftCursorDelete(INDEX, cursorResults.getCursor());
         assertEquals("OK", deleteStatus);
     }
 
     @Test
     void ftAlias() throws Exception {
-        populateIndex(connection);
+        populateIndex();
 
         // SYNC
 
         String alias = "alias123";
 
-        RedisModulesCommands<String, String> sync = connection.sync();
-        sync.ftAliasadd(alias, INDEX);
-        SearchResults<String, String> results = sync.ftSearch(alias, "*");
+        commands.ftAliasadd(alias, INDEX);
+        SearchResults<String, String> results = commands.ftSearch(alias, "*");
         assertTrue(results.size() > 0);
 
         String newAlias = "alias456";
-        sync.ftAliasupdate(newAlias, INDEX);
-        assertTrue(sync.ftSearch(newAlias, "*").size() > 0);
+        commands.ftAliasupdate(newAlias, INDEX);
+        assertTrue(commands.ftSearch(newAlias, "*").size() > 0);
 
-        sync.ftAliasdel(newAlias);
-        Assertions.assertThrows(RedisCommandExecutionException.class, () -> sync.ftSearch(newAlias, "*"), "no such index");
+        commands.ftAliasdel(newAlias);
+        Assertions.assertThrows(RedisCommandExecutionException.class, () -> commands.ftSearch(newAlias, "*"), "no such index");
 
-        sync.ftAliasdel(alias);
+        commands.ftAliasdel(alias);
         RedisModulesAsyncCommands<String, String> async = connection.async();
         // ASYNC
         async.ftAliasadd(alias, INDEX).get();
@@ -682,7 +614,7 @@ abstract class ModulesTests {
         async.ftAliasdel(newAlias).get();
         Assertions.assertThrows(ExecutionException.class, () -> async.ftSearch(newAlias, "*").get(), "no such index");
 
-        sync.ftAliasdel(alias);
+        commands.ftAliasdel(alias);
 
         RedisModulesReactiveCommands<String, String> reactive = connection.reactive();
         // REACTIVE
@@ -718,8 +650,8 @@ abstract class ModulesTests {
         TagField<String> idField = Field.tag(jsonField(ID)).as(ID).build();
         TextField<String> nameField = Field.text(jsonField(NAME)).as(NAME).build();
         TextField<String> styleField = Field.text(jsonField(STYLE)).build();
-        connection.sync().ftCreate(index, CreateOptions.<String, String> builder().on(DataType.JSON).build(), idField,
-                nameField, styleField);
+        commands.ftCreate(index, CreateOptions.<String, String> builder().on(DataType.JSON).build(), idField, nameField,
+                styleField);
         IndexInfo info = indexInfo(index);
         Assertions.assertEquals(3, info.getFields().size());
         Assertions.assertEquals(idField.getAs(), info.getFields().get(0).getAs());
@@ -727,10 +659,10 @@ abstract class ModulesTests {
 
         while (iterator.hasNext()) {
             JsonNode beer = iterator.next();
-            connection.sync().jsonSet("beer:" + beer.get(ID).asText(), JsonPath.ROOT_PATH,
-                    connection.sync().getJsonParser().createJsonValue(beer.toString()));
+            commands.jsonSet("beer:" + beer.get(ID).asText(), JsonPath.ROOT_PATH,
+                    commands.getJsonParser().createJsonValue(beer.toString()));
         }
-        SearchResults<String, String> results = connection.sync().ftSearch(index, "@" + NAME + ":Creek");
+        SearchResults<String, String> results = commands.ftSearch(index, "@" + NAME + ":Creek");
         Assertions.assertEquals(1, results.getCount());
     }
 
@@ -741,11 +673,11 @@ abstract class ModulesTests {
         TagField<String> idField = Field.tag(jsonField(ID)).as(ID).build();
         TagField<String> nameField = Field.tag(jsonField(NAME)).as(NAME).build();
         TagField<String> styleField = Field.tag(jsonField(STYLE)).as(STYLE).build();
-        connection.sync().ftCreate(index, CreateOptions.<String, String> builder().on(DataType.JSON).prefix("account:").build(),
-                idField, nameField, styleField);
-        connection.sync().jsonSet("account:1", JsonPath.ROOT_PATH,
-                connection.sync().getJsonParser().createJsonValue("{\"id\": \"1\", \"name\": null, \"style_name\": \"123\"}"));
-        SearchResults<String, String> results = connection.sync().ftSearch(index, "*",
+        commands.ftCreate(index, CreateOptions.<String, String> builder().on(DataType.JSON).prefix("account:").build(), idField,
+                nameField, styleField);
+        commands.jsonSet("account:1", JsonPath.ROOT_PATH,
+                commands.getJsonParser().createJsonValue("{\"id\": \"1\", \"name\": null, \"style_name\": \"123\"}"));
+        SearchResults<String, String> results = commands.ftSearch(index, "*",
                 SearchOptions.<String, String> builder().returnFields("id", "name", "style_name").build());
         Assertions.assertEquals(1, results.getCount());
     }
@@ -756,11 +688,11 @@ abstract class ModulesTests {
 
     @Test
     void ftTagVals() throws Exception {
-        populateIndex(connection);
+        populateIndex();
         Set<String> TAG_VALS = new HashSet<>(Arrays.asList(
                 "american-style brown ale, traditional german-style bock, german-style schwarzbier, old ale, american-style india pale ale, german-style oktoberfest, other belgian-style ales, american-style stout, winter warmer, belgian-style tripel, american-style lager, belgian-style dubbel, porter, american-style barley wine ale, belgian-style fruit lambic, scottish-style light ale, south german-style hefeweizen, imperial or double india pale ale, golden or blonde ale, belgian-style quadrupel, american-style imperial stout, belgian-style pale strong ale, english-style pale mild ale, american-style pale ale, irish-style red ale, dark american-belgo-style ale, light american wheat ale or lager, german-style pilsener, american-style amber/red ale, scotch ale, german-style doppelbock, extra special bitter, south german-style weizenbock, english-style india pale ale, belgian-style pale ale, french & belgian-style saison"
                         .split(", ")));
-        HashSet<String> actual = new HashSet<>(connection.sync().ftTagvals(INDEX, STYLE));
+        HashSet<String> actual = new HashSet<>(commands.ftTagvals(INDEX, STYLE));
         assertEquals(TAG_VALS, actual);
         assertEquals(TAG_VALS, new HashSet<>(connection.reactive().ftTagvals(INDEX, STYLE).collectList().block()));
     }
@@ -768,18 +700,18 @@ abstract class ModulesTests {
     @SuppressWarnings("unchecked")
     @Test
     void ftAggregateEmptyToListReducer() {
-        RedisModulesCommands<String, String> sync = connection.sync();
+
         // FT.CREATE idx ON HASH PREFIX 1 my_prefix: SCHEMA category TAG SORTABLE color
         // TAG SORTABLE size TAG SORTABLE
-        sync.ftCreate("idx", CreateOptions.<String, String> builder().prefix("my_prefix:").build(),
+        commands.ftCreate("idx", CreateOptions.<String, String> builder().prefix("my_prefix:").build(),
                 Field.tag("category").sortable().build(), Field.tag("color").sortable().build(),
                 Field.tag("size").sortable().build());
         Map<String, String> doc1 = mapOf("category", "31", "color", "red");
-        sync.hset("my_prefix:1", doc1);
+        commands.hset("my_prefix:1", doc1);
         AggregateOptions<String, String> aggregateOptions = AggregateOptions.<String, String> operation(Group.by("category")
                 .reducers(ToList.property("color").as("color").build(), ToList.property("size").as("size").build()).build())
                 .build();
-        AggregateResults<String> results = sync.ftAggregate("idx", "@color:{red|blue}", aggregateOptions);
+        AggregateResults<String> results = commands.ftAggregate("idx", "@color:{red|blue}", aggregateOptions);
         assertEquals(1, results.size());
         Map<String, Object> expectedResult = new HashMap<>();
         expectedResult.put("category", "31");
@@ -791,15 +723,15 @@ abstract class ModulesTests {
     @Test
     void ftDictadd() {
         String[] DICT_TERMS = new String[] { "beer", "ale", "brew", "brewski" };
-        RedisModulesCommands<String, String> sync = connection.sync();
-        assertEquals(DICT_TERMS.length, sync.ftDictadd("beers", DICT_TERMS));
-        assertEquals(new HashSet<>(Arrays.asList(DICT_TERMS)), new HashSet<>(sync.ftDictdump("beers")));
-        assertEquals(1, sync.ftDictdel("beers", "brew"));
+
+        assertEquals(DICT_TERMS.length, commands.ftDictadd("beers", DICT_TERMS));
+        assertEquals(new HashSet<>(Arrays.asList(DICT_TERMS)), new HashSet<>(commands.ftDictdump("beers")));
+        assertEquals(1, commands.ftDictdel("beers", "brew"));
         List<String> beerDict = new ArrayList<>();
         Collections.addAll(beerDict, DICT_TERMS);
         beerDict.remove("brew");
-        assertEquals(new HashSet<>(beerDict), new HashSet<>(sync.ftDictdump("beers")));
-        connection.sync().flushall();
+        assertEquals(new HashSet<>(beerDict), new HashSet<>(commands.ftDictdump("beers")));
+        commands.flushall();
         RedisModulesReactiveCommands<String, String> reactive = connection.reactive();
         assertEquals(DICT_TERMS.length, reactive.ftDictadd("beers", DICT_TERMS).block());
         assertEquals(new HashSet<>(Arrays.asList(DICT_TERMS)),
@@ -814,7 +746,7 @@ abstract class ModulesTests {
     @SuppressWarnings("unchecked")
     @Test
     void tsAdd() {
-        RedisTimeSeriesCommands<String, String> ts = connection.sync();
+        RedisTimeSeriesCommands<String, String> ts = commands;
         // TS.CREATE temperature:3:11 RETENTION 6000 LABELS sensor_id 2 area_id 32
         // TS.ADD temperature:3:11 1548149181 30
         Long add1 = ts.tsAdd(TS_KEY, Sample.of(TIMESTAMP_1, VALUE_1),
@@ -830,17 +762,16 @@ abstract class ModulesTests {
 
     @Test
     void tsRange() {
-        RedisTimeSeriesCommands<String, String> ts = connection.sync();
-        populate(ts);
-        assertRange(ts.tsRange(TS_KEY, TimeRange.builder().from(TIMESTAMP_1 - 10).to(TIMESTAMP_2 + 10).build(),
+        populate();
+        assertRange(commands.tsRange(TS_KEY, TimeRange.builder().from(TIMESTAMP_1 - 10).to(TIMESTAMP_2 + 10).build(),
                 RangeOptions.builder()
                         .aggregation(Aggregation.aggregator(Aggregator.AVG).bucketDuration(Duration.ofMillis(5)).build())
                         .build()));
-        assertRange(ts.tsRange(TS_KEY, TimeRange.unbounded(), RangeOptions.builder()
+        assertRange(commands.tsRange(TS_KEY, TimeRange.unbounded(), RangeOptions.builder()
                 .aggregation(Aggregation.aggregator(Aggregator.AVG).bucketDuration(Duration.ofMillis(5)).build()).build()));
-        assertRange(ts.tsRange(TS_KEY, TimeRange.from(TIMESTAMP_1 - 10).build(), RangeOptions.builder()
+        assertRange(commands.tsRange(TS_KEY, TimeRange.from(TIMESTAMP_1 - 10).build(), RangeOptions.builder()
                 .aggregation(Aggregation.aggregator(Aggregator.AVG).bucketDuration(Duration.ofMillis(5)).build()).build()));
-        assertRange(ts.tsRange(TS_KEY, TimeRange.to(TIMESTAMP_2 + 10).build(), RangeOptions.builder()
+        assertRange(commands.tsRange(TS_KEY, TimeRange.to(TIMESTAMP_2 + 10).build(), RangeOptions.builder()
                 .aggregation(Aggregation.aggregator(Aggregator.AVG).bucketDuration(Duration.ofMillis(5)).build()).build()));
     }
 
@@ -853,23 +784,23 @@ abstract class ModulesTests {
     }
 
     @SuppressWarnings("unchecked")
-    protected void populate(RedisTimeSeriesCommands<String, String> ts) {
+    protected void populate() {
         // TS.CREATE temperature:3:11 RETENTION 6000 LABELS sensor_id 2 area_id 32
         // TS.ADD temperature:3:11 1548149181 30
-        ts.tsAdd(TS_KEY, Sample.of(TIMESTAMP_1, VALUE_1), AddOptions.<String, String> builder().retentionPeriod(6000)
+        commands.tsAdd(TS_KEY, Sample.of(TIMESTAMP_1, VALUE_1), AddOptions.<String, String> builder().retentionPeriod(6000)
                 .labels(KeyValue.just(LABEL_SENSOR_ID, SENSOR_ID), KeyValue.just(LABEL_AREA_ID, AREA_ID)).build());
         // TS.ADD temperature:3:11 1548149191 42
-        ts.tsAdd(TS_KEY, Sample.of(TIMESTAMP_2, VALUE_2));
+        commands.tsAdd(TS_KEY, Sample.of(TIMESTAMP_2, VALUE_2));
 
-        ts.tsAdd(TS_KEY_2, Sample.of(TIMESTAMP_1, VALUE_1), AddOptions.<String, String> builder().retentionPeriod(6000)
+        commands.tsAdd(TS_KEY_2, Sample.of(TIMESTAMP_1, VALUE_1), AddOptions.<String, String> builder().retentionPeriod(6000)
                 .labels(KeyValue.just(LABEL_SENSOR_ID, SENSOR_ID), KeyValue.just(LABEL_AREA_ID, AREA_ID_2)).build());
-        ts.tsAdd(TS_KEY_2, Sample.of(TIMESTAMP_2, VALUE_2));
+        commands.tsAdd(TS_KEY_2, Sample.of(TIMESTAMP_2, VALUE_2));
     }
 
     @Test
     void tsGet() {
-        RedisTimeSeriesCommands<String, String> ts = connection.sync();
-        populate(ts);
+        RedisTimeSeriesCommands<String, String> ts = commands;
+        populate();
         Sample result = ts.tsGet(TS_KEY);
         Assertions.assertEquals(TIMESTAMP_2, result.getTimestamp());
         Assertions.assertEquals(VALUE_2, result.getValue());
@@ -886,8 +817,8 @@ abstract class ModulesTests {
     void bfBasic() {
         String key = "test:bfBasic";
         String keyInsert = "test:bfInsert";
-        RedisBloomCommands<String, String> bf = connection.sync();
-        connection.sync().unlink(key, keyInsert);
+        RedisBloomCommands<String, String> bf = commands;
+        commands.unlink(key, keyInsert);
         String status = bf.bfReserve(key, .01, 1000);
         assertEquals("OK", status);
         Boolean added = bf.bfAdd(key, "test");
@@ -913,7 +844,7 @@ abstract class ModulesTests {
     void bfReactive() {
         String key = "test:reactive:bfBasic";
         String keyInsert = "test:reactive:bfInsert";
-        connection.sync().unlink(key, keyInsert);
+        commands.unlink(key, keyInsert);
 
         RedisBloomReactiveCommands<String, String> bf = connection.reactive();
 
@@ -942,8 +873,8 @@ abstract class ModulesTests {
     void cfBasic() {
         String key1 = "cf:test:key";
         String key2 = "cf:test:insert:key";
-        connection.sync().unlink(key1, key2);
-        RedisBloomCommands<String, String> cf = connection.sync();
+        commands.unlink(key1, key2);
+        RedisBloomCommands<String, String> cf = commands;
         assertEquals("OK", cf.cfReserve(key1, 1000L));
         assertTrue(cf.cfAdd(key1, "test"));
         assertFalse(cf.cfAddNx(key1, "test"));
@@ -970,7 +901,7 @@ abstract class ModulesTests {
     void cfBasicReactive() {
         String key1 = "cf:reactive:test:key";
         String key2 = "cf:reactive:test:insert:key";
-        connection.sync().unlink(key1, key2);
+        commands.unlink(key1, key2);
         RedisBloomReactiveCommands<String, String> cf = connection.reactive();
         assertEquals("OK", cf.cfReserve(key1, 1000L).block());
         assertEquals(Boolean.TRUE, cf.cfAdd(key1, "test").block());
@@ -1006,8 +937,8 @@ abstract class ModulesTests {
         String outKey = "{cms}:out";
         String key3 = "{cms}:3";
 
-        connection.sync().unlink(key1, key2);
-        RedisBloomCommands<String, String> cms = connection.sync();
+        commands.unlink(key1, key2);
+        RedisBloomCommands<String, String> cms = commands;
 
         assertEquals("OK", cms.cmsInitByProb(key1, .001, .01));
         assertEquals(2, cms.cmsIncrBy(key1, "test", 2));
@@ -1046,7 +977,7 @@ abstract class ModulesTests {
         String outKey = "{cms}:out";
         String key3 = "{cms}:3";
 
-        connection.sync().unlink(key1, key2);
+        commands.unlink(key1, key2);
         RedisBloomReactiveCommands<String, String> cms = connection.reactive();
 
         assertEquals("OK", cms.cmsInitByProb(key1, .001, .01).block());
@@ -1086,8 +1017,8 @@ abstract class ModulesTests {
     void topK() {
         String key1 = "topK:1";
         String key2 = "topK:2";
-        connection.sync().unlink(key1, key2);
-        RedisBloomCommands<String, String> topK = connection.sync();
+        commands.unlink(key1, key2);
+        RedisBloomCommands<String, String> topK = commands;
         assertEquals("OK", topK.topKReserve(key1, 3));
         List<Value<String>> result = topK.topKAdd(key1, "one", "two", "three");
         assertTrue(result.get(0).isEmpty());
@@ -1127,7 +1058,7 @@ abstract class ModulesTests {
     void topKReactive() {
         String key1 = "topK:1";
         String key2 = "topK:2";
-        connection.sync().unlink(key1, key2);
+        commands.unlink(key1, key2);
         RedisBloomReactiveCommands<String, String> topK = connection.reactive();
         assertEquals("OK", topK.topKReserve(key1, 3).block());
         List<Value<String>> result = topK.topKAdd(key1, "one", "two", "three").collectList().block();
@@ -1170,43 +1101,43 @@ abstract class ModulesTests {
     @Test
     void tDigestEmpty() {
         String key = "tdigest:empty";
-        connection.sync().unlink(key);
-        assertEquals("OK", connection.sync().tDigestCreate(key));
+        commands.unlink(key);
+        assertEquals("OK", commands.tDigestCreate(key));
         double[] quantiles = { 0.1, 0.2, 0.3 };
-        List<Double> res = connection.sync().tDigestQuantile(key, quantiles);
+        List<Double> res = commands.tDigestQuantile(key, quantiles);
         assertEquals(Double.NaN, res.get(0));
         assertEquals(Double.NaN, res.get(1));
         assertEquals(Double.NaN, res.get(2));
 
-        res = connection.sync().tDigestByRank(key, 4, 5, 6);
+        res = commands.tDigestByRank(key, 4, 5, 6);
         assertEquals(Double.NaN, res.get(0));
         assertEquals(Double.NaN, res.get(1));
         assertEquals(Double.NaN, res.get(2));
 
-        res = connection.sync().tDigestByRevRank(key, 4, 5, 6);
+        res = commands.tDigestByRevRank(key, 4, 5, 6);
         assertEquals(Double.NaN, res.get(0));
         assertEquals(Double.NaN, res.get(1));
         assertEquals(Double.NaN, res.get(2));
 
-        res = connection.sync().tDigestCdf(key, .4, .5);
+        res = commands.tDigestCdf(key, .4, .5);
         assertEquals(Double.NaN, res.get(0));
         assertEquals(Double.NaN, res.get(1));
 
-        double singleResult = connection.sync().tDigestMin(key);
+        double singleResult = commands.tDigestMin(key);
         assertEquals(Double.NaN, singleResult);
 
-        singleResult = connection.sync().tDigestMax(key);
+        singleResult = commands.tDigestMax(key);
         assertEquals(Double.NaN, singleResult);
 
-        singleResult = connection.sync().tDigestTrimmedMean(key, 0, 1);
+        singleResult = commands.tDigestTrimmedMean(key, 0, 1);
         assertEquals(Double.NaN, singleResult);
     }
 
     @Test
     void tDigestInf() {
         String key = "tdigest:inf";
-        connection.sync().unlink(key);
-        RedisBloomCommands<String, String> tDigest = connection.sync();
+        commands.unlink(key);
+        RedisBloomCommands<String, String> tDigest = commands;
         assertEquals("OK", tDigest.tDigestCreate(key, 1000));
         assertEquals("OK", tDigest.tDigestAdd(key, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10));
         assertEquals(Double.POSITIVE_INFINITY, tDigest.tDigestByRank(key, 25).get(0));
@@ -1216,8 +1147,8 @@ abstract class ModulesTests {
     @Test
     void tDigest() {
         String key = "tdigest:1";
-        connection.sync().unlink(key);
-        RedisBloomCommands<String, String> tDigest = connection.sync();
+        commands.unlink(key);
+        RedisBloomCommands<String, String> tDigest = commands;
         assertEquals("OK", tDigest.tDigestCreate(key, 1000));
         assertEquals("OK", tDigest.tDigestAdd(key, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10));
         List<Double> items = tDigest.tDigestByRank(key, 1, 5, 9);
@@ -1263,7 +1194,7 @@ abstract class ModulesTests {
     @Test
     void tDigestReactive() {
         String key = "tdigest:1";
-        connection.sync().unlink(key);
+        commands.unlink(key);
         RedisBloomReactiveCommands<String, String> tDigest = connection.reactive();
         assertEquals("OK", tDigest.tDigestCreate(key, 1000).block());
         assertEquals("OK", tDigest.tDigestAdd(key, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10).block());
@@ -1316,7 +1247,7 @@ abstract class ModulesTests {
 
     @Test
     void ftInfo() throws Exception {
-        int count = populateIndex(connection);
+        int count = populateIndex();
         IndexInfo info = indexInfo(INDEX);
         assertEquals(count, info.getNumDocs());
         List<Field<String>> fields = info.getFields();
@@ -1340,8 +1271,8 @@ abstract class ModulesTests {
                 .build();
         String styleFieldName = jsonField(STYLE);
         TextField<String> styleField = Field.text(styleFieldName).as(styleFieldName).weight(1).build();
-        connection.sync().ftCreate(index, CreateOptions.<String, String> builder().on(DataType.JSON).build(), idField,
-                nameField, styleField);
+        commands.ftCreate(index, CreateOptions.<String, String> builder().on(DataType.JSON).build(), idField, nameField,
+                styleField);
         IndexInfo info = indexInfo(index);
         Assertions.assertEquals(idField, info.getFields().get(0));
         Field<String> actualNameField = info.getFields().get(1);
@@ -1352,13 +1283,12 @@ abstract class ModulesTests {
     }
 
     private IndexInfo indexInfo(String index) {
-        return IndexInfo.parse(connection.sync().ftInfo(index));
+        return IndexInfo.parse(commands.ftInfo(index));
     }
 
     @SuppressWarnings("unchecked")
     @Test
     void ftInfoOptions() {
-        RedisModulesCommands<String, String> commands = connection.sync();
         String index = "indexWithOptions";
         CreateOptions<String, String> createOptions = CreateOptions.<String, String> builder().on(DataType.JSON)
                 .prefixes("prefix1", "prefix2").filter("@indexName==\"myindexname\"").defaultLanguage(Language.CHINESE)
@@ -1373,8 +1303,7 @@ abstract class ModulesTests {
 
     @Test
     void utilsIndexInfo() {
-        Assertions.assertThrows(RedisCommandExecutionException.class,
-                () -> IndexInfo.parse(connection.sync().ftInfo("wweriwjer")));
+        Assertions.assertThrows(RedisCommandExecutionException.class, () -> IndexInfo.parse(commands.ftInfo("wweriwjer")));
     }
 
 }
