@@ -4,15 +4,13 @@ import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 
 import com.redis.enterprise.Database;
-import com.redis.enterprise.RedisModule;
 import com.redis.enterprise.testcontainers.RedisEnterpriseContainer;
 import com.redis.testcontainers.RedisServer;
 
 @EnabledOnOs(OS.LINUX)
 class EnterpriseTests extends AbstractConnectionBuilderTests {
 
-    private final Database database = Database.builder().name("ModulesTests").memoryMB(110).ossCluster(true)
-            .modules(RedisModule.SEARCH, RedisModule.JSON, RedisModule.PROBABILISTIC, RedisModule.TIMESERIES).build();
+    private final Database database = Database.builder().name("ModulesTests").memoryMB(50).ossCluster(true).build();
 
     @SuppressWarnings("resource")
     private final RedisEnterpriseContainer container = new RedisEnterpriseContainer(
