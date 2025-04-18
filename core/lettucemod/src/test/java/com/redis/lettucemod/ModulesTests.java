@@ -155,9 +155,11 @@ abstract class ModulesTests {
         return map;
     }
 
+    private AbstractRedisClient client;
+
     protected StatefulRedisModulesConnection<String, String> connection;
 
-    private AbstractRedisClient client;
+    private StatefulRedisModulesConnection<String, String> asyncConnection;
 
     @BeforeAll
     void setup() {
@@ -170,10 +172,12 @@ abstract class ModulesTests {
             RedisModulesClusterClient clusterClient = RedisModulesClusterClient.create(uri);
             client = clusterClient;
             connection = clusterClient.connect();
+            asyncConnection = clusterClient.connect();
         } else {
             RedisModulesClient redisClient = RedisModulesClient.create(uri);
             client = redisClient;
             connection = redisClient.connect();
+            asyncConnection = redisClient.connect();
         }
     }
 
@@ -207,21 +211,21 @@ abstract class ModulesTests {
     private void createBeerSuggestions() throws IOException, InterruptedException {
         MappingIterator<Map<String, Object>> beers = mapIterator();
         try {
-            connection.setAutoFlushCommands(false);
+            asyncConnection.setAutoFlushCommands(false);
             List<RedisFuture<?>> futures = new ArrayList<>();
-            RedisModulesAsyncCommands<String, String> async = connection.async();
+            RedisModulesAsyncCommands<String, String> async = asyncConnection.async();
             while (beers.hasNext()) {
                 Map<String, Object> beer = beers.next();
                 futures.add(async.ftSugadd(SUGINDEX, Suggestion.string((String) beer.get(NAME)).score(1).build()));
             }
-            connection.flushCommands();
+            asyncConnection.flushCommands();
             LettuceFutures.awaitAll(RedisURI.DEFAULT_TIMEOUT_DURATION, futures.toArray(new RedisFuture[0]));
             Awaitility.await().until(() -> {
                 long count = connection.sync().ftSuglen(SUGINDEX);
                 return count == 410;
             });
         } finally {
-            connection.setAutoFlushCommands(true);
+            asyncConnection.setAutoFlushCommands(true);
         }
     }
 
