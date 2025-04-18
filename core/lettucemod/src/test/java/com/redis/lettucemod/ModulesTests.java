@@ -165,15 +165,16 @@ abstract class ModulesTests {
         if (server instanceof Startable) {
             ((Startable) server).start();
         }
-        client = redisClient(getRedisServer());
-        connection = RedisModulesConnectionBuilder.client(client).connection();
-    }
-
-    private AbstractRedisClient redisClient(RedisServer server) {
+        String uri = server.getRedisURI();
         if (server.isRedisCluster()) {
-            return RedisModulesClusterClient.create(server.getRedisURI());
+            RedisModulesClusterClient clusterClient = RedisModulesClusterClient.create(uri);
+            client = clusterClient;
+            connection = clusterClient.connect();
+        } else {
+            RedisModulesClient redisClient = RedisModulesClient.create(uri);
+            client = redisClient;
+            connection = redisClient.connect();
         }
-        return RedisModulesClient.create(server.getRedisURI());
     }
 
     @AfterAll
@@ -259,21 +260,23 @@ abstract class ModulesTests {
     @Test
     void ftInfoInexistentIndex() {
         Assertions.assertThrows(RedisCommandExecutionException.class, () -> connection.sync().ftInfo("sdfsdfs"),
-                RedisModulesUtils.ERROR_UNKNOWN_INDEX_NAME);
+                "Unknown Index name");
     }
 
     @Test
     @SuppressWarnings("unchecked")
     void ftCreate() throws Exception {
+        String index = "releases";
         int count = populateIndex(connection);
         RedisModulesCommands<String, String> sync = connection.sync();
-        assertEquals(count, RedisModulesUtils.indexInfo(sync.ftInfo(INDEX)).getNumDocs());
+        assertEquals(count, indexInfo(INDEX).getNumDocs());
         CreateOptions<String, String> options = CreateOptions.<String, String> builder().prefix("release:").payloadField("xml")
                 .build();
         List<Field<String>> fields = Arrays.asList(Field.text("artist").sortable().build(), Field.tag("id").sortable().build(),
                 Field.text("title").sortable().build());
-        sync.ftCreate("releases", options, fields.toArray(Field[]::new));
-        assertEquals(fields.size(), RedisModulesUtils.indexInfo(sync.ftInfo("releases")).getFields().size());
+        sync.ftCreate(index, options, fields.toArray(Field[]::new));
+        IndexInfo indexInfo = indexInfo(index);
+        assertEquals(fields.size(), indexInfo.getFields().size());
     }
 
     @Test
@@ -286,7 +289,7 @@ abstract class ModulesTests {
                 VectorField.name("fields1").algorithm(SearchCommandKeyword.FLAT).vectorType(SearchCommandKeyword.FLOAT32)
                         .distanceMetric(SearchCommandKeyword.COSINE).dim(5).build());
 
-        assertEquals(vectorIndex, RedisModulesUtils.indexInfo(sync.ftInfo(vectorIndex)).getIndexName());
+        assertEquals(vectorIndex, indexInfo(vectorIndex).getIndexName());
     }
 
     @SuppressWarnings("unchecked")
@@ -296,7 +299,7 @@ abstract class ModulesTests {
         RedisModulesCommands<String, String> sync = connection.sync();
         String tempIndex = "temporaryIndex";
         sync.ftCreate(tempIndex, CreateOptions.<String, String> builder().temporary(1L).build(), Field.text("field1").build());
-        assertEquals(tempIndex, RedisModulesUtils.indexInfo(sync.ftInfo(tempIndex)).getIndexName());
+        assertEquals(tempIndex, indexInfo(tempIndex).getIndexName());
         Awaitility.await().until(() -> !sync.ftList().contains(tempIndex));
     }
 
@@ -457,7 +460,7 @@ abstract class ModulesTests {
         Map<String, String> doc1 = new HashMap<>();
         doc1.put(idField, "chris@blah.org,User1#test.org,usersdfl@example.com");
         connection.async().hmset("doc1", doc1).get();
-        results = connection.async().ftSearch(index, "@id:{" + RedisModulesUtils.escapeTag("User1#test.org") + "}").get();
+        results = connection.async().ftSearch(index, "@id:{" + escapeTag("User1#test.org") + "}").get();
         assertEquals(1, results.size());
         double minABV = .18;
         double maxABV = 10;
@@ -469,6 +472,10 @@ abstract class ModulesTests {
             Assertions.assertTrue(abv >= minABV);
             Assertions.assertTrue(abv <= maxABV);
         }
+    }
+
+    protected static String escapeTag(String value) {
+        return value.replaceAll("([^a-zA-Z0-9])", "\\\\$1");
     }
 
     private boolean isHighlighted(Document<String, String> result, String fieldName, Tags<String> tags, String string) {
@@ -683,23 +690,6 @@ abstract class ModulesTests {
     }
 
     @Test
-    void ftInfo() throws Exception {
-        int count = populateIndex(connection);
-        IndexInfo info = RedisModulesUtils.indexInfo(connection.async().ftInfo(INDEX).get());
-        assertEquals(count, info.getNumDocs());
-        List<Field<String>> fields = info.getFields();
-        TextField<String> descriptionField = (TextField<String>) fields.get(5);
-        assertEquals(DESCRIPTION, descriptionField.getName());
-        Assertions.assertFalse(descriptionField.isNoIndex());
-        Assertions.assertTrue(descriptionField.isNoStem());
-        Assertions.assertFalse(descriptionField.isSortable());
-        TagField<String> styleField = (TagField<String>) fields.get(2);
-        assertEquals(STYLE, styleField.getName());
-        Assertions.assertTrue(styleField.isSortable());
-        assertEquals(',', styleField.getSeparator().get());
-    }
-
-    @Test
     void geoLocation() {
         double longitude = -118.753604;
         double latitude = 34.027201;
@@ -720,10 +710,11 @@ abstract class ModulesTests {
         TextField<String> styleField = Field.text(jsonField(STYLE)).build();
         connection.sync().ftCreate(index, CreateOptions.<String, String> builder().on(DataType.JSON).build(), idField,
                 nameField, styleField);
-        IndexInfo info = RedisModulesUtils.indexInfo(connection.sync().ftInfo(index));
+        IndexInfo info = indexInfo(index);
         Assertions.assertEquals(3, info.getFields().size());
         Assertions.assertEquals(idField.getAs(), info.getFields().get(0).getAs());
         Assertions.assertEquals(styleField.getName(), info.getFields().get(2).getAs().get());
+
         while (iterator.hasNext()) {
             JsonNode beer = iterator.next();
             connection.sync().jsonSet("beer:" + beer.get(ID).asText(), JsonPath.ROOT_PATH,
@@ -751,42 +742,6 @@ abstract class ModulesTests {
 
     private String jsonField(String name) {
         return "$." + name;
-    }
-
-    @SuppressWarnings("unchecked")
-    @Test
-    void ftInfoFields() {
-        String index = "indexFields";
-        TagField<String> idField = Field.tag(jsonField(ID)).as(ID).separator('-').build();
-        TextField<String> nameField = Field.text(jsonField(NAME)).as(NAME).noIndex().noStem().unNormalizedForm().weight(2)
-                .build();
-        String styleFieldName = jsonField(STYLE);
-        TextField<String> styleField = Field.text(styleFieldName).as(styleFieldName).weight(1).build();
-        connection.sync().ftCreate(index, CreateOptions.<String, String> builder().on(DataType.JSON).build(), idField,
-                nameField, styleField);
-        IndexInfo info = RedisModulesUtils.indexInfo(connection.sync().ftInfo(index));
-        Assertions.assertEquals(idField, info.getFields().get(0));
-        Field<String> actualNameField = info.getFields().get(1);
-        // Workaround for older RediSearch versions (Redis Enterprise tests)
-        actualNameField.setUnNormalizedForm(true);
-        Assertions.assertEquals(nameField, actualNameField);
-        Assertions.assertEquals(styleField, info.getFields().get(2));
-    }
-
-    @SuppressWarnings("unchecked")
-    @Test
-    void ftInfoOptions() {
-        RedisModulesCommands<String, String> commands = connection.sync();
-        String index = "indexWithOptions";
-        CreateOptions<String, String> createOptions = CreateOptions.<String, String> builder().on(DataType.JSON)
-                .prefixes("prefix1", "prefix2").filter("@indexName==\"myindexname\"").defaultLanguage(Language.CHINESE)
-                .languageField("languageField").defaultScore(.5).scoreField("scoreField").payloadField("payloadField")
-                .maxTextFields(true).noOffsets(true).noHL(true).noFields(true).noFreqs(true).build();
-        commands.ftCreate(index, createOptions, Field.tag("id").build(), Field.numeric("scoreField").build());
-        IndexInfo info = RedisModulesUtils.indexInfo(commands.ftInfo(index));
-        CreateOptions<String, String> actual = info.getIndexOptions();
-        actual.setNoHL(true); // Hack to get around Redisearch version differences between Enterprise and OSS
-        Assertions.assertEquals(createOptions, actual);
     }
 
     @Test
@@ -910,11 +865,6 @@ abstract class ModulesTests {
         Assertions.assertEquals(VALUE_2, result.getValue());
         ts.tsCreate("ts:empty", com.redis.lettucemod.timeseries.CreateOptions.<String, String> builder().build());
         Assertions.assertNull(ts.tsGet("ts:empty"));
-    }
-
-    @Test
-    void utilsIndexInfo() {
-        Assertions.assertTrue(RedisModulesUtils.indexInfo(() -> connection.sync().ftInfo("wweriwjer")).isEmpty());
     }
 
     protected void assertJSONEquals(String expected, String actual) throws JsonMappingException, JsonProcessingException {
@@ -1352,6 +1302,69 @@ abstract class ModulesTests {
 
         Double trimmedMean = tDigest.tDigestTrimmedMean(key, .3, .7).block();
         assertEquals(5.5, trimmedMean);
+    }
+
+    @Test
+    void ftInfo() throws Exception {
+        int count = populateIndex(connection);
+        IndexInfo info = indexInfo(INDEX);
+        assertEquals(count, info.getNumDocs());
+        List<Field<String>> fields = info.getFields();
+        TextField<String> descriptionField = (TextField<String>) fields.get(5);
+        assertEquals(DESCRIPTION, descriptionField.getName());
+        Assertions.assertFalse(descriptionField.isNoIndex());
+        Assertions.assertTrue(descriptionField.isNoStem());
+        Assertions.assertFalse(descriptionField.isSortable());
+        TagField<String> styleField = (TagField<String>) fields.get(2);
+        assertEquals(STYLE, styleField.getName());
+        Assertions.assertTrue(styleField.isSortable());
+        assertEquals(',', styleField.getSeparator().get());
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    void ftInfoFields() {
+        String index = "indexFields";
+        TagField<String> idField = Field.tag(jsonField(ID)).as(ID).separator('-').build();
+        TextField<String> nameField = Field.text(jsonField(NAME)).as(NAME).noIndex().noStem().unNormalizedForm().weight(2)
+                .build();
+        String styleFieldName = jsonField(STYLE);
+        TextField<String> styleField = Field.text(styleFieldName).as(styleFieldName).weight(1).build();
+        connection.sync().ftCreate(index, CreateOptions.<String, String> builder().on(DataType.JSON).build(), idField,
+                nameField, styleField);
+        IndexInfo info = indexInfo(index);
+        Assertions.assertEquals(idField, info.getFields().get(0));
+        Field<String> actualNameField = info.getFields().get(1);
+        // Workaround for older RediSearch versions (Redis Enterprise tests)
+        actualNameField.setUnNormalizedForm(true);
+        Assertions.assertEquals(nameField, actualNameField);
+        Assertions.assertEquals(styleField, info.getFields().get(2));
+    }
+
+    private IndexInfo indexInfo(String index) {
+        return IndexInfo.parse(connection.sync().ftInfo(index));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    void ftInfoOptions() {
+        RedisModulesCommands<String, String> commands = connection.sync();
+        String index = "indexWithOptions";
+        CreateOptions<String, String> createOptions = CreateOptions.<String, String> builder().on(DataType.JSON)
+                .prefixes("prefix1", "prefix2").filter("@indexName==\"myindexname\"").defaultLanguage(Language.CHINESE)
+                .languageField("languageField").defaultScore(.5).scoreField("scoreField").payloadField("payloadField")
+                .maxTextFields(true).noOffsets(true).noHL(true).noFields(true).noFreqs(true).build();
+        commands.ftCreate(index, createOptions, Field.tag("id").build(), Field.numeric("scoreField").build());
+        IndexInfo info = IndexInfo.parse(commands.ftInfo(index));
+        CreateOptions<String, String> actual = info.getIndexOptions();
+        actual.setNoHL(true); // Hack to get around Redisearch version differences between Enterprise and OSS
+        Assertions.assertEquals(createOptions, actual);
+    }
+
+    @Test
+    void utilsIndexInfo() {
+        Assertions.assertThrows(RedisCommandExecutionException.class,
+                () -> IndexInfo.parse(connection.sync().ftInfo("wweriwjer")));
     }
 
 }

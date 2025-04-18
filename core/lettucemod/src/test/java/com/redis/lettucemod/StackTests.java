@@ -25,7 +25,6 @@ import com.redis.lettucemod.timeseries.TimeRange;
 import com.redis.testcontainers.RedisServer;
 import com.redis.testcontainers.RedisStackContainer;
 
-import io.lettuce.core.AbstractRedisClient;
 import io.lettuce.core.AclSetuserArgs;
 import io.lettuce.core.KeyValue;
 import io.lettuce.core.RedisURI;
@@ -51,7 +50,7 @@ class StackTests extends ModulesTests {
         RedisURI.Builder wrongPasswordURI = RedisURI.builder(RedisURI.create(getRedisServer().getRedisURI()));
         wrongPasswordURI.withAuthentication(username, "wrongpassword");
         try (RedisModulesClient client = RedisModulesClient.create(wrongPasswordURI.build())) {
-            RedisModulesConnectionBuilder.client(client).connection();
+            client.connect();
             Assertions.fail("Expected connection failure");
         } catch (Exception e) {
             // expected
@@ -60,9 +59,8 @@ class StackTests extends ModulesTests {
         String value = "bar";
         RedisURI.Builder uri = RedisURI.builder(RedisURI.create(getRedisServer().getRedisURI()));
         uri.withAuthentication(username, password);
-        try (AbstractRedisClient client = RedisModulesClient.create(uri.build());
-                StatefulRedisModulesConnection<String, String> connection = RedisModulesConnectionBuilder.client(client)
-                        .connection()) {
+        try (RedisModulesClient client = RedisModulesClient.create(uri.build());
+                StatefulRedisModulesConnection<String, String> connection = client.connect()) {
             connection.sync().set(key, value);
             Assertions.assertEquals(value, connection.sync().get(key));
         }

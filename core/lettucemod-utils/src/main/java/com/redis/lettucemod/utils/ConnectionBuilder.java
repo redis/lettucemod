@@ -1,7 +1,8 @@
-package com.redis.lettucemod;
+package com.redis.lettucemod.utils;
 
 import java.util.function.Supplier;
 
+import com.redis.lettucemod.RedisModulesClient;
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
 import com.redis.lettucemod.cluster.RedisModulesClusterClient;
 import com.redis.lettucemod.cluster.api.StatefulRedisModulesClusterConnection;
@@ -12,21 +13,21 @@ import io.lettuce.core.codec.RedisCodec;
 import io.lettuce.core.codec.StringCodec;
 import io.lettuce.core.pubsub.StatefulRedisPubSubConnection;
 
-public class RedisModulesConnectionBuilder {
+public class ConnectionBuilder {
 
     private final AbstractRedisClient client;
 
     private ReadFrom readFrom;
 
-    public RedisModulesConnectionBuilder(AbstractRedisClient client) {
+    public ConnectionBuilder(AbstractRedisClient client) {
         this.client = client;
     }
 
-    public static RedisModulesConnectionBuilder client(AbstractRedisClient client) {
-        return new RedisModulesConnectionBuilder(client);
+    public static ConnectionBuilder client(AbstractRedisClient client) {
+        return new ConnectionBuilder(client);
     }
 
-    public RedisModulesConnectionBuilder readFrom(ReadFrom readFrom) {
+    public ConnectionBuilder readFrom(ReadFrom readFrom) {
         this.readFrom = readFrom;
         return this;
     }

@@ -1,16 +1,17 @@
-package com.redis.lettucemod;
+package com.redis.lettucemod.utils;
 
+import java.lang.reflect.Array;
 import java.time.Duration;
 
 import io.lettuce.core.RedisURI;
-import io.lettuce.core.SslVerifyMode;
 import io.lettuce.core.RedisURI.Builder;
+import io.lettuce.core.SslVerifyMode;
 import io.lettuce.core.internal.LettuceAssert;
 import io.lettuce.core.internal.LettuceStrings;
 import lombok.ToString;
 
 @ToString
-public class RedisURIBuilder {
+public class URIBuilder {
 
     public static final String DEFAULT_HOST = "127.0.0.1";
 
@@ -50,8 +51,8 @@ public class RedisURIBuilder {
 
     public RedisURI build() {
         Builder builder = redisURIBuilder();
-        if (!RedisModulesUtils.isEmpty(password)) {
-            if (RedisModulesUtils.hasLength(username)) {
+        if (password != null && Array.getLength(password) > 0) {
+            if (LettuceStrings.isNotEmpty(username)) {
                 builder.withAuthentication(username, password);
             } else {
                 builder.withPassword(password);
@@ -68,13 +69,13 @@ public class RedisURIBuilder {
             builder.withTimeout(timeout);
         }
         RedisURI redisURI = builder.build();
-        if (RedisModulesUtils.hasLength(libraryName) && !RedisModulesUtils.hasLength(redisURI.getLibraryName())) {
+        if (LettuceStrings.isNotEmpty(libraryName) && LettuceStrings.isEmpty(redisURI.getLibraryName())) {
             redisURI.setLibraryName(libraryName);
         }
-        if (RedisModulesUtils.hasLength(libraryVersion) && !RedisModulesUtils.hasLength(redisURI.getLibraryVersion())) {
+        if (LettuceStrings.isNotEmpty(libraryVersion) && LettuceStrings.isEmpty(redisURI.getLibraryVersion())) {
             redisURI.setLibraryVersion(libraryVersion);
         }
-        if (RedisModulesUtils.hasLength(clientName) && !RedisModulesUtils.hasLength(redisURI.getClientName())) {
+        if (LettuceStrings.isNotEmpty(clientName) && LettuceStrings.isEmpty(redisURI.getClientName())) {
             redisURI.setClientName(clientName);
         }
         return redisURI;
@@ -89,80 +90,104 @@ public class RedisURIBuilder {
             uri.getSentinels().forEach(builder::withSentinel);
             return builder;
         }
-        if (RedisModulesUtils.hasLength(socket)) {
+        if (LettuceStrings.isNotEmpty(socket)) {
             return Builder.socket(socket);
         }
         return Builder.redis(host, port);
     }
 
-    public RedisURIBuilder uri(RedisURI uri) {
+    public URIBuilder uri(String uri) {
+        return uri(RedisURI.create(uri));
+    }
+
+    public URIBuilder uri(RedisURI uri) {
         this.uri = uri;
         return this;
     }
 
-    public RedisURIBuilder host(String host) {
+    public URIBuilder host(String host) {
         this.host = host;
         return this;
     }
 
-    public RedisURIBuilder port(int port) {
+    public URIBuilder port(int port) {
         this.port = port;
         return this;
     }
 
-    public RedisURIBuilder socket(String socket) {
+    public URIBuilder socket(String socket) {
         this.socket = socket;
         return this;
     }
 
-    public RedisURIBuilder username(String username) {
+    public URIBuilder username(String username) {
         this.username = username;
         return this;
     }
 
-    public RedisURIBuilder password(String password) {
+    public URIBuilder password(String password) {
         LettuceAssert.notNull(password, "Password must not be null");
         return password(password.toCharArray());
     }
 
-    public RedisURIBuilder password(char[] password) {
+    public URIBuilder password(char[] password) {
         this.password = password;
         return this;
     }
 
-    public RedisURIBuilder timeout(Duration timeout) {
+    public URIBuilder timeout(Duration timeout) {
         this.timeout = timeout;
         return this;
     }
 
-    public RedisURIBuilder database(int database) {
+    public URIBuilder database(int database) {
         this.database = database;
         return this;
     }
 
-    public RedisURIBuilder clientName(String clientName) {
+    public URIBuilder clientName(String clientName) {
         this.clientName = clientName;
         return this;
     }
 
-    public RedisURIBuilder libraryName(String libraryName) {
+    public URIBuilder libraryName(String libraryName) {
         this.libraryName = libraryName;
         return this;
     }
 
-    public RedisURIBuilder libraryVersion(String libraryVersion) {
+    public URIBuilder libraryVersion(String libraryVersion) {
         this.libraryVersion = libraryVersion;
         return this;
     }
 
-    public RedisURIBuilder tls(boolean tls) {
+    public URIBuilder tls(boolean tls) {
         this.tls = tls;
         return this;
     }
 
-    public RedisURIBuilder verifyMode(SslVerifyMode verifyMode) {
+    public URIBuilder noVerifyPeer() {
+        return verifyPeer(false);
+    }
+
+    public URIBuilder verifyPeer(boolean enable) {
+        return verifyMode(enable ? SslVerifyMode.FULL : SslVerifyMode.NONE);
+    }
+
+    public URIBuilder verifyMode(SslVerifyMode verifyMode) {
         this.verifyMode = verifyMode;
         return this;
+    }
+
+    public static URIBuilder of(String uri) {
+        return new URIBuilder().uri(uri);
+    }
+
+    public static URIBuilder of(RedisURI uri) {
+        return new URIBuilder().uri(uri);
+    }
+
+    public static URIBuilder of(String host, int port) {
+        return new URIBuilder().host(host).port(port);
     }
 
 }

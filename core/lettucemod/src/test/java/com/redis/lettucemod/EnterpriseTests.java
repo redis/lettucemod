@@ -18,14 +18,12 @@ import io.lettuce.core.resource.DefaultClientResources;
 @EnabledOnOs(OS.LINUX)
 class EnterpriseTests extends ModulesTests {
 
-    public static final String TAG = "7.2.4-92";
-
     private final Database database = Database.builder().name("ModulesTests").memoryMB(110).ossCluster(true)
             .modules(RedisModule.SEARCH, RedisModule.JSON, RedisModule.PROBABILISTIC, RedisModule.TIMESERIES).build();
 
     @SuppressWarnings("resource")
     private final RedisEnterpriseContainer container = new RedisEnterpriseContainer(
-            RedisEnterpriseContainer.DEFAULT_IMAGE_NAME.withTag(TAG)).withDatabase(database);
+            RedisEnterpriseContainer.DEFAULT_IMAGE_NAME.withTag(RedisEnterpriseContainer.DEFAULT_TAG)).withDatabase(database);
 
     @Override
     protected RedisServer getRedisServer() {
