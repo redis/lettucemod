@@ -1,5 +1,6 @@
 package com.redis.lettucemod.utils;
 
+import org.awaitility.Awaitility;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -64,6 +65,7 @@ abstract class AbstractConnectionBuilderTests {
     @BeforeEach
     void setupRedis() {
         connection.sync().flushall();
+        Awaitility.await().until(() -> connection.sync().ping().equals("PONG") && connection.sync().dbsize() == 0);
     }
 
     @Test

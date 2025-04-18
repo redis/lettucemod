@@ -193,8 +193,9 @@ abstract class ModulesTests {
     }
 
     @BeforeEach
-    void setupRedis() {
+    void setupRedis() throws InterruptedException {
         connection.sync().flushall();
+        Awaitility.await().until(() -> connection.sync().ping().equals("PONG") && connection.sync().dbsize() == 0);
     }
 
     protected abstract RedisServer getRedisServer();
@@ -203,7 +204,7 @@ abstract class ModulesTests {
         assertEquals(PONG, ping(connection));
     }
 
-    private void createBeerSuggestions() throws IOException {
+    private void createBeerSuggestions() throws IOException, InterruptedException {
         MappingIterator<Map<String, Object>> beers = mapIterator();
         try {
             connection.setAutoFlushCommands(false);
@@ -215,6 +216,10 @@ abstract class ModulesTests {
             }
             connection.flushCommands();
             LettuceFutures.awaitAll(RedisURI.DEFAULT_TIMEOUT_DURATION, futures.toArray(new RedisFuture[0]));
+            Awaitility.await().until(() -> {
+                long count = connection.sync().ftSuglen(SUGINDEX);
+                return count == 410;
+            });
         } finally {
             connection.setAutoFlushCommands(true);
         }
@@ -246,10 +251,11 @@ abstract class ModulesTests {
     }
 
     @Test
-    void sugaddScorePayload() {
+    void sugaddScorePayload() throws InterruptedException {
         RedisModulesCommands<String, String> sync = connection.sync();
         String key = "testSugadd";
         sync.ftSugadd(key, Suggestion.string("value1").score(2).payload("somepayload").build());
+        Thread.sleep(100); // Allow time for indexing
         List<Suggestion<String>> suggestions = sync.ftSugget(key, "value",
                 SuggetOptions.builder().withScores(true).withPayloads(true).build());
         assertEquals(1, suggestions.size());
@@ -483,7 +489,7 @@ abstract class ModulesTests {
     }
 
     @Test
-    void sugget() throws IOException {
+    void sugget() throws IOException, InterruptedException {
         createBeerSuggestions();
         RedisModulesCommands<String, String> sync = connection.sync();
         RedisModulesReactiveCommands<String, String> reactive = connection.reactive();
