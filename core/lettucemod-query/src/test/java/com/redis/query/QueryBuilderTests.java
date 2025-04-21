@@ -109,7 +109,7 @@ class QueryBuilderTests {
     void testIntersectionNested() {
 	Condition condition = text("name").term("mark").or("dvir").and(numeric("time").between(100, 200))
 		.and(numeric("created").lt(1000).not());
-	assertEquals("@name:(mark|dvir) @time:[100 200] -@created:[-inf (1000]", condition.getQuery());
+	assertEquals("@name:((mark)|(dvir)) @time:[100 200] -@created:[-inf (1000]", condition.getQuery());
     }
 
     @Test

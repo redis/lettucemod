@@ -2,9 +2,9 @@ package com.redis.search.query.filter;
 
 public class CompositeCondition implements Condition {
 
-    private final Condition left;
-    private final Condition right;
-    private final CharSequence delimiter;
+    protected final Condition left;
+    protected final Condition right;
+    protected final CharSequence delimiter;
 
     public CompositeCondition(CharSequence delimiter, Condition left, Condition right) {
 	this.delimiter = delimiter;
