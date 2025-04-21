@@ -25,9 +25,8 @@ public class TestOr {
 
         Or orCondition = new Or(left, right);
         String orQuery = orCondition.getQuery();
-        System.out.println("orQuery :" + orQuery);
 
-        Assertions.assertEquals("((@category:{italian})|(@priceForTwo:[1500 2000]))", orQuery);
+        Assertions.assertEquals("(@category:{italian})|(@priceForTwo:[1500 2000])", orQuery);
     }
 
     @Test
@@ -39,7 +38,7 @@ public class TestOr {
         Or orCondition = new Or(left, right);
         String orQuery = orCondition.getQuery();
 
-        Assertions.assertEquals("((@category:{italian})|( ))", orQuery);
+        Assertions.assertEquals("(@category:{italian})", orQuery);
     }
 
     @Test
@@ -51,7 +50,7 @@ public class TestOr {
         Or orCondition = new Or(left, right);
         String orQuery = orCondition.getQuery();
 
-        Assertions.assertEquals("(()|())", orQuery);
+        Assertions.assertEquals("", orQuery);
     }
 
     @Test
@@ -63,6 +62,6 @@ public class TestOr {
         Or orCondition = new Or(left, right);
         String orQuery = orCondition.getQuery();
 
-        Assertions.assertEquals("(()|())", orQuery);
+        Assertions.assertEquals("", orQuery);
     }
 }
