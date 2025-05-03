@@ -11,13 +11,17 @@ import io.lettuce.core.resource.ClientResources;
 
 public class ClientBuilder {
 
-    private RedisURI uri = RedisURI.create(URIBuilder.DEFAULT_HOST, RedisURI.DEFAULT_REDIS_PORT);
+    private final RedisURI uri;
 
     private boolean cluster;
 
     private ClientOptions options;
 
     private ClientResources resources;
+
+    public ClientBuilder(RedisURI uri) {
+        this.uri = uri;
+    }
 
     public AbstractRedisClient build() {
         if (cluster) {
@@ -48,11 +52,6 @@ public class ClientBuilder {
         return RedisModulesClusterClient.create(resources, uri);
     }
 
-    public ClientBuilder uri(RedisURI uri) {
-        this.uri = uri;
-        return this;
-    }
-
     public ClientBuilder cluster() {
         return cluster(true);
     }
@@ -73,7 +72,7 @@ public class ClientBuilder {
     }
 
     public static ClientBuilder of(RedisURI uri) {
-        return new ClientBuilder().uri(uri);
+        return new ClientBuilder(uri);
     }
 
 }

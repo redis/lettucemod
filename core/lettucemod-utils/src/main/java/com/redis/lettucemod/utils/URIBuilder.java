@@ -3,6 +3,7 @@ package com.redis.lettucemod.utils;
 import java.lang.reflect.Array;
 import java.time.Duration;
 
+import io.lettuce.core.RedisCredentialsProvider;
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.RedisURI.Builder;
 import io.lettuce.core.SslVerifyMode;
@@ -18,8 +19,6 @@ public class URIBuilder {
     public static final int DEFAULT_PORT = RedisURI.DEFAULT_REDIS_PORT;
 
     public static final Duration DEFAULT_TIMEOUT_DURATION = RedisURI.DEFAULT_TIMEOUT_DURATION;
-
-    public static final long DEFAULT_TIMEOUT = RedisURI.DEFAULT_TIMEOUT;
 
     public static final SslVerifyMode DEFAULT_VERIFY_MODE = SslVerifyMode.FULL;
 
@@ -49,8 +48,13 @@ public class URIBuilder {
 
     private SslVerifyMode verifyMode = DEFAULT_VERIFY_MODE;
 
+    private RedisCredentialsProvider credentialsProvider;
+
     public RedisURI build() {
         Builder builder = redisURIBuilder();
+        if (credentialsProvider != null) {
+            builder.withAuthentication(credentialsProvider);
+        }
         if (password != null && Array.getLength(password) > 0) {
             if (LettuceStrings.isNotEmpty(username)) {
                 builder.withAuthentication(username, password);
@@ -175,6 +179,11 @@ public class URIBuilder {
 
     public URIBuilder verifyMode(SslVerifyMode verifyMode) {
         this.verifyMode = verifyMode;
+        return this;
+    }
+
+    public URIBuilder credentialsProvider(RedisCredentialsProvider provider) {
+        this.credentialsProvider = provider;
         return this;
     }
 
