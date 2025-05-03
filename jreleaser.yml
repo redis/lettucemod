@@ -56,12 +56,14 @@ signing:
 
 deploy:
   maven:
-    nexus2:
-      maven-central:
+    mavenCentral:
+      redis:
         active: RELEASE
-        url: https://s01.oss.sonatype.org/service/local
-        closeRepository: true
-        releaseRepository: true
+        authorization: BASIC
+        url: https://central.sonatype.com/api/v1/publisher
+        applyMavenCentralRules: true
+        retryDelay: 30
+        maxRetries: 100
         stagingRepositories:
           - build/repos/local/release
 
