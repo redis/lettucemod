@@ -38,11 +38,11 @@ public interface RediSearchReactiveCommands<K, V> {
 
 	Flux<K> ftList();
 
-	Mono<SearchResults<K, V>> ftSearch(K index, V query);
+	Mono<SearchResults<K, V>> ftSearch(K index, V query, V... options);
 
 	Mono<SearchResults<K, V>> ftSearch(K index, V query, SearchOptions<K, V> options);
 
-	Mono<AggregateResults<K>> ftAggregate(K index, V query);
+	Mono<AggregateResults<K>> ftAggregate(K index, V query, V... options);
 
 	Mono<AggregateResults<K>> ftAggregate(K index, V query, AggregateOptions<K, V> options);
 

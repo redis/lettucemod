@@ -134,8 +134,8 @@ public class RedisModulesAdvancedClusterAsyncCommandsImpl<K, V> extends RedisAdv
 	}
 
 	@Override
-	public RedisFuture<SearchResults<K, V>> ftSearch(K index, V query) {
-		return delegate.ftSearch(index, query);
+	public RedisFuture<SearchResults<K, V>> ftSearch(K index, V query, V... options) {
+		return delegate.ftSearch(index, query, options);
 	}
 
 	@Override
@@ -144,8 +144,8 @@ public class RedisModulesAdvancedClusterAsyncCommandsImpl<K, V> extends RedisAdv
 	}
 
 	@Override
-	public RedisFuture<AggregateResults<K>> ftAggregate(K index, V query) {
-		return delegate.ftAggregate(index, query);
+	public RedisFuture<AggregateResults<K>> ftAggregate(K index, V query, V... options) {
+		return delegate.ftAggregate(index, query, options);
 	}
 
 	@Override

@@ -32,11 +32,11 @@ public interface RediSearchCommands<K, V> {
 	 */
 	List<K> ftList();
 
-	SearchResults<K, V> ftSearch(K index, V query);
+	SearchResults<K, V> ftSearch(K index, V query, V... options);
 
 	SearchResults<K, V> ftSearch(K index, V query, SearchOptions<K, V> options);
 
-	AggregateResults<K> ftAggregate(K index, V query);
+	AggregateResults<K> ftAggregate(K index, V query, V... options);
 
 	AggregateResults<K> ftAggregate(K index, V query, AggregateOptions<K, V> options);
 
