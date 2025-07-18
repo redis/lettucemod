@@ -30,11 +30,11 @@ public interface RediSearchAsyncCommands<K, V> {
 
 	RedisFuture<List<K>> ftList();
 
-	RedisFuture<SearchResults<K, V>> ftSearch(K index, V query);
+	RedisFuture<SearchResults<K, V>> ftSearch(K index, V query, V... options);
 
 	RedisFuture<SearchResults<K, V>> ftSearch(K index, V query, SearchOptions<K, V> options);
 
-	RedisFuture<AggregateResults<K>> ftAggregate(K index, V query);
+	RedisFuture<AggregateResults<K>> ftAggregate(K index, V query, V... options);
 
 	RedisFuture<AggregateResults<K>> ftAggregate(K index, V query, AggregateOptions<K, V> options);
 

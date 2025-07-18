@@ -334,8 +334,20 @@ abstract class ModulesTests {
         Document<String, String> doc1 = results.get(0);
         assertNotNull(doc1.get(NAME));
         assertNotNull(doc1.get(STYLE));
+        assertEquals(doc1.get(DESCRIPTION), doc1.getPayload());
         assertNull(abv(doc1));
+    }
 
+    @Test
+    void ftSearchStringOptions() throws IOException {
+        populateIndex();
+        String options = "withpayloads limit 0 10 WITHSCORES nostopwords";
+        SearchResults<String, String> results = commands.ftSearch(INDEX, "pale", options.split(" "));
+        assertEquals(74, results.getCount());
+        Document<String, String> doc1 = results.get(0);
+        assertNotNull(doc1.get(NAME));
+        assertNotNull(doc1.get(STYLE));
+        assertEquals(doc1.get(DESCRIPTION), doc1.getPayload());
     }
 
     private void assertSearch(String query, SearchOptions<String, String> options, long expectedCount, String... expectedAbv) {
@@ -389,8 +401,9 @@ abstract class ModulesTests {
         String term = "pale";
         String query = "@style:" + term;
         Tags<String> tags = new Tags<>("<b>", "</b>");
-        SearchResults<String, String> results = commands.ftSearch(INDEX, query, SearchOptions.<String, String> builder()
-                .highlight(SearchOptions.Highlight.<String, String> builder().build()).build());
+        SearchResults<String, String> results = commands.ftSearch(INDEX, query,
+                SearchOptions.<String, String> builder().highlight(SearchOptions.Highlight.<String, String> builder().build())
+                        .build());
         for (Document<String, String> result : results) {
             assertTrue(isHighlighted(result, STYLE, tags, term));
         }
@@ -493,9 +506,23 @@ abstract class ModulesTests {
             assertTrue(abvs.get(0) > abvs.get(abvs.size() - 1));
             assertEquals(20, results.size());
         };
-        AggregateOptions<String, String> options = AggregateOptions
-                .<String, String> operation(Group.by(STYLE).reducer(Avg.property(ABV).as(ABV).build()).build())
+        AggregateOptions<String, String> options = AggregateOptions.<String, String> operation(
+                        Group.by(STYLE).reducer(Avg.property(ABV).as(ABV).build()).build())
                 .operation(Sort.by(Sort.Property.desc(ABV)).build()).operation(Limit.offset(0).num(20)).build();
+        asserts.accept(commands.ftAggregate(INDEX, "*", options));
+        asserts.accept(connection.reactive().ftAggregate(INDEX, "*", options).block());
+    }
+
+    @Test
+    void ftAggregateStringOptions() throws Exception {
+        populateBeers();
+        Consumer<AggregateResults<String>> asserts = results -> {
+            assertEquals(36, results.getCount());
+            List<Double> abvs = results.stream().map(r -> Double.parseDouble((String) r.get(ABV))).collect(Collectors.toList());
+            assertTrue(abvs.get(0) > abvs.get(abvs.size() - 1));
+            assertEquals(20, results.size());
+        };
+        String[] options = "groupby 1 @style_name reduce avg 1 @abv as abv sortby 2 @abv desc limit 0 20".split(" ");
         asserts.accept(commands.ftAggregate(INDEX, "*", options));
         asserts.accept(connection.reactive().ftAggregate(INDEX, "*", options).block());
     }
@@ -509,8 +536,8 @@ abstract class ModulesTests {
             List<Double> abvs = results.stream().map(this::abv).collect(Collectors.toList());
             assertTrue(abvs.get(0) > abvs.get(abvs.size() - 1));
         };
-        AggregateOptions<String, String> options = AggregateOptions
-                .<String, String> operation(Sort.by(Sort.Property.desc(ABV)).by(Property.asc(IBU)).build()).build();
+        AggregateOptions<String, String> options = AggregateOptions.<String, String> operation(
+                Sort.by(Sort.Property.desc(ABV)).by(Property.asc(IBU)).build()).build();
         asserts.accept(commands.ftAggregate(INDEX, "*", options));
         asserts.accept(connection.reactive().ftAggregate(INDEX, "*", options).block());
     }
@@ -533,8 +560,8 @@ abstract class ModulesTests {
             assertEquals(16, maxAbv, 0.1);
         };
 
-        AggregateOptions<String, String> options = AggregateOptions
-                .<String, String> operation(Group.by().reducer(Max.property(ABV).as(ABV).build()).build()).build();
+        AggregateOptions<String, String> options = AggregateOptions.<String, String> operation(
+                Group.by().reducer(Max.property(ABV).as(ABV).build()).build()).build();
         asserts.accept(commands.ftAggregate(INDEX, "*", options));
         asserts.accept(connection.reactive().ftAggregate(INDEX, "*", options).block());
 
@@ -574,8 +601,9 @@ abstract class ModulesTests {
         AggregateWithCursorResults<String> cursorResults = commands.ftAggregate(INDEX, "*",
                 CursorOptions.builder().count(10).build(), cursorOptions);
         cursorTests.accept(cursorResults);
-        cursorTests.accept(connection.reactive()
-                .ftAggregate(INDEX, "*", CursorOptions.builder().count(10).build(), cursorOptions).block());
+        cursorTests.accept(
+                connection.reactive().ftAggregate(INDEX, "*", CursorOptions.builder().count(10).build(), cursorOptions)
+                        .block());
         cursorResults = commands.ftCursorRead(INDEX, cursorResults.getCursor(), 400);
         assertEquals(400, cursorResults.size());
         String deleteStatus = commands.ftCursorDelete(INDEX, cursorResults.getCursor());
@@ -690,8 +718,8 @@ abstract class ModulesTests {
     void ftTagVals() throws Exception {
         populateIndex();
         Set<String> TAG_VALS = new HashSet<>(Arrays.asList(
-                "american-style brown ale, traditional german-style bock, german-style schwarzbier, old ale, american-style india pale ale, german-style oktoberfest, other belgian-style ales, american-style stout, winter warmer, belgian-style tripel, american-style lager, belgian-style dubbel, porter, american-style barley wine ale, belgian-style fruit lambic, scottish-style light ale, south german-style hefeweizen, imperial or double india pale ale, golden or blonde ale, belgian-style quadrupel, american-style imperial stout, belgian-style pale strong ale, english-style pale mild ale, american-style pale ale, irish-style red ale, dark american-belgo-style ale, light american wheat ale or lager, german-style pilsener, american-style amber/red ale, scotch ale, german-style doppelbock, extra special bitter, south german-style weizenbock, english-style india pale ale, belgian-style pale ale, french & belgian-style saison"
-                        .split(", ")));
+                "american-style brown ale, traditional german-style bock, german-style schwarzbier, old ale, american-style india pale ale, german-style oktoberfest, other belgian-style ales, american-style stout, winter warmer, belgian-style tripel, american-style lager, belgian-style dubbel, porter, american-style barley wine ale, belgian-style fruit lambic, scottish-style light ale, south german-style hefeweizen, imperial or double india pale ale, golden or blonde ale, belgian-style quadrupel, american-style imperial stout, belgian-style pale strong ale, english-style pale mild ale, american-style pale ale, irish-style red ale, dark american-belgo-style ale, light american wheat ale or lager, german-style pilsener, american-style amber/red ale, scotch ale, german-style doppelbock, extra special bitter, south german-style weizenbock, english-style india pale ale, belgian-style pale ale, french & belgian-style saison".split(
+                        ", ")));
         HashSet<String> actual = new HashSet<>(commands.ftTagvals(INDEX, STYLE));
         assertEquals(TAG_VALS, actual);
         assertEquals(TAG_VALS, new HashSet<>(connection.reactive().ftTagvals(INDEX, STYLE).collectList().block()));
@@ -709,7 +737,7 @@ abstract class ModulesTests {
         Map<String, String> doc1 = mapOf("category", "31", "color", "red");
         commands.hset("my_prefix:1", doc1);
         AggregateOptions<String, String> aggregateOptions = AggregateOptions.<String, String> operation(Group.by("category")
-                .reducers(ToList.property("color").as("color").build(), ToList.property("size").as("size").build()).build())
+                        .reducers(ToList.property("color").as("color").build(), ToList.property("size").as("size").build()).build())
                 .build();
         AggregateResults<String> results = commands.ftAggregate("idx", "@color:{red|blue}", aggregateOptions);
         assertEquals(1, results.size());
