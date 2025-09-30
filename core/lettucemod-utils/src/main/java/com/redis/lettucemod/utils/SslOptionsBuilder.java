@@ -22,7 +22,7 @@ public class SslOptionsBuilder {
 
     private File trustedCerts;
 
-    public SslOptions build() {
+    public SslOptions.Builder build() {
         SslOptions.Builder ssl = SslOptions.builder();
         if (key != null) {
             ssl.keyManager(keyCert, key, keyPassword);
@@ -36,7 +36,7 @@ public class SslOptionsBuilder {
         if (trustedCerts != null) {
             ssl.trustManager(trustedCerts);
         }
-        return ssl.build();
+        return ssl;
     }
 
     public SslOptionsBuilder keystore(File keystore) {
