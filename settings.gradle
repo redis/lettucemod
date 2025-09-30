@@ -8,7 +8,7 @@ buildscript {
         classpath "org.kordamp.gradle:java-project-gradle-plugin:$kordampPluginVersion"
         classpath "org.kordamp.gradle:jacoco-gradle-plugin:$kordampPluginVersion"
         classpath "org.kordamp.gradle:kordamp-parentbuild:$kordampBuildVersion"
-        classpath "org.springframework.boot:spring-boot-gradle-plugin:$bootPluginVersion"
+        classpath "org.springframework.boot:spring-boot-gradle-plugin:$springBootVersion"
         classpath "io.spring.gradle:dependency-management-plugin:$dependencyPluginVersion"
     }
 }
@@ -29,8 +29,6 @@ projects {
         }
         dirs(['core', 'samples']) {
             id 'java-library'
-            id 'org.springframework.boot'
-            id 'io.spring.dependency-management'
         }
     }
 }
@@ -38,5 +36,29 @@ projects {
 enforce {
     rule(enforcer.rules.EnforceBytecodeVersion) { r ->
         r.enabled = false
+    }
+    rule(enforcer.rules.BanDuplicateClasses) { r ->
+        r.enabled = false
+    }
+    rule(enforcer.rules.ForceDependencies) { r ->
+        r.dependencies.addAll "org.testcontainers:testcontainers:$testcontainersVersion",
+                "org.slf4j:slf4j-api:$slf4jVersion",
+                "com.fasterxml.jackson:jackson-bom:$jacksonVersion",
+                "com.fasterxml.jackson.core:jackson-annotations:$jacksonVersion",
+                "com.fasterxml.jackson.core:jackson-core:$jacksonVersion",
+                "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion",
+                "org.junit.jupiter:junit-jupiter-api:$junitVersion",
+                "org.hamcrest:hamcrest:$hamcrestVersion",
+                "net.minidev:json-smart:$jsonSmartVersion",
+                "io.netty:netty-common:$nettyVersion",
+                "io.netty:netty-handler:$nettyVersion",
+                "io.netty:netty-handler-proxy:$nettyVersion",
+                "io.netty:netty-codec-http:$nettyVersion",
+                "io.netty:netty-codec-http2:$nettyVersion",
+                "io.netty:netty-resolver-dns:$nettyVersion",
+                "io.netty:netty-transport-native-unix-common:$nettyVersion",
+                "io.netty:netty-transport-native-epoll:$nettyVersion",
+                "io.projectreactor:reactor-core:$reactorVersion",
+                "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion"
     }
 }

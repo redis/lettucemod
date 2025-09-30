@@ -1,4 +1,3 @@
 dependencies {
     implementation(project(':lettucemod'))
-    testImplementation 'org.slf4j:slf4j-simple'
 }

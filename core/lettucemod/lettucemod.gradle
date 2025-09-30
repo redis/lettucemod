@@ -1,12 +1,5 @@
 dependencies {
-    api 'io.lettuce:lettuce-core'
-    testImplementation 'org.apache.commons:commons-pool2'
-    testImplementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-csv'
-    testImplementation 'org.slf4j:slf4j-simple'
-}
-
-eclipse {
-    project {
-        name = 'lettucemod-core'
-    }
+    api group: 'io.lettuce', name: 'lettuce-core', version: lettuceVersion
+    testImplementation group: 'org.apache.commons', name: 'commons-pool2', version: commonsPool2Version
+    testImplementation group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-csv', version: jacksonVersion
 }
