@@ -11,3 +11,9 @@ dependencies {
 bootJar {
 	enabled = true
 }
+
+config {
+	publishing {
+		enabled = false
+	}
+}
