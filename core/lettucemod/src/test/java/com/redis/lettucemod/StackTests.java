@@ -1,25 +1,6 @@
 package com.redis.lettucemod;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-import org.testcontainers.utility.DockerImageName;
-
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
-import com.redis.lettucemod.api.reactive.RedisModulesReactiveCommands;
-import com.redis.lettucemod.search.Suggestion;
-import com.redis.lettucemod.search.SuggetOptions;
 import com.redis.lettucemod.timeseries.CreateOptions;
 import com.redis.lettucemod.timeseries.DuplicatePolicy;
 import com.redis.lettucemod.timeseries.GetResult;
@@ -29,12 +10,23 @@ import com.redis.lettucemod.timeseries.Sample;
 import com.redis.lettucemod.timeseries.TimeRange;
 import com.redis.testcontainers.RedisServer;
 import com.redis.testcontainers.RedisStackContainer;
-
 import io.lettuce.core.AclSetuserArgs;
 import io.lettuce.core.KeyValue;
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.codec.StringCodec;
 import io.lettuce.core.resource.DefaultClientResources;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.testcontainers.utility.DockerImageName;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class StackTests extends ModulesTests {
 
@@ -207,58 +199,6 @@ class StackTests extends ModulesTests {
         resources.shutdown();
     }
 
-    @Test
-    void sugaddIncr() {
-        String key = "testSugadd";
-        commands.ftSugadd(key, Suggestion.of("value1", 1));
-        commands.ftSugaddIncr(key, Suggestion.of("value1", 1));
-        List<Suggestion<String>> suggestions = commands.ftSugget(key, "value",
-                SuggetOptions.builder().withScores(true).build());
-        assertEquals(1, suggestions.size());
-        assertEquals(1.4142135381698608, suggestions.get(0).getScore());
-    }
 
-    @Test
-    void sugaddPayload() {
-        String key = "testSugadd";
-        commands.ftSugadd(key, Suggestion.string("value1").score(1).payload("somepayload").build());
-        List<Suggestion<String>> suggestions = commands.ftSugget(key, "value",
-                SuggetOptions.builder().withPayloads(true).build());
-        assertEquals(1, suggestions.size());
-        assertEquals("somepayload", suggestions.get(0).getPayload());
-    }
-
-    @Test
-    void sugaddScorePayload() throws InterruptedException {
-        String key = "testSugadd";
-        commands.ftSugadd(key, Suggestion.string("value1").score(2).payload("somepayload").build());
-        List<Suggestion<String>> suggestions = commands.ftSugget(key, "value",
-                SuggetOptions.builder().withScores(true).withPayloads(true).build());
-        assertEquals(1, suggestions.size());
-        assertEquals(1.4142135381698608, suggestions.get(0).getScore());
-        assertEquals("somepayload", suggestions.get(0).getPayload());
-    }
-
-    @Test
-    void sugget() throws IOException, InterruptedException {
-        createBeerSuggestions();
-        RedisModulesReactiveCommands<String, String> reactive = connection.reactive();
-        assertEquals(1, commands.ftSugget(SUGINDEX, "Ame").size());
-        assertEquals(1, reactive.ftSugget(SUGINDEX, "Ame").collectList().block().size());
-        SuggetOptions options = SuggetOptions.builder().max(1000L).build();
-        assertEquals(1, commands.ftSugget(SUGINDEX, "Ame", options).size());
-        assertEquals(1, reactive.ftSugget(SUGINDEX, "Ame", options).collectList().block().size());
-        Consumer<List<Suggestion<String>>> withScores = results -> {
-            assertEquals(1, results.size());
-            assertEquals("American Pale Ale", results.get(0).getString());
-            assertEquals(0.2773500978946686, results.get(0).getScore(), .01);
-        };
-        SuggetOptions withScoresOptions = SuggetOptions.builder().max(1000L).withScores(true).build();
-        withScores.accept(commands.ftSugget(SUGINDEX, "Ameri", withScoresOptions));
-        withScores.accept(reactive.ftSugget(SUGINDEX, "Ameri", withScoresOptions).collectList().block());
-        assertEquals(410, commands.ftSuglen(SUGINDEX));
-        assertTrue(commands.ftSugdel(SUGINDEX, "American Pale Ale"));
-        assertFalse(reactive.ftSugdel(SUGINDEX, "Thunderstorm").block());
-    }
 
 }

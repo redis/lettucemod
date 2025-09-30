@@ -3,6 +3,7 @@ package com.redis.lettucemod;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -11,12 +12,14 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
-import com.redis.lettucemod.search.CreateOptions;
-import com.redis.lettucemod.search.Field;
-import com.redis.lettucemod.search.TextField.PhoneticMatcher;
 
 import io.lettuce.core.LettuceFutures;
 import io.lettuce.core.RedisFuture;
+import io.lettuce.core.search.arguments.CreateArgs;
+import io.lettuce.core.search.arguments.FieldArgs;
+import io.lettuce.core.search.arguments.NumericFieldArgs;
+import io.lettuce.core.search.arguments.TagFieldArgs;
+import io.lettuce.core.search.arguments.TextFieldArgs;
 
 public class Beers {
 
@@ -42,33 +45,33 @@ public class Beers {
 
     public static final String BREWERY = "brewery_id";
 
-    private static final Field<String> FIELD_ID = Field.tag(ID).sortable().build();
+    private static final FieldArgs<String> FIELD_ID = TagFieldArgs.<String> builder().name(ID).sortable().build();
 
-    private static final Field<String> FIELD_BREWERY = Field.tag(BREWERY).sortable().build();
+    private static final FieldArgs<String> FIELD_BREWERY = TagFieldArgs.<String> builder().name(BREWERY).sortable().build();
 
-    private static final Field<String> FIELD_NAME = Field.text(NAME).sortable().build();
+    private static final FieldArgs<String> FIELD_NAME = TextFieldArgs.<String> builder().name(NAME).sortable().build();
 
-    private static final Field<String> FIELD_ABV = Field.numeric(ABV).sortable().build();
+    private static final FieldArgs<String> FIELD_ABV = NumericFieldArgs.<String> builder().name(ABV).sortable().build();
 
-    private static final Field<String> FIELD_IBU = Field.numeric(IBU).sortable().build();
+    private static final FieldArgs<String> FIELD_IBU = NumericFieldArgs.<String> builder().name(IBU).sortable().build();
 
-    private static final Field<String> FIELD_DESCRIPTION = Field.text(DESCRIPTION).matcher(PhoneticMatcher.ENGLISH).noStem()
+    private static final FieldArgs<String> FIELD_DESCRIPTION = TextFieldArgs.<String> builder().name(DESCRIPTION)
+            .phonetic(TextFieldArgs.PhoneticMatcher.ENGLISH).noStem().build();
+
+    private static final FieldArgs<String> FIELD_STYLE_NAME = TagFieldArgs.<String> builder().name(STYLE).sortable().build();
+
+    private static final FieldArgs<String> FIELD_CATEGORY_NAME = TagFieldArgs.<String> builder().name(CATEGORY).sortable()
             .build();
 
-    private static final Field<String> FIELD_STYLE_NAME = Field.tag(STYLE).sortable().build();
-
-    private static final Field<String> FIELD_CATEGORY_NAME = Field.tag(CATEGORY).sortable().build();
-
-    @SuppressWarnings("unchecked")
-    private static final Field<String>[] SCHEMA = new Field[] { FIELD_ID, FIELD_NAME, FIELD_STYLE_NAME, FIELD_CATEGORY_NAME,
-            FIELD_BREWERY, FIELD_DESCRIPTION, FIELD_ABV, FIELD_IBU };
+    private static final List<FieldArgs<String>> SCHEMA = Arrays.asList(FIELD_ID, FIELD_NAME, FIELD_STYLE_NAME,
+            FIELD_CATEGORY_NAME, FIELD_BREWERY, FIELD_DESCRIPTION, FIELD_ABV, FIELD_IBU);
 
     private static final String file = "beers.json";
 
     private static final ObjectMapper mapper = new ObjectMapper();
 
     public static void createIndex(StatefulRedisModulesConnection<String, String> connection) {
-        CreateOptions<String, String> options = CreateOptions.<String, String> builder().prefix(PREFIX).payloadField(PAYLOAD)
+        CreateArgs<String, String> options = CreateArgs.<String, String> builder().withPrefix(PREFIX).payloadField(PAYLOAD)
                 .build();
         connection.sync().ftCreate(INDEX, options, SCHEMA);
     }

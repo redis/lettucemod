@@ -1,25 +1,19 @@
 package com.redis.lettucemod.spring;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.util.List;
-
-import org.junit.jupiter.api.Assertions;
+import com.redis.lettucemod.RedisModulesClient;
+import com.redis.lettucemod.api.StatefulRedisModulesConnection;
+import com.redis.lettucemod.cluster.RedisModulesClusterClient;
+import com.redis.lettucemod.utils.ConnectionBuilder;
+import com.redis.testcontainers.RedisStackContainer;
+import io.lettuce.core.AbstractRedisClient;
+import io.lettuce.core.resource.ClientResources;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-import com.redis.lettucemod.RedisModulesClient;
-import com.redis.lettucemod.api.StatefulRedisModulesConnection;
-import com.redis.lettucemod.cluster.RedisModulesClusterClient;
-import com.redis.lettucemod.search.Suggestion;
-import com.redis.lettucemod.utils.ConnectionBuilder;
-import com.redis.testcontainers.RedisStackContainer;
-
-import io.lettuce.core.AbstractRedisClient;
-import io.lettuce.core.resource.ClientResources;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Integration tests for {@link RedisModulesAutoConfiguration}.
@@ -50,11 +44,6 @@ class AutoConfigurationTests {
             assertThat(context).hasSingleBean(ClientResources.class);
             AbstractRedisClient client = context.getBean(AbstractRedisClient.class);
             StatefulRedisModulesConnection<String, String> connection = ConnectionBuilder.client(client).connection();
-            String key = "suggestIdx";
-            connection.sync().ftSugadd(key, Suggestion.of("rome", 1));
-            connection.sync().ftSugadd(key, Suggestion.of("romarin", 1));
-            List<Suggestion<String>> suggestions = connection.sync().ftSugget(key, "rom");
-            Assertions.assertEquals(2, suggestions.size());
         });
     }
 

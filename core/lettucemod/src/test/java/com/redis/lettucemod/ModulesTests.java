@@ -1,117 +1,32 @@
 package com.redis.lettucemod;
 
-import static com.redis.lettucemod.Beers.ABV;
-import static com.redis.lettucemod.Beers.DESCRIPTION;
-import static com.redis.lettucemod.Beers.IBU;
-import static com.redis.lettucemod.Beers.ID;
-import static com.redis.lettucemod.Beers.INDEX;
-import static com.redis.lettucemod.Beers.NAME;
-import static com.redis.lettucemod.Beers.PREFIX;
-import static com.redis.lettucemod.Beers.STYLE;
-import static com.redis.lettucemod.Beers.jsonNodeIterator;
-import static com.redis.lettucemod.Beers.mapIterator;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.io.IOException;
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ExecutionException;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-
-import org.awaitility.Awaitility;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Assumptions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
-import org.junit.jupiter.api.TestInstance.Lifecycle;
-import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.lifecycle.Startable;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
-import com.redis.lettucemod.api.async.RedisModulesAsyncCommands;
 import com.redis.lettucemod.api.reactive.RedisBloomReactiveCommands;
-import com.redis.lettucemod.api.reactive.RedisModulesReactiveCommands;
 import com.redis.lettucemod.api.sync.RedisBloomCommands;
 import com.redis.lettucemod.api.sync.RedisModulesCommands;
 import com.redis.lettucemod.api.sync.RedisTimeSeriesCommands;
-import com.redis.lettucemod.bloom.BloomFilterInfo;
-import com.redis.lettucemod.bloom.BloomFilterInfoType;
-import com.redis.lettucemod.bloom.BloomFilterInsertOptions;
-import com.redis.lettucemod.bloom.CmsInfo;
-import com.redis.lettucemod.bloom.CuckooFilter;
-import com.redis.lettucemod.bloom.CuckooFilterInsertOptions;
-import com.redis.lettucemod.bloom.LongScoredValue;
-import com.redis.lettucemod.bloom.TDigestInfo;
-import com.redis.lettucemod.bloom.TopKInfo;
+import com.redis.lettucemod.bloom.*;
 import com.redis.lettucemod.cluster.RedisModulesClusterClient;
-import com.redis.lettucemod.protocol.SearchCommandKeyword;
-import com.redis.lettucemod.search.AggregateOptions;
-import com.redis.lettucemod.search.AggregateOptions.Load;
-import com.redis.lettucemod.search.AggregateResults;
-import com.redis.lettucemod.search.AggregateWithCursorResults;
-import com.redis.lettucemod.search.CreateOptions;
-import com.redis.lettucemod.search.CreateOptions.DataType;
-import com.redis.lettucemod.search.CursorOptions;
-import com.redis.lettucemod.search.Document;
-import com.redis.lettucemod.search.Field;
-import com.redis.lettucemod.search.GeoLocation;
-import com.redis.lettucemod.search.Group;
-import com.redis.lettucemod.search.IndexInfo;
-import com.redis.lettucemod.search.Language;
-import com.redis.lettucemod.search.Limit;
-import com.redis.lettucemod.search.Reducers.Avg;
-import com.redis.lettucemod.search.Reducers.Count;
-import com.redis.lettucemod.search.Reducers.Max;
-import com.redis.lettucemod.search.Reducers.ToList;
-import com.redis.lettucemod.search.SearchOptions;
-import com.redis.lettucemod.search.SearchOptions.Highlight;
-import com.redis.lettucemod.search.SearchOptions.Highlight.Tags;
-import com.redis.lettucemod.search.SearchResults;
-import com.redis.lettucemod.search.Sort;
-import com.redis.lettucemod.search.Sort.Property;
-import com.redis.lettucemod.search.Suggestion;
-import com.redis.lettucemod.search.TagField;
-import com.redis.lettucemod.search.TextField;
-import com.redis.lettucemod.search.VectorField;
-import com.redis.lettucemod.timeseries.AddOptions;
-import com.redis.lettucemod.timeseries.Aggregation;
-import com.redis.lettucemod.timeseries.Aggregator;
-import com.redis.lettucemod.timeseries.RangeOptions;
-import com.redis.lettucemod.timeseries.Sample;
-import com.redis.lettucemod.timeseries.TimeRange;
+import com.redis.lettucemod.search.*;
+import com.redis.lettucemod.timeseries.*;
 import com.redis.testcontainers.RedisServer;
-
-import io.lettuce.core.AbstractRedisClient;
-import io.lettuce.core.KeyValue;
-import io.lettuce.core.LettuceFutures;
-import io.lettuce.core.RedisCommandExecutionException;
-import io.lettuce.core.RedisFuture;
-import io.lettuce.core.RedisURI;
-import io.lettuce.core.Value;
-import io.lettuce.core.json.JsonPath;
+import io.lettuce.core.*;
+import io.lettuce.core.search.arguments.*;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.lifecycle.Startable;
 import reactor.core.publisher.Mono;
+
+import java.io.IOException;
+import java.time.Duration;
+import java.util.*;
+
+import static com.redis.lettucemod.Beers.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 @Testcontainers
 @TestInstance(Lifecycle.PER_CLASS)
@@ -212,23 +127,6 @@ abstract class ModulesTests {
         return commands.ping();
     }
 
-    protected void createBeerSuggestions() throws IOException, InterruptedException {
-        MappingIterator<Map<String, Object>> beers = mapIterator();
-        try {
-            asyncConnection.setAutoFlushCommands(false);
-            List<RedisFuture<?>> futures = new ArrayList<>();
-            RedisModulesAsyncCommands<String, String> async = asyncConnection.async();
-            while (beers.hasNext()) {
-                Map<String, Object> beer = beers.next();
-                futures.add(async.ftSugadd(SUGINDEX, Suggestion.string((String) beer.get(NAME)).score(1).build()));
-            }
-            asyncConnection.flushCommands();
-            LettuceFutures.awaitAll(RedisURI.DEFAULT_TIMEOUT_DURATION, futures.toArray(new RedisFuture[0]));
-        } finally {
-            asyncConnection.setAutoFlushCommands(true);
-        }
-    }
-
     @Test
     void ftInfoInexistentIndex() {
         Assertions.assertThrows(RedisCommandExecutionException.class, () -> commands.ftInfo("sdfsdfs"), "Unknown Index name");
@@ -236,539 +134,6 @@ abstract class ModulesTests {
 
     private int populateIndex() throws IOException {
         return Beers.populateIndex(asyncConnection);
-    }
-
-    @Test
-    @SuppressWarnings("unchecked")
-    void ftCreate() throws Exception {
-        String index = "releases";
-        int count = populateIndex();
-        assertEquals(count, indexInfo(INDEX).getNumDocs());
-        CreateOptions<String, String> options = CreateOptions.<String, String> builder().prefix("release:").payloadField("xml")
-                .build();
-        List<Field<String>> fields = Arrays.asList(Field.text("artist").sortable().build(), Field.tag("id").sortable().build(),
-                Field.text("title").sortable().build());
-        commands.ftCreate(index, options, fields.toArray(Field[]::new));
-        IndexInfo indexInfo = indexInfo(index);
-        assertEquals(fields.size(), indexInfo.getFields().size());
-    }
-
-    @Test
-    @SuppressWarnings("unchecked")
-    void ftCreateVector() throws Exception {
-        populateIndex();
-        String vectorIndex = "vectorTestIndex";
-        commands.ftCreate(vectorIndex, CreateOptions.<String, String> builder().prefix("vectortest:").build(),
-                VectorField.name("fields1").algorithm(SearchCommandKeyword.FLAT).vectorType(SearchCommandKeyword.FLOAT32)
-                        .distanceMetric(SearchCommandKeyword.COSINE).dim(5).build());
-
-        assertEquals(vectorIndex, indexInfo(vectorIndex).getIndexName());
-    }
-
-    @SuppressWarnings("unchecked")
-    @Test
-    void ftCreateTemporaryIndex() throws Exception {
-        populateIndex();
-        String tempIndex = "temporaryIndex";
-        commands.ftCreate(tempIndex, CreateOptions.<String, String> builder().temporary(1L).build(),
-                Field.text("field1").build());
-        assertEquals(tempIndex, indexInfo(tempIndex).getIndexName());
-        Awaitility.await().until(() -> !commands.ftList().contains(tempIndex));
-    }
-
-    @Test
-    void ftAlterIndex() throws Exception {
-        populateIndex();
-        Map<String, Object> indexInfo = toMap(commands.ftInfo(INDEX));
-        assertEquals(INDEX, indexInfo.get("index_name"));
-        commands.ftAlter(INDEX, Field.tag("newField").build());
-        Map<String, String> doc = mapOf("newField", "value1");
-        commands.hmset("beer:newDoc", doc);
-        SearchResults<String, String> results = commands.ftSearch(INDEX, "@newField:{value1}");
-        assertEquals(1, results.getCount());
-        assertEquals(doc.get("newField"), results.get(0).get("newField"));
-    }
-
-    @Test
-    void ftDropindexDeleteDocs() throws Exception {
-        populateIndex();
-        commands.ftDropindexDeleteDocs(INDEX);
-        Awaitility.await().until(() -> commands.ftList().isEmpty());
-        Assertions.assertThrows(RedisCommandExecutionException.class, () -> commands.ftInfo(INDEX));
-    }
-
-    private Map<String, Object> toMap(List<Object> indexInfo) {
-        Map<String, Object> map = new HashMap<>();
-        Iterator<Object> iterator = indexInfo.iterator();
-        while (iterator.hasNext()) {
-            String key = (String) iterator.next();
-            map.put(key, iterator.next());
-        }
-        return map;
-    }
-
-    @SuppressWarnings("unchecked")
-    @Test
-    void ftList() throws ExecutionException, InterruptedException {
-        commands.flushall();
-        Set<String> indexNames = new HashSet<>(Arrays.asList("index1", "index2", "index3"));
-        for (String indexName : indexNames) {
-            commands.ftCreate(indexName, Field.text("field1").sortable().build());
-        }
-        assertEquals(indexNames, new HashSet<>(commands.ftList()));
-        assertEquals(indexNames, new HashSet<>(connection.async().ftList().get()));
-        assertEquals(indexNames, new HashSet<>(connection.reactive().ftList().collectList().block()));
-    }
-
-    @Test
-    void ftSearchOptions() throws IOException {
-        populateIndex();
-        SearchOptions<String, String> options = SearchOptions.<String, String> builder().withPayloads(true).noStopWords(true)
-                .limit(10, 100).withScores(true)
-                .highlight(Highlight.<String, String> builder().field(NAME).tags("<TAG>", "</TAG>").build())
-                .language(Language.ENGLISH).noContent(false).timeout(Duration.ofSeconds(10)).param("param1", "value").dialect(2)
-                .sortBy(SearchOptions.SortBy.asc(NAME)).verbatim(false).withSortKeys().returnField(NAME).returnField(STYLE)
-                .build();
-        SearchResults<String, String> results = commands.ftSearch(INDEX, "pale", options);
-        assertEquals(74, results.getCount());
-        Document<String, String> doc1 = results.get(0);
-        assertNotNull(doc1.get(NAME));
-        assertNotNull(doc1.get(STYLE));
-        assertEquals(doc1.get(DESCRIPTION), doc1.getPayload());
-        assertNull(abv(doc1));
-    }
-
-    @Test
-    void ftSearchStringOptions() throws IOException {
-        populateIndex();
-        String options = "withpayloads limit 0 10 WITHSCORES nostopwords";
-        SearchResults<String, String> results = commands.ftSearch(INDEX, "pale", options.split(" "));
-        assertEquals(74, results.getCount());
-        Document<String, String> doc1 = results.get(0);
-        assertNotNull(doc1.get(NAME));
-        assertNotNull(doc1.get(STYLE));
-        assertEquals(doc1.get(DESCRIPTION), doc1.getPayload());
-    }
-
-    private void assertSearch(String query, SearchOptions<String, String> options, long expectedCount, String... expectedAbv) {
-        SearchResults<String, String> results = commands.ftSearch(INDEX, query, options);
-        assertEquals(expectedCount, results.getCount());
-        Document<String, String> doc1 = results.get(0);
-        assertNotNull(doc1.get(NAME));
-        assertNotNull(doc1.get(STYLE));
-        if (expectedAbv.length > 0) {
-            assertTrue(Arrays.asList(expectedAbv).contains(doc1.get(ABV)));
-        }
-    }
-
-    @Test
-    void ftSearch() throws Exception {
-        populateIndex();
-        SearchResults<String, String> results = commands.ftSearch(INDEX, "German");
-        assertEquals(3, results.getCount());
-        results = commands.ftSearch(INDEX, "Hefeweizen", SearchOptions.<String, String> builder().noContent(true).build());
-        assertEquals(10, results.size());
-        assertTrue(results.get(0).getId().startsWith("beer:"));
-        results = commands.ftSearch(INDEX, "Hefeweizen", SearchOptions.<String, String> builder().withScores(true).build());
-        assertEquals(10, results.size());
-        assertTrue(results.get(0).getScore() > 0);
-        results = commands.ftSearch(INDEX, "Hefeweizen",
-                SearchOptions.<String, String> builder().withScores(true).noContent(true).limit(new Limit(0, 100)).build());
-        assertEquals(14, results.getCount());
-        assertEquals(14, results.size());
-        assertTrue(results.get(0).getId().startsWith(PREFIX));
-        assertTrue(results.get(0).getScore() > 0);
-
-        results = commands.ftSearch(INDEX, "pale", SearchOptions.<String, String> builder().withPayloads(true).build());
-        assertEquals(74, results.getCount());
-        Document<String, String> result1 = results.get(0);
-        assertNotNull(result1.get(NAME));
-        assertEquals(result1.get(DESCRIPTION), result1.getPayload());
-        assertEquals(commands.hget(result1.getId(), DESCRIPTION), result1.getPayload());
-
-        assertSearch("pale", SearchOptions.<String, String> builder().returnField(NAME).returnField(STYLE).build(), 74);
-        assertSearch("pale",
-                SearchOptions.<String, String> builder().returnField(NAME).returnField(STYLE).returnField("").build(), 74);
-        assertSearch("*", SearchOptions.<String, String> builder().inKeys("beer:728", "beer:803").build(), 2,
-                "5.800000190734863", "8");
-        assertSearch("wise", SearchOptions.<String, String> builder().inField(NAME).build(), 1, "5.900000095367432");
-    }
-
-    @SuppressWarnings("unchecked")
-    @Test
-    void ftSearchTags() throws InterruptedException, ExecutionException, IOException {
-        int count = populateIndex();
-        String term = "pale";
-        String query = "@style:" + term;
-        Tags<String> tags = new Tags<>("<b>", "</b>");
-        SearchResults<String, String> results = commands.ftSearch(INDEX, query,
-                SearchOptions.<String, String> builder().highlight(SearchOptions.Highlight.<String, String> builder().build())
-                        .build());
-        for (Document<String, String> result : results) {
-            assertTrue(isHighlighted(result, STYLE, tags, term));
-        }
-        results = commands.ftSearch(INDEX, query, SearchOptions.<String, String> builder()
-                .highlight(SearchOptions.Highlight.<String, String> builder().field(NAME).build()).build());
-        for (Document<String, String> result : results) {
-            assertFalse(isHighlighted(result, STYLE, tags, term));
-        }
-        tags = new Tags<>("[start]", "[end]");
-        results = commands.ftSearch(INDEX, query, SearchOptions.<String, String> builder()
-                .highlight(SearchOptions.Highlight.<String, String> builder().field(STYLE).tags(tags).build()).build());
-        for (Document<String, String> result : results) {
-            assertTrue(isHighlighted(result, STYLE, tags, term));
-        }
-
-        results = connection.reactive()
-                .ftSearch(INDEX, "pale", SearchOptions.<String, String> builder().limit(Limit.offset(10).num(20)).build())
-                .block();
-        assertEquals(74, results.getCount());
-        Document<String, String> result1 = results.get(0);
-        assertNotNull(result1.get(NAME));
-        assertNotNull(result1.get(STYLE));
-        assertNotNull(abv(result1));
-
-        results = commands.ftSearch(INDEX, "pail");
-        assertEquals(17, results.getCount());
-
-        results = commands.ftSearch(INDEX, "*", SearchOptions.<String, String> builder().limit(new Limit(0, 0)).build());
-        assertEquals(count, results.getCount());
-
-        String index = "escapeTagTestIdx";
-        String idField = "id";
-        connection.async().ftCreate(index, Field.tag(idField).build()).get();
-        Map<String, String> doc1 = new HashMap<>();
-        doc1.put(idField, "chris@blah.org,User1#test.org,usersdfl@example.com");
-        connection.async().hmset("doc1", doc1).get();
-        results = connection.async().ftSearch(index, "@id:{" + escapeTag("User1#test.org") + "}").get();
-        assertEquals(1, results.size());
-        double minABV = .18;
-        double maxABV = 10;
-        SearchResults<String, String> filterResults = commands.ftSearch(INDEX, "*", SearchOptions.<String, String> builder()
-                .filter(SearchOptions.NumericFilter.<String, String> field(ABV).min(minABV).max(maxABV)).build());
-        assertEquals(10, filterResults.size());
-        for (Document<String, String> document : filterResults) {
-            Double abv = abv(document);
-            Assertions.assertTrue(abv >= minABV);
-            Assertions.assertTrue(abv <= maxABV);
-        }
-    }
-
-    protected static String escapeTag(String value) {
-        return value.replaceAll("([^a-zA-Z0-9])", "\\\\$1");
-    }
-
-    private boolean isHighlighted(Document<String, String> result, String fieldName, Tags<String> tags, String string) {
-        return result.get(fieldName).toLowerCase().contains(tags.getOpen() + string + tags.getClose());
-    }
-
-    private Map<String, Map<String, Object>> populateBeers() throws IOException {
-        int count = populateIndex();
-        MappingIterator<Map<String, Object>> beers = mapIterator();
-        Map<String, Map<String, Object>> beerMap = new HashMap<>();
-        while (beers.hasNext()) {
-            Map<String, Object> beer = beers.next();
-            beerMap.put((String) beer.get(ID), beer);
-        }
-        Assertions.assertEquals(count, beerMap.size());
-        return beerMap;
-    }
-
-    @Test
-    void ftAggregateLoad() throws Exception {
-        Map<String, Map<String, Object>> beers = populateBeers();
-        Consumer<AggregateResults<String>> loadAsserts = results -> {
-            assertEquals(1, results.getCount());
-            assertEquals(beers.size(), results.size());
-            for (Map<String, Object> result : results) {
-                String id = (String) result.get(ID);
-                Map<String, Object> beer = beers.get(id);
-                assertEquals(((String) beer.get(NAME)).toLowerCase(), ((String) result.get(NAME)).toLowerCase());
-                String style = (String) beer.get("style");
-                if (style != null) {
-                    assertEquals(style.toLowerCase(), ((String) result.get("style")).toLowerCase());
-                }
-            }
-        };
-        RedisModulesReactiveCommands<String, String> reactive = connection.reactive();
-        AggregateOptions<String, String> options = AggregateOptions.<String, String> builder().load(ID)
-                .load(Load.identifier(NAME).build()).load(Load.identifier(STYLE).as("style").build()).build();
-        loadAsserts.accept(commands.ftAggregate(INDEX, "*", options));
-        loadAsserts.accept(reactive.ftAggregate(INDEX, "*", options).block());
-    }
-
-    @Test
-    void ftAggregateGroupSortLimit() throws Exception {
-        populateBeers();
-        Consumer<AggregateResults<String>> asserts = results -> {
-            assertEquals(36, results.getCount());
-            List<Double> abvs = results.stream().map(r -> Double.parseDouble((String) r.get(ABV))).collect(Collectors.toList());
-            assertTrue(abvs.get(0) > abvs.get(abvs.size() - 1));
-            assertEquals(20, results.size());
-        };
-        AggregateOptions<String, String> options = AggregateOptions.<String, String> operation(
-                        Group.by(STYLE).reducer(Avg.property(ABV).as(ABV).build()).build())
-                .operation(Sort.by(Sort.Property.desc(ABV)).build()).operation(Limit.offset(0).num(20)).build();
-        asserts.accept(commands.ftAggregate(INDEX, "*", options));
-        asserts.accept(connection.reactive().ftAggregate(INDEX, "*", options).block());
-    }
-
-    @Test
-    void ftAggregateStringOptions() throws Exception {
-        populateBeers();
-        Consumer<AggregateResults<String>> asserts = results -> {
-            assertEquals(36, results.getCount());
-            List<Double> abvs = results.stream().map(r -> Double.parseDouble((String) r.get(ABV))).collect(Collectors.toList());
-            assertTrue(abvs.get(0) > abvs.get(abvs.size() - 1));
-            assertEquals(20, results.size());
-        };
-        String[] options = "groupby 1 @style_name reduce avg 1 @abv as abv sortby 2 @abv desc limit 0 20".split(" ");
-        asserts.accept(commands.ftAggregate(INDEX, "*", options));
-        asserts.accept(connection.reactive().ftAggregate(INDEX, "*", options).block());
-    }
-
-    @Test
-    void ftAggregateSort() throws Exception {
-        populateBeers();
-        Consumer<AggregateResults<String>> asserts = results -> {
-            assertEquals(467, results.getCount());
-            assertEquals(10, results.size());
-            List<Double> abvs = results.stream().map(this::abv).collect(Collectors.toList());
-            assertTrue(abvs.get(0) > abvs.get(abvs.size() - 1));
-        };
-        AggregateOptions<String, String> options = AggregateOptions.<String, String> operation(
-                Sort.by(Sort.Property.desc(ABV)).by(Property.asc(IBU)).build()).build();
-        asserts.accept(commands.ftAggregate(INDEX, "*", options));
-        asserts.accept(connection.reactive().ftAggregate(INDEX, "*", options).block());
-    }
-
-    private Double abv(Map<String, ?> map) {
-        Object value = map.get(ABV);
-        if (value == null) {
-            return null;
-        }
-        return Double.parseDouble((String) value);
-    }
-
-    @Test
-    void ftAggregateGroupNone() throws Exception {
-        populateBeers();
-        Consumer<AggregateResults<String>> asserts = results -> {
-            assertEquals(1, results.getCount());
-            assertEquals(1, results.size());
-            Double maxAbv = abv(results.get(0));
-            assertEquals(16, maxAbv, 0.1);
-        };
-
-        AggregateOptions<String, String> options = AggregateOptions.<String, String> operation(
-                Group.by().reducer(Max.property(ABV).as(ABV).build()).build()).build();
-        asserts.accept(commands.ftAggregate(INDEX, "*", options));
-        asserts.accept(connection.reactive().ftAggregate(INDEX, "*", options).block());
-
-    }
-
-    @SuppressWarnings("unchecked")
-    @Test
-    void ftAggregateGroupToList() throws Exception {
-        populateBeers();
-        Consumer<AggregateResults<String>> asserts = results -> {
-            assertEquals(36, results.getCount());
-            Map<String, Object> doc = results.get(1);
-            Assumptions.assumeTrue(doc != null);
-            Assumptions.assumeTrue(doc.get(STYLE) != null);
-            String style = ((String) doc.get(STYLE)).toLowerCase();
-            assertTrue(style.equals("bamberg-style bock rauchbier") || style.equals("south german-style hefeweizen"));
-            int nameCount = ((List<String>) results.get(1).get("names")).size();
-            assertEquals(21, nameCount);
-        };
-        Group group = Group.by(STYLE).reducer(ToList.property(NAME).as("names").build()).reducer(Count.as("count")).build();
-        AggregateOptions<String, String> options = AggregateOptions.<String, String> operation(group)
-                .operation(Limit.offset(0).num(2)).build();
-        asserts.accept(commands.ftAggregate(INDEX, "*", options));
-        asserts.accept(connection.reactive().ftAggregate(INDEX, "*", options).block());
-    }
-
-    @Test
-    void ftAggregateCursor() throws Exception {
-        populateBeers();
-        Consumer<AggregateWithCursorResults<String>> cursorTests = cursorResults -> {
-            assertEquals(1, cursorResults.getCount());
-            assertEquals(10, cursorResults.size());
-            assertTrue(((String) cursorResults.get(9).get(ABV)).length() > 0);
-        };
-        AggregateOptions<String, String> cursorOptions = AggregateOptions.<String, String> builder().load(ID).load(NAME)
-                .load(ABV).build();
-        AggregateWithCursorResults<String> cursorResults = commands.ftAggregate(INDEX, "*",
-                CursorOptions.builder().count(10).build(), cursorOptions);
-        cursorTests.accept(cursorResults);
-        cursorTests.accept(
-                connection.reactive().ftAggregate(INDEX, "*", CursorOptions.builder().count(10).build(), cursorOptions)
-                        .block());
-        cursorResults = commands.ftCursorRead(INDEX, cursorResults.getCursor(), 400);
-        assertEquals(400, cursorResults.size());
-        String deleteStatus = commands.ftCursorDelete(INDEX, cursorResults.getCursor());
-        assertEquals("OK", deleteStatus);
-    }
-
-    @Test
-    void ftAlias() throws Exception {
-        populateIndex();
-
-        // SYNC
-
-        String alias = "alias123";
-
-        commands.ftAliasadd(alias, INDEX);
-        SearchResults<String, String> results = commands.ftSearch(alias, "*");
-        assertTrue(results.size() > 0);
-
-        String newAlias = "alias456";
-        commands.ftAliasupdate(newAlias, INDEX);
-        assertTrue(commands.ftSearch(newAlias, "*").size() > 0);
-
-        commands.ftAliasdel(newAlias);
-        Assertions.assertThrows(RedisCommandExecutionException.class, () -> commands.ftSearch(newAlias, "*"), "no such index");
-
-        commands.ftAliasdel(alias);
-        RedisModulesAsyncCommands<String, String> async = connection.async();
-        // ASYNC
-        async.ftAliasadd(alias, INDEX).get();
-        results = async.ftSearch(alias, "*").get();
-        assertTrue(results.size() > 0);
-
-        async.ftAliasupdate(newAlias, INDEX).get();
-        assertTrue(async.ftSearch(newAlias, "*").get().size() > 0);
-
-        async.ftAliasdel(newAlias).get();
-        Assertions.assertThrows(ExecutionException.class, () -> async.ftSearch(newAlias, "*").get(), "no such index");
-
-        commands.ftAliasdel(alias);
-
-        RedisModulesReactiveCommands<String, String> reactive = connection.reactive();
-        // REACTIVE
-        reactive.ftAliasadd(alias, INDEX).block();
-        results = reactive.ftSearch(alias, "*").block();
-        assertTrue(results.size() > 0);
-
-        reactive.ftAliasupdate(newAlias, INDEX).block();
-        results = reactive.ftSearch(newAlias, "*").block();
-        Assertions.assertFalse(results.isEmpty());
-
-        reactive.ftAliasdel(newAlias).block();
-        Mono<SearchResults<String, String>> searchResults = reactive.ftSearch(newAlias, "*");
-        Assertions.assertThrows(RedisCommandExecutionException.class, () -> searchResults.block(), "no such index");
-    }
-
-    @Test
-    void geoLocation() {
-        double longitude = -118.753604;
-        double latitude = 34.027201;
-        String locationString = "-118.753604,34.027201";
-        GeoLocation location = GeoLocation.of(locationString);
-        Assertions.assertEquals(longitude, location.getLongitude());
-        Assertions.assertEquals(latitude, location.getLatitude());
-        Assertions.assertEquals(locationString, GeoLocation.toString(String.valueOf(longitude), String.valueOf(latitude)));
-    }
-
-    @SuppressWarnings("unchecked")
-    @Test
-    void ftSearchJSON() throws Exception {
-        Iterator<JsonNode> iterator = jsonNodeIterator();
-        String index = "beers";
-        TagField<String> idField = Field.tag(jsonField(ID)).as(ID).build();
-        TextField<String> nameField = Field.text(jsonField(NAME)).as(NAME).build();
-        TextField<String> styleField = Field.text(jsonField(STYLE)).build();
-        commands.ftCreate(index, CreateOptions.<String, String> builder().on(DataType.JSON).build(), idField, nameField,
-                styleField);
-        IndexInfo info = indexInfo(index);
-        Assertions.assertEquals(3, info.getFields().size());
-        Assertions.assertEquals(idField.getAs(), info.getFields().get(0).getAs());
-        Assertions.assertEquals(styleField.getName(), info.getFields().get(2).getAs().get());
-
-        while (iterator.hasNext()) {
-            JsonNode beer = iterator.next();
-            commands.jsonSet("beer:" + beer.get(ID).asText(), JsonPath.ROOT_PATH,
-                    commands.getJsonParser().createJsonValue(beer.toString()));
-        }
-        SearchResults<String, String> results = commands.ftSearch(index, "@" + NAME + ":Creek");
-        Assertions.assertEquals(1, results.getCount());
-    }
-
-    @SuppressWarnings("unchecked")
-    @Test
-    void ftSearchJSONWithNullValues() throws Exception {
-        String index = "accounts";
-        TagField<String> idField = Field.tag(jsonField(ID)).as(ID).build();
-        TagField<String> nameField = Field.tag(jsonField(NAME)).as(NAME).build();
-        TagField<String> styleField = Field.tag(jsonField(STYLE)).as(STYLE).build();
-        commands.ftCreate(index, CreateOptions.<String, String> builder().on(DataType.JSON).prefix("account:").build(), idField,
-                nameField, styleField);
-        commands.jsonSet("account:1", JsonPath.ROOT_PATH,
-                commands.getJsonParser().createJsonValue("{\"id\": \"1\", \"name\": null, \"style_name\": \"123\"}"));
-        SearchResults<String, String> results = commands.ftSearch(index, "*",
-                SearchOptions.<String, String> builder().returnFields("id", "name", "style_name").build());
-        Assertions.assertEquals(1, results.getCount());
-    }
-
-    private String jsonField(String name) {
-        return "$." + name;
-    }
-
-    @Test
-    void ftTagVals() throws Exception {
-        populateIndex();
-        Set<String> TAG_VALS = new HashSet<>(Arrays.asList(
-                "american-style brown ale, traditional german-style bock, german-style schwarzbier, old ale, american-style india pale ale, german-style oktoberfest, other belgian-style ales, american-style stout, winter warmer, belgian-style tripel, american-style lager, belgian-style dubbel, porter, american-style barley wine ale, belgian-style fruit lambic, scottish-style light ale, south german-style hefeweizen, imperial or double india pale ale, golden or blonde ale, belgian-style quadrupel, american-style imperial stout, belgian-style pale strong ale, english-style pale mild ale, american-style pale ale, irish-style red ale, dark american-belgo-style ale, light american wheat ale or lager, german-style pilsener, american-style amber/red ale, scotch ale, german-style doppelbock, extra special bitter, south german-style weizenbock, english-style india pale ale, belgian-style pale ale, french & belgian-style saison".split(
-                        ", ")));
-        HashSet<String> actual = new HashSet<>(commands.ftTagvals(INDEX, STYLE));
-        assertEquals(TAG_VALS, actual);
-        assertEquals(TAG_VALS, new HashSet<>(connection.reactive().ftTagvals(INDEX, STYLE).collectList().block()));
-    }
-
-    @SuppressWarnings("unchecked")
-    @Test
-    void ftAggregateEmptyToListReducer() {
-
-        // FT.CREATE idx ON HASH PREFIX 1 my_prefix: SCHEMA category TAG SORTABLE color
-        // TAG SORTABLE size TAG SORTABLE
-        commands.ftCreate("idx", CreateOptions.<String, String> builder().prefix("my_prefix:").build(),
-                Field.tag("category").sortable().build(), Field.tag("color").sortable().build(),
-                Field.tag("size").sortable().build());
-        Map<String, String> doc1 = mapOf("category", "31", "color", "red");
-        commands.hset("my_prefix:1", doc1);
-        AggregateOptions<String, String> aggregateOptions = AggregateOptions.<String, String> operation(Group.by("category")
-                        .reducers(ToList.property("color").as("color").build(), ToList.property("size").as("size").build()).build())
-                .build();
-        AggregateResults<String> results = commands.ftAggregate("idx", "@color:{red|blue}", aggregateOptions);
-        assertEquals(1, results.size());
-        Map<String, Object> expectedResult = new HashMap<>();
-        expectedResult.put("category", "31");
-        expectedResult.put("color", Collections.singletonList("red"));
-        expectedResult.put("size", Collections.emptyList());
-        assertEquals(expectedResult, results.get(0));
-    }
-
-    @Test
-    void ftDictadd() {
-        String[] DICT_TERMS = new String[] { "beer", "ale", "brew", "brewski" };
-
-        assertEquals(DICT_TERMS.length, commands.ftDictadd("beers", DICT_TERMS));
-        assertEquals(new HashSet<>(Arrays.asList(DICT_TERMS)), new HashSet<>(commands.ftDictdump("beers")));
-        assertEquals(1, commands.ftDictdel("beers", "brew"));
-        List<String> beerDict = new ArrayList<>();
-        Collections.addAll(beerDict, DICT_TERMS);
-        beerDict.remove("brew");
-        assertEquals(new HashSet<>(beerDict), new HashSet<>(commands.ftDictdump("beers")));
-        commands.flushall();
-        RedisModulesReactiveCommands<String, String> reactive = connection.reactive();
-        assertEquals(DICT_TERMS.length, reactive.ftDictadd("beers", DICT_TERMS).block());
-        assertEquals(new HashSet<>(Arrays.asList(DICT_TERMS)),
-                new HashSet<>(reactive.ftDictdump("beers").collectList().block()));
-        assertEquals(1, reactive.ftDictdel("beers", "brew").block());
-        beerDict = new ArrayList<>();
-        Collections.addAll(beerDict, DICT_TERMS);
-        beerDict.remove("brew");
-        assertEquals(new HashSet<>(beerDict), new HashSet<>(reactive.ftDictdump("beers").collectList().block()));
     }
 
     @SuppressWarnings("unchecked")
@@ -1278,55 +643,84 @@ abstract class ModulesTests {
         int count = populateIndex();
         IndexInfo info = indexInfo(INDEX);
         assertEquals(count, info.getNumDocs());
-        List<Field<String>> fields = info.getFields();
-        TextField<String> descriptionField = (TextField<String>) fields.get(5);
+        List<FieldArgs<String>> fields = info.getFields();
+        TextFieldArgs<String> descriptionField = (TextFieldArgs<String>) fields.get(5);
         assertEquals(DESCRIPTION, descriptionField.getName());
         Assertions.assertFalse(descriptionField.isNoIndex());
         Assertions.assertTrue(descriptionField.isNoStem());
         Assertions.assertFalse(descriptionField.isSortable());
-        TagField<String> styleField = (TagField<String>) fields.get(2);
+        TagFieldArgs<String> styleField = (TagFieldArgs<String>) fields.get(2);
         assertEquals(STYLE, styleField.getName());
         Assertions.assertTrue(styleField.isSortable());
-        assertEquals(',', styleField.getSeparator().get());
+        assertTrue(styleField.getSeparator().isPresent());
+        assertEquals(",", styleField.getSeparator().get());
     }
 
-    @SuppressWarnings("unchecked")
+    private String jsonField(String name) {
+        return "$." + name;
+    }
+
     @Test
     void ftInfoFields() {
         String index = "indexFields";
-        TagField<String> idField = Field.tag(jsonField(ID)).as(ID).separator('-').build();
-        TextField<String> nameField = Field.text(jsonField(NAME)).as(NAME).noIndex().noStem().unNormalizedForm().weight(2)
-                .build();
+        TagFieldArgs<String> idField = TagFieldArgs.<String> builder().name(jsonField(ID)).as(ID).separator("-").build();
+        TextFieldArgs<String> nameField = TextFieldArgs.<String> builder().name(jsonField(NAME)).as(NAME).noIndex().noStem()
+                .unNormalizedForm().weight(2).build();
         String styleFieldName = jsonField(STYLE);
-        TextField<String> styleField = Field.text(styleFieldName).as(styleFieldName).weight(1).build();
-        commands.ftCreate(index, CreateOptions.<String, String> builder().on(DataType.JSON).build(), idField, nameField,
-                styleField);
+        TextFieldArgs<String> styleField = TextFieldArgs.<String> builder().name(styleFieldName).as(styleFieldName).weight(1)
+                .build();
+        commands.ftCreate(index, CreateArgs.<String, String> builder().on(CreateArgs.TargetType.JSON).build(),
+                Arrays.asList(idField, nameField, styleField));
         IndexInfo info = indexInfo(index);
-        Assertions.assertEquals(idField, info.getFields().get(0));
-        Field<String> actualNameField = info.getFields().get(1);
+        assertFieldEquals(idField, info.getFields().get(0));
+        FieldArgs<String> actualNameField = info.getFields().get(1);
         // Workaround for older RediSearch versions (Redis Enterprise tests)
-        actualNameField.setUnNormalizedForm(true);
-        Assertions.assertEquals(nameField, actualNameField);
-        Assertions.assertEquals(styleField, info.getFields().get(2));
+        assertFieldEquals(nameField, actualNameField);
+        assertFieldEquals(styleField, info.getFields().get(2));
+    }
+
+    private void assertFieldEquals(FieldArgs<String> field1, FieldArgs<String> field2) {
+        Assertions.assertEquals(field1.getFieldType(), field2.getFieldType());
+        Assertions.assertEquals(field1.getAs(), field2.getAs());
+        Assertions.assertEquals(field1.getName(), field2.getName());
+        Assertions.assertEquals(field1.isIndexEmpty(), field2.isIndexEmpty());
+        Assertions.assertEquals(field1.isNoIndex(), field2.isNoIndex());
+        Assertions.assertEquals(field1.isSortable(), field2.isSortable());
+        Assertions.assertEquals(field1.isUnNormalizedForm(), field2.isUnNormalizedForm());
+        if (field1 instanceof TextFieldArgs<String>) {
+            TextFieldArgs<String> textField1 = (TextFieldArgs<String>) field1;
+            TextFieldArgs<String> textField2 = (TextFieldArgs<String>) field2;
+            Assertions.assertEquals(textField1.getWeight(), textField2.getWeight());
+            Assertions.assertEquals(textField1.isNoStem(), textField2.isNoStem());
+            Assertions.assertEquals(textField1.getPhonetic(), textField2.getPhonetic());
+        }
     }
 
     private IndexInfo indexInfo(String index) {
         return IndexInfo.parse(commands.ftInfo(index));
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     void ftInfoOptions() {
         String index = "indexWithOptions";
-        CreateOptions<String, String> createOptions = CreateOptions.<String, String> builder().on(DataType.JSON)
-                .prefixes("prefix1", "prefix2").filter("@indexName==\"myindexname\"").defaultLanguage(Language.CHINESE)
-                .languageField("languageField").defaultScore(.5).scoreField("scoreField").payloadField("payloadField")
-                .maxTextFields(true).noOffsets(true).noHL(true).noFields(true).noFreqs(true).build();
-        commands.ftCreate(index, createOptions, Field.tag("id").build(), Field.numeric("scoreField").build());
+        CreateArgs<String, String> createArgs = CreateArgs.<String, String> builder().on(CreateArgs.TargetType.JSON)
+                .withPrefix("prefix1").withPrefix("prefix2").filter("@indexName==\"myindexname\"")
+                .defaultLanguage(DocumentLanguage.CHINESE).languageField("languageField").defaultScore(.5)
+                .scoreField("scoreField").payloadField("payloadField").maxTextFields().noOffsets().noHighlighting().noFields()
+                .noFrequency().build();
+        TagFieldArgs<String> idField = TagFieldArgs.<String> builder().name("id").build();
+        NumericFieldArgs<String> scoreField = NumericFieldArgs.<String> builder().name("scoreField").build();
+        commands.ftCreate(index, createArgs, Arrays.asList(idField, scoreField));
         IndexInfo info = IndexInfo.parse(commands.ftInfo(index));
-        CreateOptions<String, String> actual = info.getIndexOptions();
-        actual.setNoHL(true); // Hack to get around Redisearch version differences between Enterprise and OSS
-        Assertions.assertEquals(createOptions, actual);
+        CreateArgs<String, String> actual = info.getIndexArgs();
+        Assertions.assertEquals(createArgs.getOn(), actual.getOn());
+        Assertions.assertEquals(createArgs.getPrefixes(), actual.getPrefixes());
+        Assertions.assertEquals(createArgs.getFilter(), actual.getFilter());
+        Assertions.assertEquals(createArgs.getDefaultLanguage(), actual.getDefaultLanguage());
+        Assertions.assertEquals(createArgs.getLanguageField(), actual.getLanguageField());
+        Assertions.assertEquals(createArgs.getDefaultScore(), actual.getDefaultScore());
+        Assertions.assertEquals(createArgs.getScoreField(), actual.getScoreField());
+        Assertions.assertEquals(createArgs.getPayloadField(), actual.getPayloadField());
     }
 
     @Test
