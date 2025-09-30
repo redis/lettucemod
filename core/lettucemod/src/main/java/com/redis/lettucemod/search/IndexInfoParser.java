@@ -101,7 +101,7 @@ class IndexInfoParser {
         // TODO Missing from FT.INFO: PHONETIC UNF CASESENSITIVE WITHSUFFIXTRIE
         if (field instanceof TagFieldArgs.Builder) {
             LettuceAssert.isTrue(CommandKeyword.SEPARATOR.name().equals(attributes.remove(0)), "Wrong attribute name");
-            TagFieldArgs.Builder<String> tagField = (TagFieldArgs.Builder<String>) field;
+            TagFieldArgs.Builder<?> tagField = (TagFieldArgs.Builder<?>) field;
             String separator = (String) attributes.remove(0);
             if (!separator.isEmpty()) {
                 tagField.separator(separator);
@@ -112,7 +112,7 @@ class IndexInfoParser {
         }
         if (field instanceof TextFieldArgs.Builder) {
             LettuceAssert.isTrue(CommandKeyword.WEIGHT.name().equals(attributes.remove(0)), "Wrong attribute name");
-            TextFieldArgs.Builder<String> textField = (TextFieldArgs.Builder<String>) field;
+            TextFieldArgs.Builder<?> textField = (TextFieldArgs.Builder<?>) field;
             Object weight = attributes.remove(0);
             textField.weight(getLong(weight));
             if (attributes.contains(CommandKeyword.NOSTEM.name())) {
