@@ -3,6 +3,8 @@ package com.redis.lettucemod.search;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.lettuce.core.search.arguments.CreateArgs;
+import io.lettuce.core.search.arguments.FieldArgs;
 import lombok.ToString;
 
 @ToString
@@ -12,9 +14,9 @@ public class IndexInfo {
 
     private Double numDocs;
 
-    private CreateOptions<String, String> indexOptions;
+    private CreateArgs<String, String> indexArgs;
 
-    private List<Field<String>> fields;
+    private List<FieldArgs<String>> fields;
 
     private String maxDocId;
 
@@ -54,7 +56,7 @@ public class IndexInfo {
     private IndexInfo(Builder builder) {
         this.indexName = builder.indexName;
         this.numDocs = builder.numDocs;
-        this.indexOptions = builder.indexOptions;
+        this.indexArgs = builder.indexArgs;
         this.fields = builder.fields;
         this.maxDocId = builder.maxDocId;
         this.numTerms = builder.numTerms;
@@ -90,19 +92,19 @@ public class IndexInfo {
         this.numDocs = numDocs;
     }
 
-    public CreateOptions<String, String> getIndexOptions() {
-        return indexOptions;
+    public CreateArgs<String, String> getIndexArgs() {
+        return indexArgs;
     }
 
-    public void setIndexOptions(CreateOptions<String, String> options) {
-        this.indexOptions = options;
+    public void setIndexArgs(CreateArgs<String, String> args) {
+        this.indexArgs = args;
     }
 
-    public List<Field<String>> getFields() {
+    public List<FieldArgs<String>> getFields() {
         return fields;
     }
 
-    public void setFields(List<Field<String>> fields) {
+    public void setFields(List<FieldArgs<String>> fields) {
         this.fields = fields;
     }
 
@@ -244,9 +246,9 @@ public class IndexInfo {
 
         private Double numDocs;
 
-        private CreateOptions<String, String> indexOptions;
+        private CreateArgs<String, String> indexArgs;
 
-        private List<Field<String>> fields = new ArrayList<>();
+        private List<FieldArgs<String>> fields = new ArrayList<>();
 
         private String maxDocId;
 
@@ -293,12 +295,12 @@ public class IndexInfo {
             return this;
         }
 
-        public Builder indexOptions(CreateOptions<String, String> indexOptions) {
-            this.indexOptions = indexOptions;
+        public Builder indexArgs(CreateArgs<String, String> args) {
+            this.indexArgs = args;
             return this;
         }
 
-        public Builder fields(List<Field<String>> fields) {
+        public Builder fields(List<FieldArgs<String>> fields) {
             this.fields = fields;
             return this;
         }

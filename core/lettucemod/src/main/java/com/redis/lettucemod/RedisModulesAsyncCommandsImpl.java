@@ -1,52 +1,17 @@
 package com.redis.lettucemod;
 
-import java.util.List;
-
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
 import com.redis.lettucemod.api.async.RedisModulesAsyncCommands;
-import com.redis.lettucemod.bloom.BloomCommandBuilder;
-import com.redis.lettucemod.bloom.BloomFilterInfo;
-import com.redis.lettucemod.bloom.BloomFilterInfoType;
-import com.redis.lettucemod.bloom.BloomFilterInsertOptions;
-import com.redis.lettucemod.bloom.BloomFilterReserveOptions;
-import com.redis.lettucemod.bloom.CmsInfo;
-import com.redis.lettucemod.bloom.CuckooFilter;
-import com.redis.lettucemod.bloom.CuckooFilterInsertOptions;
-import com.redis.lettucemod.bloom.CuckooFilterReserveOptions;
-import com.redis.lettucemod.bloom.LongScoredValue;
-import com.redis.lettucemod.bloom.TDigestInfo;
-import com.redis.lettucemod.bloom.TDigestMergeOptions;
-import com.redis.lettucemod.bloom.TopKInfo;
-import com.redis.lettucemod.search.AggregateOptions;
-import com.redis.lettucemod.search.AggregateResults;
-import com.redis.lettucemod.search.AggregateWithCursorResults;
-import com.redis.lettucemod.search.CursorOptions;
-import com.redis.lettucemod.search.Field;
+import com.redis.lettucemod.bloom.*;
 import com.redis.lettucemod.search.SearchCommandBuilder;
-import com.redis.lettucemod.search.SearchOptions;
-import com.redis.lettucemod.search.SearchResults;
-import com.redis.lettucemod.search.Suggestion;
-import com.redis.lettucemod.search.SuggetOptions;
-import com.redis.lettucemod.timeseries.AddOptions;
-import com.redis.lettucemod.timeseries.AlterOptions;
-import com.redis.lettucemod.timeseries.CreateOptions;
-import com.redis.lettucemod.timeseries.CreateRuleOptions;
-import com.redis.lettucemod.timeseries.GetResult;
-import com.redis.lettucemod.timeseries.IncrbyOptions;
-import com.redis.lettucemod.timeseries.KeySample;
-import com.redis.lettucemod.timeseries.MGetOptions;
-import com.redis.lettucemod.timeseries.MRangeOptions;
-import com.redis.lettucemod.timeseries.RangeOptions;
-import com.redis.lettucemod.timeseries.RangeResult;
-import com.redis.lettucemod.timeseries.Sample;
-import com.redis.lettucemod.timeseries.TimeRange;
-import com.redis.lettucemod.timeseries.TimeSeriesCommandBuilder;
-
+import com.redis.lettucemod.timeseries.*;
 import io.lettuce.core.KeyValue;
 import io.lettuce.core.RedisAsyncCommandsImpl;
 import io.lettuce.core.RedisFuture;
 import io.lettuce.core.Value;
 import io.lettuce.core.codec.RedisCodec;
+
+import java.util.List;
 
 @SuppressWarnings("unchecked")
 public class RedisModulesAsyncCommandsImpl<K, V> extends RedisAsyncCommandsImpl<K, V>
@@ -206,149 +171,8 @@ public class RedisModulesAsyncCommandsImpl<K, V> extends RedisAsyncCommandsImpl<
     }
 
     @Override
-    public RedisFuture<String> ftCreate(K index, Field<K>... fields) {
-        return ftCreate(index, null, fields);
-    }
-
-    @Override
-    public RedisFuture<String> ftCreate(K index, com.redis.lettucemod.search.CreateOptions<K, V> options, Field<K>... fields) {
-        return dispatch(searchCommandBuilder.create(index, options, fields));
-    }
-
-    @Override
-    public RedisFuture<String> ftDropindex(K index) {
-        return dispatch(searchCommandBuilder.dropIndex(index, false));
-    }
-
-    @Override
-    public RedisFuture<String> ftDropindexDeleteDocs(K index) {
-        return dispatch(searchCommandBuilder.dropIndex(index, true));
-    }
-
-    @Override
     public RedisFuture<List<Object>> ftInfo(K index) {
         return dispatch(searchCommandBuilder.info(index));
-    }
-
-    @Override
-    public RedisFuture<SearchResults<K, V>> ftSearch(K index, V query, V... options) {
-        return dispatch(searchCommandBuilder.search(index, query, options));
-    }
-
-    @Override
-    public RedisFuture<SearchResults<K, V>> ftSearch(K index, V query, SearchOptions<K, V> options) {
-        return dispatch(searchCommandBuilder.search(index, query, options));
-    }
-
-    @Override
-    public RedisFuture<AggregateResults<K>> ftAggregate(K index, V query, V... options) {
-        return dispatch(searchCommandBuilder.aggregate(index, query, options));
-    }
-
-    @Override
-    public RedisFuture<AggregateResults<K>> ftAggregate(K index, V query, AggregateOptions<K, V> options) {
-        return dispatch(searchCommandBuilder.aggregate(index, query, options));
-    }
-
-    @Override
-    public RedisFuture<AggregateWithCursorResults<K>> ftAggregate(K index, V query, CursorOptions cursor) {
-        return ftAggregate(index, query, cursor, null);
-    }
-
-    @Override
-    public RedisFuture<AggregateWithCursorResults<K>> ftAggregate(K index, V query, CursorOptions cursor,
-            AggregateOptions<K, V> options) {
-        return dispatch(searchCommandBuilder.aggregate(index, query, cursor, options));
-    }
-
-    @Override
-    public RedisFuture<AggregateWithCursorResults<K>> ftCursorRead(K index, long cursor) {
-        return dispatch(searchCommandBuilder.cursorRead(index, cursor, null));
-    }
-
-    @Override
-    public RedisFuture<AggregateWithCursorResults<K>> ftCursorRead(K index, long cursor, long count) {
-        return dispatch(searchCommandBuilder.cursorRead(index, cursor, count));
-    }
-
-    @Override
-    public RedisFuture<String> ftCursorDelete(K index, long cursor) {
-        return dispatch(searchCommandBuilder.cursorDelete(index, cursor));
-    }
-
-    @Override
-    public RedisFuture<Long> ftSugadd(K key, Suggestion<V> suggestion) {
-        return dispatch(searchCommandBuilder.sugadd(key, suggestion));
-    }
-
-    @Override
-    public RedisFuture<Long> ftSugaddIncr(K key, Suggestion<V> suggestion) {
-        return dispatch(searchCommandBuilder.sugaddIncr(key, suggestion));
-    }
-
-    @Override
-    public RedisFuture<List<Suggestion<V>>> ftSugget(K key, V prefix) {
-        return dispatch(searchCommandBuilder.sugget(key, prefix));
-    }
-
-    @Override
-    public RedisFuture<List<Suggestion<V>>> ftSugget(K key, V prefix, SuggetOptions options) {
-        return dispatch(searchCommandBuilder.sugget(key, prefix, options));
-    }
-
-    @Override
-    public RedisFuture<Boolean> ftSugdel(K key, V string) {
-        return dispatch(searchCommandBuilder.sugdel(key, string));
-    }
-
-    @Override
-    public RedisFuture<Long> ftSuglen(K key) {
-        return dispatch(searchCommandBuilder.suglen(key));
-    }
-
-    @Override
-    public RedisFuture<String> ftAlter(K index, Field<K> field) {
-        return dispatch(searchCommandBuilder.alter(index, field));
-    }
-
-    @Override
-    public RedisFuture<String> ftAliasadd(K name, K index) {
-        return dispatch(searchCommandBuilder.aliasAdd(name, index));
-    }
-
-    @Override
-    public RedisFuture<String> ftAliasdel(K name) {
-        return dispatch(searchCommandBuilder.aliasDel(name));
-    }
-
-    @Override
-    public RedisFuture<String> ftAliasupdate(K name, K index) {
-        return dispatch(searchCommandBuilder.aliasUpdate(name, index));
-    }
-
-    @Override
-    public RedisFuture<List<K>> ftList() {
-        return dispatch(searchCommandBuilder.list());
-    }
-
-    @Override
-    public RedisFuture<List<V>> ftTagvals(K index, K field) {
-        return dispatch(searchCommandBuilder.tagVals(index, field));
-    }
-
-    @Override
-    public RedisFuture<Long> ftDictadd(K dict, V... terms) {
-        return dispatch(searchCommandBuilder.dictadd(dict, terms));
-    }
-
-    @Override
-    public RedisFuture<Long> ftDictdel(K dict, V... terms) {
-        return dispatch(searchCommandBuilder.dictdel(dict, terms));
-    }
-
-    @Override
-    public RedisFuture<List<V>> ftDictdump(K dict) {
-        return dispatch(searchCommandBuilder.dictdump(dict));
     }
 
     @Override

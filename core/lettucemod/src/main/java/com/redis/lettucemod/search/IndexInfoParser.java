@@ -5,14 +5,11 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
-
-import com.redis.lettucemod.protocol.SearchCommandKeyword;
-import com.redis.lettucemod.search.CreateOptions.DataType;
-import com.redis.lettucemod.search.Field.Type;
 
 import io.lettuce.core.internal.LettuceAssert;
 import io.lettuce.core.internal.LettuceStrings;
+import io.lettuce.core.protocol.CommandKeyword;
+import io.lettuce.core.search.arguments.*;
 
 class IndexInfoParser {
 
@@ -21,6 +18,18 @@ class IndexInfoParser {
     private static final String FIELD_ATTRIBUTES = "attributes";
 
     public static final String ERROR_UNKNOWN_INDEX_NAME = "Unknown Index name";
+
+    private static final String GEO = new GeoFieldArgs.Builder<String>().build().getFieldType();
+
+    private static final String GEOSHAPE = new GeoshapeFieldArgs.Builder<String>().build().getFieldType();
+
+    private static final String NUMERIC = new NumericFieldArgs.Builder<String>().build().getFieldType();
+
+    private static final String TAG = new TagFieldArgs.Builder<String>().build().getFieldType();
+
+    private static final String TEXT = new TextFieldArgs.Builder<String>().build().getFieldType();
+
+    private static final String VECTOR = new VectorFieldArgs.Builder<String>().build().getFieldType();
 
     private final Map<String, Object> map;
 
@@ -39,16 +48,18 @@ class IndexInfoParser {
     }
 
     @SuppressWarnings("unchecked")
-    private List<Field<String>> fieldsFromAttributes(List<Object> list) {
-        List<Field<String>> fields = new ArrayList<>();
+    private List<FieldArgs<String>> fieldsFromAttributes(List<Object> list) {
+        List<FieldArgs<String>> fields = new ArrayList<>();
         for (Object object : list) {
             List<Object> attributes = (List<Object>) object;
-            Field<String> field = field((String) attributes.get(5), (String) attributes.get(1));
-            field.setAs((String) attributes.get(3));
+            String fieldType = (String) attributes.get(5);
+            FieldArgs.Builder<String, ?, ?> field = field(fieldType);
+            field.name((String) attributes.get(1));
+            field.as((String) attributes.get(3));
             if (attributes.size() > 6) {
-                populateField(field, attributes.subList(6, attributes.size()));
+                apply(field, attributes.subList(6, attributes.size()));
             }
-            fields.add(field);
+            fields.add(field.build());
         }
         return fields;
     }
@@ -67,57 +78,69 @@ class IndexInfoParser {
         return getLong(map.get(key));
     }
 
-    private Field<String> field(String type, String name) {
-        if (type.toUpperCase().equals(SearchCommandKeyword.GEO.name())) {
-            return Field.geo(name).build();
+    private FieldArgs.Builder<String, ?, ?> field(String type) {
+        switch (type.toUpperCase()) {
+            case "GEO":
+                return new GeoFieldArgs.Builder<>();
+            case "GEOSHAPE":
+                return new GeoshapeFieldArgs.Builder<>();
+            case "NUMERIC":
+                return new NumericFieldArgs.Builder<>();
+            case "TAG":
+                return new TagFieldArgs.Builder<>();
+            case "TEXT":
+                return new TextFieldArgs.Builder<>();
+            case "VECTOR":
+                return new VectorFieldArgs.Builder<>();
+            default:
+                throw new IllegalArgumentException("Unknown field type: " + type);
         }
-        if (type.toUpperCase().equals(SearchCommandKeyword.NUMERIC.name())) {
-            return Field.numeric(name).build();
-        }
-        if (type.toUpperCase().equals(SearchCommandKeyword.TAG.name())) {
-            return Field.tag(name).build();
-        }
-        if (type.toUpperCase().equals(SearchCommandKeyword.TEXT.name())) {
-            return Field.text(name).build();
-        }
-        if (type.toUpperCase().equals(SearchCommandKeyword.VECTOR.name())) {
-            return Field.vector(name).build();
-        }
-        throw new IllegalArgumentException("Unknown field type: " + type);
     }
 
-    private void populateField(Field<String> field, List<Object> attributes) {
+    private void apply(FieldArgs.Builder<String, ?, ?> field, List<Object> attributes) {
         // TODO Missing from FT.INFO: PHONETIC UNF CASESENSITIVE WITHSUFFIXTRIE
-        if (field.getType() == Type.TAG) {
-            LettuceAssert.isTrue(SearchCommandKeyword.SEPARATOR.name().equals(attributes.remove(0)), "Wrong attribute name");
-            TagField<String> tagField = (TagField<String>) field;
+        if (field instanceof TagFieldArgs.Builder) {
+            LettuceAssert.isTrue(CommandKeyword.SEPARATOR.name().equals(attributes.remove(0)), "Wrong attribute name");
+            TagFieldArgs.Builder<String> tagField = (TagFieldArgs.Builder<String>) field;
             String separator = (String) attributes.remove(0);
             if (!separator.isEmpty()) {
-                tagField.setSeparator(separator.charAt(0));
+                tagField.separator(separator);
             }
-            tagField.setCaseSensitive(attributes.contains(SearchCommandKeyword.CASESENSITIVE.name()));
-        } else {
-            if (field.getType() == Type.TEXT) {
-                LettuceAssert.isTrue(SearchCommandKeyword.WEIGHT.name().equals(attributes.remove(0)), "Wrong attribute name");
-                TextField<String> textField = (TextField<String>) field;
-                Object weight = attributes.remove(0);
-                textField.setWeight(getDouble(weight));
-                textField.setNoStem(attributes.contains(SearchCommandKeyword.NOSTEM.name()));
+            if (attributes.contains(CommandKeyword.CASESENSITIVE.name())) {
+                tagField.caseSensitive();
             }
         }
-        field.setNoIndex(attributes.contains(SearchCommandKeyword.NOINDEX.name()));
-        field.setSortable(attributes.contains(SearchCommandKeyword.SORTABLE.name()));
-        field.setUnNormalizedForm(attributes.contains(SearchCommandKeyword.UNF.name()));
+        if (field instanceof TextFieldArgs.Builder) {
+            LettuceAssert.isTrue(CommandKeyword.WEIGHT.name().equals(attributes.remove(0)), "Wrong attribute name");
+            TextFieldArgs.Builder<String> textField = (TextFieldArgs.Builder<String>) field;
+            Object weight = attributes.remove(0);
+            textField.weight(getLong(weight));
+            if (attributes.contains(CommandKeyword.NOSTEM.name())) {
+                textField.noStem();
+            }
+        }
+        if (attributes.contains(CommandKeyword.NOINDEX.name())) {
+            field.noIndex();
+        }
+        if (attributes.contains(CommandKeyword.SORTABLE.name())) {
+            field.sortable();
+        }
+        if (attributes.contains(CommandKeyword.UNF.name())) {
+            field.unNormalizedForm();
+        }
     }
 
     @SuppressWarnings("unchecked")
-    private List<Field<String>> fieldsFromFields(List<Object> list) {
-        List<Field<String>> fields = new ArrayList<>();
+    private List<FieldArgs<String>> fieldsFromFields(List<Object> list) {
+        List<FieldArgs<String>> fields = new ArrayList<>();
         for (Object infoObject : list) {
             List<Object> info = (List<Object>) infoObject;
-            Field<String> field = field((String) info.get(2), (String) info.get(0));
-            populateField(field, info.subList(3, info.size()));
-            fields.add(field);
+            String fieldName = (String) info.get(0);
+            String fieldType = (String) info.get(2);
+            FieldArgs.Builder<String, ?, ?> field = field(fieldType);
+            field.name(fieldName);
+            apply(field, info.subList(3, info.size()));
+            fields.add(field.build());
         }
         return fields;
     }
@@ -126,8 +149,8 @@ class IndexInfoParser {
     public IndexInfo indexInfo() {
         IndexInfo indexInfo = new IndexInfo();
         indexInfo.setIndexName(getString(map.get("index_name")));
-        CreateOptions<String, String> options = createOptions();
-        indexInfo.setIndexOptions(options);
+        CreateArgs<String, String> options = createOptions();
+        indexInfo.setIndexArgs(options);
         if (map.containsKey(FIELD_FIELDS)) {
             indexInfo.setFields(fieldsFromFields((List<Object>) map.getOrDefault(FIELD_FIELDS, new ArrayList<>())));
         }
@@ -154,36 +177,44 @@ class IndexInfoParser {
         return indexInfo;
     }
 
-    private void matchOption(String key, SearchCommandKeyword keyword, Consumer<Boolean> setter) {
-        if (key.toUpperCase().equals(keyword.name())) {
-            setter.accept(true);
-        }
+    private boolean matchOption(String key, CommandKeyword keyword) {
+        return key.toUpperCase().equals(keyword.name());
     }
 
     @SuppressWarnings("unchecked")
-    private CreateOptions<String, String> createOptions() {
-        CreateOptions.Builder<String, String> options = CreateOptions.builder();
+    private CreateArgs<String, String> createOptions() {
+        CreateArgs.Builder<String, String> options = CreateArgs.builder();
         Iterator<Object> indexOptions = ((List<Object>) map.get("index_options")).iterator();
         // TODO Missing from FT.INFO: NOHL SKIPINITIALSCAN STOPWORDS TEMPORARY
         while (indexOptions.hasNext()) {
             String key = (String) indexOptions.next();
-            matchOption(key, SearchCommandKeyword.NOOFFSETS, options::noOffsets);
-            matchOption(key, SearchCommandKeyword.NOHL, options::noHL);
-            matchOption(key, SearchCommandKeyword.NOFIELDS, options::noFields);
-            matchOption(key, SearchCommandKeyword.NOFREQS, options::noFreqs);
-            matchOption(key, SearchCommandKeyword.MAXTEXTFIELDS, options::maxTextFields);
+            if (matchOption(key, CommandKeyword.NOOFFSETS)) {
+                options.noOffsets();
+            }
+            if (matchOption(key, CommandKeyword.NOHL)) {
+                options.noHighlighting();
+            }
+            if (matchOption(key, CommandKeyword.NOFIELDS)) {
+                options.noOffsets();
+            }
+            if (matchOption(key, CommandKeyword.NOFREQS)) {
+                options.noFrequency();
+            }
+            if (matchOption(key, CommandKeyword.MAXTEXTFIELDS)) {
+                options.maxTextFields();
+            }
         }
         Iterator<Object> indexDefinition = ((List<Object>) map.get("index_definition")).iterator();
         while (indexDefinition.hasNext()) {
             String key = (String) indexDefinition.next();
             if (key.equals("key_type")) {
-                options.on(DataType.valueOf(((String) indexDefinition.next()).toUpperCase()));
+                options.on(CreateArgs.TargetType.valueOf(((String) indexDefinition.next()).toUpperCase()));
             } else if (key.equals("prefixes")) {
-                options.prefixes(((List<Object>) indexDefinition.next()).toArray(new String[0]));
+                options.withPrefixes((List<String>) indexDefinition.next());
             } else if (key.equals("filter")) {
                 options.filter((String) indexDefinition.next());
             } else if (key.equals("default_language")) {
-                options.defaultLanguage(Language.valueOf(((String) indexDefinition.next()).toUpperCase()));
+                options.defaultLanguage(DocumentLanguage.valueOf(((String) indexDefinition.next()).toUpperCase()));
             } else if (key.equals("language_field")) {
                 options.languageField((String) indexDefinition.next());
             } else if (key.equals("default_score")) {
