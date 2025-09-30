@@ -179,15 +179,6 @@ public class MyComponent {
 ----
 RedisModulesCommands<String, String> commands = connection.sync();
 
-// JSON.SET
-commands.jsonSet("arr", ".", "[1,2,3]");
-
-// FT.CREATE
-commands.ftCreate("beers", Field.text("name").build(), Field.numeric("ibu").build());
-
-// FT.SEARCH
-commands.ftSearch("beers", "chou*");
-
 // TS.ADD
 commands.tsAdd("temp:3:11", Sample.of(1548149181, 30));
 
@@ -216,7 +207,7 @@ RedisModulesAsyncCommands<String, String> commands = connection.async();
 commands.setAutoFlushCommands(false); // <1>
 List<RedisFuture<?>> futures = new ArrayList<>(); // <2>
 for (MyEntity element : entities()) {
-    futures.add(commands.ftSugadd("names",  Suggestion.of(element.getName(), element.getScore())));
+    futures.add( commands.<command> );
 }
 commands.flushCommands(); // <3>
 boolean result = LettuceFutures.awaitAll(5, TimeUnit.SECONDS,
