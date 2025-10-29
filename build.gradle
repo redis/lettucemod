@@ -109,6 +109,7 @@ subprojects {
         testImplementation group: 'org.awaitility', name: 'awaitility', version: awaitilityVersion
         testImplementation group: 'com.redis', name: 'testcontainers-redis', version: testcontainersRedisVersion
         testImplementation group: 'com.redis', name: 'testcontainers-redis-enterprise', version: testcontainersRedisVersion
+        testImplementation 'org.mockito:mockito-core:5.11.0'
     }
 
     test {
